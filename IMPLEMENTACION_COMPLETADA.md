@@ -1,4 +1,4 @@
-# Implementación Completada - Rediseño Emisión de Facturas
+  # Implementación Completada - Rediseño Emisión de Facturas
 
 **Fecha:** 27 de enero de 2026  
 **Estado:** ✅ COMPLETADO
