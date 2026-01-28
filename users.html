@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -7,7 +7,7 @@
       content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
     />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Clientes</title>
+    <title>Contactos</title>
     <link rel="stylesheet" href="./assets/css/output.css" />
     <link rel="stylesheet" href="./assets/css/style.css" />
   </head>
@@ -127,14 +127,14 @@
                         <a
                           href="index.html"
                           class="text-md inline-block py-1.5 font-medium text-bgray-600 transition-all hover:text-bgray-800 dark:text-bgray-50 hover:dark:text-success-300"
-                          >Dashboard Default</a
+                          >Panel de control Default</a
                         >
                       </li>
                       <li>
                         <a
                           href="index-2.html"
                           class="text-md inline-block py-1.5 font-medium text-bgray-600 transition-all hover:text-bgray-800 dark:text-bgray-50 hover:dark:text-success-300"
-                          >Dashboard Two</a
+                          >Panel de control Two</a
                         >
                       </li>
                       <li>
@@ -556,7 +556,7 @@
                           </span>
                           <span
                             class="item-text text-lg font-medium leading-none"
-                            >Clientes</span>
+                            >Contactos</span>
                           <span
                             class="item-text text-lg font-medium leading-none"
                             >Calendario</span
@@ -1078,7 +1078,7 @@
                             <a
                               href="index-2.html"
                               class="text-md inline-block py-1.5 font-medium text-bgray-600 hover:text-bgray-800"
-                              >Dashboard Two</a
+                              >Panel de control Two</a
                             >
                           </li>
                           <li>
@@ -1710,13 +1710,8 @@
                 <h3
                   class="text-xl font-bold text-bgray-900 dark:text-bgray-50 lg:text-3xl lg:leading-[36.4px]"
                 >
-                  Dashboard
+                  Panel de control
                 </h3>
-                <p
-                  class="text-xs font-medium text-bgray-600 dark:text-bgray-50 lg:text-sm lg:leading-[25.2px]"
-                >
-                  Letâ€™s check your update today
-                </p>
               </div>
               <!--              search-bar-->
               <div class="searchbar-wrapper">
@@ -3022,7 +3017,7 @@
   <!-- Header -->
   <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
     <div>
-      <h2 class="text-2xl font-bold text-bgray-900 dark:text-white">Clientes</h2>
+      <h2 class="text-2xl font-bold text-bgray-900 dark:text-white">Contactos</h2>
       <p class="text-sm text-bgray-600 dark:text-bgray-50">Gestiona tus clientes recurrentes</p>
     </div>
 
@@ -3050,7 +3045,7 @@
                 <path d="M9 10.5C10.2426 10.5 11.25 9.49264 11.25 8.25C11.25 7.00736 10.2426 6 9 6C7.75736 6 6.75 7.00736 6.75 8.25C6.75 9.49264 7.75736 10.5 9 10.5Z" stroke-width="1.5"/>
               </svg>
             </span>
-            <h3 class="text-base font-bold text-bgray-900 dark:text-white">Lista de Clientes</h3>
+            <h3 class="text-base font-bold text-bgray-900 dark:text-white">Lista de Contactos</h3>
           </div>
           <p class="mt-1 text-sm text-bgray-600 dark:text-bgray-50">5 clientes registrados</p>
         </div>
@@ -3216,12 +3211,12 @@
 
 <!-- Modal: Nuevo Cliente (usa JS existente del template) -->
 <div id="multi-step-modal" class="fixed left-0 top-0 z-50 hidden h-full w-full overflow-y-auto">
-  <div class="modal-overlay fixed left-0 top-0 h-full w-full bg-black/40"></div>
+  <div class="modal-overlay fixed left-0 top-0 h-full w-full bg-black/60 backdrop-blur-sm"></div>
 
   <div class="flex min-h-full items-start justify-center px-4 py-10">
     <div class="modal-content w-full max-w-[640px]">
       <div class="step-content step-1 relative">
-        <div class="relative w-full rounded-lg bg-white p-7 shadow-lg transition-all dark:bg-darkblack-600">
+        <div class="relative w-full rounded-lg bg-white p-7 shadow-lg transition-all dark:bg-darkblack-600 border-2 border-orange-500">
           <div class="flex items-start justify-between">
             <div>
               <h3 class="text-xl font-bold text-bgray-900 dark:text-white">Nuevo Cliente</h3>
@@ -3259,6 +3254,21 @@
               <div class="md:col-span-2">
                 <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">Dirección</label>
                 <input type="text" placeholder="Ej: Calle Libertad 1, 2B" class="h-[56px] w-full rounded-lg border border-bgray-300 bg-transparent px-4 text-sm font-medium text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-400 dark:text-white" />
+              </div>
+
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">Código postal</label>
+                <input type="text" placeholder="28001" class="h-[56px] w-full rounded-lg border border-bgray-300 bg-transparent px-4 text-sm font-medium text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-400 dark:text-white" />
+              </div>
+
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">Ciudad</label>
+                <input type="text" placeholder="Madrid" class="h-[56px] w-full rounded-lg border border-bgray-300 bg-transparent px-4 text-sm font-medium text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-400 dark:text-white" />
+              </div>
+
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">País</label>
+                <input type="text" placeholder="España" class="h-[56px] w-full rounded-lg border border-bgray-300 bg-transparent px-4 text-sm font-medium text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-400 dark:text-white" />
               </div>
 
               <div>
@@ -3303,12 +3313,12 @@
       id="multi-step-modal"
     >
       <div
-        class="modal-overlay fixed inset-0 bg-gray-500 opacity-75 dark:bg-bgray-900 dark:opacity-50"
+        class="modal-overlay fixed inset-0 bg-black/60 backdrop-blur-sm dark:bg-black/70"
       ></div>
 
       <div class="modal-content mx-auto w-full max-w-2xl px-4">
         <div class="step-content step-1 relative top-24">
-          <div class="rounded-lg bg-white p-6 dark:bg-darkblack-600">
+          <div class="rounded-lg bg-white p-6 dark:bg-darkblack-600 border-2 border-orange-500">
             <div class="mb-6 flex items-start justify-between gap-6">
               <div>
                 <h3
@@ -3425,6 +3435,50 @@
                     type="text"
                     class="w-full rounded-lg border border-bgray-300 bg-bgray-100 px-4 py-3 text-sm font-medium text-bgray-900 placeholder:text-bgray-500 focus:border-success-300 focus:ring-0 dark:border-darkblack-400 dark:bg-darkblack-500 dark:text-white"
                     placeholder="Calle, número, piso, ciudad..."
+                  />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div class="flex flex-col gap-2">
+                  <label
+                    for="client-postal-code"
+                    class="text-sm font-semibold text-bgray-900 dark:text-white"
+                    >Código postal</label
+                  >
+                  <input
+                    id="client-postal-code"
+                    type="text"
+                    class="w-full rounded-lg border border-bgray-300 bg-bgray-100 px-4 py-3 text-sm font-medium text-bgray-900 placeholder:text-bgray-500 focus:border-success-300 focus:ring-0 dark:border-darkblack-400 dark:bg-darkblack-500 dark:text-white"
+                    placeholder="28001"
+                  />
+                </div>
+
+                <div class="flex flex-col gap-2">
+                  <label
+                    for="client-city"
+                    class="text-sm font-semibold text-bgray-900 dark:text-white"
+                    >Ciudad</label
+                  >
+                  <input
+                    id="client-city"
+                    type="text"
+                    class="w-full rounded-lg border border-bgray-300 bg-bgray-100 px-4 py-3 text-sm font-medium text-bgray-900 placeholder:text-bgray-500 focus:border-success-300 focus:ring-0 dark:border-darkblack-400 dark:bg-darkblack-500 dark:text-white"
+                    placeholder="Madrid"
+                  />
+                </div>
+
+                <div class="flex flex-col gap-2">
+                  <label
+                    for="client-country"
+                    class="text-sm font-semibold text-bgray-900 dark:text-white"
+                    >País</label
+                  >
+                  <input
+                    id="client-country"
+                    type="text"
+                    class="w-full rounded-lg border border-bgray-300 bg-bgray-100 px-4 py-3 text-sm font-medium text-bgray-900 placeholder:text-bgray-500 focus:border-success-300 focus:ring-0 dark:border-darkblack-400 dark:bg-darkblack-500 dark:text-white"
+                    placeholder="España"
                   />
                 </div>
               </div>

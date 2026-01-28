@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>BankCo - Preview Factura</title>
+    <link rel="stylesheet" href="../assets/css/output.css" />
+    <link rel="stylesheet" href="../assets/css/style.css" />
+    <style>
+      #pdf-viewer {
+        width: 100%;
+        height: calc(100vh - 180px);
+        border: none;
+        background: #f3f4f6;
+      }
+      
+      .dark #pdf-viewer {
+        background: #1a1a1a;
+      }
+      
+      .pdf-container {
+        background: white;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+      
+      .dark .pdf-container {
+        background: #1f2937;
+      }
+      
+      /* Botones de acción */
+      .action-buttons {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: white;
+        border-bottom: 1px solid #e5e7eb;
+      }
+      
+      .dark .action-buttons {
+        background: #1f2937;
+        border-bottom-color: #374151;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout-wrapper w-full">
+      <!-- Header con breadcrumb -->
+      <div class="bg-white dark:bg-darkblack-600 border-b border-bgray-200 dark:border-darkblack-400">
+        <div class="container mx-auto px-6 py-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <a
+                href="new.html"
+                class="flex h-10 w-10 items-center justify-center rounded-lg border border-bgray-200 text-bgray-900 hover:bg-bgray-50 dark:border-darkblack-400 dark:text-white dark:hover:bg-darkblack-500"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+              <div>
+                <h1 class="text-2xl font-bold text-bgray-900 dark:text-white">Crear factura</h1>
+                <p class="text-sm text-bgray-600 dark:text-bgray-400">PASO 2. Previsualización y emisión</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contenido principal -->
+      <div class="container mx-auto px-6 py-6">
+        <div class="grid gap-6 lg:grid-cols-12">
+          <!-- Visor PDF (Izquierda) -->
+          <div class="lg:col-span-7">
+            <div class="pdf-container rounded-xl">
+              <!-- Barra de acciones del PDF -->
+              <div class="action-buttons rounded-t-xl px-6 py-4">
+                <div class="flex items-center justify-between">
+                  <h2 class="text-lg font-semibold text-bgray-900 dark:text-white">
+                    Vista previa de la factura
+                  </h2>
+                  <div class="flex gap-3">
+                    <button
+                      id="download-pdf-btn"
+                      class="flex items-center gap-2 rounded-lg border border-bgray-200 px-4 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-50 dark:border-darkblack-400 dark:text-white dark:hover:bg-darkblack-500"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15M7 10L12 15M12 15L17 10M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      Descargar PDF
+                    </button>
+                    <button
+                      id="regenerate-pdf-btn"
+                      class="flex items-center gap-2 rounded-lg border border-bgray-200 px-4 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-50 dark:border-darkblack-400 dark:text-white dark:hover:bg-darkblack-500"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1 4V10H7M23 20V14H17M20.49 9C19.9828 7.56678 19.1209 6.28536 17.9845 5.27542C16.8482 4.26548 15.4745 3.55976 13.9917 3.22426C12.5089 2.88875 10.9652 2.93434 9.50481 3.35677C8.04437 3.77921 6.71475 4.56534 5.64 5.64L1 10M23 14L18.36 18.36C17.2853 19.4347 15.9556 20.2208 14.4952 20.6432C13.0348 21.0657 11.4911 21.1112 10.0083 20.7757C8.52547 20.4402 7.1518 19.7345 6.01547 18.7246C4.87913 17.7146 4.01717 16.4332 3.51 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      Regenerar
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Iframe del PDF -->
+              <div class="px-6 pb-6">
+                <iframe
+                  id="pdf-viewer"
+                  title="Vista previa de factura"
+                ></iframe>
+              </div>
+            </div>
+          </div>
+
+          <!-- Resumen (Derecha) -->
+          <div class="lg:col-span-5">
+            <div class="space-y-6">
+              <!-- Resumen de la Factura -->
+              <section
+                class="rounded-xl p-6 shadow-2xl bg-gradient-to-br from-warning-50 to-white dark:from-warning-900/20 dark:to-darkblack-600"
+                style="border: 4px solid #f59e0b;"
+              >
+                <div class="flex items-center gap-2 mb-3">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-warning-500">
+                    <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <h3 class="text-xl font-bold text-warning-700 dark:text-warning-300">
+                    Detalle de Factura
+                  </h3>
+                </div>
+                
+                <div class="mt-5 space-y-3 text-base">
+                  <!-- Cliente -->
+                  <div class="pb-3 border-b border-bgray-200 dark:border-darkblack-500">
+                    <h4 class="text-sm font-semibold text-bgray-600 dark:text-bgray-300 mb-2">Cliente</h4>
+                    <p id="summary-client-name" class="font-semibold text-bgray-900 dark:text-white">AVENUE DIGITAL GROUP SL</p>
+                  </div>
+                  
+                  <!-- Subtotal -->
+                  <div class="flex justify-between">
+                    <span class="text-bgray-600 dark:text-bgray-300">Subtotal</span>
+                    <span id="summary-subtotal" class="font-semibold text-bgray-900 dark:text-white">686,07 €</span>
+                  </div>
+                  
+                  <!-- Base imponible -->
+                  <div class="flex justify-between">
+                    <span class="text-bgray-600 dark:text-bgray-300">Base imponible</span>
+                    <span id="summary-base" class="font-semibold text-success-300">567,00 €</span>
+                  </div>
+                  
+                  <!-- IVA -->
+                  <div class="flex justify-between">
+                    <span class="text-bgray-600 dark:text-bgray-300">IVA 21%</span>
+                    <span id="summary-tax" class="font-semibold text-bgray-900 dark:text-white">119,07 €</span>
+                  </div>
+                  
+                  <hr class="border-bgray-200 dark:border-darkblack-500" />
+                  
+                  <!-- Total -->
+                  <div class="flex justify-between text-xl font-bold">
+                    <span class="text-bgray-900 dark:text-white">Total</span>
+                    <span id="summary-total" class="text-bgray-900 dark:text-white">686,07 €</span>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Botones de acción -->
+              <div class="space-y-3">
+                <button
+                  id="emit-invoice-btn"
+                  class="w-full rounded-lg px-6 py-4 text-base font-semibold text-white shadow-lg transition hover:shadow-xl"
+                  style="background-color: #ea580c;"
+                  onmouseover="this.style.backgroundColor='#c2410c'"
+                  onmouseout="this.style.backgroundColor='#ea580c'"
+                >
+                  <div class="flex items-center justify-center gap-2">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M5 13L9 17L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Emitir factura
+                  </div>
+                </button>
+                
+                <button
+                  id="save-draft-btn"
+                  class="w-full rounded-lg border-2 border-bgray-200 bg-white px-6 py-3 text-base font-semibold text-bgray-900 transition hover:bg-bgray-50 dark:border-darkblack-400 dark:bg-darkblack-600 dark:text-white dark:hover:bg-darkblack-500"
+                >
+                  <div class="flex items-center justify-center gap-2">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16L21 8V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M17 21V13H7V21M7 3V8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Guardar borrador
+                  </div>
+                </button>
+              </div>
+
+              <!-- Información adicional -->
+              <div class="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
+                <div class="flex gap-3">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-blue-500 flex-shrink-0 mt-0.5">
+                    <path d="M12 16V12M12 8H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <div class="text-sm text-blue-700 dark:text-blue-300">
+                    <p class="font-semibold mb-1">Los importes se recalculan automáticamente</p>
+                    <p class="text-xs">Revisa la vista previa antes de emitir la factura. Una vez emitida, no se podrá modificar.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="../assets/js/invoice-pdf-generator.js"></script>
+    <script src="../assets/js/invoice-data-handler.js"></script>
+    <script>
+      // Cargar datos desde localStorage o usar datos de ejemplo
+      const dataHandler = new InvoiceDataHandler();
+      const loadedData = dataHandler.loadFromStorage();
+      
+      const sampleInvoiceData = loadedData || {
+        issuer: {
+          name: 'avenue sl',
+          cif: '87082987',
+          address: 'Valladolid, España',
+          phone: '655658565'
+        },
+        client: {
+          name: 'AVENUE DIGITAL GROUP SL',
+          cif: '87082987',
+          address: 'PLAZA MAYOR 23, 1A',
+          city: '47001 VALLADOLID, Valladolid, España'
+        },
+        invoice: {
+          number: 'F20261',
+          issueDate: '27/01/2026',
+          dueDate: '31/01/2026'
+        },
+        concepts: [
+          {
+            description: 'PRODUCTO/ZO',
+            quantity: 100,
+            unitPrice: 567.00,
+            tax: 21,
+            re: 5.2,
+            total: 715.55
+          }
+        ],
+        expenses: [
+          {
+            description: 'gasto suplido',
+            amount: 100.00
+          }
+        ],
+        summary: {
+          taxBase: 567.00,
+          taxRate: 21,
+          taxAmount: 119.07,
+          reRate: 5.2,
+          reAmount: 29.48,
+          retentionRate: 2.00,
+          retentionAmount: 28.35,
+          expenses: 100.00,
+          total: 787.20,
+          paid: 100.00,
+          totalToPay: 687.20
+        },
+        paymentMethods: [
+          {
+            type: 'transferencia',
+            iban: 'ES68 8695 9585 9855 9859'
+          }
+        ],
+        observations: 'observacione'
+      };
+
+      let pdfGenerator = null;
+      let currentPDFBlob = null;
+
+      // Generar PDF al cargar la página
+      function generatePreview() {
+        try {
+          pdfGenerator = new InvoicePDFGenerator();
+          pdfGenerator.generatePDF(sampleInvoiceData);
+          
+          // Obtener el PDF como data URL y mostrarlo en el iframe
+          const pdfDataUrl = pdfGenerator.getPDFDataUrl();
+          document.getElementById('pdf-viewer').src = pdfDataUrl;
+          
+          // Guardar el blob para descargas
+          currentPDFBlob = pdfGenerator.getPDFBlob();
+          
+          console.log('PDF generado correctamente');
+        } catch (error) {
+          console.error('Error generando PDF:', error);
+          alert('Error al generar el PDF. Por favor, recarga la página.');
+        }
+      }
+
+      // Descargar PDF
+      document.getElementById('download-pdf-btn').addEventListener('click', function() {
+        if (pdfGenerator) {
+          pdfGenerator.downloadPDF(`factura_${sampleInvoiceData.invoice.number}.pdf`);
+        }
+      });
+
+      // Regenerar PDF
+      document.getElementById('regenerate-pdf-btn').addEventListener('click', function() {
+        generatePreview();
+      });
+
+      // Emitir factura
+      document.getElementById('emit-invoice-btn').addEventListener('click', function() {
+        if (confirm('¿Estás seguro de que quieres emitir esta factura? Una vez emitida, no se podrá modificar.')) {
+          // Aquí iría la lógica para emitir la factura
+          alert('Factura emitida correctamente (funcionalidad pendiente de implementar)');
+        }
+      });
+
+      // Guardar borrador
+      document.getElementById('save-draft-btn').addEventListener('click', function() {
+        alert('Borrador guardado correctamente (funcionalidad pendiente de implementar)');
+      });
+
+      // Actualizar el resumen en la interfaz
+      function updateSummaryUI() {
+        if (sampleInvoiceData.client) {
+          document.getElementById('summary-client-name').textContent = sampleInvoiceData.client.name;
+        }
+        if (sampleInvoiceData.summary) {
+          const formatCurrency = (value) => {
+            const num = parseFloat(value) || 0;
+            return num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, '.').replace(/\.(\d{2})$/, ',$1') + ' €';
+          };
+          
+          document.getElementById('summary-subtotal').textContent = formatCurrency(sampleInvoiceData.summary.subtotal);
+          document.getElementById('summary-base').textContent = formatCurrency(sampleInvoiceData.summary.taxBase);
+          document.getElementById('summary-tax').textContent = formatCurrency(sampleInvoiceData.summary.taxAmount);
+          document.getElementById('summary-total').textContent = formatCurrency(sampleInvoiceData.summary.totalToPay);
+        }
+      }
+
+      // Generar vista previa al cargar
+      window.addEventListener('load', function() {
+        // Actualizar UI
+        updateSummaryUI();
+        
+        // Pequeño delay para asegurar que jsPDF esté cargado
+        setTimeout(generatePreview, 500);
+      });
+
+      // Detectar cambio de tema oscuro/claro
+      const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          if (mutation.attributeName === 'class') {
+            // El tema ha cambiado, podríamos regenerar el PDF si fuera necesario
+            console.log('Tema cambiado');
+          }
+        });
+      });
+
+      observer.observe(document.documentElement, {
+        attributes: true
+      });
+    </script>
+  </body>
+</html>
