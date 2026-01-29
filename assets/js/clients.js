@@ -4,7 +4,7 @@
  */
 
 // Referencia al cliente de Supabase
-const supabase = window.supabaseClient;
+//const supabase = window.supabaseClient;
 
 /**
  * Crear un nuevo cliente
