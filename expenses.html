@@ -163,7 +163,59 @@
                       </li>
                     </ul>
                   </li>
-                  
+                  <li class="item py-[11px] text-bgray-900 dark:text-white">
+                    <a href="transaction.html">
+                      <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2.5">
+                          <span class="item-ico">
+                            <svg
+                              width="18"
+                              height="20"
+                              viewBox="0 0 18 20"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M18 16V6C18 3.79086 16.2091 2 14 2H4C1.79086 2 0 3.79086 0 6V16C0 18.2091 1.79086 20 4 20H14C16.2091 20 18 18.2091 18 16Z"
+                                fill="#1A202C"
+                                class="path-1"
+                              />
+                              <path
+                                fill-rule="evenodd"
+                                clip-rule="evenodd"
+                                d="M4.25 8C4.25 7.58579 4.58579 7.25 5 7.25H13C13.4142 7.25 13.75 7.58579 13.75 8C13.75 8.41421 13.4142 8.75 13 8.75H5C4.58579 8.75 4.25 8.41421 4.25 8Z"
+                                fill="#22C55E"
+                                class="path-2"
+                              />
+                              <path
+                                fill-rule="evenodd"
+                                clip-rule="evenodd"
+                                d="M4.25 12C4.25 11.5858 4.58579 11.25 5 11.25H13C13.4142 11.25 13.75 11.5858 13.75 12C13.75 12.4142 13.4142 12.75 13 12.75H5C4.58579 12.75 4.25 12.4142 4.25 12Z"
+                                fill="#22C55E"
+                                class="path-2"
+                              />
+                              <path
+                                fill-rule="evenodd"
+                                clip-rule="evenodd"
+                                d="M4.25 16C4.25 15.5858 4.58579 15.25 5 15.25H9C9.41421 15.25 9.75 15.5858 9.75 16C9.75 16.4142 9.41421 16.75 9 16.75H5C4.58579 16.75 4.25 16.4142 4.25 16Z"
+                                fill="#22C55E"
+                                class="path-2"
+                              />
+                              <path
+                                d="M11 0H7C5.89543 0 5 0.895431 5 2C5 3.10457 5.89543 4 7 4H11C12.1046 4 13 3.10457 13 2C13 0.895431 12.1046 0 11 0Z"
+                                fill="#22C55E"
+                                class="path-2"
+                              />
+                            </svg>
+                          </span>
+                          <span
+                            class="item-text text-lg font-medium leading-none"
+                            >Transacciones</span
+                          >
+                        </div>
+                      </div>
+                    </a>
+                  </li>
                   <li class="item py-[11px] text-bgray-900 dark:text-white">
                     <a href="invoices/new.html">
                       <div class="flex items-center justify-between">
@@ -243,7 +295,13 @@
                       </div>
                     </a>
                   </li>
-                  <li class="item py-[11px] text-bgray-900 dark:text-white">
+
+                  
+
+
+                                                      
+
+<li class="item py-[11px] text-bgray-900 dark:text-white">
                     <a href="statistics.html">
                       <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-2.5">
@@ -499,10 +557,7 @@
                           </span>
                           <span
                             class="item-text text-lg font-medium leading-none"
-                            >Clientes</span>
-                          <span
-                            class="item-text text-lg font-medium leading-none"
-                            >Calendario</span
+                            >Contactos</span
                           >
                         </div>
                       </div>
@@ -4479,391 +4534,70 @@
                 </div>
               </section>
               <section
-                class="flex w-full flex-col space-x-0 lg:flex-row lg:space-x-6 2xl:w-[400px] 2xl:flex-col 2xl:space-x-0"
+                class="w-full 2xl:w-[400px]"
               >
                 <div
-                  class="mb-6 w-full rounded-lg bg-white px-[42px] py-5 dark:border dark:border-darkblack-400 dark:bg-darkblack-600 lg:mb-0 lg:w-1/2 2xl:mb-6 2xl:w-full"
+                  class="mb-6 w-full rounded-lg bg-white px-[42px] py-8 dark:border dark:border-darkblack-400 dark:bg-darkblack-600"
                 >
-                  <div class="my-wallet mb-8 w-full">
-                    <div class="mb-3 flex items-center justify-between">
-                      <h3
-                        class="text-lg font-bold text-bgray-900 dark:text-white"
-                      >
-                        Mi cartera
-                      </h3>
-                      <div class="payment-select relative mb-3">
-                        <button
-                          onclick="dateFilterAction('#cardsOptions')"
-                          type="button"
-                        >
-                          <svg
-                            width="18"
-                            height="4"
-                            viewBox="0 0 18 4"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M8 2C8 2.55228 8.44772 3 9 3C9.55228 3 10 2.55228 10 2C10 1.44772 9.55228 1 9 1C8.44772 1 8 1.44772 8 2Z"
-                              stroke="#CBD5E0"
-                              stroke-width="2"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                            <path
-                              d="M1 2C1 2.55228 1.44772 3 2 3C2.55228 3 3 2.55228 3 2C3 1.44772 2.55228 1 2 1C1.44772 1 1 1.44772 1 2Z"
-                              stroke="#CBD5E0"
-                              stroke-width="2"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                            <path
-                              d="M15 2C15 2.55228 15.4477 3 16 3C16.5523 3 17 2.55228 17 2C17 1.44772 16.5523 1 16 1C15.4477 1 15 1.44772 15 2Z"
-                              stroke="#CBD5E0"
-                              stroke-width="2"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                          </svg>
-                        </button>
-                        <div
-                          id="cardsOptions"
-                          class="absolute right-0 top-full z-10 hidden min-w-[150px] overflow-hidden rounded-lg bg-white shadow-lg dark:bg-darkblack-500"
-                        >
-                          <ul>
-                            <li
-                              onclick="dateFilterAction('#cardsOptions')"
-                              class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
-                            >
-                              Master Card
-                            </li>
-                            <li
-                              onclick="dateFilterAction('#cardsOptions')"
-                              class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
-                            >
-                              VISA Card
-                            </li>
-                            <li
-                              onclick="dateFilterAction('#cardsOptions')"
-                              class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
-                            >
-                              Otros
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="flex justify-center">
-                      <div class="card-slider relative w-[280px] md:w-[340px]">
-                        <div class="w-full">
-                          <img
-                            src="./assets/images/payments/card-1.svg"
-                            alt="card"
-                          />
-                        </div>
-                        <div class="w-full">
-                          <img
-                            src="./assets/images/payments/card-2.svg"
-                            alt="card"
-                          />
-                        </div>
-                        <div class="w-full">
-                          <img
-                            src="./assets/images/payments/card-3.svg"
-                            alt="card"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <!-- Sección: Menú de Acciones Rápidas -->
                   <div class="w-full">
-                    <h3
-                      class="mb-4 text-lg font-bold text-bgray-900 dark:text-white"
-                    >
-                      Quick Transfer
+                    <h3 class="mb-6 text-lg font-extrabold tracking-wide text-bgray-900 dark:text-white uppercase">
+                      ¿QUÉ DESEAS HACER?
                     </h3>
-                    <div class="payment-select relative mb-3">
-                      <button
-                        onclick="dateFilterAction('#paymentFilter')"
-                        type="button"
-                        class="flex h-[56px] w-full items-center justify-between overflow-hidden rounded-lg border border-bgray-200 px-5 dark:border-darkblack-400"
-                      >
-                        <div class="flex items-center space-x-2">
-                          <span>
-                            <img
-                              src="./assets/images/payments/master-mini.svg"
-                              alt="master"
-                            />
-                          </span>
-                          <span
-                            class="text-sm font-medium text-bgray-900 dark:text-white"
-                            >Debit</span
-                          >
-                        </div>
-                        <div class="flex items-center space-x-2">
-                          <span
-                            class="text-sm font-bold text-bgray-900 dark:text-bgray-50"
-                          >
-                            $10,431
-                          </span>
-                          <span class="text-sm font-medium text-bgray-900">
-                            <svg
-                              width="16"
-                              height="16"
-                              viewBox="0 0 16 16"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M4 6L8 10L12 6"
-                                stroke="#A0AEC0"
-                                stroke-width="1.5"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                            </svg>
-                          </span>
-                        </div>
-                      </button>
-                      <div
-                        id="paymentFilter"
-                        class="absolute right-0 top-full z-10 hidden w-full overflow-hidden rounded-lg bg-white shadow-lg dark:bg-darkblack-500"
-                      >
-                        <ul>
-                          <li
-                            onclick="dateFilterAction('#paymentFilter')"
-                            class="text-bgray-90 cursor-pointer px-5 py-2 text-sm font-semibold hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
-                          >
-                            Jan 10 - Jan 16
-                          </li>
-                          <li
-                            onclick="dateFilterAction('#paymentFilter')"
-                            class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
-                          >
-                            Jan 10 - Jan 16
-                          </li>
-                          <li
-                            onclick="dateFilterAction('#paymentFilter')"
-                            class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
-                          >
-                            Jan 10 - Jan 16
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                    <div
-                      class="flex h-[98px] w-full flex-col justify-between rounded-lg border border-bgray-200 p-4 focus-within:border-success-300 dark:border-darkblack-400"
+                    
+                    <!-- Botón Crear Factura - Grande y Destacado -->
+                    <button
+                      onclick="window.location.href='invoices/new.html'"
+                      class="group w-full mb-5 bg-success-300 hover:bg-success-400 rounded-xl py-5 px-6 flex items-center justify-center gap-3 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
                     >
-                      <p
-                        class="text-sm font-medium text-bgray-600 dark:text-bgray-50"
+                      <svg
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="transition-transform group-hover:scale-110"
                       >
-                        Enter amount
-                      </p>
-                      <div
-                        class="flex h-[35px] w-full items-center justify-between"
-                      >
-                        <span
-                          class="text-2xl font-bold text-bgray-900 dark:text-white"
-                          >$</span
-                        >
-                        <label class="w-full">
-                          <input
-                            type="text"
-                            class="w-full border-none p-0 text-2xl font-bold text-bgray-900 focus:outline-none focus:ring-0 dark:border-darkblack-400 dark:bg-darkblack-600 dark:text-white"
-                          />
-                        </label>
-                        <div>
-                          <img
-                            src="./assets/images/avatar/members-3.png"
-                            alt="members"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  class="flex w-full flex-col justify-between rounded-lg bg-white dark:border dark:border-darkblack-400 dark:bg-darkblack-600 lg:w-1/2 2xl:w-full"
-                >
-                  <div
-                    class="flex justify-between border-b border-bgray-300 px-[26px] py-6 dark:border-darkblack-400"
-                  >
-                    <h1
-                      class="text-2xl font-semibold text-bgray-900 dark:text-white"
-                    >
-                      Team Chat
-                    </h1>
-                    <div class="flex items-center space-x-3">
-                      <div>
-                        <img
-                          src="./assets/images/avatar/members-3.png"
-                          alt="members"
+                        <path
+                          d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z"
+                          stroke="white"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
                         />
-                      </div>
+                        <path
+                          d="M14 2V8H20"
+                          stroke="white"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                        <path
+                          d="M12 18V12"
+                          stroke="white"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                        <path
+                          d="M9 15H15"
+                          stroke="white"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                      <span class="text-lg font-bold text-white">Crear factura</span>
+                    </button>
+
+                    <!-- Grid de Acciones Secundarias -->
+                    <div class="grid grid-cols-3 gap-3">
+                      <!-- Añadir nuevo contacto -->
                       <button
-                        type="button"
-                        class="flex h-[36px] w-[36px] items-center justify-center rounded-full bg-bgray-200"
+                        onclick="window.location.href='users.html'"
+                        class="group flex flex-col items-center justify-center p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-success-300 hover:bg-white dark:bg-darkblack-500 dark:hover:bg-darkblack-400 transition-all duration-300 hover:shadow-md active:scale-95"
                       >
-                        <svg
-                          width="14"
-                          height="14"
-                          viewBox="0 0 14 14"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            fill-rule="evenodd"
-                            clip-rule="evenodd"
-                            d="M7.75 1C7.75 0.585786 7.41421 0.25 7 0.25C6.58579 0.25 6.25 0.585786 6.25 1V6.25H1C0.585786 6.25 0.25 6.58579 0.25 7C0.25 7.41421 0.585786 7.75 1 7.75H6.25V13C6.25 13.4142 6.58579 13.75 7 13.75C7.41421 13.75 7.75 13.4142 7.75 13V7.75H13C13.4142 7.75 13.75 7.41421 13.75 7C13.75 6.58579 13.4142 6.25 13 6.25H7.75V1Z"
-                            fill="#718096"
-                          />
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="w-full px-5 py-6 lg:px-[35px] lg:py-[38px]">
-                    <div class="mb-5 flex flex-col space-y-[32px]">
-                      <div class="flex justify-start">
-                        <div class="flex items-end space-x-3">
-                          <div class="flex items-center space-x-2">
-                            <div
-                              class="h-[35px] w-[36px] overflow-hidden rounded-full"
-                            >
-                              <img
-                                src="./assets/images/avatar/user-1.png"
-                                alt="avater"
-                                class="h-full w-full object-cover"
-                              />
-                            </div>
-                            <div
-                              class="rounded-lg bg-bgray-100 p-3 dark:bg-darkblack-500"
-                            >
-                              <p
-                                class="text-sm font-medium text-bgray-900 dark:text-white"
-                              >
-                                Hi, What can I help you with?
-                              </p>
-                            </div>
-                          </div>
-                          <span class="text-xs font-medium text-bgray-500"
-                            >10:00 PM</span
-                          >
-                        </div>
-                      </div>
-                      <div class="flex justify-start">
-                        <div class="flex items-end space-x-3">
-                          <div class="flex items-center space-x-2">
-                            <div
-                              class="h-[35px] w-[36px] overflow-hidden rounded-full"
-                            >
-                              <img
-                                src="./assets/images/avatar/user-1.png"
-                                alt="avater"
-                                class="h-full w-full object-cover"
-                              />
-                            </div>
-                            <div>
-                              <img
-                                src="./assets/images/others/mp3.png"
-                                class="block dark:hidden"
-                                alt="mp3"
-                              />
-                              <img
-                                src="./assets/images/others/mp3-dark.png"
-                                class="hidden dark:block"
-                                alt="mp3"
-                              />
-                            </div>
-                          </div>
-                          <span class="text-xs font-medium text-bgray-500"
-                            >10:00 PM</span
-                          >
-                        </div>
-                      </div>
-                      <div class="flex justify-end">
-                        <div class="flex items-end space-x-3">
-                          <span class="text-xs font-medium text-bgray-500"
-                            >10:00 PM</span
-                          >
-                          <div class="flex items-center space-x-2">
-                            <div
-                              class="rounded-b-lg rounded-l-lg bg-bgray-100 p-3 dark:bg-darkblack-500"
-                            >
-                              <p
-                                class="text-sm font-medium text-bgray-900 dark:text-white"
-                              >
-                                Hi, What can I help you with?
-                              </p>
-                            </div>
-                            <div
-                              class="h-[35px] w-[36px] overflow-hidden rounded-full"
-                            >
-                              <img
-                                src="./assets/images/avatar/user-1.png"
-                                alt="avater"
-                                class="h-full w-full object-cover"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="flex justify-start">
-                        <div class="flex items-end space-x-3">
-                          <div class="flex items-center space-x-2">
-                            <div
-                              class="h-[35px] w-[36px] overflow-hidden rounded-full"
-                            >
-                              <img
-                                src="./assets/images/avatar/user-1.png"
-                                alt="avater"
-                                class="h-full w-full object-cover"
-                              />
-                            </div>
-                            <div
-                              class="rounded-lg bg-bgray-100 p-3 dark:bg-darkblack-500"
-                            >
-                              <p
-                                class="text-sm font-medium text-bgray-900 dark:text-white"
-                              >
-                                Hi, What can I help you with?
-                              </p>
-                            </div>
-                          </div>
-                          <span class="text-xs font-medium text-bgray-500"
-                            >10:00 PM</span
-                          >
-                        </div>
-                      </div>
-                    </div>
-                    <div class="flex h-[58px] w-full items-center space-x-4">
-                      <div
-                        class="flex h-full w-full items-center justify-between rounded-lg border border-transparent bg-bgray-100 px-5 focus-within:border-success-300 dark:border-darkblack-400 dark:bg-darkblack-500 lg:w-[318px]"
-                      >
-                        <span>
-                          <svg
-                            width="15"
-                            height="16"
-                            viewBox="0 0 15 16"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M9.66652 4.1112L5.22208 8.55565C4.60843 9.1693 4.60843 10.1642 5.22208 10.7779C5.83573 11.3915 6.83065 11.3915 7.4443 10.7779L11.8887 6.33343C13.116 5.10613 13.116 3.11628 11.8887 1.88898C10.6614 0.661681 8.6716 0.661681 7.4443 1.88898L2.99985 6.33343C1.1589 8.17438 1.1589 11.1591 2.99985 13.0001C4.8408 14.841 7.82557 14.841 9.66652 13.0001L14.111 8.55565"
-                              stroke="#CBD5E0"
-                              stroke-width="1.5"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                          </svg>
-                        </span>
-                        <label class="w-full">
-                          <input
-                            type="text"
-                            placeholder="Type your Message..."
-                            class="w-full border-none bg-bgray-100 p-0 pl-[15px] font-medium placeholder:text-sm placeholder:font-medium placeholder:text-bgray-400 focus:outline-none focus:ring-0 dark:bg-darkblack-500 dark:text-white"
-                          />
-                        </label>
-                        <span>
+                        <div class="flex items-center justify-center w-12 h-12 mb-3 rounded-full bg-blue-50 group-hover:bg-blue-100 transition-colors duration-300">
                           <svg
                             width="24"
                             height="24"
@@ -4872,29 +4606,293 @@
                             xmlns="http://www.w3.org/2000/svg"
                           >
                             <path
-                              d="M19 11V12C19 15.866 15.866 19 12 19M5 11V12C5 15.866 8.13401 19 12 19M12 19V22M12 22H15M12 22H9M12 16C9.79086 16 8 14.2091 8 12V6C8 3.79086 9.79086 2 12 2C14.2091 2 16 3.79086 16 6V12C16 14.2091 14.2091 16 12 16Z"
-                              stroke="#A0AEC0"
-                              stroke-width="1.5"
+                              d="M16 21V19C16 17.9391 15.5786 16.9217 14.8284 16.1716C14.0783 15.4214 13.0609 15 12 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21"
+                              stroke="#3B82F6"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                            <path
+                              d="M8.5 11C10.7091 11 12.5 9.20914 12.5 7C12.5 4.79086 10.7091 3 8.5 3C6.29086 3 4.5 4.79086 4.5 7C4.5 9.20914 6.29086 11 8.5 11Z"
+                              stroke="#3B82F6"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                            <path
+                              d="M20 8V14"
+                              stroke="#3B82F6"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                            <path
+                              d="M23 11H17"
+                              stroke="#3B82F6"
+                              stroke-width="2"
                               stroke-linecap="round"
                               stroke-linejoin="round"
                             />
                           </svg>
-                        </span>
-                      </div>
-                      <button type="button">
-                        <svg
-                          width="20"
-                          height="18"
-                          viewBox="0 0 20 18"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M17.3894 0H2.61094C0.339326 0 -0.844596 2.63548 0.696196 4.26234L3.78568 7.52441C4.23 7.99355 4.47673 8.60858 4.47673 9.24704V15.4553C4.47673 17.8735 7.61615 18.9233 9.13941 17.0145L19.4463 4.09894C20.7775 2.43071 19.5578 0 17.3894 0Z"
-                            fill="#22C55E"
-                          />
-                        </svg>
+                        </div>
+                        <span class="text-xs font-semibold text-bgray-900 dark:text-white text-center leading-tight">Añadir nuevo contacto</span>
                       </button>
+
+                      <!-- Subir un gasto -->
+                      <button
+                        onclick="window.location.href='expenses.html'"
+                        class="group flex flex-col items-center justify-center p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-success-300 hover:bg-white dark:bg-darkblack-500 dark:hover:bg-darkblack-400 transition-all duration-300 hover:shadow-md active:scale-95"
+                      >
+                        <div class="flex items-center justify-center w-12 h-12 mb-3 rounded-full bg-green-50 group-hover:bg-green-100 transition-colors duration-300">
+                          <svg
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15"
+                              stroke="#10B981"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                            <path
+                              d="M17 8L12 3L7 8"
+                              stroke="#10B981"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                            <path
+                              d="M12 3V15"
+                              stroke="#10B981"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                          </svg>
+                        </div>
+                        <span class="text-xs font-semibold text-bgray-900 dark:text-white text-center leading-tight">Subir un gasto</span>
+                      </button>
+
+                      <!-- Crear un presupuesto -->
+                      <button
+                        onclick="window.location.href='#'"
+                        class="group flex flex-col items-center justify-center p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-success-300 hover:bg-white dark:bg-darkblack-500 dark:hover:bg-darkblack-400 transition-all duration-300 hover:shadow-md active:scale-95"
+                      >
+                        <div class="flex items-center justify-center w-12 h-12 mb-3 rounded-full bg-purple-50 group-hover:bg-purple-100 transition-colors duration-300">
+                          <svg
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z"
+                              stroke="#8B5CF6"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                            <path
+                              d="M14 2V8H20"
+                              stroke="#8B5CF6"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                            <path
+                              d="M16 13H8"
+                              stroke="#8B5CF6"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                            <path
+                              d="M16 17H8"
+                              stroke="#8B5CF6"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                            <path
+                              d="M10 9H9H8"
+                              stroke="#8B5CF6"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                          </svg>
+                        </div>
+                        <span class="text-xs font-semibold text-bgray-900 dark:text-white text-center leading-tight">Crear un presupuesto</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="w-full flex-col rounded-lg bg-white dark:border dark:border-darkblack-400 dark:bg-darkblack-600"
+                >
+                  <!-- Sección: 4 Primeros Pasos -->
+                  <div class="w-full p-8">
+                    <!-- Header con progreso circular - Siempre visible -->
+                    <button
+                      onclick="togglePrimerosPasos()"
+                      class="w-full flex items-center justify-between mb-6 group"
+                    >
+                      <div class="flex items-center gap-5">
+                        <div class="relative flex-shrink-0">
+                          <!-- Círculo de progreso - Blanco con tick naranja -->
+                          <svg class="transform -rotate-90" width="72" height="72">
+                            <circle
+                              cx="36"
+                              cy="36"
+                              r="32"
+                              stroke="#E5E7EB"
+                              stroke-width="7"
+                              fill="white"
+                            />
+                            <circle
+                              cx="36"
+                              cy="36"
+                              r="32"
+                              stroke="#ec8228"
+                              stroke-width="7"
+                              fill="none"
+                              stroke-dasharray="201"
+                              stroke-dashoffset="0"
+                              stroke-linecap="round"
+                              class="transition-all duration-1000"
+                            />
+                          </svg>
+                          <div class="absolute inset-0 flex items-center justify-center">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M20 6L9 17L4 12" stroke="#ec8228" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                          </div>
+                        </div>
+                        <div class="text-left">
+                          <h2 class="text-3xl font-bold text-bgray-900 dark:text-white mb-1">
+                            100<span class="text-lg font-medium text-bgray-500">/100</span>
+                          </h2>
+                          <p class="text-xs font-bold tracking-wider text-success-300 uppercase">COMPLETADO</p>
+                        </div>
+                      </div>
+                      <!-- Icono de flecha para expandir/colapsar -->
+                      <svg
+                        id="arrowPrimerosPasos"
+                        class="w-6 h-6 text-bgray-500 transition-transform duration-300 group-hover:text-success-300"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                      </svg>
+                    </button>
+
+                    <!-- Descripción -->
+                    <p class="text-sm text-bgray-600 dark:text-bgray-400 mb-6">
+                      Descubre todo lo que puedes hacer en Facturales
+                    </p>
+
+                    <!-- Lista de Pasos - Colapsable -->
+                    <div id="primerosPasosContent" class="space-y-0 overflow-hidden transition-all duration-500">
+                      <!-- Paso 1 -->
+                      <div class="flex items-start gap-4">
+                        <div class="flex-shrink-0 flex flex-col items-center">
+                          <div class="flex items-center justify-center w-11 h-11 rounded-full bg-success-300 shadow-md">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M20 6L9 17L4 12" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                          </div>
+                          <div class="w-0.5 flex-1 min-h-[60px] bg-gradient-to-b from-bgray-300 to-transparent" style="background: repeating-linear-gradient(to bottom, #CBD5E0 0px, #CBD5E0 8px, transparent 8px, transparent 16px);"></div>
+                        </div>
+                        <div class="flex-1 pb-8">
+                          <p class="text-xs font-bold tracking-wider text-bgray-500 dark:text-bgray-400 mb-2">PASO 1</p>
+                          <h3 class="text-base font-bold text-bgray-900 dark:text-white mb-2">
+                            Añade los datos de tu negocio
+                          </h3>
+                          <p class="text-sm text-bgray-600 dark:text-bgray-400 leading-relaxed mb-3">
+                            Rellena los datos de tu negocio que aparecerán en tus facturas
+                          </p>
+                          <span class="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-info-600 bg-info-50 border border-info-200 dark:bg-info-900/20 dark:text-info-400 dark:border-info-800 rounded-lg">
+                            Completado
+                          </span>
+                        </div>
+                      </div>
+
+                      <!-- Paso 2 -->
+                      <div class="flex items-start gap-4">
+                        <div class="flex-shrink-0 flex flex-col items-center">
+                          <div class="flex items-center justify-center w-11 h-11 rounded-full bg-success-300 shadow-md">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M20 6L9 17L4 12" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                          </div>
+                          <div class="w-0.5 flex-1 min-h-[60px]" style="background: repeating-linear-gradient(to bottom, #CBD5E0 0px, #CBD5E0 8px, transparent 8px, transparent 16px);"></div>
+                        </div>
+                        <div class="flex-1 pb-8">
+                          <p class="text-xs font-bold tracking-wider text-bgray-500 dark:text-bgray-400 mb-2">PASO 2</p>
+                          <h3 class="text-base font-bold text-bgray-900 dark:text-white mb-2">
+                            Añade tu primer contacto
+                          </h3>
+                          <p class="text-sm text-bgray-600 dark:text-bgray-400 leading-relaxed mb-3">
+                            Crea tu listado de clientes y proveedores a los que facturas habitualmente
+                          </p>
+                          <span class="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-info-600 bg-info-50 border border-info-200 dark:bg-info-900/20 dark:text-info-400 dark:border-info-800 rounded-lg">
+                            Completado
+                          </span>
+                        </div>
+                      </div>
+
+                      <!-- Paso 3 -->
+                      <div class="flex items-start gap-4">
+                        <div class="flex-shrink-0 flex flex-col items-center">
+                          <div class="flex items-center justify-center w-11 h-11 rounded-full bg-success-300 shadow-md">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M20 6L9 17L4 12" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                          </div>
+                          <div class="w-0.5 flex-1 min-h-[60px]" style="background: repeating-linear-gradient(to bottom, #CBD5E0 0px, #CBD5E0 8px, transparent 8px, transparent 16px);"></div>
+                        </div>
+                        <div class="flex-1 pb-8">
+                          <p class="text-xs font-bold tracking-wider text-bgray-500 dark:text-bgray-400 mb-2">PASO 3</p>
+                          <h3 class="text-base font-bold text-bgray-900 dark:text-white mb-2">
+                            Personaliza tu factura
+                          </h3>
+                          <p class="text-sm text-bgray-600 dark:text-bgray-400 leading-relaxed mb-3">
+                            Elige una plantilla para tu factura y personalízala a tu gusto
+                          </p>
+                          <span class="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-info-600 bg-info-50 border border-info-200 dark:bg-info-900/20 dark:text-info-400 dark:border-info-800 rounded-lg">
+                            Completado
+                          </span>
+                        </div>
+                      </div>
+
+                      <!-- Paso 4 -->
+                      <div class="flex items-start gap-4">
+                        <div class="flex-shrink-0">
+                          <div class="flex items-center justify-center w-11 h-11 rounded-full bg-success-300 shadow-md">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M20 6L9 17L4 12" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                          </div>
+                        </div>
+                        <div class="flex-1">
+                          <p class="text-xs font-bold tracking-wider text-bgray-500 dark:text-bgray-400 mb-2">PASO 4</p>
+                          <h3 class="text-base font-bold text-bgray-900 dark:text-white mb-2">
+                            Crea tu primera factura
+                          </h3>
+                          <p class="text-sm text-bgray-600 dark:text-bgray-400 leading-relaxed mb-3">
+                            Crea tu primera factura digital en menos de un minuto
+                          </p>
+                          <span class="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-info-600 bg-info-50 border border-info-200 dark:bg-info-900/20 dark:text-info-400 dark:border-info-800 rounded-lg">
+                            Completado
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -4927,6 +4925,37 @@
         fade: true,
         cssEase: "linear",
         arrows: false,
+      });
+    </script>
+
+    <script>
+      // Función para expandir/colapsar la sección de Primeros Pasos
+      function togglePrimerosPasos() {
+        const content = document.getElementById('primerosPasosContent');
+        const arrow = document.getElementById('arrowPrimerosPasos');
+        
+        if (content.style.maxHeight && content.style.maxHeight !== '0px') {
+          // Colapsar
+          content.style.maxHeight = '0px';
+          content.style.opacity = '0';
+          arrow.style.transform = 'rotate(0deg)';
+        } else {
+          // Expandir
+          content.style.maxHeight = content.scrollHeight + 'px';
+          content.style.opacity = '1';
+          arrow.style.transform = 'rotate(180deg)';
+        }
+      }
+
+      // Inicializar el estado expandido al cargar la página
+      document.addEventListener('DOMContentLoaded', function() {
+        const content = document.getElementById('primerosPasosContent');
+        const arrow = document.getElementById('arrowPrimerosPasos');
+        
+        // Expandir por defecto
+        content.style.maxHeight = content.scrollHeight + 'px';
+        content.style.opacity = '1';
+        arrow.style.transform = 'rotate(180deg)';
       });
     </script>
 

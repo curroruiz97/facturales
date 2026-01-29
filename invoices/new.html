@@ -297,7 +297,7 @@
                     </a>
                   </li>
                   <li class="item py-[11px] text-bgray-900 dark:text-white">
-                    <a href="../invoices/new.html">
+                    <a href="new.html">
                       <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-2.5">
                           <span class="item-ico">
@@ -341,7 +341,6 @@
                   </li>
                   <li class="item py-[11px] text-bgray-900 dark:text-white">
                     <a href="../expenses.html">
-                    <a href="../coming-soon.html">
                       <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-2.5">
                           <span class="item-ico">
@@ -372,8 +371,6 @@
                           <span
                             class="item-text text-lg font-medium leading-none"
                             >Gastos</span>
-                            >Gastos</span
-                          >
                         </div>
                       </div>
                     </a>
@@ -381,10 +378,10 @@
 
                   
 
-                                    
 
+                                                      
 
-                  <li class="item py-[11px] text-bgray-900 dark:text-white">
+<li class="item py-[11px] text-bgray-900 dark:text-white">
                     <a href="../statistics.html">
                       <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-2.5">
@@ -640,10 +637,7 @@
                           </span>
                           <span
                             class="item-text text-lg font-medium leading-none"
-                            >Clientes</span>
-                          <span
-                            class="item-text text-lg font-medium leading-none"
-                            >Calendario</span
+                            >Contactos</span
                           >
                         </div>
                       </div>
@@ -986,7 +980,7 @@
             <div class="upgrade-wrapper mb-[26px] h-[172px] w-full pr-[24px]">
               <div
                 class="upgrade-banner relative h-full w-full rounded-lg"
-                style="background-image: url(../assets/images/bg/upgrade-bg.png)"
+                style="background-image: url(./assets/images/bg/upgrade-bg.png)"
               >
                 <div
                   style="left: calc(50% - 20px); top: -20px"
@@ -4416,137 +4410,89 @@
     </div>
 
     <!-- Modal: Crear Cliente -->
-    <div
-      id="create-client-modal"
-      class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm"
-    >
-      <div class="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-8 shadow-2xl dark:bg-darkblack-600" style="border: 2px solid #f59e0b;">
-        <div class="flex items-start justify-between">
-          <div>
-            <h3 class="text-lg font-semibold text-bgray-900 dark:text-white">
-              Crear nuevo cliente
-            </h3>
-            <p class="mt-1 text-sm text-bgray-600 dark:text-bgray-50">
-              Completa los datos del cliente para añadirlo a tu lista
-            </p>
-          </div>
-          <button
-            type="button"
-            onclick="closeCreateClientModal()"
-            class="rounded-full p-2 text-bgray-500 hover:text-bgray-900 dark:hover:text-white"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M6 18L18 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-              <path d="M6 6L18 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
-          </button>
-        </div>
+    <div id="create-client-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center overflow-y-auto">
+      <div class="modal-overlay fixed inset-0 bg-black/60 backdrop-blur-sm"></div>
 
-        <form class="mt-6 space-y-4" onsubmit="saveNewClient(event)">
-          <div>
-            <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
-              Razón social / Nombre *
-            </label>
-            <input
-              type="text"
-              id="new-client-name"
-              required
-              placeholder="Nombre del cliente"
-              class="h-12 w-full rounded-lg border border-bgray-200 px-4 text-sm focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500"
-            />
-          </div>
+      <div class="relative w-full max-w-[640px] mx-4">
+        <div class="relative w-full rounded-lg bg-white p-7 shadow-lg transition-all dark:bg-darkblack-600 border-2 border-orange-500">
+              <div class="flex items-start justify-between">
+                <div>
+                  <h3 class="text-xl font-bold text-bgray-900 dark:text-white">Crear nuevo cliente</h3>
+                  <p class="mt-1 text-sm font-medium text-bgray-600 dark:text-bgray-50">
+                    Completa los datos del cliente para añadirlo a tu lista
+                  </p>
+                </div>
 
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
-                NIF / CIF *
-              </label>
-              <input
-                type="text"
-                id="new-client-nif"
-                required
-                placeholder="B12345678"
-                class="h-12 w-full rounded-lg border border-bgray-200 px-4 text-sm focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500"
-              />
-            </div>
-            <div>
-              <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
-                Email
-              </label>
-              <input
-                type="email"
-                id="new-client-email"
-                placeholder="cliente@ejemplo.com"
-                class="h-12 w-full rounded-lg border border-bgray-200 px-4 text-sm focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500"
-              />
-            </div>
-          </div>
+                <button type="button" onclick="closeCreateClientModal()" class="rounded-md p-2 hover:bg-bgray-100 dark:hover:bg-darkblack-500">
+                  <svg class="stroke-bgray-900 dark:stroke-bgray-50" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13.5 4.5L4.5 13.5" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M4.5 4.5L13.5 13.5" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                </button>
+              </div>
 
-          <div>
-            <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
-              Dirección
-            </label>
-            <input
-              type="text"
-              id="new-client-address"
-              placeholder="Calle Principal 1, Madrid"
-              class="h-12 w-full rounded-lg border border-bgray-200 px-4 text-sm focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500"
-            />
-          </div>
+              <form class="mt-6" onsubmit="saveNewClient(event)">
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">Nombre / Razón social</label>
+                    <input type="text" id="new-client-name" required placeholder="Ej: Ruiz del Toro SL" class="h-[56px] w-full rounded-lg border border-bgray-300 bg-transparent px-4 text-sm font-medium text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-400 dark:text-white" />
+                  </div>
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">Identificador (CIF/NIF/ID)</label>
+                    <input type="text" id="new-client-nif" required placeholder="Ej: B12345678" class="h-[56px] w-full rounded-lg border border-bgray-300 bg-transparent px-4 text-sm font-medium text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-400 dark:text-white" />
+                  </div>
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">Email</label>
+                    <input type="email" id="new-client-email" placeholder="Ej: contacto@cliente.com" class="h-[56px] w-full rounded-lg border border-bgray-300 bg-transparent px-4 text-sm font-medium text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-400 dark:text-white" />
+                  </div>
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">Teléfono</label>
+                    <input type="text" id="new-client-phone" placeholder="Ej: +34 600 000 000" class="h-[56px] w-full rounded-lg border border-bgray-300 bg-transparent px-4 text-sm font-medium text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-400 dark:text-white" />
+                  </div>
+                  <div class="md:col-span-2">
+                    <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">Dirección</label>
+                    <input type="text" id="new-client-address" placeholder="Ej: Calle Libertad 1, 2B" class="h-[56px] w-full rounded-lg border border-bgray-300 bg-transparent px-4 text-sm font-medium text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-400 dark:text-white" />
+                  </div>
 
-          <div class="grid grid-cols-3 gap-4">
-            <div>
-              <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
-                Código postal
-              </label>
-              <input
-                type="text"
-                id="new-client-postal"
-                placeholder="28001"
-                class="h-12 w-full rounded-lg border border-bgray-200 px-4 text-sm focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500"
-              />
-            </div>
-            <div>
-              <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
-                Ciudad
-              </label>
-              <input
-                type="text"
-                id="new-client-city"
-                placeholder="Madrid"
-                class="h-12 w-full rounded-lg border border-bgray-200 px-4 text-sm focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500"
-              />
-            </div>
-            <div>
-              <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
-                País
-              </label>
-              <input
-                type="text"
-                id="new-client-country"
-                placeholder="España"
-                class="h-12 w-full rounded-lg border border-bgray-200 px-4 text-sm focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500"
-              />
-            </div>
-          </div>
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">Código postal</label>
+                    <input type="text" id="new-client-postal" placeholder="28001" class="h-[56px] w-full rounded-lg border border-bgray-300 bg-transparent px-4 text-sm font-medium text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-400 dark:text-white" />
+                  </div>
 
-          <!-- Botones -->
-          <div class="mt-8 flex justify-end gap-3">
-            <button
-              type="button"
-              onclick="closeCreateClientModal()"
-              class="rounded-lg border border-bgray-200 px-6 py-2.5 text-sm font-semibold text-bgray-600 hover:border-success-300 dark:border-darkblack-500 dark:text-bgray-50"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              class="rounded-lg bg-success-300 px-6 py-2.5 text-sm font-semibold text-white hover:bg-success-400"
-            >
-              Guardar cliente
-            </button>
-          </div>
-        </form>
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">Ciudad</label>
+                    <input type="text" id="new-client-city" placeholder="Madrid" class="h-[56px] w-full rounded-lg border border-bgray-300 bg-transparent px-4 text-sm font-medium text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-400 dark:text-white" />
+                  </div>
+
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">País</label>
+                    <input type="text" id="new-client-country" placeholder="España" class="h-[56px] w-full rounded-lg border border-bgray-300 bg-transparent px-4 text-sm font-medium text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-400 dark:text-white" />
+                  </div>
+
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">Día de facturación</label>
+                    <input type="number" id="new-client-billing-day" min="1" max="31" placeholder="Ej: 30" class="h-[56px] w-full rounded-lg border border-bgray-300 bg-transparent px-4 text-sm font-medium text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-400 dark:text-white" />
+                  </div>
+
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">Estado</label>
+                    <select id="new-client-status" class="h-[56px] w-full rounded-lg border border-bgray-300 bg-transparent px-4 text-sm font-medium text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-400 dark:text-white">
+                      <option>Activo</option>
+                      <option>Inactivo</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+                  <button type="button" onclick="closeCreateClientModal()" class="h-[56px] w-full rounded-lg border border-bgray-300 px-6 text-sm font-semibold text-bgray-900 transition hover:bg-bgray-100 dark:border-darkblack-400 dark:text-white dark:hover:bg-darkblack-500 sm:w-auto">
+                    Cancelar
+                  </button>
+                  <button type="submit" class="h-[56px] w-full rounded-lg bg-success-300 px-6 text-sm font-semibold text-white transition hover:bg-success-400 sm:w-auto">
+                    Guardar cliente
+                  </button>
+                </div>
+              </form>
+            </div>
       </div>
     </div>
 
