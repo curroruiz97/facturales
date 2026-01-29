@@ -1,5 +1,11 @@
-﻿# dependencies
+# dependencies
 /node_modules
+
+# environment variables
+.env
+.env.local
+.env.*.local
+
 # misc
 .DS_Store
 .idea
@@ -13,6 +19,7 @@ yarn-error.log*
 
 # vercel
 .vercel
+
 # --- Backups generados por scripts ---
 _backup_*/
 _bak_*/
