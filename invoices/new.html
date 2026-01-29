@@ -3246,9 +3246,9 @@
                       <input
                         id="client-name"
                         type="text"
-                        placeholder="Elige un contacto"
-                        onclick="toggleClientDropdown()"
-                        oninput="filterClients(this.value)"
+                        placeholder="Escribe para buscar..."
+                        oninput="handleClientSearch(this.value)"
+                        onfocus="showClientDropdown()"
                         class="h-12 w-full rounded-lg border border-bgray-200 px-4 text-base text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
                         autocomplete="off"
                       />
@@ -3256,42 +3256,13 @@
                         id="client-dropdown"
                         class="absolute top-full z-20 mt-1 hidden w-full overflow-hidden rounded-lg bg-white shadow-xl border border-bgray-200 dark:bg-darkblack-500 dark:border-darkblack-400 max-h-[300px] overflow-y-auto"
                       >
-                        <div class="p-2">
-                          <button
-                            type="button"
-                            onclick="selectClient('AVENUE DIGITAL GROUP SL', 'B70829601', 'PLAZA MAYOR 23, 1A, 47001 VALLADOLID')"
-                            class="client-option w-full text-left px-4 py-3 hover:bg-bgray-50 dark:hover:bg-darkblack-600 rounded-lg transition-colors"
-                            data-name="AVENUE DIGITAL GROUP SL"
-                            data-nif="B70829601"
-                          >
-                            <p class="font-semibold text-bgray-900 dark:text-white text-sm">AVENUE DIGITAL GROUP SL</p>
-                            <p class="text-xs text-bgray-500">B70829601</p>
-                          </button>
-                          <button
-                            type="button"
-                            onclick="selectClient('Empresa Ejemplo SA', 'A12345678', 'Calle Principal 1, Madrid')"
-                            class="client-option w-full text-left px-4 py-3 hover:bg-bgray-50 dark:hover:bg-darkblack-600 rounded-lg transition-colors"
-                            data-name="Empresa Ejemplo SA"
-                            data-nif="A12345678"
-                          >
-                            <p class="font-semibold text-bgray-900 dark:text-white text-sm">Empresa Ejemplo SA</p>
-                            <p class="text-xs text-bgray-500">A12345678</p>
-                          </button>
-                          <button
-                            type="button"
-                            onclick="selectClient('Cliente Demo SL', 'B87654321', 'Av. Catalunya 50, Barcelona')"
-                            class="client-option w-full text-left px-4 py-3 hover:bg-bgray-50 dark:hover:bg-darkblack-600 rounded-lg transition-colors"
-                            data-name="Cliente Demo SL"
-                            data-nif="B87654321"
-                          >
-                            <p class="font-semibold text-bgray-900 dark:text-white text-sm">Cliente Demo SL</p>
-                            <p class="text-xs text-bgray-500">B87654321</p>
-                          </button>
+                        <div id="client-options-list" class="p-2">
+                          <!-- Las opciones se cargarán dinámicamente -->
                         </div>
                         <div class="border-t border-bgray-200 dark:border-darkblack-400 p-2">
                           <button
                             type="button"
-                            onclick="event.preventDefault(); event.stopPropagation(); openCreateClientModal();"
+                            onclick="event.preventDefault(); event.stopPropagation(); openInvoiceCreateClientModal();"
                             class="w-full text-left px-4 py-3 text-sm font-semibold text-success-300 hover:bg-success-50 dark:hover:bg-success-900/10 rounded-lg transition-colors flex items-center gap-2"
                           >
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -4431,7 +4402,7 @@
                 </button>
               </div>
 
-              <form class="mt-6" onsubmit="saveNewClient(event)">
+              <form class="mt-6" onsubmit="handleInvoiceSaveClient(event)"
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div>
                     <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">Nombre / Razón social</label>
@@ -5165,6 +5136,13 @@
         setTimeout(updateInvoiceSummary, 500);
       }
     </script>
+
+    <!-- Supabase and Clients Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../assets/js/supabaseClient.js"></script>
+    <script src="../assets/js/toast.js"></script>
+    <script src="../assets/js/clients.js"></script>
+    <script src="../assets/js/invoice-clients.js"></script>
 
   </body>
 </html>

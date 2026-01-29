@@ -3042,7 +3042,7 @@
             </span>
             <h3 class="text-base font-bold text-bgray-900 dark:text-white">Lista de Contactos</h3>
           </div>
-          <p class="mt-1 text-sm text-bgray-600 dark:text-bgray-50">5 clientes registrados</p>
+          <p class="mt-1 text-sm text-bgray-600 dark:text-bgray-50"><span id="clients-count">0</span> clientes registrados</p>
         </div>
 
         <!-- Search -->
@@ -3062,6 +3062,7 @@
                   id="clients-search"
                   type="text"
                   placeholder="Buscar clientes..."
+                  oninput="handleSearchClients(this.value)"
                   class="search-input w-full border-none bg-bgray-50 bg-none text-sm font-medium text-bgray-900 placeholder:text-sm placeholder:font-medium placeholder:text-bgray-500 focus:outline-none dark:bg-darkblack-500 dark:text-white"
                 />
               </label>
@@ -3073,133 +3074,30 @@
       <!-- Table -->
       <div class="w-full overflow-x-auto">
         <table class="w-full">
-          <tr class="border-b border-bgray-300 dark:border-darkblack-400">
-            <td class="whitespace-nowrap py-4 pr-6">
-              <span class="text-base font-medium text-bgray-600 dark:text-bgray-50">Cliente</span>
-            </td>
-            <td class="whitespace-nowrap px-6 py-4">
-              <span class="text-base font-medium text-bgray-600 dark:text-bgray-50">Contacto</span>
-            </td>
-            <td class="whitespace-nowrap px-6 py-4">
-              <span class="text-base font-medium text-bgray-600 dark:text-bgray-50">Facturación</span>
-            </td>
-            <td class="whitespace-nowrap px-6 py-4">
-              <span class="text-base font-medium text-bgray-600 dark:text-bgray-50">Estado</span>
-            </td>
-            <td class="whitespace-nowrap py-4 pl-6 text-right">
-              <span class="text-base font-medium text-bgray-600 dark:text-bgray-50">Acciones</span>
-            </td>
-          </tr>
-
-          <!-- Row -->
-          <tr class="border-b border-bgray-200 dark:border-darkblack-400">
-            <td class="py-5 pr-6">
-              <div class="flex items-center gap-3">
-                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-bgray-100 text-sm font-bold text-bgray-700 dark:bg-darkblack-500 dark:text-white">
-                  TD
-                </div>
-                <div>
-                  <p class="text-sm font-semibold text-bgray-900 dark:text-white">TRESIERRA Y ASOCIADOS</p>
-                  <p class="text-xs font-medium text-bgray-600 dark:text-bgray-50">B75985688055</p>
-                </div>
-              </div>
-            </td>
-            <td class="px-6 py-5">
-              <div class="flex flex-col gap-1">
-                <p class="text-sm font-medium text-bgray-900 dark:text-white">contacto@tresierrayasociados.com</p>
-                <p class="text-xs font-medium text-bgray-600 dark:text-bgray-50">+34 689 936 481</p>
-                <p class="text-xs font-medium text-bgray-600 dark:text-bgray-50">C/ Libertad 1, 2B</p>
-              </div>
-            </td>
-            <td class="px-6 py-5">
-              <p class="text-sm font-medium text-bgray-900 dark:text-white">Día 31</p>
-              <p class="text-xs font-medium text-bgray-600 dark:text-bgray-50">de cada mes</p>
-            </td>
-            <td class="px-6 py-5">
-              <span class="inline-flex items-center rounded-lg bg-success-50 px-3 py-1 text-xs font-semibold text-success-300 dark:bg-darkblack-500">Activo</span>
-            </td>
-            <td class="py-5 pl-6 text-right">
-              <div class="inline-flex items-center gap-2">
-                <button class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-bgray-100 transition hover:bg-bgray-200 dark:bg-darkblack-500 hover:dark:bg-darkblack-400" type="button" title="Editar">
-                  <svg class="stroke-bgray-900 dark:stroke-bgray-50" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10.5 3.75H4.5C3.67157 3.75 3 4.42157 3 5.25V13.5C3 14.3284 3.67157 15 4.5 15H12.75C13.5784 15 14.25 14.3284 14.25 13.5V7.5" stroke-width="1.5" stroke-linecap="round"/>
-                    <path d="M13.125 2.62501C13.7213 2.02872 14.6887 2.02872 15.285 2.62501C15.8813 3.2213 15.8813 4.18872 15.285 4.78501L9 11.07L6 12L6.93 9L13.125 2.62501Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </button>
-                <button class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-bgray-100 transition hover:bg-bgray-200 dark:bg-darkblack-500 hover:dark:bg-darkblack-400" type="button" title="Ver">
-                  <svg class="stroke-bgray-900 dark:stroke-bgray-50" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M1.5 9C1.5 9 4.5 3.75 9 3.75C13.5 3.75 16.5 9 16.5 9C16.5 9 13.5 14.25 9 14.25C4.5 14.25 1.5 9 1.5 9Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M9 11.25C10.2426 11.25 11.25 10.2426 11.25 9C11.25 7.75736 10.2426 6.75 9 6.75C7.75736 6.75 6.75 7.75736 6.75 9C6.75 10.2426 7.75736 11.25 9 11.25Z" stroke-width="1.5"/>
-                  </svg>
-                </button>
-                <button class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-bgray-100 transition hover:bg-bgray-200 dark:bg-darkblack-500 hover:dark:bg-darkblack-400" type="button" title="Eliminar">
-                  <svg class="stroke-bgray-900 dark:stroke-bgray-50" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M3.75 5.25H14.25" stroke-width="1.5" stroke-linecap="round"/>
-                    <path d="M7.5 5.25V4.5C7.5 3.67157 8.17157 3 9 3C9.82843 3 10.5 3.67157 10.5 4.5V5.25" stroke-width="1.5" stroke-linecap="round"/>
-                    <path d="M5.25 5.25L5.7825 14.0325C5.81232 14.5223 6.21944 14.9 6.71 14.9H11.29C11.7806 14.9 12.1877 14.5223 12.2175 14.0325L12.75 5.25" stroke-width="1.5" stroke-linecap="round"/>
-                  </svg>
-                </button>
-              </div>
-            </td>
-          </tr>
-
-          <!-- Puedes duplicar filas siguiendo el mismo patrón -->
-          <tr class="border-b border-bgray-200 dark:border-darkblack-400">
-            <td class="py-5 pr-6">
-              <div class="flex items-center gap-3">
-                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-bgray-100 text-sm font-bold text-bgray-700 dark:bg-darkblack-500 dark:text-white">
-                  RD
-                </div>
-                <div>
-                  <p class="text-sm font-semibold text-bgray-900 dark:text-white">RUIZ DEL TORO SL</p>
-                  <p class="text-xs font-medium text-bgray-600 dark:text-bgray-50">B787585786</p>
-                </div>
-              </div>
-            </td>
-            <td class="px-6 py-5">
-              <div class="flex flex-col gap-1">
-                <p class="text-sm font-medium text-bgray-900 dark:text-white">paco@paco.com</p>
-                <p class="text-xs font-medium text-bgray-600 dark:text-bgray-50">+34 655 777 888</p>
-                <p class="text-xs font-medium text-bgray-600 dark:text-bgray-50">C/ Gamazo 1, 7B</p>
-              </div>
-            </td>
-            <td class="px-6 py-5">
-              <p class="text-sm font-medium text-bgray-900 dark:text-white">Día 15</p>
-              <p class="text-xs font-medium text-bgray-600 dark:text-bgray-50">de cada mes</p>
-            </td>
-            <td class="px-6 py-5">
-              <span class="inline-flex items-center rounded-lg bg-bgray-100 px-3 py-1 text-xs font-semibold text-bgray-700 dark:bg-darkblack-500 dark:text-bgray-50">Inactivo</span>
-            </td>
-            <td class="py-5 pl-6 text-right">
-              <div class="inline-flex items-center gap-2">
-                <button class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-bgray-100 transition hover:bg-bgray-200 dark:bg-darkblack-500 hover:dark:bg-darkblack-400" type="button" title="Editar">
-                  <svg class="stroke-bgray-900 dark:stroke-bgray-50" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10.5 3.75H4.5C3.67157 3.75 3 4.42157 3 5.25V13.5C3 14.3284 3.67157 15 4.5 15H12.75C13.5784 15 14.25 14.3284 14.25 13.5V7.5" stroke-width="1.5" stroke-linecap="round"/>
-                    <path d="M13.125 2.62501C13.7213 2.02872 14.6887 2.02872 15.285 2.62501C15.8813 3.2213 15.8813 4.18872 15.285 4.78501L9 11.07L6 12L6.93 9L13.125 2.62501Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </button>
-                <button class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-bgray-100 transition hover:bg-bgray-200 dark:bg-darkblack-500 hover:dark:bg-darkblack-400" type="button" title="Ver">
-                  <svg class="stroke-bgray-900 dark:stroke-bgray-50" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M1.5 9C1.5 9 4.5 3.75 9 3.75C13.5 3.75 16.5 9 16.5 9C16.5 9 13.5 14.25 9 14.25C4.5 14.25 1.5 9 1.5 9Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M9 11.25C10.2426 11.25 11.25 10.2426 11.25 9C11.25 7.75736 10.2426 6.75 9 6.75C7.75736 6.75 6.75 7.75736 6.75 9C6.75 10.2426 7.75736 11.25 9 11.25Z" stroke-width="1.5"/>
-                  </svg>
-                </button>
-                <button class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-bgray-100 transition hover:bg-bgray-200 dark:bg-darkblack-500 hover:dark:bg-darkblack-400" type="button" title="Eliminar">
-                  <svg class="stroke-bgray-900 dark:stroke-bgray-50" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M3.75 5.25H14.25" stroke-width="1.5" stroke-linecap="round"/>
-                    <path d="M7.5 5.25V4.5C7.5 3.67157 8.17157 3 9 3C9.82843 3 10.5 3.67157 10.5 4.5V5.25" stroke-width="1.5" stroke-linecap="round"/>
-                    <path d="M5.25 5.25L5.7825 14.0325C5.81232 14.5223 6.21944 14.9 6.71 14.9H11.29C11.7806 14.9 12.1877 14.5223 12.2175 14.0325L12.75 5.25" stroke-width="1.5" stroke-linecap="round"/>
-                  </svg>
-                </button>
-              </div>
-            </td>
-          </tr>
+          <thead>
+            <tr class="border-b border-bgray-300 dark:border-darkblack-400">
+              <td class="whitespace-nowrap py-4 pr-6">
+                <span class="text-base font-medium text-bgray-600 dark:text-bgray-50">Cliente</span>
+              </td>
+              <td class="whitespace-nowrap px-6 py-4">
+                <span class="text-base font-medium text-bgray-600 dark:text-bgray-50">Contacto</span>
+              </td>
+              <td class="whitespace-nowrap px-6 py-4">
+                <span class="text-base font-medium text-bgray-600 dark:text-bgray-50">Facturación</span>
+              </td>
+              <td class="whitespace-nowrap px-6 py-4">
+                <span class="text-base font-medium text-bgray-600 dark:text-bgray-50">Estado</span>
+              </td>
+              <td class="whitespace-nowrap py-4 pl-6 text-right">
+                <span class="text-base font-medium text-bgray-600 dark:text-bgray-50">Acciones</span>
+              </td>
+            </tr>
+          </thead>
+          <tbody id="clients-table-body">
+            <!-- Las filas se cargarán dinámicamente desde JavaScript -->
+          </tbody>
         </table>
       </div>
-
-      <p class="text-xs font-medium text-bgray-600 dark:text-bgray-50">
-        Nota: esta sección es frontend. La persistencia/edición real se conectará cuando tengamos API o almacenamiento.
-      </p>
     </div>
   </div>
 </div>
@@ -3549,7 +3447,44 @@
           </div>
         </div>
       </div>
-    </div><script src="./assets/js/jquery-3.6.0.min.js"></script>
+    </div>
+
+<!-- Modal: Confirmación de Eliminación -->
+<div id="delete-confirm-modal" class="fixed inset-0 z-[9999] hidden items-center justify-center overflow-y-auto bg-black/60 backdrop-blur-sm">
+  <div class="relative mx-auto w-full max-w-md rounded-lg bg-white p-6 shadow-xl dark:bg-darkblack-600">
+    <div class="mb-4">
+      <h3 class="text-xl font-bold text-bgray-900 dark:text-white">¿Eliminar cliente?</h3>
+      <p class="mt-2 text-sm text-bgray-600 dark:text-bgray-50">
+        Esta acción no se puede deshacer. El cliente será eliminado permanentemente.
+      </p>
+      <p class="mt-3 rounded-lg bg-red-50 p-3 text-sm font-medium text-red-700 dark:bg-red-900/20 dark:text-red-400" id="delete-client-name">
+        <!-- Nombre del cliente a eliminar -->
+      </p>
+    </div>
+    <div class="flex gap-3">
+      <button
+        onclick="closeDeleteModal()"
+        class="flex-1 rounded-lg border border-bgray-300 px-4 py-3 text-sm font-semibold text-bgray-900 transition hover:bg-bgray-100 dark:border-darkblack-400 dark:text-white dark:hover:bg-darkblack-500"
+      >
+        Cancelar
+      </button>
+      <button
+        onclick="confirmDeleteClient()"
+        class="flex-1 rounded-lg bg-red-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-red-600"
+      >
+        Eliminar
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./assets/js/supabaseClient.js"></script>
+<script src="./assets/js/toast.js"></script>
+<script src="./assets/js/clients.js"></script>
+<script src="./assets/js/users-page.js"></script>
+
+<script src="./assets/js/jquery-3.6.0.min.js"></script>
     <script src="./assets/js/slick.min.js"></script>
     <script src="./assets/js/quill.min.js"></script>
 
