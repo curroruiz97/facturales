@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
@@ -98,11 +98,13 @@
             </div>
            
             <!-- Form -->
-            <form action="">
+            <form id="signup-form">
               <div class="flex flex-col md:flex-row gap-4 justify-between mb-4">
                 <div>
                   <input
                     type="text"
+                    id="first-name"
+                    name="first-name"
                     class="text-bgray-800 dark:text-white dark:bg-darkblack-500 dark:border-darkblack-400 text-base border border-bgray-300 h-14 w-full focus:border-success-300 focus:ring-0 rounded-lg px-4 py-3.5 placeholder:text-bgray-500 placeholder:text-base "
                     placeholder="Nombre"
                   />
@@ -110,6 +112,8 @@
                 <div>
                   <input
                     type="text"
+                    id="last-name"
+                    name="last-name"
                     class="text-bgray-800 dark:text-white dark:bg-darkblack-500 dark:border-darkblack-400  text-base border border-bgray-300 h-14 w-full focus:border-success-300 focus:ring-0 rounded-lg px-4 py-3.5 placeholder:text-bgray-500 placeholder:text-base"
                     placeholder="Apellido"
                   />
@@ -117,14 +121,20 @@
               </div>
               <div class="mb-4">
                 <input
-                  type="text"
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
                   class="text-bgray-800 dark:text-white dark:bg-darkblack-500 dark:border-darkblack-400  text-base border border-bgray-300 h-14 w-full focus:border-success-300 focus:ring-0 rounded-lg px-4 py-3.5 placeholder:text-bgray-500 placeholder:text-base"
                   placeholder="Correo electrónico"
                 />
               </div>
               <div class="mb-6 relative">
                 <input
-                  type="text"
+                  type="password"
+                  id="password"
+                  name="password"
+                  required
                   class="text-bgray-800 dark:text-white dark:bg-darkblack-500 dark:border-darkblack-400  text-base border border-bgray-300 h-14 w-full focus:border-success-300 focus:ring-0 rounded-lg px-4 py-3.5 placeholder:text-bgray-500 placeholder:text-base"
                   placeholder="Contraseña"
                 />
@@ -162,7 +172,10 @@
               </div>
               <div class="mb-6 relative">
                 <input
-                  type="text"
+                  type="password"
+                  id="confirm-password"
+                  name="confirm-password"
+                  required
                   class="text-bgray-800 dark:text-white dark:bg-darkblack-500 dark:border-darkblack-400  text-base border border-bgray-300 h-14 w-full focus:border-success-300 focus:ring-0 rounded-lg px-4 py-3.5 placeholder:text-bgray-500 placeholder:text-base"
                   placeholder="Confirmar contraseña"
                 />
@@ -203,10 +216,11 @@
                   <input
                     type="checkbox"
                     class="w-5 h-5 focus:ring-transparent rounded-md border border-bgray-300 focus:accent-success-300 text-success-300 dark:bg-transparent dark:border-darkblack-400"
-                    name="remember"
-                    id="remember"
+                    name="terms"
+                    id="terms"
+                    required
                   />
-                  <label for="remember" class="text-bgray-600 dark:text-bgray-50 text-base"
+                  <label for="terms" class="text-bgray-600 dark:text-bgray-50 text-base"
                     >Al crear una cuenta, aceptas nuestra
                     <span class="text-bgray-900 dark:text-white">Política de privacidad,</span> y
                     <span class="text-bgray-900 dark:text-white"
@@ -215,12 +229,15 @@
                   >
                 </div>
               </div>
-              <a
-                href="signin.html"
+              <div id="error-message" class="hidden mb-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 rounded-lg text-sm"></div>
+              <div id="success-message" class="hidden mb-4 p-3 bg-green-100 dark:bg-green-900/30 border border-green-400 dark:border-green-800 text-green-700 dark:text-green-300 rounded-lg text-sm"></div>
+              <button
+                type="submit"
+                id="signup-button"
                 class="py-3.5 flex items-center justify-center text-white font-bold bg-success-300 hover:bg-success-400 transition-all rounded-lg w-full"
               >
                 Registrarse
-              </a>
+              </button>
             </form>
             <!-- Form Bottom -->
             <p class="text-center text-bgray-900 dark:text-bgray-50 text-base font-medium pt-7">
@@ -282,8 +299,123 @@
     </section>
     <!--scripts -->
     <script src="./assets/js/jquery-3.6.0.min.js"></script>
-
     <script src="./assets/js/main.js"></script>
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module">
+      // Importar módulos
+      import './assets/js/supabaseClient.js';
+      import './assets/js/auth.js';
+      
+      // Esperar un momento para que se inicialice
+      await new Promise(resolve => setTimeout(resolve, 100));
+    </script>
+    
+    <!-- Signup Logic -->
+    <script type="module">
+      document.addEventListener('DOMContentLoaded', async () => {
+        const form = document.getElementById('signup-form');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirm-password');
+        const firstNameInput = document.getElementById('first-name');
+        const lastNameInput = document.getElementById('last-name');
+        const termsCheckbox = document.getElementById('terms');
+        const signupButton = document.getElementById('signup-button');
+        const errorMessage = document.getElementById('error-message');
+        const successMessage = document.getElementById('success-message');
+
+        function showError(message) {
+          errorMessage.textContent = message;
+          errorMessage.classList.remove('hidden');
+          successMessage.classList.add('hidden');
+        }
+
+        function showSuccess(message) {
+          successMessage.textContent = message;
+          successMessage.classList.remove('hidden');
+          errorMessage.classList.add('hidden');
+        }
+
+        function hideMessages() {
+          errorMessage.classList.add('hidden');
+          successMessage.classList.add('hidden');
+        }
+
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          hideMessages();
+
+          const email = emailInput.value.trim();
+          const password = passwordInput.value;
+          const confirmPassword = confirmPasswordInput.value;
+          const firstName = firstNameInput.value.trim();
+          const lastName = lastNameInput.value.trim();
+
+          // Validaciones
+          if (!email) {
+            showError('El email es obligatorio');
+            return;
+          }
+
+          if (!password || password.length < 6) {
+            showError('La contraseña debe tener al menos 6 caracteres');
+            return;
+          }
+
+          if (password !== confirmPassword) {
+            showError('Las contraseñas no coinciden');
+            return;
+          }
+
+          if (!termsCheckbox.checked) {
+            showError('Debes aceptar los términos y condiciones');
+            return;
+          }
+
+          // Deshabilitar botón durante el registro
+          signupButton.disabled = true;
+          signupButton.textContent = 'Registrando...';
+
+          try {
+            // Registrar usuario
+            const metadata = {};
+            if (firstName) metadata.first_name = firstName;
+            if (lastName) metadata.last_name = lastName;
+            if (firstName || lastName) {
+              metadata.full_name = `${firstName} ${lastName}`.trim();
+            }
+
+            const result = await window.signUp(email, password, metadata);
+
+            if (result.success) {
+              showSuccess('¡Registro exitoso! Redirigiendo al dashboard...');
+              
+              // Redirigir después de 2 segundos
+              setTimeout(() => {
+                window.location.href = './index.html';
+              }, 2000);
+            } else {
+              showError(result.error || 'Error al registrar usuario');
+              signupButton.disabled = false;
+              signupButton.textContent = 'Registrarse';
+            }
+          } catch (error) {
+            console.error('Error en registro:', error);
+            showError('Error inesperado al registrar usuario');
+            signupButton.disabled = false;
+            signupButton.textContent = 'Registrarse';
+          }
+        });
+
+        // Verificar si ya está autenticado
+        const isAuthenticated = await window.checkAuth();
+        if (isAuthenticated) {
+          window.location.href = './index.html';
+        }
+      });
+    </script>
   </body>
 </html>
 

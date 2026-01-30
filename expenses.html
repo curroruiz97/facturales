@@ -1935,7 +1935,7 @@
                         <h3
                           class="text-base font-bold leading-[28px] text-bgray-900 dark:text-white"
                         >
-                          John Doe
+                          <span id="user-company-name">Cargando...</span>
                         </h3>
                         <span>
                           <svg
@@ -1958,7 +1958,7 @@
                       <p
                         class="text-sm font-medium leading-[20px] text-bgray-600 dark:text-bgray-50"
                       >
-                        Super Admin
+                        <span id="user-email-display">usuario@email.com</span>
                       </p>
                     </div>
                   </div>
@@ -2661,7 +2661,7 @@
                                 <div class="flex-1">
                                   <span
                                     class="text-sm font-semibold text-bgray-900 dark:text-white"
-                                    >My Profile</span
+                                    >Mi Perfil</span
                                   >
                                 </div>
                               </div>
@@ -2723,7 +2723,7 @@
                                 </div>
                                 <div class="flex-1">
                                   <span class="text-sm font-semibold"
-                                    >Log Out</span
+                                    >Cerrar Sesión</span
                                   >
                                 </div>
                               </div>
@@ -2906,7 +2906,7 @@
                                 </div>
                                 <div class="flex-1">
                                   <span class="text-sm font-semibold"
-                                    >My Profile</span
+                                    >Mi Perfil</span
                                   >
                                 </div>
                               </div>
@@ -2968,7 +2968,7 @@
                                 </div>
                                 <div class="flex-1">
                                   <span class="text-sm font-semibold"
-                                    >Log Out</span
+                                    >Cerrar Sesión</span
                                   >
                                 </div>
                               </div>
@@ -3054,7 +3054,7 @@
                             <input
                               type="text"
                               id="listSearch"
-                              placeholder="Search by name, email, or others..."
+                              placeholder="Buscar por nombre, proveedor, concepto..."
                               class="search-input w-full border-none bg-bgray-100 px-0 text-sm tracking-wide text-bgray-600 placeholder:text-sm placeholder:font-medium placeholder:text-bgray-500 focus:outline-none focus:ring-0 dark:bg-darkblack-500 dark:text-white"
                             />
                           </label>
@@ -3110,7 +3110,7 @@
                               </svg>
                             </span>
                             <span class="text-base font-medium text-success-300"
-                              >Filters</span
+                              >Filtros</span
                             >
                           </div>
                         </button>
@@ -3123,20 +3123,20 @@
                               onclick="dateFilterAction('#table-filter')"
                               class="text-bgray-90 cursor-pointer px-5 py-2 text-sm font-semibold hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
                             >
-                              January
+                              Enero
                             </li>
                             <li
                               onclick="dateFilterAction('#table-filter')"
                               class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
                             >
-                              February
+                              Febrero
                             </li>
 
                             <li
                               onclick="dateFilterAction('#table-filter')"
                               class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
                             >
-                              March
+                              Marzo
                             </li>
                           </ul>
                         </div>
@@ -3148,7 +3148,7 @@
                           <p
                             class="mb-2 text-base font-bold leading-[24px] text-bgray-900 dark:text-white"
                           >
-                            Location
+                            Categoría
                           </p>
                           <div class="relative h-[56px] w-full">
                             <button
@@ -3209,7 +3209,7 @@
                           <p
                             class="mb-2 text-base font-bold leading-[24px] text-bgray-900 dark:text-white"
                           >
-                            Amount Spent
+                            Importe gastado
                           </p>
                           <div class="relative h-[56px] w-full">
                             <button
@@ -3440,7 +3440,7 @@
                               <span
                                 class="text-base font-medium text-bgray-600 dark:text-bgray-50"
                               >
-                                Customer name</span
+                                Proveedor</span
                               >
                               <span>
                                 <svg
@@ -3486,7 +3486,7 @@
                             <div class="flex w-full items-center space-x-2.5">
                               <span
                                 class="text-base font-medium text-bgray-600 dark:text-bgray-50"
-                                >Email</span
+                                >Concepto</span
                               >
                               <span>
                                 <svg
@@ -3533,7 +3533,7 @@
                               <span
                                 class="text-base font-medium text-bgray-600 dark:text-gray-50"
                               >
-                                Location</span
+                                Fecha</span
                               >
                               <span>
                                 <svg
@@ -3579,7 +3579,7 @@
                             <div class="flex w-full items-center space-x-2.5">
                               <span
                                 class="text-base font-medium text-bgray-600 dark:text-bgray-50"
-                                >Spent</span
+                                >Importe</span
                               >
                               <span>
                                 <svg
@@ -4545,10 +4545,10 @@
                       ¿QUÉ DESEAS HACER?
                     </h3>
                     
-                    <!-- Botón Crear Factura - Grande y Destacado -->
+                    <!-- Botón AÑADIR GASTO - Grande y Destacado EN NARANJA -->
                     <button
-                      onclick="window.location.href='invoices/new.html'"
-                      class="group w-full mb-5 bg-success-300 hover:bg-success-400 rounded-xl py-5 px-6 flex items-center justify-center gap-3 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
+                      onclick="openAddExpenseModal()"
+                      class="group w-full mb-5 bg-warning-300 hover:bg-warning-400 rounded-xl py-5 px-6 flex items-center justify-center gap-3 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
                     >
                       <svg
                         width="24"
@@ -4559,35 +4559,22 @@
                         class="transition-transform group-hover:scale-110"
                       >
                         <path
-                          d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z"
+                          d="M12 2V22M2 12H22"
                           stroke="white"
-                          stroke-width="2"
+                          stroke-width="2.5"
                           stroke-linecap="round"
                           stroke-linejoin="round"
                         />
-                        <path
-                          d="M14 2V8H20"
+                        <circle
+                          cx="12"
+                          cy="12"
+                          r="10"
                           stroke="white"
                           stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        />
-                        <path
-                          d="M12 18V12"
-                          stroke="white"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        />
-                        <path
-                          d="M9 15H15"
-                          stroke="white"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
+                          fill="none"
                         />
                       </svg>
-                      <span class="text-lg font-bold text-white">Crear factura</span>
+                      <span class="text-lg font-bold text-white">Añadir gasto</span>
                     </button>
 
                     <!-- Grid de Acciones Secundarias -->
@@ -4638,9 +4625,9 @@
                         <span class="text-xs font-semibold text-bgray-900 dark:text-white text-center leading-tight">Añadir nuevo contacto</span>
                       </button>
 
-                      <!-- Subir un gasto -->
+                      <!-- Crear factura (MOVIDO AQUÍ) -->
                       <button
-                        onclick="window.location.href='expenses.html'"
+                        onclick="window.location.href='invoices/new.html'"
                         class="group flex flex-col items-center justify-center p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-success-300 hover:bg-white dark:bg-darkblack-500 dark:hover:bg-darkblack-400 transition-all duration-300 hover:shadow-md active:scale-95"
                       >
                         <div class="flex items-center justify-center w-12 h-12 mb-3 rounded-full bg-green-50 group-hover:bg-green-100 transition-colors duration-300">
@@ -4652,21 +4639,21 @@
                             xmlns="http://www.w3.org/2000/svg"
                           >
                             <path
-                              d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15"
+                              d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z"
                               stroke="#10B981"
                               stroke-width="2"
                               stroke-linecap="round"
                               stroke-linejoin="round"
                             />
                             <path
-                              d="M17 8L12 3L7 8"
+                              d="M14 2V8H20"
                               stroke="#10B981"
                               stroke-width="2"
                               stroke-linecap="round"
                               stroke-linejoin="round"
                             />
                             <path
-                              d="M12 3V15"
+                              d="M12 18V12M9 15H15"
                               stroke="#10B981"
                               stroke-width="2"
                               stroke-linecap="round"
@@ -4674,7 +4661,7 @@
                             />
                           </svg>
                         </div>
-                        <span class="text-xs font-semibold text-bgray-900 dark:text-white text-center leading-tight">Subir un gasto</span>
+                        <span class="text-xs font-semibold text-bgray-900 dark:text-white text-center leading-tight">Crear factura</span>
                       </button>
 
                       <!-- Crear un presupuesto -->
@@ -4705,21 +4692,7 @@
                               stroke-linejoin="round"
                             />
                             <path
-                              d="M16 13H8"
-                              stroke="#8B5CF6"
-                              stroke-width="2"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                            <path
-                              d="M16 17H8"
-                              stroke="#8B5CF6"
-                              stroke-width="2"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                            <path
-                              d="M10 9H9H8"
+                              d="M16 13H8M16 17H8M10 9H9H8"
                               stroke="#8B5CF6"
                               stroke-width="2"
                               stroke-linecap="round"
@@ -4904,6 +4877,191 @@
       </div>
     </div>
 
+    <!-- Modal: Añadir Gasto -->
+    <div id="add-expense-modal" class="modal fixed inset-0 z-50 hidden flex items-center justify-center overflow-y-auto bg-black/50 backdrop-blur-sm transition-opacity duration-200" role="dialog" aria-labelledby="expense-modal-title" aria-modal="true">
+      <!-- Overlay -->
+      <div class="modal-overlay absolute inset-0" onclick="closeExpenseModal()"></div>
+      
+      <!-- Modal Content -->
+      <div class="modal-content relative w-full max-w-2xl mx-4 my-8 transform transition-all duration-200">
+        <div class="relative rounded-2xl bg-white dark:bg-darkblack-600 shadow-2xl border-2 border-warning-300">
+          <!-- Header -->
+          <div class="flex items-center justify-between border-b border-bgray-200 dark:border-darkblack-400 px-6 py-4">
+            <h3 id="expense-modal-title" class="text-xl font-bold text-bgray-900 dark:text-white">
+              Añadir Nuevo Gasto
+            </h3>
+            <button 
+              type="button" 
+              onclick="closeExpenseModal()"
+              class="rounded-lg p-2 text-bgray-500 hover:bg-bgray-100 dark:hover:bg-darkblack-500 transition-colors"
+              aria-label="Cerrar modal"
+            >
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+          
+          <!-- Body -->
+          <div class="px-6 py-5 max-h-[calc(100vh-200px)] overflow-y-auto">
+            <form id="expense-form" class="space-y-5" onsubmit="handleSaveExpense(event)">
+              
+              <!-- Grid de 2 columnas -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                
+                <!-- Columna 1 -->
+                <div class="space-y-4">
+                  <!-- Proveedor -->
+                  <div>
+                    <label for="expense-supplier" class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
+                      Proveedor <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="expense-supplier"
+                      required
+                      class="w-full h-12 rounded-lg border border-bgray-300 dark:border-darkblack-400 bg-white dark:bg-darkblack-500 px-4 py-3 text-sm text-bgray-900 dark:text-white placeholder:text-bgray-500 focus:border-warning-300 focus:ring-2 focus:ring-warning-300/20 transition-all"
+                      placeholder="Ej: Papelería Central"
+                    />
+                  </div>
+                  
+                  <!-- Concepto -->
+                  <div>
+                    <label for="expense-concept" class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
+                      Concepto <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="expense-concept"
+                      required
+                      class="w-full h-12 rounded-lg border border-bgray-300 dark:border-darkblack-400 bg-white dark:bg-darkblack-500 px-4 py-3 text-sm text-bgray-900 dark:text-white placeholder:text-bgray-500 focus:border-warning-300 focus:ring-2 focus:ring-warning-300/20 transition-all"
+                      placeholder="Ej: Compra de material de oficina"
+                    />
+                  </div>
+                  
+                  <!-- Categoría -->
+                  <div>
+                    <label for="expense-category" class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
+                      Categoría
+                    </label>
+                    <select
+                      id="expense-category"
+                      class="w-full h-12 rounded-lg border border-bgray-300 dark:border-darkblack-400 bg-white dark:bg-darkblack-500 px-4 py-3 text-sm text-bgray-900 dark:text-white focus:border-warning-300 focus:ring-2 focus:ring-warning-300/20 transition-all"
+                    >
+                      <option value="oficina">Material de oficina</option>
+                      <option value="servicios">Servicios profesionales</option>
+                      <option value="suministros">Suministros</option>
+                      <option value="alquiler">Alquiler</option>
+                      <option value="transporte">Transporte</option>
+                      <option value="marketing">Marketing</option>
+                      <option value="otros">Otros gastos</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <!-- Columna 2 -->
+                <div class="space-y-4">
+                  <!-- Importe -->
+                  <div>
+                    <label for="expense-amount" class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
+                      Importe <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                      <input
+                        type="number"
+                        id="expense-amount"
+                        step="0.01"
+                        min="0"
+                        required
+                        class="w-full h-12 rounded-lg border border-bgray-300 dark:border-darkblack-400 bg-white dark:bg-darkblack-500 px-4 py-3 text-sm text-bgray-900 dark:text-white placeholder:text-bgray-500 focus:border-warning-300 focus:ring-2 focus:ring-warning-300/20 transition-all"
+                        placeholder="0,00"
+                      />
+                      <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-bgray-500">€</span>
+                    </div>
+                  </div>
+                  
+                  <!-- Fecha -->
+                  <div>
+                    <label for="expense-date" class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
+                      Fecha <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="date"
+                      id="expense-date"
+                      required
+                      class="w-full h-12 rounded-lg border border-bgray-300 dark:border-darkblack-400 bg-white dark:bg-darkblack-500 px-4 py-3 text-sm text-bgray-900 dark:text-white focus:border-warning-300 focus:ring-2 focus:ring-warning-300/20 transition-all"
+                    />
+                  </div>
+                  
+                  <!-- Notas (opcional) -->
+                  <div>
+                    <label for="expense-notes" class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
+                      Notas
+                    </label>
+                    <textarea
+                      id="expense-notes"
+                      rows="3"
+                      class="w-full rounded-lg border border-bgray-300 dark:border-darkblack-400 bg-white dark:bg-darkblack-500 px-4 py-3 text-sm text-bgray-900 dark:text-white placeholder:text-bgray-500 focus:border-warning-300 focus:ring-2 focus:ring-warning-300/20 transition-all resize-none"
+                      placeholder="Notas adicionales..."
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Footer -->
+              <div class="flex items-center justify-end gap-3 border-t border-bgray-200 dark:border-darkblack-400 pt-5 mt-6">
+                <button
+                  type="button"
+                  onclick="closeExpenseModal()"
+                  class="rounded-lg border border-bgray-300 dark:border-darkblack-400 px-6 py-2.5 text-sm font-semibold text-bgray-700 dark:text-bgray-50 hover:bg-bgray-50 dark:hover:bg-darkblack-500 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  id="expense-save-btn"
+                  class="rounded-lg bg-warning-300 px-6 py-2.5 text-sm font-semibold text-white hover:bg-warning-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Guardar Gasto
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estilos adicionales para animaciones del modal -->
+    <style>
+      .modal.flex {
+        animation: fadeIn 0.2s ease-out;
+      }
+      
+      .modal.flex .modal-content {
+        animation: slideIn 0.2s ease-out;
+      }
+      
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: scale(0.95) translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1) translateY(0);
+        }
+      }
+    </style>
+
     <!--scripts -->
     <script src="./assets/js/jquery-3.6.0.min.js"></script>
     <script src="./assets/js/flatpickr.js"></script>
@@ -4960,6 +5118,17 @@
     </script>
 
     <script src="./assets/js/main.js"></script>
+    
+    <!-- Supabase y Autenticación -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module" src="./assets/js/supabaseClient.js"></script>
+    <script type="module" src="./assets/js/auth.js"></script>
+    <script type="module" src="./assets/js/auth-guard.js"></script>
+    
+    <!-- User header y utilidades -->
+    <script src="./assets/js/user-header.js"></script>
+    <script src="./assets/js/toast.js"></script>
+    <script src="./assets/js/expenses-page.js"></script>
   </body>
 </html>
 

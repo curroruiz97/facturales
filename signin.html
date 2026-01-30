@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
@@ -96,17 +96,23 @@
                 >
               </div>
             </div>
-            <form action="">
+            <form id="signin-form">
               <div class="mb-4">
                 <input
-                  type="text"
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
                   class="text-bgray-800 text-base border border-bgray-300 dark:border-darkblack-400 dark:bg-darkblack-500 dark:text-white h-14 w-full focus:border-success-300 focus:ring-0 rounded-lg px-4 py-3.5 placeholder:text-bgray-500 placeholder:text-base"
-                  placeholder="Nombre de usuario o correo"
+                  placeholder="Correo electrónico"
                 />
               </div>
               <div class="mb-6 relative">
                 <input
-                  type="text"
+                  type="password"
+                  id="password"
+                  name="password"
+                  required
                   class="text-bgray-800 text-base border border-bgray-300 dark:border-darkblack-400 dark:bg-darkblack-500 dark:text-white h-14 w-full focus:border-success-300 focus:ring-0 rounded-lg px-4 py-3.5 placeholder:text-bgray-500 placeholder:text-base"
                   placeholder="Contraseña"
                 />
@@ -165,12 +171,15 @@
                   >
                 </div>
               </div>
-              <a
-                href="index.html"
+              <div id="error-message" class="hidden mb-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 rounded-lg text-sm"></div>
+              <div id="success-message" class="hidden mb-4 p-3 bg-green-100 dark:bg-green-900/30 border border-green-400 dark:border-green-800 text-green-700 dark:text-green-300 rounded-lg text-sm"></div>
+              <button
+                type="submit"
+                id="signin-button"
                 class="py-3.5 flex items-center justify-center text-white font-bold bg-success-300 hover:bg-success-400 transition-all rounded-lg w-full"
               >
                 Iniciar sesión
-              </a>
+              </button>
             </form>
             <p class="text-center text-bgray-900 dark:text-bgray-50 text-base font-medium pt-7">
               ¿No tienes una cuenta?
@@ -570,17 +579,106 @@
     </div>
 
     <!--scripts -->
-
     <script src="./assets/js/jquery-3.6.0.min.js"></script>
-
     <script src="./assets/js/aos.js"></script>
     <script src="./assets/js/slick.min.js"></script>
     <script>
       AOS.init();
     </script>
     <script src="./assets/js/chart.js"></script>
-
     <script src="./assets/js/main.js"></script>
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module">
+      // Importar módulos
+      import './assets/js/supabaseClient.js';
+      import './assets/js/auth.js';
+      
+      // Esperar un momento para que se inicialice
+      await new Promise(resolve => setTimeout(resolve, 100));
+    </script>
+    
+    <!-- Signin Logic -->
+    <script type="module">
+      document.addEventListener('DOMContentLoaded', async () => {
+        const form = document.getElementById('signin-form');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const signinButton = document.getElementById('signin-button');
+        const errorMessage = document.getElementById('error-message');
+        const successMessage = document.getElementById('success-message');
+
+        function showError(message) {
+          errorMessage.textContent = message;
+          errorMessage.classList.remove('hidden');
+          successMessage.classList.add('hidden');
+        }
+
+        function showSuccess(message) {
+          successMessage.textContent = message;
+          successMessage.classList.remove('hidden');
+          errorMessage.classList.add('hidden');
+        }
+
+        function hideMessages() {
+          errorMessage.classList.add('hidden');
+          successMessage.classList.add('hidden');
+        }
+
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          hideMessages();
+
+          const email = emailInput.value.trim();
+          const password = passwordInput.value;
+
+          // Validaciones
+          if (!email) {
+            showError('El email es obligatorio');
+            return;
+          }
+
+          if (!password) {
+            showError('La contraseña es obligatoria');
+            return;
+          }
+
+          // Deshabilitar botón durante el login
+          signinButton.disabled = true;
+          signinButton.textContent = 'Iniciando sesión...';
+
+          try {
+            // Iniciar sesión
+            const result = await window.signIn(email, password);
+
+            if (result.success) {
+              showSuccess('¡Inicio de sesión exitoso! Redirigiendo...');
+              
+              // Redirigir después de 1 segundo
+              setTimeout(() => {
+                window.location.href = './index.html';
+              }, 1000);
+            } else {
+              showError(result.error || 'Error al iniciar sesión');
+              signinButton.disabled = false;
+              signinButton.textContent = 'Iniciar sesión';
+            }
+          } catch (error) {
+            console.error('Error en inicio de sesión:', error);
+            showError('Error inesperado al iniciar sesión');
+            signinButton.disabled = false;
+            signinButton.textContent = 'Iniciar sesión';
+          }
+        });
+
+        // Verificar si ya está autenticado
+        const isAuthenticated = await window.checkAuth();
+        if (isAuthenticated) {
+          window.location.href = './index.html';
+        }
+      });
+    </script>
   </body>
 </html>
 

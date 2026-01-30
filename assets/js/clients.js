@@ -4,7 +4,12 @@
  */
 
 // Referencia al cliente de Supabase
-//const supabase = window.supabaseClient;
+const getSupabase = () => {
+  if (!window.supabaseClient) {
+    throw new Error('Supabase client no está inicializado');
+  }
+  return window.supabaseClient;
+};
 
 /**
  * Crear un nuevo cliente
@@ -13,7 +18,16 @@
  */
 async function createClient(clientData) {
   try {
-    // Preparar datos
+    const supabase = getSupabase();
+    
+    // Obtener usuario autenticado para asignar user_id
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    if (authError || !user) {
+      throw new Error('Usuario no autenticado. Por favor, inicia sesión.');
+    }
+    
+    // Preparar datos con user_id
     const data = {
       nombre_razon_social: clientData.nombre_razon_social?.trim(),
       identificador: clientData.identificador?.trim().toUpperCase(),
@@ -24,7 +38,8 @@ async function createClient(clientData) {
       ciudad: clientData.ciudad?.trim() || null,
       pais: clientData.pais?.trim() || null,
       dia_facturacion: clientData.dia_facturacion ? parseInt(clientData.dia_facturacion) : null,
-      estado: clientData.estado || 'activo'
+      estado: clientData.estado || 'activo',
+      user_id: user.id // Auto-asignar user_id
     };
 
     // Validaciones básicas
@@ -34,7 +49,7 @@ async function createClient(clientData) {
     if (!data.identificador) {
       throw new Error('El identificador es obligatorio');
     }
-
+    
     // Insertar en Supabase
     const { data: cliente, error } = await supabase
       .from('clientes')
@@ -45,12 +60,21 @@ async function createClient(clientData) {
     if (error) {
       console.error('Error creating client:', error);
       
-      // Manejar error de identificador duplicado
+      // Manejar errores específicos
       if (error.code === '23505') {
         throw new Error('Ya existe un cliente con ese identificador');
       }
       
-      throw new Error('Error al crear el cliente');
+      // Error de autenticación/RLS
+      if (error.code === 'PGRST301' || error.message.includes('JWT')) {
+        throw new Error('No tienes permisos para crear clientes. Por favor, inicia sesión.');
+      }
+      
+      if (error.code === '42501') {
+        throw new Error('No tienes permisos para realizar esta acción');
+      }
+      
+      throw new Error(error.message || 'Error al crear el cliente');
     }
 
     return { success: true, data: cliente };
@@ -67,6 +91,8 @@ async function createClient(clientData) {
  */
 async function getClients(searchTerm = '') {
   try {
+    const supabase = getSupabase();
+    
     let query = supabase
       .from('clientes')
       .select('*')
@@ -81,7 +107,13 @@ async function getClients(searchTerm = '') {
 
     if (error) {
       console.error('Error fetching clients:', error);
-      throw new Error('Error al obtener los clientes');
+      
+      // Error de autenticación/RLS
+      if (error.code === 'PGRST301' || error.message.includes('JWT')) {
+        throw new Error('No tienes permisos para ver clientes. Por favor, inicia sesión.');
+      }
+      
+      throw new Error(error.message || 'Error al obtener los clientes');
     }
 
     return { success: true, data: data || [] };
@@ -102,6 +134,8 @@ async function getClientById(clientId) {
       throw new Error('ID de cliente no proporcionado');
     }
 
+    const supabase = getSupabase();
+    
     const { data, error } = await supabase
       .from('clientes')
       .select('*')
@@ -132,25 +166,58 @@ async function updateClient(clientId, clientData) {
       throw new Error('ID de cliente no proporcionado');
     }
 
-    // Preparar datos (similar a createClient)
-    const data = {
-      nombre_razon_social: clientData.nombre_razon_social?.trim(),
-      identificador: clientData.identificador?.trim().toUpperCase(),
-      email: clientData.email?.trim() || null,
-      telefono: clientData.telefono?.trim() || null,
-      direccion: clientData.direccion?.trim() || null,
-      codigo_postal: clientData.codigo_postal?.trim() || null,
-      ciudad: clientData.ciudad?.trim() || null,
-      pais: clientData.pais?.trim() || null,
-      dia_facturacion: clientData.dia_facturacion ? parseInt(clientData.dia_facturacion) : null,
-      estado: clientData.estado || 'activo'
-    };
+    const supabase = getSupabase();
+    
+    // Preparar datos - SOLO los campos que se están enviando
+    const data = {};
+    
+    // Procesar cada campo solo si existe en clientData
+    if (clientData.nombre_razon_social !== undefined) {
+      data.nombre_razon_social = clientData.nombre_razon_social?.trim();
+    }
+    
+    if (clientData.identificador !== undefined) {
+      data.identificador = clientData.identificador?.trim().toUpperCase();
+    }
+    
+    if (clientData.email !== undefined) {
+      data.email = clientData.email?.trim() || null;
+    }
+    
+    if (clientData.telefono !== undefined) {
+      data.telefono = clientData.telefono?.trim() || null;
+    }
+    
+    if (clientData.direccion !== undefined) {
+      data.direccion = clientData.direccion?.trim() || null;
+    }
+    
+    if (clientData.codigo_postal !== undefined) {
+      data.codigo_postal = clientData.codigo_postal?.trim() || null;
+    }
+    
+    if (clientData.ciudad !== undefined) {
+      data.ciudad = clientData.ciudad?.trim() || null;
+    }
+    
+    if (clientData.pais !== undefined) {
+      data.pais = clientData.pais?.trim() || null;
+    }
+    
+    if (clientData.dia_facturacion !== undefined) {
+      data.dia_facturacion = clientData.dia_facturacion ? parseInt(clientData.dia_facturacion) : null;
+    }
+    
+    if (clientData.estado !== undefined) {
+      data.estado = clientData.estado || 'activo';
+    }
 
-    // Validaciones
-    if (!data.nombre_razon_social) {
+    // Validaciones SOLO si se están actualizando esos campos
+    if (data.nombre_razon_social !== undefined && !data.nombre_razon_social) {
       throw new Error('El nombre/razón social es obligatorio');
     }
-    if (!data.identificador) {
+    
+    if (data.identificador !== undefined && !data.identificador) {
       throw new Error('El identificador es obligatorio');
     }
 
@@ -170,7 +237,16 @@ async function updateClient(clientId, clientData) {
         throw new Error('Ya existe un cliente con ese identificador');
       }
       
-      throw new Error('Error al actualizar el cliente');
+      // Error de autenticación/RLS
+      if (error.code === 'PGRST301' || error.message.includes('JWT')) {
+        throw new Error('No tienes permisos para actualizar clientes. Por favor, inicia sesión.');
+      }
+      
+      if (error.code === '42501') {
+        throw new Error('No tienes permisos para realizar esta acción');
+      }
+      
+      throw new Error(error.message || 'Error al actualizar el cliente');
     }
 
     return { success: true, data: cliente };
@@ -191,6 +267,8 @@ async function deleteClient(clientId) {
       throw new Error('ID de cliente no proporcionado');
     }
 
+    const supabase = getSupabase();
+    
     const { error } = await supabase
       .from('clientes')
       .delete()
@@ -198,7 +276,17 @@ async function deleteClient(clientId) {
 
     if (error) {
       console.error('Error deleting client:', error);
-      throw new Error('Error al eliminar el cliente');
+      
+      // Error de autenticación/RLS
+      if (error.code === 'PGRST301' || error.message.includes('JWT')) {
+        throw new Error('No tienes permisos para eliminar clientes. Por favor, inicia sesión.');
+      }
+      
+      if (error.code === '42501') {
+        throw new Error('No tienes permisos para realizar esta acción');
+      }
+      
+      throw new Error(error.message || 'Error al eliminar el cliente');
     }
 
     return { success: true };
@@ -220,6 +308,8 @@ async function searchClientsAutocomplete(term) {
       return { success: true, data: [] };
     }
 
+    const supabase = getSupabase();
+    
     const { data, error } = await supabase
       .from('clientes')
       .select('id, nombre_razon_social, identificador, email, telefono, direccion, codigo_postal, ciudad, pais')
@@ -282,8 +372,79 @@ window.searchClientsAutocomplete = searchClientsAutocomplete;
 window.getInitials = getInitials;
 window.formatFullAddress = formatFullAddress;
 
+/**
+ * Validar datos de cliente
+ * @param {Object} data - Datos del cliente
+ * @returns {Object} Resultado de validación
+ */
+function validateClientData(data) {
+  const errors = {};
+  
+  // Nombre obligatorio
+  if (!data.nombre_razon_social?.trim()) {
+    errors.nombre_razon_social = 'El nombre/razón social es obligatorio';
+  }
+  
+  // Identificador obligatorio
+  if (!data.identificador?.trim()) {
+    errors.identificador = 'El NIF/CIF es obligatorio';
+  }
+  
+  // Email válido (si se proporciona)
+  if (data.email && !isValidEmail(data.email)) {
+    errors.email = 'El formato del email no es válido';
+  }
+  
+  // Teléfono válido (si se proporciona)
+  if (data.telefono && data.telefono.trim() && !isValidPhone(data.telefono)) {
+    errors.telefono = 'El formato del teléfono no es válido';
+  }
+  
+  // Día de facturación válido
+  if (data.dia_facturacion) {
+    const day = parseInt(data.dia_facturacion);
+    if (isNaN(day) || day < 1 || day > 31) {
+      errors.dia_facturacion = 'El día debe estar entre 1 y 31';
+    }
+  }
+  
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors
+  };
+}
+
+/**
+ * Validar formato de email
+ * @param {string} email - Email a validar
+ * @returns {boolean} true si es válido
+ */
+function isValidEmail(email) {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(email);
+}
+
+/**
+ * Validar formato de teléfono
+ * @param {string} phone - Teléfono a validar
+ * @returns {boolean} true si es válido
+ */
+function isValidPhone(phone) {
+  // Permitir formatos: +34 600 000 000, 600000000, +34600000000
+  const re = /^[\+]?[0-9\s\-\(\)]{9,20}$/;
+  return re.test(phone);
+}
+
 // Utilidades adicionales
 window.clientsUtils = {
   getInitials,
-  formatFullAddress
+  formatFullAddress,
+  validateClientData,
+  isValidEmail,
+  isValidPhone
 };
+
+// Exportar funciones de validación
+window.validateClientData = validateClientData;
+window.isValidEmail = isValidEmail;
+window.isValidPhone = isValidPhone;

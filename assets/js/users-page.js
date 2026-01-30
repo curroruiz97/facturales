@@ -76,8 +76,8 @@ function renderClientsTable(clients) {
     // Columna: Cliente
     const initials = getInitials(client.nombre_razon_social);
     const estadoBadge = client.estado === 'activo' 
-      ? '<span class="inline-flex items-center rounded-lg bg-success-50 px-3 py-1 text-xs font-semibold text-success-300 dark:bg-darkblack-500">Activo</span>'
-      : '<span class="inline-flex items-center rounded-lg bg-bgray-100 px-3 py-1 text-xs font-semibold text-bgray-700 dark:bg-darkblack-500 dark:text-bgray-50">Inactivo</span>';
+      ? `<button onclick="toggleClientStatus('${client.id}', '${client.estado}')" class="inline-flex items-center rounded-lg bg-success-50 px-3 py-1 text-xs font-semibold text-success-300 dark:bg-darkblack-500 hover:bg-success-100 transition-colors cursor-pointer">Activo</button>`
+      : `<button onclick="toggleClientStatus('${client.id}', '${client.estado}')" class="inline-flex items-center rounded-lg bg-bgray-100 px-3 py-1 text-xs font-semibold text-bgray-700 dark:bg-darkblack-500 dark:text-bgray-50 hover:bg-bgray-200 transition-colors cursor-pointer">Inactivo</button>`;
     
     row.innerHTML = `
       <td class="py-5 pr-6">
@@ -393,6 +393,30 @@ async function confirmDeleteClient() {
   }
 }
 
+/**
+ * Cambiar estado del cliente con un solo clic
+ */
+async function toggleClientStatus(clientId, currentStatus) {
+  try {
+    // Determinar el nuevo estado
+    const newStatus = currentStatus === 'activo' ? 'inactivo' : 'activo';
+    
+    // Actualizar en Supabase
+    const result = await updateClient(clientId, { estado: newStatus });
+    
+    if (result.success) {
+      const statusText = newStatus === 'activo' ? 'activado' : 'desactivado';
+      showToast(`Cliente ${statusText} correctamente`, 'success');
+      loadClients(); // Recargar la tabla
+    } else {
+      showToast(result.error || 'Error al cambiar el estado', 'error');
+    }
+  } catch (error) {
+    console.error('Error toggling status:', error);
+    showToast('Error al cambiar el estado', 'error');
+  }
+}
+
 // Hacer funciones globales para que puedan ser llamadas desde HTML
 window.handleSearchClients = handleSearchClients;
 window.openCreateClientModal = openCreateClientModal;
@@ -401,3 +425,4 @@ window.closeClientModal = closeClientModal;
 window.openDeleteModal = openDeleteModal;
 window.closeDeleteModal = closeDeleteModal;
 window.confirmDeleteClient = confirmDeleteClient;
+window.toggleClientStatus = toggleClientStatus;

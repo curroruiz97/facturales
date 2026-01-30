@@ -179,7 +179,10 @@ function ModalExist() {
       stepContents.forEach((stepContent) =>
         stepContent.classList.add("hidden")
       );
-      modalContent.querySelector(`.step-${step}`).classList.remove("hidden");
+      const stepElement = modalContent.querySelector(`.step-${step}`);
+      if (stepElement) {
+        stepElement.classList.remove("hidden");
+      }
     }
 
     function setCurrentStep(step) {

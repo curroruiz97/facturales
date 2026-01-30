@@ -114,7 +114,7 @@ function fillClientFields(client) {
   // Nombre
   const nameInput = document.getElementById('client-name');
   if (nameInput) {
-    nameInput.value = client.nombre_razon_social;
+    nameInput.value = client.nombre_razon_social || '';
   }
   
   // Identificador
@@ -135,17 +135,16 @@ function fillClientFields(client) {
     phoneInput.value = client.telefono || '';
   }
   
-  // Dirección completa
+  // Dirección fiscal (SOLO la dirección, sin código postal, ciudad ni país)
   const addressInput = document.getElementById('client-address');
   if (addressInput) {
-    // Formar dirección completa
-    const addressParts = [];
-    if (client.direccion) addressParts.push(client.direccion);
-    if (client.codigo_postal) addressParts.push(client.codigo_postal);
-    if (client.ciudad) addressParts.push(client.ciudad);
-    if (client.pais) addressParts.push(client.pais);
-    
-    addressInput.value = addressParts.join(', ');
+    addressInput.value = client.direccion || '';
+  }
+  
+  // Código postal (campo separado)
+  const postalInput = document.getElementById('client-postal-code');
+  if (postalInput) {
+    postalInput.value = client.codigo_postal || '';
   }
 }
 
@@ -203,26 +202,43 @@ function closeInvoiceCreateClientModal() {
 async function handleInvoiceSaveClient(event) {
   event.preventDefault();
   
-  // Deshabilitar botón
-  const saveBtn = event.target.querySelector('button[type="submit"]');
+  // Deshabilitar botón con animación de carga
+  const saveBtn = document.getElementById('invoice-client-save-btn') || event.target.querySelector('button[type="submit"]');
   const originalText = saveBtn.textContent;
   saveBtn.disabled = true;
-  saveBtn.textContent = 'Guardando...';
+  saveBtn.innerHTML = `
+    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    </svg>
+    Guardando...
+  `;
   
   try {
     // Recoger datos del formulario
     const clientData = {
-      nombre_razon_social: document.getElementById('new-client-name').value,
-      identificador: document.getElementById('new-client-nif').value,
-      email: document.getElementById('new-client-email').value || null,
-      telefono: document.getElementById('new-client-phone').value || null,
-      direccion: document.getElementById('new-client-address').value || null,
-      codigo_postal: document.getElementById('new-client-postal').value || null,
-      ciudad: document.getElementById('new-client-city').value || null,
-      pais: document.getElementById('new-client-country').value || null,
-      dia_facturacion: document.getElementById('new-client-billing-day').value || null,
-      estado: document.getElementById('new-client-status').value === 'Activo' ? 'activo' : 'inactivo'
+      nombre_razon_social: document.getElementById('new-client-name')?.value.trim() || '',
+      identificador: document.getElementById('new-client-nif')?.value.trim() || '',
+      email: document.getElementById('new-client-email')?.value.trim() || null,
+      telefono: document.getElementById('new-client-phone')?.value.trim() || null,
+      direccion: document.getElementById('new-client-address')?.value.trim() || null,
+      codigo_postal: document.getElementById('new-client-postal')?.value.trim() || null,
+      ciudad: document.getElementById('new-client-city')?.value.trim() || null,
+      pais: document.getElementById('new-client-country')?.value.trim() || null,
+      dia_facturacion: document.getElementById('new-client-billing-day')?.value || null,
+      estado: document.getElementById('new-client-status')?.value === 'active' ? 'activo' : 'inactivo'
     };
+    
+    // Validaciones básicas
+    if (!clientData.nombre_razon_social) {
+      showToast('El nombre/razón social es obligatorio', 'error');
+      return;
+    }
+    
+    if (!clientData.identificador) {
+      showToast('El NIF/CIF es obligatorio', 'error');
+      return;
+    }
     
     const result = await createClient(clientData);
     
@@ -232,6 +248,12 @@ async function handleInvoiceSaveClient(event) {
       // Auto-seleccionar el cliente recién creado
       selectedClientId = result.data.id;
       fillClientFields(result.data);
+      
+      // Actualizar el input de nombre visible con el cliente seleccionado
+      const clientNameInput = document.getElementById('client-name');
+      if (clientNameInput) {
+        clientNameInput.value = result.data.nombre_razon_social;
+      }
       
       // Cerrar modal
       closeInvoiceCreateClientModal();
