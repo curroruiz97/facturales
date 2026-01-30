@@ -116,8 +116,9 @@
                   class="text-bgray-800 text-base border border-bgray-300 dark:border-darkblack-400 dark:bg-darkblack-500 dark:text-white h-14 w-full focus:border-success-300 focus:ring-0 rounded-lg px-4 py-3.5 placeholder:text-bgray-500 placeholder:text-base"
                   placeholder="Contraseña"
                 />
-                <button class="absolute top-4 right-4 bottom-4">
+                <button type="button" id="toggle-signin-password" class="absolute top-4 right-4 bottom-4">
                   <svg
+                    id="eye-off-signin-password"
                     width="22"
                     height="20"
                     viewBox="0 0 22 20"
@@ -140,6 +141,30 @@
                     />
                     <path
                       d="M8.363 3.36506C9.22042 3.11978 10.1082 2.9969 11 3.00006C15 3.00006 18.333 5.33306 21 10.0001C20.222 11.3611 19.388 12.5241 18.497 13.4881M16.357 15.3491C14.726 16.4491 12.942 17.0001 11 17.0001C7 17.0001 3.667 14.6671 1 10.0001C2.369 7.60506 3.913 5.82506 5.632 4.65906"
+                      stroke="#718096"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  <svg
+                    id="eye-on-signin-password"
+                    class="hidden"
+                    width="22"
+                    height="20"
+                    viewBox="0 0 22 20"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M1 10C1 10 5 2 11 2C17 2 21 10 21 10C21 10 17 18 11 18C5 18 1 10 1 10Z"
+                      stroke="#718096"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                    <path
+                      d="M11 13C12.6569 13 14 11.6569 14 10C14 8.34315 12.6569 7 11 7C9.34315 7 8 8.34315 8 10C8 11.6569 9.34315 13 11 13Z"
                       stroke="#718096"
                       stroke-width="1.5"
                       stroke-linecap="round"
@@ -597,87 +622,179 @@
       
       // Esperar un momento para que se inicialice
       await new Promise(resolve => setTimeout(resolve, 100));
+      
+      console.log('✅ Módulos de Supabase cargados');
+      
+      // Marcar que está listo
+      window.supabaseReady = true;
     </script>
     
     <!-- Signin Logic -->
-    <script type="module">
-      document.addEventListener('DOMContentLoaded', async () => {
-        const form = document.getElementById('signin-form');
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-        const signinButton = document.getElementById('signin-button');
-        const errorMessage = document.getElementById('error-message');
-        const successMessage = document.getElementById('success-message');
+    <script>
+      // Ejecutar inmediatamente cuando el DOM esté listo
+      (function() {
+        console.log('🔄 Inicializando signin (inmediato)...');
+        
+        // Función para inicializar
+        function initSignin() {
+          const form = document.getElementById('signin-form');
+          const emailInput = document.getElementById('email');
+          const passwordInput = document.getElementById('password');
+          const signinButton = document.getElementById('signin-button');
+          const errorMessage = document.getElementById('error-message');
+          const successMessage = document.getElementById('success-message');
+          
+          // Elementos para toggle de contraseña
+          const toggleSigninPasswordBtn = document.getElementById('toggle-signin-password');
+          const eyeOffSigninPassword = document.getElementById('eye-off-signin-password');
+          const eyeOnSigninPassword = document.getElementById('eye-on-signin-password');
 
-        function showError(message) {
-          errorMessage.textContent = message;
-          errorMessage.classList.remove('hidden');
-          successMessage.classList.add('hidden');
-        }
+          console.log('📋 Elementos encontrados:', {
+            form: !!form,
+            toggleSigninPasswordBtn: !!toggleSigninPasswordBtn
+          });
 
-        function showSuccess(message) {
-          successMessage.textContent = message;
-          successMessage.classList.remove('hidden');
-          errorMessage.classList.add('hidden');
-        }
-
-        function hideMessages() {
-          errorMessage.classList.add('hidden');
-          successMessage.classList.add('hidden');
-        }
-
-        form.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          hideMessages();
-
-          const email = emailInput.value.trim();
-          const password = passwordInput.value;
-
-          // Validaciones
-          if (!email) {
-            showError('El email es obligatorio');
-            return;
+          function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.remove('hidden');
+            successMessage.classList.add('hidden');
           }
 
-          if (!password) {
-            showError('La contraseña es obligatoria');
-            return;
+          function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.classList.remove('hidden');
+            errorMessage.classList.add('hidden');
           }
 
-          // Deshabilitar botón durante el login
-          signinButton.disabled = true;
-          signinButton.textContent = 'Iniciando sesión...';
+          function hideMessages() {
+            errorMessage.classList.add('hidden');
+            successMessage.classList.add('hidden');
+          }
 
-          try {
-            // Iniciar sesión
-            const result = await window.signIn(email, password);
-
-            if (result.success) {
-              showSuccess('¡Inicio de sesión exitoso! Redirigiendo...');
+          // Funcionalidad de mostrar/ocultar contraseña
+          if (toggleSigninPasswordBtn) {
+            console.log('✅ Configurando toggle de contraseña');
+            toggleSigninPasswordBtn.addEventListener('click', function(e) {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('👁️ Click en toggle password');
               
-              // Redirigir después de 1 segundo
-              setTimeout(() => {
-                window.location.href = './index.html';
-              }, 1000);
-            } else {
-              showError(result.error || 'Error al iniciar sesión');
-              signinButton.disabled = false;
-              signinButton.textContent = 'Iniciar sesión';
-            }
-          } catch (error) {
-            console.error('Error en inicio de sesión:', error);
-            showError('Error inesperado al iniciar sesión');
-            signinButton.disabled = false;
-            signinButton.textContent = 'Iniciar sesión';
+              if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeOffSigninPassword.classList.add('hidden');
+                eyeOnSigninPassword.classList.remove('hidden');
+                console.log('👁️ Contraseña visible');
+              } else {
+                passwordInput.type = 'password';
+                eyeOffSigninPassword.classList.remove('hidden');
+                eyeOnSigninPassword.classList.add('hidden');
+                console.log('🔒 Contraseña oculta');
+              }
+            });
+          } else {
+            console.error('❌ toggleSigninPasswordBtn no encontrado');
           }
-        });
 
-        // Verificar si ya está autenticado
-        const isAuthenticated = await window.checkAuth();
-        if (isAuthenticated) {
-          window.location.href = './index.html';
+          // Submit del formulario
+          if (form) {
+            console.log('✅ Configurando submit del formulario');
+            form.addEventListener('submit', async function(e) {
+              e.preventDefault();
+              e.stopPropagation();
+              
+              console.log('📝 Formulario de inicio de sesión enviado - prevención activada');
+              hideMessages();
+
+              const email = emailInput.value.trim();
+              const password = passwordInput.value;
+
+              // Validaciones
+              if (!email) {
+                showError('El email es obligatorio');
+                return false;
+              }
+
+              if (!password) {
+                showError('La contraseña es obligatoria');
+                return false;
+              }
+
+              // Esperar a que Supabase esté listo
+              let attempts = 0;
+              while (!window.signIn && attempts < 50) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+                attempts++;
+              }
+
+              // Verificar que window.signIn esté disponible
+              if (typeof window.signIn !== 'function') {
+                showError('Error: Sistema de autenticación no disponible. Recarga la página.');
+                console.error('❌ window.signIn no está definido después de esperar');
+                return false;
+              }
+
+              // Deshabilitar botón durante el login
+              signinButton.disabled = true;
+              signinButton.textContent = 'Iniciando sesión...';
+
+              try {
+                console.log('🔐 Intentando iniciar sesión...');
+                
+                // Iniciar sesión
+                const result = await window.signIn(email, password);
+                
+                console.log('📊 Resultado del inicio de sesión:', result);
+
+                if (result.success) {
+                  showSuccess('¡Inicio de sesión exitoso! Redirigiendo...');
+                  
+                  // Redirigir después de 1 segundo
+                  setTimeout(() => {
+                    window.location.href = './index.html';
+                  }, 1000);
+                } else {
+                  showError(result.error || 'Error al iniciar sesión');
+                  signinButton.disabled = false;
+                  signinButton.textContent = 'Iniciar sesión';
+                }
+              } catch (error) {
+                console.error('❌ Error en inicio de sesión:', error);
+                showError('Error inesperado al iniciar sesión: ' + error.message);
+                signinButton.disabled = false;
+                signinButton.textContent = 'Iniciar sesión';
+              }
+              
+              return false;
+            });
+          } else {
+            console.error('❌ Formulario no encontrado');
+          }
+
+          // Verificar si ya está autenticado
+          setTimeout(async () => {
+            try {
+              if (typeof window.checkAuth === 'function') {
+                const isAuthenticated = await window.checkAuth();
+                if (isAuthenticated) {
+                  console.log('✅ Usuario ya autenticado, redirigiendo...');
+                  window.location.href = './index.html';
+                }
+              }
+            } catch (error) {
+              console.error('Error al verificar autenticación:', error);
+            }
+          }, 300);
+          
+          console.log('✅ Signin inicializado correctamente');
         }
-      });
+
+        // Ejecutar cuando el DOM esté listo
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', initSignin);
+        } else {
+          initSignin();
+        }
+      })();
     </script>
   </body>
 </html>

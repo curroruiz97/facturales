@@ -297,7 +297,7 @@
                     </a>
                   </li>
                   <li class="item py-[11px] text-bgray-900 dark:text-white">
-                    <a href="new.html">
+                    <a href="#">
                       <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-2.5">
                           <span class="item-ico">
@@ -333,11 +333,53 @@
                           </span>
                           <span
                             class="item-text text-lg font-medium leading-none"
-                            >Emitir factura</span
+                            >Facturas</span
                           >
                         </div>
+                        <span>
+                          <svg
+                            width="6"
+                            height="12"
+                            viewBox="0 0 6 12"
+                            fill="none"
+                            class="fill-current"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              fill-rule="evenodd"
+                              clip-rule="evenodd"
+                              fill="currentColor"
+                              d="M0.531506 0.414376C0.20806 0.673133 0.155619 1.1451 0.414376 1.46855L4.03956 6.00003L0.414376 10.5315C0.155618 10.855 0.208059 11.3269 0.531506 11.5857C0.854952 11.8444 1.32692 11.792 1.58568 11.4685L5.58568 6.46855C5.80481 6.19464 5.80481 5.80542 5.58568 5.53151L1.58568 0.531506C1.32692 0.20806 0.854953 0.155619 0.531506 0.414376Z"
+                            />
+                          </svg>
+                        </span>
                       </div>
                     </a>
+                    <ul
+                      class="sub-menu ml-2.5 mt-[22px] border-l border-success-100 pl-5"
+                    >
+                      <li>
+                        <a
+                          href="new.html"
+                          class="text-md inline-block py-1.5 font-medium text-bgray-600 transition-all hover:text-bgray-800 dark:text-bgray-50 hover:dark:text-success-300"
+                          >Emitir factura</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="drafts.html"
+                          class="text-md inline-block py-1.5 font-medium text-bgray-600 transition-all hover:text-bgray-800 dark:text-bgray-50 hover:dark:text-success-300"
+                          >Borradores</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="issued.html"
+                          class="text-md inline-block py-1.5 font-medium text-bgray-600 transition-all hover:text-bgray-800 dark:text-bgray-50 hover:dark:text-success-300"
+                          >Facturas emitidas</a
+                        >
+                      </li>
+                    </ul>
                   </li>
                   <li class="item py-[11px] text-bgray-900 dark:text-white">
                     <a href="../expenses.html">
@@ -2005,17 +2047,17 @@
                       class="h-[52px] w-[52px] overflow-hidden rounded-xl border border-bgray-300"
                     >
                       <img
-                        class="object-cover"
+                        class="user-profile-image object-cover w-full h-full"
                         src="../assets/images/avatar/profile-52x52.png"
-                        alt="avater"
+                        alt="perfil"
                       />
                     </div>
                     <div class="hidden 2xl:block">
                       <div class="flex items-center space-x-2.5">
                         <h3
-                          class="text-base font-bold leading-[28px] text-bgray-900 dark:text-white"
+                          class="user-profile-name text-base font-bold leading-[28px] text-bgray-900 dark:text-white"
                         >
-                          <span id="user-company-name">Cargando...</span>
+                          Usuario
                         </h3>
                         <span>
                           <svg
@@ -2036,9 +2078,9 @@
                         </span>
                       </div>
                       <p
-                        class="text-sm font-medium leading-[20px] text-bgray-600 dark:text-bgray-50"
+                        class="user-profile-email text-sm font-medium leading-[20px] text-bgray-600 dark:text-bgray-50"
                       >
-                        <span id="user-email-display">usuario@email.com</span>
+                        usuario@ejemplo.com
                       </p>
                     </div>
                   </div>
@@ -3090,6 +3132,9 @@
           <main
             class="w-full px-6 pb-6 pt-[100px] sm:pt-[156px] xl:px-[32px] xl:pb-[32px]"
           >
+            <!-- Campo oculto para ID de borrador (modo edición) -->
+            <input type="hidden" id="draft-id" />
+            
             <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p class="text-sm font-medium text-bgray-600 dark:text-bgray-50">
@@ -3157,7 +3202,8 @@
                       id="issuer-name"
                       type="text"
                       placeholder="BankCo Digital S.L."
-                      class="h-12 w-full rounded-lg border border-bgray-200 px-4 text-base text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
+                      disabled
+                      class="h-12 w-full rounded-lg border border-bgray-200 px-4 text-base text-bgray-600 bg-bgray-100 dark:bg-darkblack-400 dark:text-bgray-300 cursor-not-allowed"
                     />
                   </div>
                   <div class="grid gap-4 sm:grid-cols-2">
@@ -3172,7 +3218,8 @@
                         id="issuer-nif"
                         type="text"
                         placeholder="B12345678"
-                        class="h-12 w-full rounded-lg border border-bgray-200 px-4 text-base text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
+                        disabled
+                        class="h-12 w-full rounded-lg border border-bgray-200 px-4 text-base text-bgray-600 bg-bgray-100 dark:bg-darkblack-400 dark:text-bgray-300 cursor-not-allowed"
                       />
                     </div>
                     <div>
@@ -5054,18 +5101,33 @@
       // Inicializar el manejador de datos
       const invoiceDataHandler = new InvoiceDataHandler();
       
+      // Inicializar página (detectar modo edición)
+      if (window.initNewPage) {
+        window.initNewPage();
+      }
+      
       // Botón para ir a vista previa
       document.getElementById('go-to-preview-btn')?.addEventListener('click', function() {
-        invoiceDataHandler.goToPreview();
+        if (window.goToPreview) {
+          window.goToPreview();
+        } else {
+          // Fallback al comportamiento original
+          invoiceDataHandler.goToPreview();
+        }
       });
       
       // Botón para guardar borrador
       document.getElementById('save-draft-btn')?.addEventListener('click', function() {
-        const data = invoiceDataHandler.captureFormData();
-        if (invoiceDataHandler.saveToStorage(data)) {
-          alert('Borrador guardado correctamente');
+        if (window.saveDraft) {
+          window.saveDraft();
         } else {
-          alert('Error al guardar el borrador');
+          // Fallback al comportamiento original
+          const data = invoiceDataHandler.captureFormData();
+          if (invoiceDataHandler.saveToStorage(data)) {
+            alert('Borrador guardado correctamente');
+          } else {
+            alert('Error al guardar el borrador');
+          }
         }
       });
 
@@ -5297,20 +5359,107 @@
     </script>
 
     <!-- Supabase and Clients Scripts -->
+    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script type="module">
-      // Importar módulos de Supabase
-      import '../assets/js/supabaseClient.js';
-      import '../assets/js/auth.js';
-      import '../assets/js/clients.js';
-      
-      // Esperar inicialización
-      await new Promise(resolve => setTimeout(resolve, 100));
-    </script>
-    <script src="../assets/js/user-header.js"></script>
+    <script src="../assets/js/supabaseClient.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/businessInfo.js"></script>
+    <script src="../assets/js/clients.js"></script>
+    
+    <!-- Utilidades -->
+    <script src="../assets/js/userHeader.js"></script>
     <script src="../assets/js/toast.js"></script>
     <script src="../assets/js/modal-cliente.js"></script>
     <script src="../assets/js/invoice-clients.js"></script>
+    
+    <!-- Sistema de facturas -->
+    <script src="../assets/js/invoices.js"></script>
+    <script src="../assets/js/new-page.js"></script>
+
+    <!-- Autocompletar datos del emisor -->
+    <script>
+      (function() {
+        console.log('🔄 Inicializando autocompletado de datos del emisor...');
+        
+        async function loadIssuerData() {
+          try {
+            // Esperar a que los módulos de Supabase estén disponibles
+            let attempts = 0;
+            while ((!window.getCurrentUser || !window.getBusinessInfo) && attempts < 50) {
+              await new Promise(resolve => setTimeout(resolve, 100));
+              attempts++;
+            }
+
+            if (!window.getCurrentUser || !window.getBusinessInfo) {
+              console.error('❌ Módulos de Supabase no disponibles');
+              return;
+            }
+
+            console.log('✅ Módulos de Supabase listos');
+
+            // Obtener usuario actual
+            const userResult = await window.getCurrentUser();
+            if (!userResult.success || !userResult.user) {
+              console.warn('⚠️ No hay usuario autenticado');
+              return;
+            }
+
+            const currentUser = userResult.user;
+            console.log('✅ Usuario obtenido:', currentUser.email);
+
+            // Obtener datos de negocio
+            const businessResult = await window.getBusinessInfo(currentUser.id);
+            
+            if (!businessResult.success || !businessResult.data) {
+              console.warn('⚠️ No se encontraron datos de negocio');
+              return;
+            }
+
+            const businessData = businessResult.data;
+            console.log('✅ Datos de negocio obtenidos');
+
+            // Autocompletar campos del emisor
+            const issuerNameInput = document.getElementById('issuer-name');
+            const issuerNifInput = document.getElementById('issuer-nif');
+            const issuerEmailInput = document.getElementById('issuer-email');
+            const issuerAddressInput = document.getElementById('issuer-address');
+            const issuerPostalCodeInput = document.getElementById('issuer-postal-code');
+
+            if (issuerNameInput && businessData.nombre_fiscal) {
+              issuerNameInput.value = businessData.nombre_fiscal;
+            }
+
+            if (issuerNifInput && businessData.nif_cif) {
+              issuerNifInput.value = businessData.nif_cif;
+            }
+
+            if (issuerEmailInput && currentUser.email) {
+              issuerEmailInput.value = currentUser.email;
+            }
+
+            if (issuerAddressInput && businessData.direccion_facturacion) {
+              issuerAddressInput.value = businessData.direccion_facturacion;
+            }
+
+            if (issuerPostalCodeInput && businessData.codigo_postal) {
+              issuerPostalCodeInput.value = businessData.codigo_postal;
+            }
+
+            console.log('✅ Datos del emisor autocompletados correctamente');
+            
+          } catch (error) {
+            console.error('❌ Error al cargar datos del emisor:', error);
+          }
+        }
+
+        // Inicializar cuando el DOM esté listo
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', loadIssuerData);
+        } else {
+          loadIssuerData();
+        }
+      })();
+    </script>
 
   </body>
 </html>

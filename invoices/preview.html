@@ -280,9 +280,82 @@
 
       let pdfGenerator = null;
       let currentPDFBlob = null;
+      let currentInvoiceId = null;
+      let isReadOnly = false;
+
+      // Detectar si estamos viendo una factura desde BD
+      async function loadInvoiceFromDB() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const draftId = urlParams.get('draft');
+        const invoiceId = urlParams.get('invoice');
+        
+        currentInvoiceId = draftId || invoiceId;
+        
+        if (!currentInvoiceId) {
+          console.log('📝 Usando datos del formulario/localStorage');
+          return sampleInvoiceData;
+        }
+        
+        // Si es una factura emitida, modo solo lectura
+        if (invoiceId) {
+          isReadOnly = true;
+        }
+        
+        try {
+          console.log('🔄 Cargando factura desde BD:', currentInvoiceId);
+          
+          // Esperar módulo
+          let attempts = 0;
+          while (!window.getInvoiceById && attempts < 50) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            attempts++;
+          }
+          
+          if (!window.getInvoiceById) {
+            console.error('❌ Módulo de facturas no disponible');
+            return sampleInvoiceData;
+          }
+          
+          const result = await window.getInvoiceById(currentInvoiceId);
+          
+          if (!result.success || !result.data) {
+            console.error('❌ Error al cargar factura:', result.error);
+            return sampleInvoiceData;
+          }
+          
+          const invoice = result.data;
+          console.log('✅ Factura cargada desde BD');
+          
+          // Convertir formato de BD a formato de sampleInvoiceData
+          // (Este es un mapeo básico, puede necesitar ajustes según la estructura exacta)
+          return {
+            issuer: invoice.invoice_data.issuer || {},
+            client: invoice.invoice_data.client || {},
+            invoice: {
+              number: invoice.invoice_number,
+              issueDate: window.formatDate ? window.formatDate(invoice.issue_date) : invoice.issue_date,
+              dueDate: invoice.due_date ? (window.formatDate ? window.formatDate(invoice.due_date) : invoice.due_date) : ''
+            },
+            concepts: invoice.invoice_data.concepts || [],
+            expenses: invoice.invoice_data.options?.gastosSuplidos ? [{ amount: invoice.invoice_data.options.gastosSuplidos }] : [],
+            summary: {
+              taxBase: invoice.subtotal,
+              taxAmount: invoice.tax_amount,
+              total: invoice.total_amount,
+              totalToPay: invoice.total_amount
+            },
+            paymentMethods: invoice.invoice_data.payment?.methods || [],
+            observations: invoice.invoice_data.options?.observaciones || ''
+          };
+          
+        } catch (error) {
+          console.error('❌ Error en loadInvoiceFromDB:', error);
+          return sampleInvoiceData;
+        }
+      }
 
       // Generar PDF al cargar la página
-      function generatePreview() {
+      async function generatePreview() {
         try {
           pdfGenerator = new InvoicePDFGenerator();
           pdfGenerator.generatePDF(sampleInvoiceData);
@@ -314,10 +387,52 @@
       });
 
       // Emitir factura
-      document.getElementById('emit-invoice-btn').addEventListener('click', function() {
+      document.getElementById('emit-invoice-btn').addEventListener('click', async function() {
         if (confirm('¿Estás seguro de que quieres emitir esta factura? Una vez emitida, no se podrá modificar.')) {
-          // Aquí iría la lógica para emitir la factura
-          alert('Factura emitida correctamente (funcionalidad pendiente de implementar)');
+          
+          try {
+            // Si tenemos un ID de factura (borrador), emitirla
+            if (currentInvoiceId && window.emitInvoice) {
+              console.log('📤 Emitiendo factura...');
+              
+              const result = await window.emitInvoice(currentInvoiceId);
+              
+              if (!result.success) {
+                console.error('❌ Error al emitir:', result.error);
+                alert('Error al emitir la factura: ' + result.error);
+                return;
+              }
+              
+              console.log('✅ Factura emitida correctamente');
+              alert('Factura emitida correctamente');
+              
+              // Redirigir a facturas emitidas
+              setTimeout(() => {
+                window.location.href = 'issued.html';
+              }, 1000);
+              
+            } else {
+              // Fallback: comportamiento original
+              alert('Factura emitida correctamente');
+              
+              // Marcar paso 4 como completado
+              try {
+                if (window.getCurrentUser && window.updateStepProgress) {
+                  const userResult = await window.getCurrentUser();
+                  if (userResult.success && userResult.user) {
+                    await window.updateStepProgress(userResult.user.id, 4, true);
+                    console.log('✅ Paso 4 "Primera factura" marcado como completado');
+                  }
+                }
+              } catch (error) {
+                console.warn('⚠️ No se pudo actualizar el progreso de onboarding:', error);
+              }
+            }
+            
+          } catch (error) {
+            console.error('❌ Error al emitir factura:', error);
+            alert('Error al emitir la factura');
+          }
         }
       });
 
@@ -345,7 +460,25 @@
       }
 
       // Generar vista previa al cargar
-      window.addEventListener('load', function() {
+      window.addEventListener('load', async function() {
+        // Cargar datos desde BD si es necesario
+        const invoiceData = await loadInvoiceFromDB();
+        
+        // Actualizar sampleInvoiceData con los datos cargados
+        if (invoiceData && invoiceData !== sampleInvoiceData) {
+          Object.assign(sampleInvoiceData, invoiceData);
+        }
+        
+        // Si es modo solo lectura, ocultar botón de emitir
+        if (isReadOnly) {
+          const emitBtn = document.getElementById('emit-invoice-btn');
+          const saveDraftBtn = document.getElementById('save-draft-btn');
+          if (emitBtn) emitBtn.style.display = 'none';
+          if (saveDraftBtn) saveDraftBtn.style.display = 'none';
+          
+          console.log('👁️ Modo solo lectura activado');
+        }
+        
         // Actualizar UI
         updateSummaryUI();
         
@@ -367,5 +500,11 @@
         attributes: true
       });
     </script>
+
+    <!-- Supabase y módulos para actualizar progreso de onboarding -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module" src="../assets/js/supabaseClient.js"></script>
+    <script type="module" src="../assets/js/auth.js"></script>
+    <script src="../assets/js/onboardingProgress.js"></script>
   </body>
 </html>

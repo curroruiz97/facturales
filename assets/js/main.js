@@ -161,17 +161,25 @@ function ModalExist() {
     const modalOpen = document.querySelector(".modal-open");
     const modalOverlay = document.querySelector(".modal-overlay");
 
-    // Show modal when trigger button is clicked
-    modalOpen.addEventListener("click", () => {
-      modal.classList.remove("hidden");
-    });
-
     function hideModal() {
-      modal.classList.add("hidden");
+      if (modal) {
+        modal.classList.add("hidden");
+      }
+    }
+
+    // Show modal when trigger button is clicked
+    if (modalOpen) {
+      modalOpen.addEventListener("click", () => {
+        if (modal) {
+          modal.classList.remove("hidden");
+        }
+      });
     }
 
     // Hide modal when overlay is clicked or close button is clicked
-    modalOverlay.addEventListener("click", hideModal);
+    if (modalOverlay) {
+      modalOverlay.addEventListener("click", hideModal);
+    }
 
     let currentStep = 1;
 
@@ -294,19 +302,21 @@ navSubmenu();
 
   // Toggle the theme when the button is clicked
   var themeToggle = document.getElementById('theme-toggle');
-  themeToggle.addEventListener('click', function() {
-    // Check the current theme and toggle it
-    if (localStorage.theme === 'dark') {
-      localStorage.theme = 'light';
-    } else {
-      localStorage.theme = 'dark';
-    }
+  if (themeToggle) {
+    themeToggle.addEventListener('click', function() {
+      // Check the current theme and toggle it
+      if (localStorage.theme === 'dark') {
+        localStorage.theme = 'light';
+      } else {
+        localStorage.theme = 'dark';
+      }
 
-    // Apply the new theme
-    if (localStorage.theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  });
+      // Apply the new theme
+      if (localStorage.theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    });
+  }
 

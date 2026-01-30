@@ -3,8 +3,9 @@
  * Módulo de autenticación con Supabase Auth
  */
 
-// Referencia al cliente de Supabase
-const getSupabase = () => {
+// Función auxiliar para obtener el cliente de Supabase
+// Nombre único para evitar conflictos con otros módulos
+const getSupabaseForAuth = () => {
   if (!window.supabaseClient) {
     throw new Error('Supabase client no está inicializado');
   }
@@ -20,7 +21,7 @@ const getSupabase = () => {
  */
 async function signUp(email, password, metadata = {}) {
   try {
-    const supabase = getSupabase();
+    const supabase = getSupabaseForAuth();
     
     // Validaciones básicas
     if (!email || !email.trim()) {
@@ -42,7 +43,10 @@ async function signUp(email, password, metadata = {}) {
       console.error('Error al registrar usuario:', error);
       
       // Mensajes de error personalizados
-      if (error.message.includes('already registered')) {
+      if (error.message.includes('email rate limit exceeded') || error.message.includes('rate limit')) {
+        throw new Error('Has intentado registrarte demasiadas veces. Por favor, espera 5-10 minutos e intenta de nuevo.');
+      }
+      if (error.message.includes('already registered') || error.message.includes('User already registered')) {
         throw new Error('Este email ya está registrado');
       }
       if (error.message.includes('invalid email')) {
@@ -52,8 +56,23 @@ async function signUp(email, password, metadata = {}) {
       throw new Error(error.message || 'Error al registrar usuario');
     }
 
-    console.log('✅ Usuario registrado exitosamente:', data);
-    return { success: true, data, user: data.user, session: data.session };
+    // IMPORTANTE: Supabase puede devolver data sin error pero el usuario no se creó realmente
+    // Esto pasa cuando el email ya existe. Necesitamos verificar si realmente se creó el usuario
+    if (data && data.user) {
+      // Verificar si el usuario tiene identities (señal de que es nuevo)
+      // Si no tiene identities o si session es null y user.identities está vacío, 
+      // significa que el email ya existe
+      if (data.user.identities && data.user.identities.length === 0) {
+        console.warn('⚠️ Usuario no creado - email ya existe');
+        throw new Error('Este email ya está registrado. Si ya tienes una cuenta, inicia sesión.');
+      }
+      
+      console.log('✅ Usuario registrado exitosamente:', data);
+      return { success: true, data, user: data.user, session: data.session };
+    } else {
+      console.error('❌ Respuesta inesperada de Supabase:', data);
+      throw new Error('Error al registrar usuario. Por favor, intenta de nuevo.');
+    }
   } catch (error) {
     console.error('Error en signUp:', error);
     return { success: false, error: error.message };
@@ -68,7 +87,7 @@ async function signUp(email, password, metadata = {}) {
  */
 async function signIn(email, password) {
   try {
-    const supabase = getSupabase();
+    const supabase = getSupabaseForAuth();
     
     // Validaciones básicas
     if (!email || !email.trim()) {
@@ -87,6 +106,9 @@ async function signIn(email, password) {
       console.error('Error al iniciar sesión:', error);
       
       // Mensajes de error personalizados
+      if (error.message.includes('email rate limit exceeded') || error.message.includes('rate limit')) {
+        throw new Error('Has intentado iniciar sesión demasiadas veces. Por favor, espera 5-10 minutos e intenta de nuevo.');
+      }
       if (error.message.includes('Invalid login credentials')) {
         throw new Error('Email o contraseña incorrectos');
       }
@@ -111,7 +133,7 @@ async function signIn(email, password) {
  */
 async function signOut() {
   try {
-    const supabase = getSupabase();
+    const supabase = getSupabaseForAuth();
     
     const { error } = await supabase.auth.signOut();
 
@@ -134,7 +156,7 @@ async function signOut() {
  */
 async function getCurrentUser() {
   try {
-    const supabase = getSupabase();
+    const supabase = getSupabaseForAuth();
     
     const { data: { user }, error } = await supabase.auth.getUser();
 
@@ -156,7 +178,7 @@ async function getCurrentUser() {
  */
 async function getCurrentSession() {
   try {
-    const supabase = getSupabase();
+    const supabase = getSupabaseForAuth();
     
     const { data: { session }, error } = await supabase.auth.getSession();
 
@@ -193,7 +215,7 @@ async function checkAuth() {
  */
 function onAuthStateChange(callback) {
   try {
-    const supabase = getSupabase();
+    const supabase = getSupabaseForAuth();
     
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
@@ -216,7 +238,7 @@ function onAuthStateChange(callback) {
  */
 async function resetPassword(email) {
   try {
-    const supabase = getSupabase();
+    const supabase = getSupabaseForAuth();
     
     if (!email || !email.trim()) {
       throw new Error('El email es obligatorio');
@@ -249,7 +271,7 @@ async function resetPassword(email) {
  */
 async function updatePassword(newPassword) {
   try {
-    const supabase = getSupabase();
+    const supabase = getSupabaseForAuth();
     
     if (!newPassword || newPassword.length < 6) {
       throw new Error('La contraseña debe tener al menos 6 caracteres');
@@ -279,7 +301,7 @@ async function updatePassword(newPassword) {
  */
 async function updateProfile(updates) {
   try {
-    const supabase = getSupabase();
+    const supabase = getSupabaseForAuth();
     
     const { data, error } = await supabase.auth.updateUser({
       data: updates

@@ -3,8 +3,9 @@
  * Módulo para gestión de clientes con Supabase
  */
 
-// Referencia al cliente de Supabase
-const getSupabase = () => {
+// Función auxiliar para obtener el cliente de Supabase
+// Usamos nombre único para evitar conflictos con otros módulos
+const getSupabaseForClients = () => {
   if (!window.supabaseClient) {
     throw new Error('Supabase client no está inicializado');
   }
@@ -18,7 +19,7 @@ const getSupabase = () => {
  */
 async function createClient(clientData) {
   try {
-    const supabase = getSupabase();
+    const supabase = getSupabaseForClients();
     
     // Obtener usuario autenticado para asignar user_id
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -77,6 +78,17 @@ async function createClient(clientData) {
       throw new Error(error.message || 'Error al crear el cliente');
     }
 
+    // Marcar paso 2 como completado (primer cliente creado)
+    if (cliente && window.updateStepProgress) {
+      try {
+        await window.updateStepProgress(user.id, 2, true);
+        console.log('✅ Paso 2 marcado como completado');
+      } catch (progressError) {
+        console.warn('⚠️ No se pudo actualizar el progreso:', progressError);
+        // No lanzar error, el cliente se creó exitosamente
+      }
+    }
+
     return { success: true, data: cliente };
   } catch (error) {
     console.error('Error in createClient:', error);
@@ -91,7 +103,7 @@ async function createClient(clientData) {
  */
 async function getClients(searchTerm = '') {
   try {
-    const supabase = getSupabase();
+    const supabase = getSupabaseForClients();
     
     let query = supabase
       .from('clientes')
@@ -134,7 +146,7 @@ async function getClientById(clientId) {
       throw new Error('ID de cliente no proporcionado');
     }
 
-    const supabase = getSupabase();
+    const supabase = getSupabaseForClients();
     
     const { data, error } = await supabase
       .from('clientes')
@@ -166,7 +178,7 @@ async function updateClient(clientId, clientData) {
       throw new Error('ID de cliente no proporcionado');
     }
 
-    const supabase = getSupabase();
+    const supabase = getSupabaseForClients();
     
     // Preparar datos - SOLO los campos que se están enviando
     const data = {};
@@ -267,7 +279,7 @@ async function deleteClient(clientId) {
       throw new Error('ID de cliente no proporcionado');
     }
 
-    const supabase = getSupabase();
+    const supabase = getSupabaseForClients();
     
     const { error } = await supabase
       .from('clientes')
@@ -308,7 +320,7 @@ async function searchClientsAutocomplete(term) {
       return { success: true, data: [] };
     }
 
-    const supabase = getSupabase();
+    const supabase = getSupabaseForClients();
     
     const { data, error } = await supabase
       .from('clientes')

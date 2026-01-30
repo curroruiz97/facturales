@@ -138,8 +138,9 @@
                   class="text-bgray-800 dark:text-white dark:bg-darkblack-500 dark:border-darkblack-400  text-base border border-bgray-300 h-14 w-full focus:border-success-300 focus:ring-0 rounded-lg px-4 py-3.5 placeholder:text-bgray-500 placeholder:text-base"
                   placeholder="Contraseña"
                 />
-                <button class="absolute top-4 right-4 bottom-4">
+                <button type="button" id="toggle-password" class="absolute top-4 right-4 bottom-4">
                   <svg
+                    id="eye-off-password"
                     width="22"
                     height="20"
                     viewBox="0 0 22 20"
@@ -168,6 +169,30 @@
                       stroke-linejoin="round"
                     />
                   </svg>
+                  <svg
+                    id="eye-on-password"
+                    class="hidden"
+                    width="22"
+                    height="20"
+                    viewBox="0 0 22 20"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M1 10C1 10 5 2 11 2C17 2 21 10 21 10C21 10 17 18 11 18C5 18 1 10 1 10Z"
+                      stroke="#718096"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                    <path
+                      d="M11 13C12.6569 13 14 11.6569 14 10C14 8.34315 12.6569 7 11 7C9.34315 7 8 8.34315 8 10C8 11.6569 9.34315 13 11 13Z"
+                      stroke="#718096"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
                 </button>
               </div>
               <div class="mb-6 relative">
@@ -179,8 +204,9 @@
                   class="text-bgray-800 dark:text-white dark:bg-darkblack-500 dark:border-darkblack-400  text-base border border-bgray-300 h-14 w-full focus:border-success-300 focus:ring-0 rounded-lg px-4 py-3.5 placeholder:text-bgray-500 placeholder:text-base"
                   placeholder="Confirmar contraseña"
                 />
-                <button class="absolute top-4 right-4 bottom-4">
+                <button type="button" id="toggle-confirm-password" class="absolute top-4 right-4 bottom-4">
                   <svg
+                    id="eye-off-confirm-password"
                     width="22"
                     height="20"
                     viewBox="0 0 22 20"
@@ -203,6 +229,30 @@
                     />
                     <path
                       d="M8.363 3.36506C9.22042 3.11978 10.1082 2.9969 11 3.00006C15 3.00006 18.333 5.33306 21 10.0001C20.222 11.3611 19.388 12.5241 18.497 13.4881M16.357 15.3491C14.726 16.4491 12.942 17.0001 11 17.0001C7 17.0001 3.667 14.6671 1 10.0001C2.369 7.60506 3.913 5.82506 5.632 4.65906"
+                      stroke="#718096"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  <svg
+                    id="eye-on-confirm-password"
+                    class="hidden"
+                    width="22"
+                    height="20"
+                    viewBox="0 0 22 20"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M1 10C1 10 5 2 11 2C17 2 21 10 21 10C21 10 17 18 11 18C5 18 1 10 1 10Z"
+                      stroke="#718096"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                    <path
+                      d="M11 13C12.6569 13 14 11.6569 14 10C14 8.34315 12.6569 7 11 7C9.34315 7 8 8.34315 8 10C8 11.6569 9.34315 13 11 13Z"
                       stroke="#718096"
                       stroke-width="1.5"
                       stroke-linecap="round"
@@ -310,111 +360,234 @@
       
       // Esperar un momento para que se inicialice
       await new Promise(resolve => setTimeout(resolve, 100));
+      
+      console.log('✅ Módulos de Supabase cargados');
+      
+      // Marcar que está listo
+      window.supabaseReady = true;
     </script>
     
     <!-- Signup Logic -->
-    <script type="module">
-      document.addEventListener('DOMContentLoaded', async () => {
-        const form = document.getElementById('signup-form');
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-        const confirmPasswordInput = document.getElementById('confirm-password');
-        const firstNameInput = document.getElementById('first-name');
-        const lastNameInput = document.getElementById('last-name');
-        const termsCheckbox = document.getElementById('terms');
-        const signupButton = document.getElementById('signup-button');
-        const errorMessage = document.getElementById('error-message');
-        const successMessage = document.getElementById('success-message');
+    <script>
+      // Ejecutar inmediatamente cuando el DOM esté listo
+      (function() {
+        console.log('🔄 Inicializando signup (inmediato)...');
+        
+        // Función para inicializar
+        function initSignup() {
+          // Elementos del formulario
+          const form = document.getElementById('signup-form');
+          const emailInput = document.getElementById('email');
+          const passwordInput = document.getElementById('password');
+          const confirmPasswordInput = document.getElementById('confirm-password');
+          const firstNameInput = document.getElementById('first-name');
+          const lastNameInput = document.getElementById('last-name');
+          const termsCheckbox = document.getElementById('terms');
+          const signupButton = document.getElementById('signup-button');
+          const errorMessage = document.getElementById('error-message');
+          const successMessage = document.getElementById('success-message');
+          
+          // Elementos para toggle de contraseña
+          const togglePasswordBtn = document.getElementById('toggle-password');
+          const eyeOffPassword = document.getElementById('eye-off-password');
+          const eyeOnPassword = document.getElementById('eye-on-password');
+          
+          const toggleConfirmPasswordBtn = document.getElementById('toggle-confirm-password');
+          const eyeOffConfirmPassword = document.getElementById('eye-off-confirm-password');
+          const eyeOnConfirmPassword = document.getElementById('eye-on-confirm-password');
 
-        function showError(message) {
-          errorMessage.textContent = message;
-          errorMessage.classList.remove('hidden');
-          successMessage.classList.add('hidden');
-        }
+          console.log('📋 Elementos encontrados:', {
+            form: !!form,
+            togglePasswordBtn: !!togglePasswordBtn,
+            toggleConfirmPasswordBtn: !!toggleConfirmPasswordBtn
+          });
 
-        function showSuccess(message) {
-          successMessage.textContent = message;
-          successMessage.classList.remove('hidden');
-          errorMessage.classList.add('hidden');
-        }
-
-        function hideMessages() {
-          errorMessage.classList.add('hidden');
-          successMessage.classList.add('hidden');
-        }
-
-        form.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          hideMessages();
-
-          const email = emailInput.value.trim();
-          const password = passwordInput.value;
-          const confirmPassword = confirmPasswordInput.value;
-          const firstName = firstNameInput.value.trim();
-          const lastName = lastNameInput.value.trim();
-
-          // Validaciones
-          if (!email) {
-            showError('El email es obligatorio');
-            return;
+          // Funciones de mensajes
+          function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.remove('hidden');
+            successMessage.classList.add('hidden');
           }
 
-          if (!password || password.length < 6) {
-            showError('La contraseña debe tener al menos 6 caracteres');
-            return;
+          function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.classList.remove('hidden');
+            errorMessage.classList.add('hidden');
           }
 
-          if (password !== confirmPassword) {
-            showError('Las contraseñas no coinciden');
-            return;
+          function hideMessages() {
+            errorMessage.classList.add('hidden');
+            successMessage.classList.add('hidden');
           }
 
-          if (!termsCheckbox.checked) {
-            showError('Debes aceptar los términos y condiciones');
-            return;
-          }
-
-          // Deshabilitar botón durante el registro
-          signupButton.disabled = true;
-          signupButton.textContent = 'Registrando...';
-
-          try {
-            // Registrar usuario
-            const metadata = {};
-            if (firstName) metadata.first_name = firstName;
-            if (lastName) metadata.last_name = lastName;
-            if (firstName || lastName) {
-              metadata.full_name = `${firstName} ${lastName}`.trim();
-            }
-
-            const result = await window.signUp(email, password, metadata);
-
-            if (result.success) {
-              showSuccess('¡Registro exitoso! Redirigiendo al dashboard...');
+          // Funcionalidad de mostrar/ocultar contraseña - PRIMERA CONTRASEÑA
+          if (togglePasswordBtn) {
+            console.log('✅ Configurando toggle de contraseña');
+            togglePasswordBtn.addEventListener('click', function(e) {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('👁️ Click en toggle password');
               
-              // Redirigir después de 2 segundos
-              setTimeout(() => {
-                window.location.href = './index.html';
-              }, 2000);
-            } else {
-              showError(result.error || 'Error al registrar usuario');
-              signupButton.disabled = false;
-              signupButton.textContent = 'Registrarse';
-            }
-          } catch (error) {
-            console.error('Error en registro:', error);
-            showError('Error inesperado al registrar usuario');
-            signupButton.disabled = false;
-            signupButton.textContent = 'Registrarse';
+              if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeOffPassword.classList.add('hidden');
+                eyeOnPassword.classList.remove('hidden');
+                console.log('👁️ Contraseña visible');
+              } else {
+                passwordInput.type = 'password';
+                eyeOffPassword.classList.remove('hidden');
+                eyeOnPassword.classList.add('hidden');
+                console.log('🔒 Contraseña oculta');
+              }
+            });
+          } else {
+            console.error('❌ togglePasswordBtn no encontrado');
           }
-        });
 
-        // Verificar si ya está autenticado
-        const isAuthenticated = await window.checkAuth();
-        if (isAuthenticated) {
-          window.location.href = './index.html';
+          // Funcionalidad de mostrar/ocultar confirmar contraseña - SEGUNDA CONTRASEÑA
+          if (toggleConfirmPasswordBtn) {
+            console.log('✅ Configurando toggle de confirmar contraseña');
+            toggleConfirmPasswordBtn.addEventListener('click', function(e) {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('👁️ Click en toggle confirm password');
+              
+              if (confirmPasswordInput.type === 'password') {
+                confirmPasswordInput.type = 'text';
+                eyeOffConfirmPassword.classList.add('hidden');
+                eyeOnConfirmPassword.classList.remove('hidden');
+                console.log('👁️ Confirmar contraseña visible');
+              } else {
+                confirmPasswordInput.type = 'password';
+                eyeOffConfirmPassword.classList.remove('hidden');
+                eyeOnConfirmPassword.classList.add('hidden');
+                console.log('🔒 Confirmar contraseña oculta');
+              }
+            });
+          } else {
+            console.error('❌ toggleConfirmPasswordBtn no encontrado');
+          }
+
+          // Submit del formulario
+          if (form) {
+            console.log('✅ Configurando submit del formulario');
+            form.addEventListener('submit', async function(e) {
+              e.preventDefault();
+              e.stopPropagation();
+              
+              console.log('📝 Formulario enviado - prevención activada');
+              hideMessages();
+
+              const email = emailInput.value.trim();
+              const password = passwordInput.value;
+              const confirmPassword = confirmPasswordInput.value;
+              const firstName = firstNameInput.value.trim();
+              const lastName = lastNameInput.value.trim();
+
+              // Validaciones
+              if (!email) {
+                showError('El email es obligatorio');
+                return false;
+              }
+
+              if (!password || password.length < 6) {
+                showError('La contraseña debe tener al menos 6 caracteres');
+                return false;
+              }
+
+              if (password !== confirmPassword) {
+                showError('Las contraseñas no coinciden');
+                return false;
+              }
+
+              if (!termsCheckbox.checked) {
+                showError('Debes aceptar los términos y condiciones');
+                return false;
+              }
+
+              // Esperar a que Supabase esté listo
+              let attempts = 0;
+              while (!window.signUp && attempts < 50) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+                attempts++;
+              }
+
+              // Verificar que window.signUp esté disponible
+              if (typeof window.signUp !== 'function') {
+                showError('Error: Sistema de autenticación no disponible. Recarga la página.');
+                console.error('❌ window.signUp no está definido después de esperar');
+                return false;
+              }
+
+              // Deshabilitar botón durante el registro
+              signupButton.disabled = true;
+              signupButton.textContent = 'Registrando...';
+
+              try {
+                console.log('🔐 Intentando registrar usuario...');
+                
+                // Registrar usuario
+                const metadata = {};
+                if (firstName) metadata.first_name = firstName;
+                if (lastName) metadata.last_name = lastName;
+                if (firstName || lastName) {
+                  metadata.full_name = `${firstName} ${lastName}`.trim();
+                }
+
+                const result = await window.signUp(email, password, metadata);
+                
+                console.log('📊 Resultado del registro:', result);
+
+                if (result.success) {
+                  showSuccess('¡Registro exitoso! Completando tu perfil...');
+                  
+                  // Redirigir después de 2 segundos
+                  setTimeout(() => {
+                    window.location.href = './complete-profile.html';
+                  }, 2000);
+                } else {
+                  showError(result.error || 'Error al registrar usuario');
+                  signupButton.disabled = false;
+                  signupButton.textContent = 'Registrarse';
+                }
+              } catch (error) {
+                console.error('❌ Error en registro:', error);
+                showError('Error inesperado al registrar usuario: ' + error.message);
+                signupButton.disabled = false;
+                signupButton.textContent = 'Registrarse';
+              }
+              
+              return false;
+            });
+          } else {
+            console.error('❌ Formulario no encontrado');
+          }
+
+          // Verificar si ya está autenticado
+          setTimeout(async () => {
+            try {
+              if (typeof window.checkAuth === 'function') {
+                const isAuthenticated = await window.checkAuth();
+                if (isAuthenticated) {
+                  console.log('✅ Usuario ya autenticado, redirigiendo...');
+                  window.location.href = './index.html';
+                }
+              }
+            } catch (error) {
+              console.error('Error al verificar autenticación:', error);
+            }
+          }, 300);
+          
+          console.log('✅ Signup inicializado correctamente');
         }
-      });
+
+        // Ejecutar cuando el DOM esté listo
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', initSignup);
+        } else {
+          initSignup();
+        }
+      })();
     </script>
   </body>
 </html>

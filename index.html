@@ -216,7 +216,7 @@
                     </a>
                   </li>
                   <li class="item py-[11px] text-bgray-900 dark:text-white">
-                    <a href="invoices/new.html">
+                    <a href="#">
                       <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-2.5">
                           <span class="item-ico">
@@ -252,11 +252,53 @@
                           </span>
                           <span
                             class="item-text text-lg font-medium leading-none"
-                            >Emitir factura</span
+                            >Facturas</span
                           >
                         </div>
+                        <span>
+                          <svg
+                            width="6"
+                            height="12"
+                            viewBox="0 0 6 12"
+                            fill="none"
+                            class="fill-current"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              fill-rule="evenodd"
+                              clip-rule="evenodd"
+                              fill="currentColor"
+                              d="M0.531506 0.414376C0.20806 0.673133 0.155619 1.1451 0.414376 1.46855L4.03956 6.00003L0.414376 10.5315C0.155618 10.855 0.208059 11.3269 0.531506 11.5857C0.854952 11.8444 1.32692 11.792 1.58568 11.4685L5.58568 6.46855C5.80481 6.19464 5.80481 5.80542 5.58568 5.53151L1.58568 0.531506C1.32692 0.20806 0.854953 0.155619 0.531506 0.414376Z"
+                            />
+                          </svg>
+                        </span>
                       </div>
                     </a>
+                    <ul
+                      class="sub-menu ml-2.5 mt-[22px] border-l border-success-100 pl-5"
+                    >
+                      <li>
+                        <a
+                          href="invoices/new.html"
+                          class="text-md inline-block py-1.5 font-medium text-bgray-600 transition-all hover:text-bgray-800 dark:text-bgray-50 hover:dark:text-success-300"
+                          >Emitir factura</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="invoices/drafts.html"
+                          class="text-md inline-block py-1.5 font-medium text-bgray-600 transition-all hover:text-bgray-800 dark:text-bgray-50 hover:dark:text-success-300"
+                          >Borradores</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="invoices/issued.html"
+                          class="text-md inline-block py-1.5 font-medium text-bgray-600 transition-all hover:text-bgray-800 dark:text-bgray-50 hover:dark:text-success-300"
+                          >Facturas emitidas</a
+                        >
+                      </li>
+                    </ul>
                   </li>
                   <li class="item py-[11px] text-bgray-900 dark:text-white">
                     <a href="expenses.html">
@@ -1924,17 +1966,17 @@
                       class="h-[52px] w-[52px] overflow-hidden rounded-xl border border-bgray-300"
                     >
                       <img
-                        class="object-cover"
+                        class="user-profile-image object-cover w-full h-full"
                         src="./assets/images/avatar/profile-52x52.png"
-                        alt="avater"
+                        alt="perfil"
                       />
                     </div>
                     <div class="hidden 2xl:block">
                       <div class="flex items-center space-x-2.5">
                         <h3
-                          class="text-base font-bold leading-[28px] text-bgray-900 dark:text-white"
+                          class="user-profile-name text-base font-bold leading-[28px] text-bgray-900 dark:text-white"
                         >
-                          John Doe
+                          Usuario
                         </h3>
                         <span>
                           <svg
@@ -1955,9 +1997,9 @@
                         </span>
                       </div>
                       <p
-                        class="text-sm font-medium leading-[20px] text-bgray-600 dark:text-bgray-50"
+                        class="user-profile-email text-sm font-medium leading-[20px] text-bgray-600 dark:text-bgray-50"
                       >
-                        Super Admin
+                        usuario@ejemplo.com
                       </p>
                     </div>
                   </div>
@@ -4879,6 +4921,7 @@
                               fill="white"
                             />
                             <circle
+                              id="onboarding-progress-circle"
                               cx="36"
                               cy="36"
                               r="32"
@@ -4891,17 +4934,17 @@
                               class="transition-all duration-1000"
                             />
                           </svg>
-                          <div class="absolute inset-0 flex items-center justify-center">
+                          <div id="onboarding-progress-icon" class="absolute inset-0 flex items-center justify-center">
                             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                               <path d="M20 6L9 17L4 12" stroke="#ec8228" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
                           </div>
                         </div>
                         <div class="text-left">
-                          <h2 class="text-3xl font-bold text-bgray-900 dark:text-white mb-1">
+                          <h2 id="onboarding-progress-text" class="text-3xl font-bold text-bgray-900 dark:text-white mb-1">
                             100<span class="text-lg font-medium text-bgray-500">/100</span>
                           </h2>
-                          <p class="text-xs font-bold tracking-wider text-success-300 uppercase">COMPLETADO</p>
+                          <p id="onboarding-progress-state" class="text-xs font-bold tracking-wider text-success-300 uppercase">COMPLETADO</p>
                         </div>
                       </div>
                       <!-- Icono de flecha para expandir/colapsar -->
@@ -4923,100 +4966,8 @@
 
                     <!-- Lista de Pasos - Colapsable -->
                     <div id="primerosPasosContent" class="space-y-0 overflow-hidden transition-all duration-500">
-                      <!-- Paso 1 -->
-                      <div class="flex items-start gap-4">
-                        <div class="flex-shrink-0 flex flex-col items-center">
-                          <div class="flex items-center justify-center w-11 h-11 rounded-full bg-success-300 shadow-md">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M20 6L9 17L4 12" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                          </div>
-                          <div class="w-0.5 flex-1 min-h-[60px] bg-gradient-to-b from-bgray-300 to-transparent" style="background: repeating-linear-gradient(to bottom, #CBD5E0 0px, #CBD5E0 8px, transparent 8px, transparent 16px);"></div>
-                        </div>
-                        <div class="flex-1 pb-8">
-                          <p class="text-xs font-bold tracking-wider text-bgray-500 dark:text-bgray-400 mb-2">PASO 1</p>
-                          <h3 class="text-base font-bold text-bgray-900 dark:text-white mb-2">
-                            Añade los datos de tu negocio
-                          </h3>
-                          <p class="text-sm text-bgray-600 dark:text-bgray-400 leading-relaxed mb-3">
-                            Rellena los datos de tu negocio que aparecerán en tus facturas
-                          </p>
-                          <span class="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-info-600 bg-info-50 border border-info-200 dark:bg-info-900/20 dark:text-info-400 dark:border-info-800 rounded-lg">
-                            Completado
-                          </span>
-                        </div>
-                      </div>
-
-                      <!-- Paso 2 -->
-                      <div class="flex items-start gap-4">
-                        <div class="flex-shrink-0 flex flex-col items-center">
-                          <div class="flex items-center justify-center w-11 h-11 rounded-full bg-success-300 shadow-md">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M20 6L9 17L4 12" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                          </div>
-                          <div class="w-0.5 flex-1 min-h-[60px]" style="background: repeating-linear-gradient(to bottom, #CBD5E0 0px, #CBD5E0 8px, transparent 8px, transparent 16px);"></div>
-                        </div>
-                        <div class="flex-1 pb-8">
-                          <p class="text-xs font-bold tracking-wider text-bgray-500 dark:text-bgray-400 mb-2">PASO 2</p>
-                          <h3 class="text-base font-bold text-bgray-900 dark:text-white mb-2">
-                            Añade tu primer contacto
-                          </h3>
-                          <p class="text-sm text-bgray-600 dark:text-bgray-400 leading-relaxed mb-3">
-                            Crea tu listado de clientes y proveedores a los que facturas habitualmente
-                          </p>
-                          <span class="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-info-600 bg-info-50 border border-info-200 dark:bg-info-900/20 dark:text-info-400 dark:border-info-800 rounded-lg">
-                            Completado
-                          </span>
-                        </div>
-                      </div>
-
-                      <!-- Paso 3 -->
-                      <div class="flex items-start gap-4">
-                        <div class="flex-shrink-0 flex flex-col items-center">
-                          <div class="flex items-center justify-center w-11 h-11 rounded-full bg-success-300 shadow-md">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M20 6L9 17L4 12" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                          </div>
-                          <div class="w-0.5 flex-1 min-h-[60px]" style="background: repeating-linear-gradient(to bottom, #CBD5E0 0px, #CBD5E0 8px, transparent 8px, transparent 16px);"></div>
-                        </div>
-                        <div class="flex-1 pb-8">
-                          <p class="text-xs font-bold tracking-wider text-bgray-500 dark:text-bgray-400 mb-2">PASO 3</p>
-                          <h3 class="text-base font-bold text-bgray-900 dark:text-white mb-2">
-                            Personaliza tu factura
-                          </h3>
-                          <p class="text-sm text-bgray-600 dark:text-bgray-400 leading-relaxed mb-3">
-                            Elige una plantilla para tu factura y personalízala a tu gusto
-                          </p>
-                          <span class="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-info-600 bg-info-50 border border-info-200 dark:bg-info-900/20 dark:text-info-400 dark:border-info-800 rounded-lg">
-                            Completado
-                          </span>
-                        </div>
-                      </div>
-
-                      <!-- Paso 4 -->
-                      <div class="flex items-start gap-4">
-                        <div class="flex-shrink-0">
-                          <div class="flex items-center justify-center w-11 h-11 rounded-full bg-success-300 shadow-md">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M20 6L9 17L4 12" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                          </div>
-                        </div>
-                        <div class="flex-1">
-                          <p class="text-xs font-bold tracking-wider text-bgray-500 dark:text-bgray-400 mb-2">PASO 4</p>
-                          <h3 class="text-base font-bold text-bgray-900 dark:text-white mb-2">
-                            Crea tu primera factura
-                          </h3>
-                          <p class="text-sm text-bgray-600 dark:text-bgray-400 leading-relaxed mb-3">
-                            Crea tu primera factura digital en menos de un minuto
-                          </p>
-                          <span class="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-info-600 bg-info-50 border border-info-200 dark:bg-info-900/20 dark:text-info-400 dark:border-info-800 rounded-lg">
-                            Completado
-                          </span>
-                        </div>
-                      </div>
+                      <!-- Contenedor dinámico para los pasos -->
+                      <div id="onboarding-steps-container"></div>
                     </div>
                   </div>
                 </div>
@@ -5750,6 +5701,22 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script type="module" src="./assets/js/supabaseClient.js"></script>
     <script type="module" src="./assets/js/auth.js"></script>
+    <script type="module" src="./assets/js/businessInfo.js"></script>
+    <script type="module" src="./assets/js/checkBusinessInfo.js"></script>
     <script type="module" src="./assets/js/auth-guard.js"></script>
+    <script src="./assets/js/userHeader.js"></script>
+    <script src="./assets/js/onboardingProgress.js"></script>
+    
+    <!-- Verificar business info completo -->
+    <script type="module">
+      // Esperar a que todos los módulos se carguen
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      // Verificar que el usuario tenga información de negocio completa
+      await window.checkBusinessInfoComplete();
+      
+      // Cargar progreso de onboarding
+      await window.loadOnboardingProgress();
+    </script>
   </body>
 </html>

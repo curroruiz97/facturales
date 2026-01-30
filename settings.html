@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
@@ -217,7 +217,7 @@
                     </a>
                   </li>
                   <li class="item py-[11px] text-bgray-900 dark:text-white">
-                    <a href="invoices/new.html">
+                    <a href="#">
                       <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-2.5">
                           <span class="item-ico">
@@ -253,11 +253,53 @@
                           </span>
                           <span
                             class="item-text text-lg font-medium leading-none"
-                            >Emitir factura</span
+                            >Facturas</span
                           >
                         </div>
+                        <span>
+                          <svg
+                            width="6"
+                            height="12"
+                            viewBox="0 0 6 12"
+                            fill="none"
+                            class="fill-current"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              fill-rule="evenodd"
+                              clip-rule="evenodd"
+                              fill="currentColor"
+                              d="M0.531506 0.414376C0.20806 0.673133 0.155619 1.1451 0.414376 1.46855L4.03956 6.00003L0.414376 10.5315C0.155618 10.855 0.208059 11.3269 0.531506 11.5857C0.854952 11.8444 1.32692 11.792 1.58568 11.4685L5.58568 6.46855C5.80481 6.19464 5.80481 5.80542 5.58568 5.53151L1.58568 0.531506C1.32692 0.20806 0.854953 0.155619 0.531506 0.414376Z"
+                            />
+                          </svg>
+                        </span>
                       </div>
                     </a>
+                    <ul
+                      class="sub-menu ml-2.5 mt-[22px] border-l border-success-100 pl-5"
+                    >
+                      <li>
+                        <a
+                          href="invoices/new.html"
+                          class="text-md inline-block py-1.5 font-medium text-bgray-600 transition-all hover:text-bgray-800 dark:text-bgray-50 hover:dark:text-success-300"
+                          >Emitir factura</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="invoices/drafts.html"
+                          class="text-md inline-block py-1.5 font-medium text-bgray-600 transition-all hover:text-bgray-800 dark:text-bgray-50 hover:dark:text-success-300"
+                          >Borradores</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="invoices/issued.html"
+                          class="text-md inline-block py-1.5 font-medium text-bgray-600 transition-all hover:text-bgray-800 dark:text-bgray-50 hover:dark:text-success-300"
+                          >Facturas emitidas</a
+                        >
+                      </li>
+                    </ul>
                   </li>
                   <li class="item py-[11px] text-bgray-900 dark:text-white">
                     <a href="expenses.html">
@@ -1930,17 +1972,17 @@
                       class="h-[52px] w-[52px] overflow-hidden rounded-xl border border-bgray-300"
                     >
                       <img
-                        class="object-cover"
+                        class="user-profile-image object-cover w-full h-full"
                         src="./assets/images/avatar/profile-52x52.png"
-                        alt="avater"
+                        alt="perfil"
                       />
                     </div>
                     <div class="hidden 2xl:block">
                       <div class="flex items-center space-x-2.5">
                         <h3
-                          class="text-base font-bold leading-[28px] text-bgray-900 dark:text-white"
+                          class="user-profile-name text-base font-bold leading-[28px] text-bgray-900 dark:text-white"
                         >
-                          John Doe
+                          Usuario
                         </h3>
                         <span>
                           <svg
@@ -1961,9 +2003,9 @@
                         </span>
                       </div>
                       <p
-                        class="text-sm font-medium leading-[20px] text-bgray-600 dark:text-bgray-50"
+                        class="user-profile-email text-sm font-medium leading-[20px] text-bgray-600 dark:text-bgray-50"
                       >
-                        Súper admin
+                        usuario@ejemplo.com
                       </p>
                     </div>
                   </div>
@@ -2819,17 +2861,17 @@
                     class="h-[52px] w-[52px] overflow-hidden rounded-xl border border-bgray-300"
                   >
                     <img
-                      class="object-cover"
+                      class="user-profile-image object-cover w-full h-full"
                       src="./assets/images/avatar/profile-52x52.png"
-                      alt="avater"
+                      alt="perfil"
                     />
                   </div>
                   <div class="hidden 2xl:block">
                     <div class="flex items-center space-x-2.5">
                       <h3
-                        class="text-base font-bold leading-[28px] text-bgray-900"
+                        class="user-profile-name text-base font-bold leading-[28px] text-bgray-900"
                       >
-                        John Doe
+                        Usuario
                       </h3>
                       <span>
                         <svg
@@ -2850,9 +2892,9 @@
                       </span>
                     </div>
                     <p
-                      class="text-sm font-medium leading-[20px] text-bgray-600"
+                      class="user-profile-email text-sm font-medium leading-[20px] text-bgray-600"
                     >
-                      Súper admin
+                      usuario@ejemplo.com
                     </p>
                   </div>
                 </div>
@@ -3063,12 +3105,12 @@
                       <h4
                         class="text-base font-bold text-bgray-900 dark:text-white"
                       >
-                        Información personal
+                        Datos de negocio
                       </h4>
                       <p
                         class="mt-0.5 text-sm font-medium text-bgray-700 dark:text-darkblack-300"
                       >
-                        Est arcu pharetra proin pellentesque
+                        Información fiscal y de facturación
                       </p>
                     </div>
                   </div>
@@ -3365,33 +3407,36 @@
                       <h3
                         class="border-b border-bgray-200 pb-5 text-2xl font-bold text-bgray-900 dark:border-darkblack-400 dark:text-white"
                       >
-                        Información personal
+                        Datos de negocio
                       </h3>
                       <div class="mt-8">
-                        <form action="">
+                        <form id="business-info-form">
                           <div class="grid grid-cols-1 gap-6 2xl:grid-cols-2">
                             <div class="flex flex-col gap-2">
                               <label
-                                for="fname"
+                                for="nombre-fiscal"
                                 class="text-base font-medium text-bgray-600 dark:text-bgray-50"
-                                >Nombre</label
+                                >Nombre fiscal</label
                               >
                               <input
                                 type="text"
+                                id="nombre-fiscal"
                                 class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white"
-                                name="fname"
+                                name="nombre-fiscal"
                               />
                             </div>
                             <div class="flex flex-col gap-2">
                               <label
-                                for="lname"
+                                for="nif-cif"
                                 class="text-base font-medium text-bgray-600 dark:text-bgray-50"
-                                >Apellido</label
+                                >NIF/CIF</label
                               >
                               <input
                                 type="text"
-                                class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white"
-                                name="lname"
+                                id="nif-cif"
+                                disabled
+                                class="h-14 rounded-lg border-0 bg-bgray-200 dark:bg-darkblack-400 p-4 text-bgray-600 dark:text-bgray-300 cursor-not-allowed"
+                                name="nif-cif"
                               />
                             </div>
                             <div class="flex flex-col gap-2">
@@ -3402,137 +3447,139 @@
                               >
                               <input
                                 type="text"
-                                class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white"
+                                id="email"
+                                disabled
+                                class="h-14 rounded-lg border-0 bg-bgray-200 dark:bg-darkblack-400 p-4 text-bgray-600 dark:text-bgray-300 cursor-not-allowed"
                                 name="email"
                               />
                             </div>
                             <div class="flex flex-col gap-2">
                               <label
-                                for="phone"
+                                for="telefono"
                                 class="text-base font-medium text-bgray-600 dark:text-bgray-50"
-                                >Número de teléfono (opcional)</label
+                                >Teléfono</label
                               >
                               <input
-                                type="text"
+                                type="tel"
+                                id="telefono"
                                 class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white"
-                                name="phone"
+                                name="telefono"
                               />
                             </div>
                           </div>
                           <h4
                             class="pb-6 pt-8 text-xl font-bold text-bgray-900 dark:text-white"
                           >
-                            Dirección personal
+                            Dirección de facturación
                           </h4>
                           <div class="grid grid-cols-1 gap-6 2xl:grid-cols-2">
-                            <div class="flex flex-col gap-2">
+                            <div class="flex flex-col gap-2 2xl:col-span-2">
                               <label
-                                for="country"
-                                class="text-base font-medium text-bgray-600 dark:text-bgray-50"
-                                >País o región</label
-                              >
-                              <input
-                                type="text"
-                                class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white"
-                                name="country"
-                              />
-                            </div>
-                            <div class="flex flex-col gap-2">
-                              <label
-                                for="country"
-                                class="text-base font-medium text-bgray-600 dark:text-bgray-50"
-                                >Ciudad</label
-                              >
-                              <input
-                                type="text"
-                                placeholder="Washington"
-                                class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white"
-                                name="country"
-                              />
-                            </div>
-                            <div class="flex flex-col gap-2">
-                              <label
-                                for="country"
+                                for="direccion-facturacion"
                                 class="text-base font-medium text-bgray-600 dark:text-bgray-50"
                                 >Dirección</label
                               >
                               <input
                                 type="text"
+                                id="direccion-facturacion"
                                 class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white"
-                                name="address"
+                                name="direccion-facturacion"
                               />
                             </div>
                             <div class="flex flex-col gap-2">
                               <label
-                                for="postcode"
+                                for="ciudad"
                                 class="text-base font-medium text-bgray-600 dark:text-bgray-50"
-                                >Postal Code</label
+                                >Ciudad</label
                               >
                               <input
                                 type="text"
+                                id="ciudad"
                                 class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white"
-                                name="postcode"
+                                name="ciudad"
+                              />
+                            </div>
+                            <div class="flex flex-col gap-2">
+                              <label
+                                for="codigo-postal"
+                                class="text-base font-medium text-bgray-600 dark:text-bgray-50"
+                                >Código postal</label
+                              >
+                              <input
+                                type="text"
+                                id="codigo-postal"
+                                class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white"
+                                name="codigo-postal"
+                              />
+                            </div>
+                            <div class="flex flex-col gap-2">
+                              <label
+                                for="provincia"
+                                class="text-base font-medium text-bgray-600 dark:text-bgray-50"
+                                >Provincia</label
+                              >
+                              <input
+                                type="text"
+                                id="provincia"
+                                class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white"
+                                name="provincia"
+                              />
+                            </div>
+                            <div class="flex flex-col gap-2">
+                              <label
+                                for="pais"
+                                class="text-base font-medium text-bgray-600 dark:text-bgray-50"
+                                >País</label
+                              >
+                              <input
+                                type="text"
+                                id="pais"
+                                class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white"
+                                name="pais"
                               />
                             </div>
                           </div>
                           <h4
                             class="pb-6 pt-8 text-xl font-bold text-bgray-900 dark:text-white"
                           >
-                            Información social
+                            Información del negocio
                           </h4>
                           <div class="grid grid-cols-1 gap-6 2xl:grid-cols-2">
                             <div class="flex flex-col gap-2">
                               <label
-                                for="country"
+                                for="sector"
                                 class="text-base font-medium text-bgray-600 dark:text-bgray-50"
-                                >Facebook</label
+                                >Sector</label
                               >
-                              <input
-                                type="text"
+                              <select
+                                id="sector"
                                 class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white"
-                                name="fbook"
-                              />
-                            </div>
-                            <div class="flex flex-col gap-2">
-                              <label
-                                for="twitter"
-                                class="text-base font-medium text-bgray-600 dark:text-bgray-50"
-                                >Twitter</label
+                                name="sector"
                               >
-                              <input
-                                type="text"
-                                class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white"
-                                name="twitter"
-                              />
-                            </div>
-                            <div class="flex flex-col gap-2">
-                              <label
-                                for="linkedin"
-                                class="text-base font-medium text-bgray-600 dark:text-bgray-50"
-                                >Linkedin</label
-                              >
-                              <input
-                                type="text"
-                                class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white"
-                                name="linkedin"
-                              />
-                            </div>
-                            <div class="flex flex-col gap-2">
-                              <label
-                                for="youtube"
-                                class="text-base font-medium text-bgray-600 dark:text-bgray-50"
-                                >Youtube</label
-                              >
-                              <input
-                                type="text"
-                                class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white"
-                                name="youtube"
-                              />
+                                <option value="">Selecciona sector</option>
+                                <option value="actividades lúdicas y viajes">Actividades lúdicas y viajes</option>
+                                <option value="agricultura ganaderia">Agricultura ganadería</option>
+                                <option value="asociaciones">Asociaciones</option>
+                                <option value="comercio">Comercio</option>
+                                <option value="formacion">Formación</option>
+                                <option value="hosteleria">Hostelería</option>
+                                <option value="inmobiliario">Inmobiliario</option>
+                                <option value="reformas y reparaciones">Reformas y reparaciones</option>
+                                <option value="salud y bienestar">Salud y bienestar</option>
+                                <option value="servicios artísticos y marketing">Servicios artísticos y marketing</option>
+                                <option value="servicios profesionales">Servicios profesionales</option>
+                                <option value="servicios tecnológicos IT">Servicios tecnológicos IT</option>
+                                <option value="transporte">Transporte</option>
+                              </select>
                             </div>
                           </div>
+                          <div id="error-message" class="hidden mt-6 p-3 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 rounded-lg text-sm"></div>
+                          <div id="success-message" class="hidden mt-6 p-3 bg-green-100 dark:bg-green-900/30 border border-green-400 dark:border-green-800 text-green-700 dark:text-green-300 rounded-lg text-sm"></div>
                           <div class="flex justify-end">
                             <button
-                              class="mt-10 rounded-lg bg-success-300 px-4 py-3.5 font-semibold text-white"
+                              type="submit"
+                              id="save-button"
+                              class="mt-10 rounded-lg bg-success-300 px-4 py-3.5 font-semibold text-white hover:bg-success-400 transition-all"
                             >
                               Guardar perfil
                             </button>
@@ -3552,12 +3599,17 @@
                           <span class="text-bgray-900 dark:text-darkblack-300"
                             >300x300.</span
                           >
-                          Los GIF también funcionan.
-                          <span class="text-bgray-900">Máximo 5 MB.</span>
+                          <span class="text-bgray-900 dark:text-darkblack-300">Máximo 1 MB.</span>
                         </p>
+                        <input 
+                          type="file" 
+                          id="profile-image-input" 
+                          accept="image/png,image/jpeg,image/jpg,image/gif,image/webp" 
+                          class="hidden"
+                        />
                         <div class="relative m-auto h-40 w-40 text-center">
-                          <img src="assets/images/avatar/profile.png" alt="" />
-                          <button class="absolute bottom-1 right-4">
+                          <img id="profile-image-preview" src="assets/images/avatar/profile.png" alt="" class="w-full h-full object-cover rounded-lg" />
+                          <button type="button" id="profile-image-button" class="absolute bottom-1 right-4">
                             <svg
                               width="29"
                               height="29"
@@ -3587,42 +3639,36 @@
                         <h4
                           class="mb-2 text-lg font-bold text-bgray-800 dark:text-white"
                         >
-                          Actualizar portada
+                          Color de marca
                         </h4>
                         <p class="mb-4 text-bgray-500 dark:text-bgray-50">
-                          Portada de al menos tamaño
-                          <span class="text-bgray-900">1170x920 </span>
+                          Selecciona el color principal de tu marca. Este color aparecerá en tus facturas.
                         </p>
-                        <div class="relative w-full">
-                          <img
-                            src="assets/images/others/cover.jpg"
-                            class="w-full"
-                            alt=""
-                          />
-                          <button class="absolute bottom-2 right-2">
-                            <svg
-                              width="29"
-                              height="29"
-                              viewBox="0 0 29 29"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <circle
-                                cx="14.2414"
-                                cy="14.2414"
-                                r="14.2414"
-                                fill="#22C55E"
-                              />
-                              <path
-                                d="M14.6994 10.2363C15.7798 11.3167 16.8434 12.3803 17.9171 13.454C17.7837 13.584 17.6403 13.7174 17.5036 13.8574C15.5497 15.8114 13.5924 17.7653 11.6385 19.7192C11.5118 19.8459 11.3884 19.9726 11.2617 20.0927C11.2317 20.1193 11.185 20.1427 11.145 20.1427C10.1281 20.146 9.11108 20.1427 8.0941 20.146C8.02408 20.146 8.01074 20.1193 8.01074 20.0593C8.01074 19.049 8.01074 18.0354 8.01408 17.0251C8.01408 16.9784 8.03742 16.9217 8.06743 16.8917C9.26779 15.688 10.4682 14.4876 11.6685 13.2873C12.6655 12.2903 13.6591 11.2967 14.6561 10.2997C14.6761 10.2797 14.6861 10.253 14.6994 10.2363Z"
-                                fill="white"
-                              />
-                              <path
-                                d="M18.6467 12.7197C17.573 11.646 16.506 10.579 15.4424 9.51537C15.6324 9.31864 15.8292 9.11858 16.0259 8.91852C16.256 8.68845 16.4894 8.45838 16.7228 8.22831C17.0162 7.93822 17.4197 7.93822 17.7097 8.22831C18.4466 8.9552 19.1802 9.68542 19.9171 10.4123C20.2038 10.6957 20.2138 11.0992 19.9371 11.3859C19.5136 11.8261 19.0868 12.2629 18.6634 12.703C18.66 12.7097 18.65 12.7163 18.6467 12.7197Z"
-                                fill="white"
-                              />
-                            </svg>
-                          </button>
+                        <div class="flex items-center gap-4">
+                          <div class="relative">
+                            <input 
+                              type="color" 
+                              id="brand-color" 
+                              name="brand-color"
+                              value="#22C55E"
+                              class="h-14 w-32 cursor-pointer rounded-lg border-2 border-bgray-300 dark:border-darkblack-400"
+                            />
+                          </div>
+                          <div class="flex flex-col">
+                            <label class="text-sm font-medium text-bgray-600 dark:text-bgray-50 mb-1">
+                              Código HEX
+                            </label>
+                            <input 
+                              type="text" 
+                              id="brand-color-hex" 
+                              name="brand-color-hex"
+                              value="#22C55E"
+                              pattern="^#[0-9A-Fa-f]{6}$"
+                              maxlength="7"
+                              placeholder="#000000"
+                              class="h-10 w-32 rounded-lg border border-bgray-300 dark:border-darkblack-400 bg-white dark:bg-darkblack-500 px-3 text-bgray-800 dark:text-white font-mono text-sm focus:border-success-300 focus:ring-0"
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -5676,6 +5722,298 @@
     <script src="./assets/js/quill.min.js"></script>
     <script src="./assets/js/chart.js"></script>
     <script src="./assets/js/main.js"></script>
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module">
+      // Importar módulos
+      import './assets/js/supabaseClient.js';
+      import './assets/js/auth.js';
+      import './assets/js/businessInfo.js';
+      
+      // Esperar un momento para que se inicialice
+      await new Promise(resolve => setTimeout(resolve, 100));
+    </script>
+    <script src="./assets/js/userHeader.js"></script>
+
+    <!-- Business Info Logic -->
+    <script type="module">
+      document.addEventListener('DOMContentLoaded', async () => {
+        const form = document.getElementById('business-info-form');
+        const saveButton = document.getElementById('save-button');
+        const errorMessage = document.getElementById('error-message');
+        const successMessage = document.getElementById('success-message');
+
+        function showError(message) {
+          errorMessage.textContent = message;
+          errorMessage.classList.remove('hidden');
+          successMessage.classList.add('hidden');
+        }
+
+        function showSuccess(message) {
+          successMessage.textContent = message;
+          successMessage.classList.remove('hidden');
+          errorMessage.classList.add('hidden');
+        }
+
+        function hideMessages() {
+          errorMessage.classList.add('hidden');
+          successMessage.classList.add('hidden');
+        }
+
+        // Verificar autenticación
+        const userResult = await window.getCurrentUser();
+        if (!userResult.success || !userResult.user) {
+          window.location.href = './signin.html';
+          return;
+        }
+
+        const currentUser = userResult.user;
+
+        // Variables para imagen de perfil
+        let profileImageFile = null;
+        const profileImageInput = document.getElementById('profile-image-input');
+        const profileImageButton = document.getElementById('profile-image-button');
+        const profileImagePreview = document.getElementById('profile-image-preview');
+        
+        // Selector de color
+        const brandColorInput = document.getElementById('brand-color');
+        const brandColorHexInput = document.getElementById('brand-color-hex');
+
+        // Sincronizar selector de color con input hex
+        brandColorInput.addEventListener('input', (e) => {
+          brandColorHexInput.value = e.target.value.toUpperCase();
+        });
+
+        brandColorHexInput.addEventListener('input', (e) => {
+          const hex = e.target.value;
+          if (/^#[0-9A-Fa-f]{6}$/.test(hex)) {
+            brandColorInput.value = hex;
+          }
+        });
+
+        // Manejar clic en botón de imagen
+        profileImageButton.addEventListener('click', (e) => {
+          e.preventDefault();
+          profileImageInput.click();
+        });
+
+        // Manejar selección de imagen
+        profileImageInput.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+
+          // Validar tipo de archivo
+          const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'];
+          if (!allowedTypes.includes(file.type)) {
+            showError('Formato de imagen no válido. Usa PNG, JPG, GIF o WebP.');
+            profileImageInput.value = '';
+            return;
+          }
+
+          // Validar tamaño (1 MB = 1048576 bytes)
+          if (file.size > 1048576) {
+            showError('La imagen es demasiado grande. Máximo 1 MB.');
+            profileImageInput.value = '';
+            return;
+          }
+
+          // Previsualizar imagen
+          profileImageFile = file;
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            profileImagePreview.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+          
+          showSuccess('Imagen seleccionada. Guarda el perfil para aplicar los cambios.');
+        });
+
+        // Cargar datos de negocio
+        try {
+          const businessResult = await window.getBusinessInfo(currentUser.id);
+          
+          if (businessResult.success && businessResult.data) {
+            const data = businessResult.data;
+            
+            // Llenar formulario con datos existentes
+            document.getElementById('nombre-fiscal').value = data.nombre_fiscal || '';
+            document.getElementById('nif-cif').value = data.nif_cif || '';
+            document.getElementById('email').value = currentUser.email || '';
+            document.getElementById('telefono').value = data.telefono || '';
+            document.getElementById('direccion-facturacion').value = data.direccion_facturacion || '';
+            document.getElementById('ciudad').value = data.ciudad || '';
+            document.getElementById('codigo-postal').value = data.codigo_postal || '';
+            document.getElementById('provincia').value = data.provincia || '';
+            document.getElementById('pais').value = data.pais || '';
+            document.getElementById('sector').value = data.sector || '';
+            
+            // Cargar color de marca si existe
+            if (data.brand_color) {
+              brandColorInput.value = data.brand_color;
+              brandColorHexInput.value = data.brand_color.toUpperCase();
+            }
+            
+            // Cargar imagen de perfil si existe
+            if (data.profile_image_url) {
+              profileImagePreview.src = data.profile_image_url;
+            }
+          } else {
+            // Si no tiene datos de negocio, redirigir a complete-profile
+            window.location.href = './complete-profile.html';
+            return;
+          }
+        } catch (error) {
+          console.error('Error al cargar datos de negocio:', error);
+          showError('Error al cargar información');
+        }
+
+        // Guardar cambios
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          hideMessages();
+
+          const nombreFiscal = document.getElementById('nombre-fiscal').value.trim();
+          const telefono = document.getElementById('telefono').value.trim();
+          const direccionFacturacion = document.getElementById('direccion-facturacion').value.trim();
+          const ciudad = document.getElementById('ciudad').value.trim();
+          const codigoPostal = document.getElementById('codigo-postal').value.trim();
+          const provincia = document.getElementById('provincia').value.trim();
+          const pais = document.getElementById('pais').value.trim();
+          const sector = document.getElementById('sector').value;
+          const brandColor = brandColorHexInput.value.trim();
+
+          // ========== VALIDACIONES OBLIGATORIAS ==========
+          if (!nombreFiscal) {
+            showError('El nombre fiscal es obligatorio');
+            return;
+          }
+
+          if (!telefono) {
+            showError('El teléfono es obligatorio');
+            return;
+          }
+
+          if (!direccionFacturacion) {
+            showError('La dirección de facturación es obligatoria');
+            return;
+          }
+
+          if (!ciudad) {
+            showError('La ciudad es obligatoria');
+            return;
+          }
+
+          if (!codigoPostal) {
+            showError('El código postal es obligatorio');
+            return;
+          }
+
+          if (!provincia) {
+            showError('La provincia es obligatoria');
+            return;
+          }
+
+          if (!pais) {
+            showError('El país es obligatorio');
+            return;
+          }
+
+          if (!sector) {
+            showError('El sector es obligatorio');
+            return;
+          }
+
+          // Validar formato de color HEX
+          if (brandColor && !/^#[0-9A-Fa-f]{6}$/.test(brandColor)) {
+            showError('El código de color debe estar en formato HEX válido (ejemplo: #FF5733)');
+            return;
+          }
+
+          // Deshabilitar botón
+          saveButton.disabled = true;
+          saveButton.textContent = 'Guardando...';
+
+          try {
+            const updates = {
+              nombre_fiscal: nombreFiscal,
+              telefono: telefono,
+              direccion_facturacion: direccionFacturacion,
+              ciudad: ciudad,
+              codigo_postal: codigoPostal,
+              provincia: provincia,
+              pais: pais,
+              sector: sector,
+              brand_color: brandColor || '#22C55E'
+            };
+
+            // Si hay imagen de perfil nueva, convertirla a base64
+            if (profileImageFile) {
+              const reader = new FileReader();
+              const base64Promise = new Promise((resolve, reject) => {
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(profileImageFile);
+              });
+              
+              try {
+                updates.profile_image_url = await base64Promise;
+              } catch (error) {
+                console.error('Error al convertir imagen:', error);
+                showError('Error al procesar la imagen');
+                saveButton.disabled = false;
+                saveButton.textContent = 'Guardar perfil';
+                return;
+              }
+            }
+
+            const result = await window.updateBusinessInfo(currentUser.id, updates);
+
+            if (result.success) {
+              showSuccess('¡Información actualizada exitosamente!');
+              profileImageFile = null; // Resetear archivo de imagen
+              setTimeout(() => {
+                hideMessages();
+              }, 3000);
+            } else {
+              // Traducir errores de base de datos a español
+              let errorMsg = result.error || 'Error al actualizar información';
+              
+              if (errorMsg.includes('null value') && errorMsg.includes('violates not-null constraint')) {
+                if (errorMsg.includes('nombre_fiscal')) errorMsg = 'El nombre fiscal es obligatorio';
+                else if (errorMsg.includes('telefono')) errorMsg = 'El teléfono es obligatorio';
+                else if (errorMsg.includes('direccion_facturacion')) errorMsg = 'La dirección de facturación es obligatoria';
+                else if (errorMsg.includes('ciudad')) errorMsg = 'La ciudad es obligatoria';
+                else if (errorMsg.includes('codigo_postal')) errorMsg = 'El código postal es obligatorio';
+                else if (errorMsg.includes('provincia')) errorMsg = 'La provincia es obligatoria';
+                else if (errorMsg.includes('pais')) errorMsg = 'El país es obligatorio';
+                else if (errorMsg.includes('sector')) errorMsg = 'El sector es obligatorio';
+                else errorMsg = 'Todos los campos son obligatorios';
+              }
+              
+              showError(errorMsg);
+            }
+          } catch (error) {
+            console.error('Error al guardar:', error);
+            let errorMsg = 'Error inesperado al guardar';
+            
+            // Traducir errores comunes
+            if (error.message) {
+              if (error.message.includes('null value') && error.message.includes('violates not-null constraint')) {
+                errorMsg = 'Todos los campos son obligatorios. Por favor, completa todos los campos.';
+              } else {
+                errorMsg = error.message;
+              }
+            }
+            
+            showError(errorMsg);
+          } finally {
+            saveButton.disabled = false;
+            saveButton.textContent = 'Guardar perfil';
+          }
+        });
+      });
+    </script>
   </body>
 </html>
 
