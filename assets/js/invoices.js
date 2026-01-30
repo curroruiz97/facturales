@@ -7,19 +7,19 @@ console.log('🔄 Cargando invoices.js...');
 
 /**
  * Obtener cliente de Supabase (con espera si no está listo)
- * Nombre único para evitar conflictos con otros módulos
  * @returns {Promise<Object>} Cliente de Supabase
  */
 async function getSupabaseForInvoices() {
-  // Esperar a que supabaseClient esté disponible
+  // Esperar a que supabaseClient esté disponible (hasta 20 segundos)
   let attempts = 0;
-  while (!window.supabaseClient && attempts < 50) {
+  while (!window.supabaseClient && attempts < 200) {
     await new Promise(resolve => setTimeout(resolve, 100));
     attempts++;
   }
   
   if (!window.supabaseClient) {
-    throw new Error('Supabase client no está inicializado después de 5 segundos');
+    console.error('❌ Supabase client no está disponible después de 20 segundos');
+    throw new Error('Supabase client no está inicializado');
   }
   
   return window.supabaseClient;

@@ -83,13 +83,6 @@ function renderDraftsTable(drafts) {
               <p class="text-lg font-semibold text-bgray-900 dark:text-white">No hay borradores aún</p>
               <p class="mt-1 text-sm text-bgray-600 dark:text-bgray-50">Guarda una factura como borrador para verla aquí</p>
             </div>
-            <button onclick="location.href='new.html'" class="inline-flex items-center gap-2 rounded-lg bg-success-300 px-4 py-2 text-sm font-semibold text-white transition hover:bg-success-400">
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                <path d="M9 3.75V14.25" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-                <path d="M3.75 9H14.25" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-              </svg>
-              Nueva Factura
-            </button>
           </div>
         </td>
       </tr>

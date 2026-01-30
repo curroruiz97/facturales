@@ -2944,9 +2944,9 @@
                   <div class="hidden 2xl:block">
                     <div class="flex items-center space-x-2.5">
                       <h3
-                        class="text-base font-bold leading-[28px] text-bgray-900"
+                        class="user-profile-name text-base font-bold leading-[28px] text-bgray-900"
                       >
-                        John Doe
+                        Usuario
                       </h3>
                       <span>
                         <svg
@@ -2967,9 +2967,9 @@
                       </span>
                     </div>
                     <p
-                      class="text-sm font-medium leading-[20px] text-bgray-600"
+                      class="user-profile-email text-sm font-medium leading-[20px] text-bgray-600"
                     >
-                      Super Admin
+                        usuario@ejemplo.com
                     </p>
                   </div>
                 </div>
@@ -3151,6 +3151,7 @@
                 <button
                   type="button"
                   id="save-draft-btn"
+                  onclick="handleSaveDraft()"
                   class="rounded-lg border border-bgray-200 px-5 py-3 text-sm font-semibold text-bgray-700 transition hover:border-success-300 hover:text-bgray-900 dark:border-darkblack-500 dark:text-bgray-100"
                 >
                   Guardar borrador
@@ -3158,6 +3159,7 @@
                 <button
                   type="button"
                   id="go-to-preview-btn"
+                  onclick="handleGoToPreview()"
                   class="rounded-lg px-6 py-3 text-sm font-semibold text-white transition flex items-center gap-2"
                   style="background-color: #ea580c;"
                   onmouseover="this.style.backgroundColor='#c2410c'"
@@ -5098,38 +5100,9 @@
     <!-- Sistema de manejo de datos de factura -->
     <script src="../assets/js/invoice-data-handler.js"></script>
     <script>
-      // Inicializar el manejador de datos
-      const invoiceDataHandler = new InvoiceDataHandler();
-      
-      // Inicializar página (detectar modo edición)
-      if (window.initNewPage) {
-        window.initNewPage();
-      }
-      
-      // Botón para ir a vista previa
-      document.getElementById('go-to-preview-btn')?.addEventListener('click', function() {
-        if (window.goToPreview) {
-          window.goToPreview();
-        } else {
-          // Fallback al comportamiento original
-          invoiceDataHandler.goToPreview();
-        }
-      });
-      
-      // Botón para guardar borrador
-      document.getElementById('save-draft-btn')?.addEventListener('click', function() {
-        if (window.saveDraft) {
-          window.saveDraft();
-        } else {
-          // Fallback al comportamiento original
-          const data = invoiceDataHandler.captureFormData();
-          if (invoiceDataHandler.saveToStorage(data)) {
-            alert('Borrador guardado correctamente');
-          } else {
-            alert('Error al guardar el borrador');
-          }
-        }
-      });
+      // Inicializar el manejador de datos y hacerlo global
+      window.invoiceDataHandler = new InvoiceDataHandler();
+      console.log('✅ InvoiceDataHandler inicializado globalmente');
 
       // ============================================
       // Sistema de recálculo automático del resumen
@@ -5359,22 +5332,68 @@
     </script>
 
     <!-- Supabase and Clients Scripts -->
-    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="../assets/js/supabaseClient.js"></script>
-    <script src="../assets/js/auth.js"></script>
-    <script src="../assets/js/businessInfo.js"></script>
-    <script src="../assets/js/clients.js"></script>
+    <script type="module">
+      import '../assets/js/supabaseClient.js';
+      import '../assets/js/auth.js';
+      import '../assets/js/businessInfo.js';
+      import '../assets/js/clients.js';
+    </script>
     
     <!-- Utilidades -->
-    <script src="../assets/js/userHeader.js"></script>
-    <script src="../assets/js/toast.js"></script>
-    <script src="../assets/js/modal-cliente.js"></script>
-    <script src="../assets/js/invoice-clients.js"></script>
+    <script src="../assets/js/user-header.js" defer></script>
+    <script src="../assets/js/toast.js" defer></script>
+    <script src="../assets/js/modal-cliente.js" defer></script>
+    <script src="../assets/js/invoice-clients.js" defer></script>
     
     <!-- Sistema de facturas -->
-    <script src="../assets/js/invoices.js"></script>
-    <script src="../assets/js/new-page.js"></script>
+    <script src="../assets/js/invoices.js" defer></script>
+    <script src="../assets/js/new-page.js" defer></script>
+
+    <!-- Funciones de manejo de botones -->
+    <script>
+      // Funciones globales simples para los botones
+      async function handleSaveDraft() {
+        console.log('🖱️ Click en Guardar borrador');
+        
+        // Verificar que los módulos estén disponibles
+        if (!window.saveDraft || typeof window.saveDraft !== 'function') {
+          console.error('❌ window.saveDraft no está disponible');
+          alert('Error: El sistema aún está cargando. Espera unos segundos y vuelve a intentar.');
+          return;
+        }
+        
+        // Llamar a la función
+        console.log('✅ Llamando window.saveDraft()');
+        await window.saveDraft();
+      }
+      
+      async function handleGoToPreview() {
+        console.log('🖱️ Click en Vista previa y emitir');
+        
+        // Verificar que los módulos estén disponibles
+        if (!window.goToPreview || typeof window.goToPreview !== 'function') {
+          console.error('❌ window.goToPreview no está disponible');
+          alert('Error: El sistema aún está cargando. Espera unos segundos y vuelve a intentar.');
+          return;
+        }
+        
+        // Llamar a la función
+        console.log('✅ Llamando window.goToPreview()');
+        await window.goToPreview();
+      }
+      
+      // Inicializar página cuando todo esté listo
+      window.addEventListener('DOMContentLoaded', function() {
+        // Esperar un poco a que los scripts se carguen
+        setTimeout(function() {
+          if (window.initNewPage && typeof window.initNewPage === 'function') {
+            console.log('✅ Ejecutando initNewPage()');
+            window.initNewPage();
+          }
+        }, 1000);
+      });
+    </script>
 
     <!-- Autocompletar datos del emisor -->
     <script>

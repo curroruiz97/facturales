@@ -2702,7 +2702,7 @@
                                 <div class="flex-1">
                                   <span
                                     class="text-sm font-semibold text-bgray-900 dark:text-white"
-                                    >My Profile</span
+                                    >Mi Perfil</span
                                   >
                                 </div>
                               </div>
@@ -2740,9 +2740,9 @@
                             </a>
                           </li>
                           <li class="w-full">
-                            <a href="#">
+                            <a href="#" onclick="handleLogout(event)">
                               <div
-                                class="flex items-center space-x-[18px] rounded-lg p-[14px] text-success-300"
+                                class="flex items-center space-x-[18px] rounded-lg p-[14px] text-success-300 hover:bg-success-50 transition-colors"
                               >
                                 <div class="w-[20px]">
                                   <span>
@@ -2764,7 +2764,7 @@
                                 </div>
                                 <div class="flex-1">
                                   <span class="text-sm font-semibold"
-                                    >Log Out</span
+                                    >Cerrar Sesión</span
                                   >
                                 </div>
                               </div>
@@ -2865,7 +2865,7 @@
                       <h3
                         class="text-base font-bold leading-[28px] text-bgray-900"
                       >
-                        John Doe
+                        Usuario
                       </h3>
                       <span>
                         <svg
@@ -2888,7 +2888,7 @@
                     <p
                       class="text-sm font-medium leading-[20px] text-bgray-600"
                     >
-                      Super Admin
+                        usuario@ejemplo.com
                     </p>
                   </div>
                 </div>
@@ -2985,9 +2985,9 @@
                             </a>
                           </li>
                           <li class="w-full">
-                            <a href="#">
+                            <a href="#" onclick="handleLogout(event)">
                               <div
-                                class="flex items-center space-x-[18px] rounded-lg p-[14px] text-success-300"
+                                class="flex items-center space-x-[18px] rounded-lg p-[14px] text-success-300 hover:bg-success-50 transition-colors"
                               >
                                 <div class="w-[20px]">
                                   <span>
@@ -3009,7 +3009,7 @@
                                 </div>
                                 <div class="flex-1">
                                   <span class="text-sm font-semibold"
-                                    >Log Out</span
+                                    >Cerrar Sesión</span
                                   >
                                 </div>
                               </div>
@@ -5699,12 +5699,18 @@
     
     <!-- Supabase & Auth -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script type="module" src="./assets/js/supabaseClient.js"></script>
-    <script type="module" src="./assets/js/auth.js"></script>
-    <script type="module" src="./assets/js/businessInfo.js"></script>
-    <script type="module" src="./assets/js/checkBusinessInfo.js"></script>
+    <script type="module">
+      // Importar módulos
+      import './assets/js/supabaseClient.js';
+      import './assets/js/auth.js';
+      import './assets/js/businessInfo.js';
+      import './assets/js/checkBusinessInfo.js';
+      
+      // Esperar un momento para que se inicialice
+      await new Promise(resolve => setTimeout(resolve, 100));
+    </script>
     <script type="module" src="./assets/js/auth-guard.js"></script>
-    <script src="./assets/js/userHeader.js"></script>
+    <script src="./assets/js/user-header.js"></script>
     <script src="./assets/js/onboardingProgress.js"></script>
     
     <!-- Verificar business info completo -->

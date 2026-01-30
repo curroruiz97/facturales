@@ -165,59 +165,122 @@ function setCheckbox(id, checked) {
  * @returns {Object} Datos de la factura
  */
 function collectFormData() {
-  // Nota: Esta función debe ser implementada según la estructura exacta del formulario
-  // Aquí está el esqueleto básico
-  
-  const formData = {
-    invoice_series: document.getElementById('invoice-series')?.value || 'A',
-    client_name: document.getElementById('client-name')?.value || '',
-    issue_date: document.getElementById('issue-date')?.value || '',
-    due_date: document.getElementById('due-date')?.value || null,
-    currency: document.getElementById('invoice-currency')?.value || 'EUR',
+  try {
+    console.log('📋 Recopilando datos del formulario...');
     
-    // Estos valores deben ser calculados desde los conceptos
-    subtotal: 0, // TODO: Calcular desde conceptos
-    tax_amount: 0, // TODO: Calcular desde conceptos
-    total_amount: 0, // TODO: Calcular desde conceptos
-    
-    invoice_data: {
-      issuer: {
-        name: document.getElementById('issuer-name')?.value || '',
-        nif: document.getElementById('issuer-nif')?.value || '',
-        email: document.getElementById('issuer-email')?.value || '',
-        address: document.getElementById('issuer-address')?.value || '',
-        postalCode: document.getElementById('issuer-postal-code')?.value || ''
-      },
-      client: {
-        name: document.getElementById('client-name')?.value || '',
-        nif: document.getElementById('client-nif')?.value || '',
-        email: document.getElementById('client-email')?.value || '',
-        address: document.getElementById('client-address')?.value || '',
-        postalCode: document.getElementById('client-postal-code')?.value || ''
-      },
-      invoice: {
-        reference: document.getElementById('invoice-reference')?.value || ''
-      },
-      payment: {
-        terms: document.getElementById('payment-terms')?.value || ''
-      },
-      dates: {
-        operation: document.getElementById('operation-date')?.value || ''
-      },
-      concepts: [], // TODO: Recopilar conceptos dinámicos
-      options: {
-        recargoEquivalencia: document.getElementById('recargo-equivalencia')?.checked || false,
-        gastosSuplidos: 0, // TODO: Obtener valor si está habilitado
-        observaciones: document.getElementById('observaciones')?.checked ? '' : null // TODO: Obtener texto
-      },
-      adjustments: {
-        discount: parseFloat(document.getElementById('discount')?.value) || 0,
-        withholding: parseFloat(document.getElementById('withholding')?.value) || 0
-      }
+    // Usar InvoiceDataHandler si está disponible para captura completa
+    let rawData = null;
+    if (window.invoiceDataHandler && typeof window.invoiceDataHandler.captureFormData === 'function') {
+      rawData = window.invoiceDataHandler.captureFormData();
+      console.log('✅ Datos capturados con InvoiceDataHandler:', rawData);
     }
-  };
-  
-  return formData;
+    
+    // Obtener datos básicos
+    const clientName = document.getElementById('client-name')?.value || '';
+    const issueDate = document.getElementById('issue-date')?.value || '';
+    let invoiceNumber = document.getElementById('invoice-number')?.value || '';
+    
+    // Si el número está vacío o es placeholder, dejarlo para que se genere automáticamente
+    if (!invoiceNumber || invoiceNumber.trim() === '' || invoiceNumber.toLowerCase() === 'automático') {
+      invoiceNumber = '';
+    }
+    
+    // Validar datos obligatorios
+    if (!clientName || !clientName.trim()) {
+      throw new Error('El nombre del cliente es obligatorio');
+    }
+    
+    if (!issueDate) {
+      throw new Error('La fecha de emisión es obligatoria');
+    }
+    
+    // Calcular totales desde el resumen
+    let subtotal = 0;
+    let taxAmount = 0;
+    let totalAmount = 0;
+    
+    if (rawData && rawData.summary) {
+      subtotal = parseFloat(rawData.summary.subtotal) || 0;
+      taxAmount = parseFloat(rawData.summary.tax) || 0;
+      totalAmount = parseFloat(rawData.summary.total) || 0;
+    } else {
+      // Fallback: obtener desde los elementos del DOM
+      const subtotalElement = document.querySelector('[data-summary="subtotal"]');
+      const taxElement = document.querySelector('[data-summary="tax"]');
+      const totalElement = document.querySelector('[data-summary="total"]');
+      
+      subtotal = parseFloat(subtotalElement?.textContent?.replace(/[^0-9,.-]/g, '')?.replace(',', '.')) || 0;
+      taxAmount = parseFloat(taxElement?.textContent?.replace(/[^0-9,.-]/g, '')?.replace(',', '.')) || 0;
+      totalAmount = parseFloat(totalElement?.textContent?.replace(/[^0-9,.-]/g, '')?.replace(',', '.')) || 0;
+    }
+    
+    // Preparar objeto de factura en formato Supabase
+    const formData = {
+      invoice_series: document.getElementById('invoice-series')?.value || 'A',
+      invoice_number: invoiceNumber,
+      client_name: clientName.trim(),
+      issue_date: issueDate,
+      due_date: document.getElementById('due-date')?.value || null,
+      currency: document.getElementById('invoice-currency')?.value || 'EUR',
+      subtotal: subtotal,
+      tax_amount: taxAmount,
+      total_amount: totalAmount,
+      
+      invoice_data: {
+        issuer: {
+          name: document.getElementById('issuer-name')?.value || '',
+          nif: document.getElementById('issuer-nif')?.value || '',
+          email: document.getElementById('issuer-email')?.value || '',
+          address: document.getElementById('issuer-address')?.value || '',
+          postalCode: document.getElementById('issuer-postal-code')?.value || ''
+        },
+        client: {
+          name: clientName.trim(),
+          nif: document.getElementById('client-nif')?.value || '',
+          email: document.getElementById('client-email')?.value || '',
+          address: document.getElementById('client-address')?.value || '',
+          postalCode: document.getElementById('client-postal-code')?.value || ''
+        },
+        invoice: {
+          number: invoiceNumber,
+          reference: document.getElementById('invoice-reference')?.value || '',
+          series: document.getElementById('invoice-series')?.value || 'A'
+        },
+        payment: {
+          terms: document.getElementById('payment-terms')?.value || ''
+        },
+        dates: {
+          issue: issueDate,
+          due: document.getElementById('due-date')?.value || null,
+          operation: document.getElementById('operation-date')?.value || ''
+        },
+        concepts: rawData?.concepts || [],
+        expenses: rawData?.expenses || [],
+        taxSettings: rawData?.taxSettings || {},
+        options: {
+          recargoEquivalencia: document.getElementById('recargo-equivalencia')?.checked || false,
+          gastosSuplidos: 0,
+          observaciones: document.getElementById('observaciones')?.value || null
+        },
+        adjustments: {
+          discount: parseFloat(document.getElementById('discount')?.value) || 0,
+          withholding: parseFloat(document.getElementById('withholding')?.value) || 0
+        },
+        summary: {
+          subtotal: subtotal,
+          tax: taxAmount,
+          total: totalAmount
+        }
+      }
+    };
+    
+    console.log('✅ Datos del formulario recopilados:', formData);
+    return formData;
+    
+  } catch (error) {
+    console.error('❌ Error al recopilar datos del formulario:', error);
+    throw error;
+  }
 }
 
 /**
@@ -226,34 +289,56 @@ function collectFormData() {
 async function saveDraft() {
   try {
     console.log('💾 Guardando borrador...');
+    console.log('📊 Estado de módulos:', {
+      createInvoice: typeof window.createInvoice,
+      updateInvoice: typeof window.updateInvoice,
+      supabaseClient: typeof window.supabaseClient
+    });
     
-    // Esperar módulos
-    let attempts = 0;
-    while ((!window.createInvoice || !window.updateInvoice) && attempts < 50) {
-      await new Promise(resolve => setTimeout(resolve, 100));
-      attempts++;
-    }
-    
-    // Verificar que las funciones estén disponibles
+    // Verificar que las funciones estén disponibles INMEDIATAMENTE
     if (!window.createInvoice) {
-      console.error('❌ window.createInvoice no está definido después de esperar');
-      console.log('Funciones disponibles:', Object.keys(window).filter(k => k.includes('Invoice')));
-      showToastMessage('Error: El módulo de facturas no está cargado correctamente', 'error');
+      const availableFunctions = Object.keys(window).filter(k => k.toLowerCase().includes('invoice'));
+      console.error('❌ window.createInvoice no está definido');
+      console.error('Funciones disponibles con "invoice":', availableFunctions);
+      showToastMessage('Error: El módulo de facturas no está cargado. Por favor, recarga la página.', 'error');
       return;
     }
     
     if (!window.updateInvoice) {
-      console.error('❌ window.updateInvoice no está definido después de esperar');
-      showToastMessage('Error: El módulo de facturas no está cargado correctamente', 'error');
+      console.error('❌ window.updateInvoice no está definido');
+      showToastMessage('Error: El módulo de facturas no está cargado. Por favor, recarga la página.', 'error');
       return;
     }
     
-    const formData = collectFormData();
+    // Verificar Supabase
+    if (!window.supabaseClient) {
+      console.error('❌ Supabase no está inicializado');
+      showToastMessage('Error: No hay conexión con la base de datos. Por favor, recarga la página.', 'error');
+      return;
+    }
     
+    // Recopilar datos del formulario
+    console.log('📋 Recopilando datos del formulario...');
+    let formData;
+    try {
+      formData = collectFormData();
+      console.log('✅ Datos recopilados:', {
+        cliente: formData.client_name,
+        fecha: formData.issue_date,
+        total: formData.total_amount,
+        conceptos: formData.invoice_data?.concepts?.length || 0
+      });
+    } catch (error) {
+      console.error('❌ Error al recopilar datos:', error);
+      showToastMessage(error.message || 'Error al recopilar los datos del formulario', 'error');
+      return;
+    }
+    
+    // Guardar o actualizar
     let result;
     if (isEditMode && currentDraftId) {
       // Actualizar borrador existente
-      console.log('📝 Actualizando borrador existente...');
+      console.log('📝 Actualizando borrador existente:', currentDraftId);
       result = await window.updateInvoice(currentDraftId, formData);
     } else {
       // Crear nuevo borrador
@@ -261,23 +346,27 @@ async function saveDraft() {
       result = await window.createInvoice(formData, 'draft');
     }
     
+    console.log('📤 Resultado de guardado:', result);
+    
     if (!result.success) {
       console.error('❌ Error al guardar:', result.error);
       showToastMessage(result.error || 'Error al guardar el borrador', 'error');
       return;
     }
     
-    console.log('✅ Borrador guardado');
+    console.log('✅ Borrador guardado exitosamente:', result.data);
     showToastMessage('Borrador guardado correctamente', 'success');
     
-    // Redirigir a borradores
+    // Redirigir a borradores después de un breve delay
     setTimeout(() => {
+      console.log('🔄 Redirigiendo a borradores...');
       window.location.href = 'drafts.html';
-    }, 1000);
+    }, 1500);
     
   } catch (error) {
     console.error('❌ Error en saveDraft:', error);
-    showToastMessage('Error al guardar el borrador', 'error');
+    console.error('Stack trace:', error.stack);
+    showToastMessage(error.message || 'Error al guardar el borrador', 'error');
   }
 }
 
@@ -331,17 +420,19 @@ async function goToPreview() {
  * @param {string} type - Tipo: 'success' | 'error' | 'warning'
  */
 function showToastMessage(message, type = 'success') {
-  // Buscar función global de toast
-  const toastFn = window.toast || window.showGlobalToast || window.displayToast;
+  console.log(`[${type.toUpperCase()}] ${message}`);
   
-  if (toastFn && typeof toastFn === 'function') {
+  // Usar la función global showToast si está disponible
+  if (window.showToast && typeof window.showToast === 'function') {
     try {
-      toastFn(message, type);
+      window.showToast(message, type);
     } catch (e) {
-      console.log(message);
+      console.error('Error al mostrar toast:', e);
+      alert(message);
     }
   } else {
-    console.log(`[${type.toUpperCase()}] ${message}`);
+    // Fallback a alert
+    alert(message);
   }
 }
 

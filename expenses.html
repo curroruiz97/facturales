@@ -2864,9 +2864,9 @@
                   <div class="hidden 2xl:block">
                     <div class="flex items-center space-x-2.5">
                       <h3
-                        class="text-base font-bold leading-[28px] text-bgray-900"
+                        class="user-profile-name text-base font-bold leading-[28px] text-bgray-900"
                       >
-                        John Doe
+                        Usuario
                       </h3>
                       <span>
                         <svg
@@ -2887,9 +2887,9 @@
                       </span>
                     </div>
                     <p
-                      class="text-sm font-medium leading-[20px] text-bgray-600"
+                      class="user-profile-email text-sm font-medium leading-[20px] text-bgray-600"
                     >
-                      Super Admin
+                        usuario@ejemplo.com
                     </p>
                   </div>
                 </div>
@@ -5072,8 +5072,15 @@
     
     <!-- Supabase y Autenticación -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script type="module" src="./assets/js/supabaseClient.js"></script>
-    <script type="module" src="./assets/js/auth.js"></script>
+    <script type="module">
+      // Importar módulos
+      import './assets/js/supabaseClient.js';
+      import './assets/js/auth.js';
+      import './assets/js/businessInfo.js';
+      
+      // Esperar un momento para que se inicialice
+      await new Promise(resolve => setTimeout(resolve, 100));
+    </script>
     <script type="module" src="./assets/js/auth-guard.js"></script>
     
     <!-- User header y utilidades -->
@@ -5087,7 +5094,6 @@
     <script type="module" src="./assets/js/auth.js"></script>
     <script type="module" src="./assets/js/businessInfo.js"></script>
     <script type="module" src="./assets/js/checkBusinessInfo.js"></script>
-    <script src="./assets/js/userHeader.js"></script>
     <script src="./assets/js/onboardingProgress.js"></script>
     
     <!-- Verificar business info completo -->

@@ -1968,17 +1968,17 @@
                       class="h-[52px] w-[52px] overflow-hidden rounded-xl border border-bgray-300"
                     >
                       <img
-                        class="object-cover"
+                        class="user-profile-image object-cover w-full h-full"
                         src="./assets/images/avatar/profile-52x52.png"
-                        alt="avater"
+                        alt="perfil"
                       />
                     </div>
                     <div class="hidden 2xl:block">
                       <div class="flex items-center space-x-2.5">
                         <h3
-                          class="text-base font-bold leading-[28px] text-bgray-900 dark:text-white"
+                          class="user-profile-name text-base font-bold leading-[28px] text-bgray-900 dark:text-white"
                         >
-                          John Doe
+                          Usuario
                         </h3>
                         <span>
                           <svg
@@ -1999,9 +1999,9 @@
                         </span>
                       </div>
                       <p
-                        class="text-sm font-medium leading-[20px] text-bgray-600 dark:text-bgray-50"
+                        class="user-profile-email text-sm font-medium leading-[20px] text-bgray-600 dark:text-bgray-50"
                       >
-                        Super Admin
+                        usuario@ejemplo.com
                       </p>
                     </div>
                   </div>
@@ -2742,9 +2742,9 @@
                             </a>
                           </li>
                           <li class="w-full">
-                            <a href="#">
+                            <a href="#" onclick="handleLogout(event)">
                               <div
-                                class="flex items-center space-x-[18px] rounded-lg p-[14px] text-success-300"
+                                class="flex items-center space-x-[18px] rounded-lg p-[14px] text-success-300 hover:bg-success-50 transition-colors"
                               >
                                 <div class="w-[20px]">
                                   <span>
@@ -2766,7 +2766,7 @@
                                 </div>
                                 <div class="flex-1">
                                   <span class="text-sm font-semibold"
-                                    >Log Out</span
+                                    >Cerrar Sesión</span
                                   >
                                 </div>
                               </div>
@@ -2865,9 +2865,9 @@
                   <div class="hidden 2xl:block">
                     <div class="flex items-center space-x-2.5">
                       <h3
-                        class="text-base font-bold leading-[28px] text-bgray-900"
+                        class="user-profile-name text-base font-bold leading-[28px] text-bgray-900"
                       >
-                        John Doe
+                        Usuario
                       </h3>
                       <span>
                         <svg
@@ -2888,9 +2888,9 @@
                       </span>
                     </div>
                     <p
-                      class="text-sm font-medium leading-[20px] text-bgray-600"
+                      class="user-profile-email text-sm font-medium leading-[20px] text-bgray-600"
                     >
-                      Super Admin
+                      usuario@ejemplo.com
                     </p>
                   </div>
                 </div>
@@ -2987,9 +2987,9 @@
                             </a>
                           </li>
                           <li class="w-full">
-                            <a href="#">
+                            <a href="#" onclick="handleLogout(event)">
                               <div
-                                class="flex items-center space-x-[18px] rounded-lg p-[14px] text-success-300"
+                                class="flex items-center space-x-[18px] rounded-lg p-[14px] text-success-300 hover:bg-success-50 transition-colors"
                               >
                                 <div class="w-[20px]">
                                   <span>
@@ -3011,7 +3011,7 @@
                                 </div>
                                 <div class="flex-1">
                                   <span class="text-sm font-semibold"
-                                    >Log Out</span
+                                    >Cerrar Sesión</span
                                   >
                                 </div>
                               </div>
@@ -4476,6 +4476,21 @@
     </script>
     <script src="./assets/js/quill.min.js"></script>
     <script src="./assets/js/main.js"></script>
+    
+    <!-- Supabase y Autenticación -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module">
+      // Importar módulos
+      import './assets/js/supabaseClient.js';
+      import './assets/js/auth.js';
+      import './assets/js/businessInfo.js';
+      
+      // Esperar un momento para que se inicialice
+      await new Promise(resolve => setTimeout(resolve, 100));
+    </script>
+    
+    <!-- User header y logout -->
+    <script src="./assets/js/user-header.js"></script>
   </body>
 </html>
 
