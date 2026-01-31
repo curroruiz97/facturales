@@ -370,7 +370,9 @@
           console.log('PDF generado correctamente');
         } catch (error) {
           console.error('Error generando PDF:', error);
-          alert('Error al generar el PDF. Por favor, recarga la página.');
+          if (window.showToast) {
+            window.showToast('Error al generar el PDF. Por favor, recarga la página.', 'error');
+          }
         }
       }
 
@@ -386,60 +388,166 @@
         generatePreview();
       });
 
-      // Emitir factura
-      document.getElementById('emit-invoice-btn').addEventListener('click', async function() {
-        if (confirm('¿Estás seguro de que quieres emitir esta factura? Una vez emitida, no se podrá modificar.')) {
+      // ========================================
+      // FUNCIONES DE MANEJO DE BOTONES
+      // ========================================
+      
+      /**
+       * Deshabilitar botón durante operación
+       */
+      function disableButton(buttonId, loadingText) {
+        const btn = document.getElementById(buttonId);
+        if (!btn) return null;
+        
+        btn.disabled = true;
+        btn.style.opacity = '0.6';
+        btn.style.cursor = 'not-allowed';
+        
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = `
+          <div class="flex items-center justify-center gap-2">
+            <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            ${loadingText}
+          </div>
+        `;
+        
+        return originalHTML;
+      }
+      
+      /**
+       * Rehabilitar botón
+       */
+      function enableButton(buttonId, originalHTML) {
+        const btn = document.getElementById(buttonId);
+        if (!btn) return;
+        
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+        if (originalHTML) {
+          btn.innerHTML = originalHTML;
+        }
+      }
+      
+      /**
+       * Manejar emisión de factura
+       */
+      async function handleEmitInvoice() {
+        console.log('🖱️ Click en Emitir factura');
+        
+        // Verificar que tenemos el ID
+        if (!currentInvoiceId) {
+          if (window.showToast) {
+            window.showToast('Error: No hay un borrador para emitir', 'error');
+          }
+          console.error('❌ No hay currentInvoiceId');
+          return;
+        }
+        
+        // Verificar que la función está disponible
+        if (!window.emitInvoice || typeof window.emitInvoice !== 'function') {
+          if (window.showToast) {
+            window.showToast('Error: El sistema aún está cargando. Espera unos segundos.', 'error');
+          }
+          console.error('❌ window.emitInvoice no disponible');
+          return;
+        }
+        
+        try {
+          // Deshabilitar botón
+          const originalHTML = disableButton('emit-invoice-btn', 'Emitiendo...');
           
+          console.log('📤 Emitiendo factura:', currentInvoiceId);
+          const result = await window.emitInvoice(currentInvoiceId);
+          
+          if (!result.success) {
+            console.error('❌ Error al emitir:', result.error);
+            if (window.showToast) {
+              window.showToast(result.error || 'Error al emitir la factura', 'error');
+            }
+            enableButton('emit-invoice-btn', originalHTML);
+            return;
+          }
+          
+          console.log('✅ Factura emitida correctamente');
+          if (window.showToast) {
+            window.showToast('Factura emitida correctamente', 'success');
+          }
+          
+          // Marcar paso 4 del onboarding como completado
           try {
-            // Si tenemos un ID de factura (borrador), emitirla
-            if (currentInvoiceId && window.emitInvoice) {
-              console.log('📤 Emitiendo factura...');
-              
-              const result = await window.emitInvoice(currentInvoiceId);
-              
-              if (!result.success) {
-                console.error('❌ Error al emitir:', result.error);
-                alert('Error al emitir la factura: ' + result.error);
-                return;
-              }
-              
-              console.log('✅ Factura emitida correctamente');
-              alert('Factura emitida correctamente');
-              
-              // Redirigir a facturas emitidas
-              setTimeout(() => {
-                window.location.href = 'issued.html';
-              }, 1000);
-              
-            } else {
-              // Fallback: comportamiento original
-              alert('Factura emitida correctamente');
-              
-              // Marcar paso 4 como completado
-              try {
-                if (window.getCurrentUser && window.updateStepProgress) {
-                  const userResult = await window.getCurrentUser();
-                  if (userResult.success && userResult.user) {
-                    await window.updateStepProgress(userResult.user.id, 4, true);
-                    console.log('✅ Paso 4 "Primera factura" marcado como completado');
-                  }
-                }
-              } catch (error) {
-                console.warn('⚠️ No se pudo actualizar el progreso de onboarding:', error);
+            if (window.getCurrentUser && window.updateStepProgress) {
+              const userResult = await window.getCurrentUser();
+              if (userResult.success && userResult.user) {
+                await window.updateStepProgress(userResult.user.id, 4, true);
+                console.log('✅ Paso 4 "Primera factura" completado');
               }
             }
-            
           } catch (error) {
-            console.error('❌ Error al emitir factura:', error);
-            alert('Error al emitir la factura');
+            console.warn('⚠️ No se pudo actualizar progreso de onboarding:', error);
           }
+          
+          // Redirigir a facturas emitidas
+          setTimeout(() => {
+            console.log('🔄 Redirigiendo a facturas emitidas...');
+            window.location.href = 'issued.html';
+          }, 1500);
+          
+        } catch (error) {
+          console.error('❌ Error en handleEmitInvoice:', error);
+          if (window.showToast) {
+            window.showToast(error.message || 'Error al emitir la factura', 'error');
+          }
+          enableButton('emit-invoice-btn');
         }
-      });
-
-      // Guardar borrador
-      document.getElementById('save-draft-btn').addEventListener('click', function() {
-        alert('Borrador guardado correctamente (funcionalidad pendiente de implementar)');
-      });
+      }
+      
+      /**
+       * Manejar guardar borrador
+       */
+      async function handleSaveDraft() {
+        console.log('🖱️ Click en Guardar borrador');
+        
+        // Verificar que tenemos el ID
+        if (!currentInvoiceId) {
+          if (window.showToast) {
+            window.showToast('Error: No hay un borrador para guardar', 'error');
+          }
+          console.error('❌ No hay currentInvoiceId');
+          return;
+        }
+        
+        try {
+          // Deshabilitar botón
+          const originalHTML = disableButton('save-draft-btn', 'Guardando...');
+          
+          console.log('💾 El borrador ya está guardado con ID:', currentInvoiceId);
+          
+          if (window.showToast) {
+            window.showToast('Borrador guardado correctamente', 'success');
+          }
+          
+          // Redirigir a borradores
+          setTimeout(() => {
+            console.log('🔄 Redirigiendo a borradores...');
+            window.location.href = 'drafts.html';
+          }, 1500);
+          
+        } catch (error) {
+          console.error('❌ Error en handleSaveDraft:', error);
+          if (window.showToast) {
+            window.showToast(error.message || 'Error al guardar el borrador', 'error');
+          }
+          enableButton('save-draft-btn');
+        }
+      }
+      
+      // Hacer funciones globales
+      window.handleEmitInvoice = handleEmitInvoice;
+      window.handleSaveDraft = handleSaveDraft;
 
       // Actualizar el resumen en la interfaz
       function updateSummaryUI() {

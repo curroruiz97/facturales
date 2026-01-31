@@ -16,16 +16,19 @@ function handleClientSearch(searchTerm) {
     clearTimeout(searchTimeout);
   }
   
-  // Si el término tiene menos de 1 caracter, ocultar dropdown
-  if (searchTerm.trim().length < 1) {
+  // Si el término está vacío, ocultar dropdown
+  const trimmed = searchTerm.trim();
+  if (trimmed.length === 0) {
     hideClientDropdown();
     return;
   }
   
-  // Buscar después de 300ms de inactividad
+  // Buscar inmediatamente si tiene 1 carácter, con delay mínimo para otros casos
+  const delay = trimmed.length === 1 ? 100 : 150;
+  
   searchTimeout = setTimeout(async () => {
-    await searchAndDisplayClients(searchTerm);
-  }, 300);
+    await searchAndDisplayClients(trimmed);
+  }, delay);
 }
 
 /**
