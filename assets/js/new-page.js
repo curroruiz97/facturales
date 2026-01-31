@@ -377,40 +377,68 @@ async function goToPreview() {
   try {
     console.log('👁️ Preparando vista previa...');
     
-    // Si estamos editando, actualizar el borrador primero
-    if (isEditMode && currentDraftId) {
-      console.log('📝 Actualizando borrador antes de vista previa...');
-      
-      let attempts = 0;
-      while (!window.updateInvoice && attempts < 50) {
-        await new Promise(resolve => setTimeout(resolve, 100));
-        attempts++;
-      }
-      
-      const formData = collectFormData();
-      const result = await window.updateInvoice(currentDraftId, formData);
-      
-      if (!result.success) {
-        console.error('❌ Error al actualizar:', result.error);
-        showToastMessage(result.error || 'Error al guardar cambios', 'error');
-        return;
-      }
-      
-      console.log('✅ Borrador actualizado');
+    // Verificar que los módulos estén disponibles
+    if (!window.createInvoice || !window.updateInvoice) {
+      console.error('❌ Módulos de facturas no disponibles');
+      showToastMessage('Error: El sistema aún está cargando. Espera unos segundos.', 'error');
+      return;
     }
     
-    // Redirigir a preview
-    if (currentDraftId) {
-      window.location.href = `preview.html?draft=${currentDraftId}`;
-    } else {
-      // Si es nuevo, ir a preview con datos del formulario (implementación futura)
-      console.warn('⚠️ Vista previa de factura nueva sin guardar aún no implementada');
-      showToastMessage('Guarda el borrador primero para ver la vista previa', 'warning');
+    let draftId = currentDraftId;
+    
+    // Si NO tenemos un ID de borrador, crear uno nuevo primero
+    if (!draftId) {
+      console.log('📝 Creando borrador antes de vista previa...');
+      
+      try {
+        const formData = collectFormData();
+        const result = await window.createInvoice(formData, 'draft');
+        
+        if (!result.success) {
+          console.error('❌ Error al crear borrador:', result.error);
+          showToastMessage(result.error || 'Error al guardar el borrador', 'error');
+          return;
+        }
+        
+        draftId = result.data.id;
+        currentDraftId = draftId;
+        console.log('✅ Borrador creado:', draftId);
+        showToastMessage('Borrador guardado correctamente', 'success');
+      } catch (error) {
+        console.error('❌ Error al crear borrador:', error);
+        showToastMessage(error.message || 'Error al guardar el borrador', 'error');
+        return;
+      }
     }
+    // Si estamos editando un borrador existente, actualizarlo primero
+    else if (isEditMode) {
+      console.log('📝 Actualizando borrador antes de vista previa...');
+      
+      try {
+        const formData = collectFormData();
+        const result = await window.updateInvoice(draftId, formData);
+        
+        if (!result.success) {
+          console.error('❌ Error al actualizar:', result.error);
+          showToastMessage(result.error || 'Error al guardar cambios', 'error');
+          return;
+        }
+        
+        console.log('✅ Borrador actualizado');
+      } catch (error) {
+        console.error('❌ Error al actualizar borrador:', error);
+        showToastMessage(error.message || 'Error al actualizar', 'error');
+        return;
+      }
+    }
+    
+    // Redirigir a preview con el ID del borrador
+    console.log('🔄 Redirigiendo a preview con ID:', draftId);
+    window.location.href = `preview.html?draft=${draftId}`;
     
   } catch (error) {
     console.error('❌ Error en goToPreview:', error);
-    showToastMessage('Error al ir a vista previa', 'error');
+    showToastMessage(error.message || 'Error al ir a vista previa', 'error');
   }
 }
 

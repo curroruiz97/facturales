@@ -4823,7 +4823,9 @@
 
       if (window.flatpickr) {
         window.flatpickr(".js-date", {
-          dateFormat: "d/m/Y",
+          dateFormat: "Y-m-d",  // Formato ISO para Supabase
+          altInput: true,        // Mostrar formato alternativo al usuario
+          altFormat: "d/m/Y",    // Formato visual DD/MM/YYYY
           locale: {
             weekdays: {
               shorthand: ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"],

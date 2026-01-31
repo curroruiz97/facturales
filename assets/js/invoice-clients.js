@@ -16,8 +16,8 @@ function handleClientSearch(searchTerm) {
     clearTimeout(searchTimeout);
   }
   
-  // Si el término tiene menos de 3 caracteres, ocultar dropdown
-  if (searchTerm.trim().length < 3) {
+  // Si el término tiene menos de 1 caracter, ocultar dropdown
+  if (searchTerm.trim().length < 1) {
     hideClientDropdown();
     return;
   }
