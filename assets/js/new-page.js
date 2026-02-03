@@ -182,7 +182,7 @@ function collectFormData() {
     
     // Si el número está vacío o es placeholder, dejarlo para que se genere automáticamente
     if (!invoiceNumber || invoiceNumber.trim() === '' || invoiceNumber.toLowerCase() === 'automático') {
-      invoiceNumber = '';
+      invoiceNumber = null;
     }
     
     // Validar datos obligatorios
@@ -242,7 +242,7 @@ function collectFormData() {
           postalCode: document.getElementById('client-postal-code')?.value || ''
         },
         invoice: {
-          number: invoiceNumber,
+          number: invoiceNumber || '',
           reference: document.getElementById('invoice-reference')?.value || '',
           series: document.getElementById('invoice-series')?.value || 'A'
         },
