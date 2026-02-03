@@ -217,6 +217,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="../assets/js/invoice-pdf-generator.js"></script>
     <script src="../assets/js/invoice-data-handler.js"></script>
+    <script src="../assets/js/toast.js" defer></script>
+    <script src="../assets/js/invoices.js" defer></script>
     <script>
       // Cargar datos desde localStorage o usar datos de ejemplo
       const dataHandler = new InvoiceDataHandler();
@@ -332,7 +334,7 @@
             issuer: invoice.invoice_data.issuer || {},
             client: invoice.invoice_data.client || {},
             invoice: {
-              number: invoice.invoice_number,
+              number: invoice.invoice_number || 'Sin número',
               issueDate: window.formatDate ? window.formatDate(invoice.issue_date) : invoice.issue_date,
               dueDate: invoice.due_date ? (window.formatDate ? window.formatDate(invoice.due_date) : invoice.due_date) : ''
             },

@@ -71,6 +71,10 @@ async function createInvoice(invoiceData, status = 'draft') {
       is_paid: false,
       invoice_data: invoiceData.invoice_data
     };
+
+    if (invoiceData.invoice_number && invoiceData.invoice_number.toString().trim() !== '') {
+      data.invoice_number = invoiceData.invoice_number.toString().trim();
+    }
     
     // Insertar en Supabase
     const { data: invoice, error } = await supabase
@@ -235,6 +239,9 @@ async function updateInvoice(invoiceId, invoiceData) {
     }
     
     if (invoiceData.status !== undefined) {
+      if (invoiceData.status === 'issued') {
+        throw new Error('Para emitir una factura usa el flujo de emisión. No se puede cambiar a emitida manualmente.');
+      }
       data.status = invoiceData.status;
     }
     
@@ -410,18 +417,19 @@ async function emitInvoice(invoiceId) {
     const supabase = await getSupabaseForInvoices();
     
     const { data, error } = await supabase
-      .from('invoices')
-      .update({ status: 'issued' })
-      .eq('id', invoiceId)
-      .select()
-      .single();
+      .rpc('issue_invoice', { p_invoice_id: invoiceId });
     
     if (error) {
       console.error('Error emitting invoice:', error);
       throw new Error(error.message || 'Error al emitir la factura');
     }
     
-    console.log('✅ Factura emitida:', data.invoice_number);
+    const issuedInvoice = Array.isArray(data) ? data[0] : data;
+    if (!issuedInvoice) {
+      throw new Error('No se pudo emitir la factura');
+    }
+
+    console.log('✅ Factura emitida:', issuedInvoice.invoice_number);
     
     // Marcar paso 4 del onboarding como completado
     try {
@@ -434,7 +442,7 @@ async function emitInvoice(invoiceId) {
       console.warn('⚠️ No se pudo actualizar el progreso de onboarding:', onboardingError);
     }
     
-    return { success: true, data };
+    return { success: true, data: issuedInvoice };
   } catch (error) {
     console.error('Error in emitInvoice:', error);
     return { success: false, error: error.message };

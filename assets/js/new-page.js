@@ -5,12 +5,17 @@
 
 let currentDraftId = null;
 let isEditMode = false;
+let hasInitialized = false;
 
 /**
  * Inicializar la página
  */
 async function initNewPage() {
   try {
+    if (hasInitialized) {
+      return;
+    }
+    hasInitialized = true;
     console.log('🔄 Inicializando página de factura...');
     
     // Verificar si estamos editando un borrador
@@ -82,6 +87,10 @@ async function loadDraftToForm(draftId) {
 function populateFormWithData(invoice) {
   try {
     const data = invoice.invoice_data;
+    if (!data) {
+      console.warn('⚠️ invoice_data vacío en el borrador');
+      return;
+    }
     
     // Datos básicos de la factura
     setValue('invoice-series', invoice.invoice_series);
@@ -128,11 +137,152 @@ function populateFormWithData(invoice) {
       setValue('discount', data.adjustments.discount || '');
       setValue('withholding', data.adjustments.withholding || '');
     }
+
+    // Recargo de equivalencia
+    if (data.options) {
+      setCheckbox('recargo-equivalencia', data.options.recargoEquivalencia);
+    }
+
+    // Gastos suplidos
+    if (Array.isArray(data.expenses)) {
+      populateExpenses(data.expenses);
+    }
+
+    // Observaciones
+    if (data.options && typeof data.options.observaciones === 'string') {
+      populateObservations(data.options.observaciones);
+    }
+
+    // Conceptos
+    if (Array.isArray(data.concepts)) {
+      populateConcepts(data.concepts);
+    }
     
     console.log('✅ Formulario poblado con datos del borrador');
     
   } catch (error) {
     console.error('❌ Error en populateFormWithData:', error);
+  }
+}
+
+function populateConcepts(concepts = []) {
+  const addLineButton = document.getElementById('add-line');
+  const container = addLineButton?.closest('section')?.querySelector('.space-y-4');
+  if (!container) {
+    console.warn('⚠️ Contenedor de conceptos no encontrado');
+    return;
+  }
+
+  let existingLines = container.querySelectorAll(':scope > div.rounded-lg');
+  if (concepts.length > 0 && existingLines.length > concepts.length) {
+    for (let i = existingLines.length - 1; i >= concepts.length; i -= 1) {
+      existingLines[i].remove();
+    }
+  }
+
+  existingLines = container.querySelectorAll(':scope > div.rounded-lg');
+  const missingLines = concepts.length - existingLines.length;
+  if (missingLines > 0 && typeof window.addConceptLine === 'function') {
+    for (let i = 0; i < missingLines; i += 1) {
+      window.addConceptLine();
+    }
+  }
+
+  const lines = container.querySelectorAll(':scope > div.rounded-lg');
+  lines.forEach((line, index) => {
+    const concept = concepts[index];
+    if (!concept) {
+      return;
+    }
+
+    const inputs = line.querySelectorAll('input');
+    const selects = line.querySelectorAll('select');
+
+    if (inputs[0]) inputs[0].value = concept.description || '';
+    if (inputs[1]) inputs[1].value = concept.quantity ?? 0;
+    if (inputs[2]) inputs[2].value = concept.unitPrice ?? 0;
+    if (inputs[3]) inputs[3].value = concept.discount ?? 0;
+
+    if (selects[0]) {
+      const taxValue = resolveTaxValue(concept.tax, selects[0]);
+      if (taxValue) {
+        selects[0].value = taxValue;
+      }
+    }
+
+    if (typeof window.updateConceptTotal === 'function') {
+      window.updateConceptTotal(line);
+    }
+  });
+}
+
+function resolveTaxValue(tax, selectElement) {
+  if (typeof tax === 'string' && tax) {
+    return tax;
+  }
+
+  const taxNumber = Number(tax);
+  if (Number.isNaN(taxNumber)) {
+    return selectElement.value;
+  }
+
+  const map = {
+    21: 'IVA_21',
+    10: 'IVA_10',
+    4: 'IVA_4',
+    0: 'IVA_0',
+    7: 'IGIC_7',
+    3: 'IGIC_3'
+  };
+
+  return map[taxNumber] || selectElement.value;
+}
+
+function populateExpenses(expenses = []) {
+  if (!expenses.length) {
+    return;
+  }
+
+  const checkbox = document.getElementById('gastos-suplidos');
+  const container = document.getElementById('gastos-suplidos-fields');
+  if (!container) {
+    return;
+  }
+
+  if (checkbox) {
+    checkbox.checked = true;
+  }
+
+  if (typeof window.toggleConditionalField === 'function') {
+    window.toggleConditionalField('gastos-suplidos', 'gastos-suplidos-fields');
+  } else {
+    container.classList.remove('hidden');
+  }
+
+  const inputs = container.querySelectorAll('input');
+  const firstExpense = expenses[0] || {};
+  if (inputs[0]) inputs[0].value = firstExpense.description || '';
+  if (inputs[1]) inputs[1].value = firstExpense.amount ?? 0;
+}
+
+function populateObservations(observaciones) {
+  const checkbox = document.getElementById('observaciones');
+  const container = document.getElementById('observaciones-field');
+  if (checkbox) {
+    checkbox.checked = Boolean(observaciones);
+  }
+
+  if (container) {
+    if (typeof window.toggleConditionalField === 'function') {
+      window.toggleConditionalField('observaciones', 'observaciones-field');
+    } else {
+      container.classList.remove('hidden');
+    }
+
+    const textarea = container.querySelector('textarea');
+    if (textarea) {
+      textarea.value = observaciones || '';
+    }
   }
 }
 
@@ -182,7 +332,7 @@ function collectFormData() {
     
     // Si el número está vacío o es placeholder, dejarlo para que se genere automáticamente
     if (!invoiceNumber || invoiceNumber.trim() === '' || invoiceNumber.toLowerCase() === 'automático') {
-      invoiceNumber = '';
+      invoiceNumber = null;
     }
     
     // Validar datos obligatorios
@@ -242,7 +392,7 @@ function collectFormData() {
           postalCode: document.getElementById('client-postal-code')?.value || ''
         },
         invoice: {
-          number: invoiceNumber,
+          number: invoiceNumber || '',
           reference: document.getElementById('invoice-reference')?.value || '',
           series: document.getElementById('invoice-series')?.value || 'A'
         },
@@ -260,7 +410,7 @@ function collectFormData() {
         options: {
           recargoEquivalencia: document.getElementById('recargo-equivalencia')?.checked || false,
           gastosSuplidos: 0,
-          observaciones: document.getElementById('observaciones')?.value || null
+          observaciones: document.querySelector('#observaciones-field textarea')?.value || null
         },
         adjustments: {
           discount: parseFloat(document.getElementById('discount')?.value) || 0,
@@ -471,3 +621,9 @@ window.goToPreview = goToPreview;
 window.collectFormData = collectFormData;
 
 console.log('✅ new-page.js cargado');
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initNewPage);
+} else {
+  initNewPage();
+}
