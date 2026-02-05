@@ -179,7 +179,7 @@ function createDraftRow(draft) {
  */
 function editDraft(draftId) {
   console.log('✏️ Editando borrador:', draftId);
-  window.location.href = `new.html?draft=${draftId}`;
+  window.location.href = `/invoices/new?draft=${draftId}`;
 }
 
 /**
@@ -218,29 +218,61 @@ function closeDeleteModal() {
 async function confirmDeleteDraft() {
   if (!currentDeleteId) return;
   
+  // Guardar ID localmente ANTES de limpiar o cerrar modal
+  const idToDelete = currentDeleteId;
+  currentDeleteId = null; // Limpiar para evitar duplicados
+  
+  // Cerrar modal DESPUÉS de guardar el ID
+  closeDeleteModal();
+  
   try {
-    console.log('🗑️ Eliminando borrador:', currentDeleteId);
+    console.log('🗑️ Eliminando borrador:', idToDelete);
     
-    const result = await window.permanentlyDeleteInvoice(currentDeleteId);
+    // Verificar que la función esté disponible
+    let attempts = 0;
+    while (!window.permanentlyDeleteInvoice && attempts < 50) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      attempts++;
+    }
+    
+    if (!window.permanentlyDeleteInvoice) {
+      console.error('❌ Función permanentlyDeleteInvoice no disponible');
+      if (window.showToast) {
+        window.showToast('Error: El sistema aún está cargando. Intenta de nuevo.', 'error');
+      }
+      return;
+    }
+    
+    const result = await window.permanentlyDeleteInvoice(idToDelete);
     
     if (!result.success) {
       console.error('❌ Error al eliminar:', result.error);
-      showToast(result.error || 'Error al eliminar el borrador', 'error');
+      if (window.showToast) {
+        window.showToast(result.error || 'Error al eliminar el borrador', 'error');
+      }
       return;
     }
     
     console.log('✅ Borrador eliminado');
-    showToast('Borrador eliminado correctamente', 'success');
     
-    // Cerrar modal
-    closeDeleteModal();
+    // Mostrar toast de éxito
+    if (window.showToast) {
+      window.showToast('Borrador eliminado correctamente', 'success');
+    }
     
-    // Recargar lista
-    await loadDrafts();
+    // Recargar lista de borradores
+    if (window.loadDrafts) {
+      await window.loadDrafts();
+    } else {
+      // Fallback: recargar página completa
+      window.location.reload();
+    }
     
   } catch (error) {
     console.error('❌ Error en confirmDeleteDraft:', error);
-    showToast('Error al eliminar el borrador', 'error');
+    if (window.showToast) {
+      window.showToast('Error al eliminar el borrador', 'error');
+    }
   }
 }
 
@@ -264,20 +296,6 @@ function handleSearchDrafts(searchTerm) {
   });
   
   renderDraftsTable(filtered);
-}
-
-/**
- * Mostrar notificación toast
- * @param {string} message - Mensaje a mostrar
- * @param {string} type - Tipo: 'success' | 'error'
- */
-function showToast(message, type = 'success') {
-  if (window.showToast) {
-    window.showToast(message, type);
-  } else {
-    // Fallback
-    alert(message);
-  }
 }
 
 // Inicializar al cargar la página

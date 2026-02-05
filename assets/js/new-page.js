@@ -113,8 +113,17 @@ function populateFormWithData(invoice) {
       setValue('client-postal-code', data.client.postalCode);
     }
     
-    // Conceptos (esto es complejo, necesitaría acceso a la función de agregar líneas)
-    // Por ahora, se dejará para implementación manual
+    // Conceptos - Cargar líneas de factura
+    if (data.concepts && data.concepts.length > 0) {
+      loadInvoiceLines(data.concepts);
+      
+      // Actualizar totales después de cargar líneas
+      setTimeout(() => {
+        if (window.updateTotals && typeof window.updateTotals === 'function') {
+          window.updateTotals();
+        }
+      }, 500);
+    }
     
     // Opciones avanzadas
     if (data.options) {
@@ -158,6 +167,138 @@ function setCheckbox(id, checked) {
   if (element) {
     element.checked = !!checked;
   }
+}
+
+/**
+ * Cargar líneas de factura desde datos guardados
+ * @param {Array} concepts - Array de conceptos/líneas
+ */
+function loadInvoiceLines(concepts) {
+  try {
+    if (!concepts || concepts.length === 0) return;
+    
+    const container = document.getElementById('invoice-lines');
+    if (!container) {
+      console.error('❌ Contenedor de líneas no encontrado');
+      return;
+    }
+    
+    // Limpiar líneas existentes
+    container.innerHTML = '';
+    
+    // Crear cada línea
+    concepts.forEach((concept, index) => {
+      const line = createInvoiceLine(concept, index === 0);
+      container.appendChild(line);
+    });
+    
+    console.log(`✅ ${concepts.length} líneas cargadas`);
+    
+  } catch (error) {
+    console.error('❌ Error en loadInvoiceLines:', error);
+  }
+}
+
+/**
+ * Crear elemento HTML de línea de factura
+ * @param {Object} concept - Datos del concepto
+ * @param {boolean} isFirst - Si es la primera línea
+ * @returns {HTMLElement} Elemento de línea
+ */
+function createInvoiceLine(concept, isFirst) {
+  const line = document.createElement('div');
+  line.className = 'invoice-line grid grid-cols-12 gap-4 mb-4';
+  
+  line.innerHTML = `
+    <!-- Descripción -->
+    <div class="col-span-12 md:col-span-5">
+      <input
+        type="text"
+        class="line-description w-full rounded-lg border border-bgray-300 px-4 py-3 focus:border-success-300 focus:ring-0 dark:border-darkblack-400 dark:bg-darkblack-500 dark:text-white"
+        placeholder="Descripción del concepto"
+        value="${concept.description || ''}"
+      />
+    </div>
+    
+    <!-- Cantidad -->
+    <div class="col-span-6 md:col-span-2">
+      <input
+        type="number"
+        class="line-quantity w-full rounded-lg border border-bgray-300 px-4 py-3 focus:border-success-300 focus:ring-0 dark:border-darkblack-400 dark:bg-darkblack-500 dark:text-white"
+        placeholder="Cant."
+        min="0"
+        step="0.01"
+        value="${concept.quantity || 1}"
+      />
+    </div>
+    
+    <!-- Precio unitario -->
+    <div class="col-span-6 md:col-span-2">
+      <input
+        type="number"
+        class="line-price w-full rounded-lg border border-bgray-300 px-4 py-3 focus:border-success-300 focus:ring-0 dark:border-darkblack-400 dark:bg-darkblack-500 dark:text-white"
+        placeholder="Precio"
+        min="0"
+        step="0.01"
+        value="${concept.unitPrice || 0}"
+      />
+    </div>
+    
+    <!-- IVA -->
+    <div class="col-span-6 md:col-span-2">
+      <select
+        class="line-iva w-full rounded-lg border border-bgray-300 px-4 py-3 focus:border-success-300 focus:ring-0 dark:border-darkblack-400 dark:bg-darkblack-500 dark:text-white"
+      >
+        <option value="0" ${concept.taxRate === 0 ? 'selected' : ''}>0%</option>
+        <option value="4" ${concept.taxRate === 4 ? 'selected' : ''}>4%</option>
+        <option value="10" ${concept.taxRate === 10 ? 'selected' : ''}>10%</option>
+        <option value="21" ${concept.taxRate === 21 ? 'selected' : ''}>21%</option>
+      </select>
+    </div>
+    
+    <!-- Total + Botón eliminar -->
+    <div class="col-span-6 md:col-span-1 flex items-center gap-2">
+      <span class="line-total text-sm font-semibold text-bgray-900 dark:text-white">
+        €${((concept.quantity || 1) * (concept.unitPrice || 0)).toFixed(2).replace('.', ',')}
+      </span>
+      ${!isFirst ? `
+      <button
+        type="button"
+        class="remove-line inline-flex h-8 w-8 items-center justify-center rounded-lg bg-error-50 text-error-300 transition hover:bg-error-100"
+      >
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M12 4L4 12M4 4L12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+      ` : ''}
+    </div>
+  `;
+  
+  // Agregar event listeners
+  const inputs = line.querySelectorAll('input, select');
+  inputs.forEach(input => {
+    input.addEventListener('input', () => {
+      if (window.updateTotals && typeof window.updateTotals === 'function') {
+        window.updateTotals();
+      }
+    });
+  });
+  
+  // Listener para botón de eliminar
+  const removeBtn = line.querySelector('.remove-line');
+  if (removeBtn) {
+    removeBtn.addEventListener('click', () => {
+      const allLines = document.querySelectorAll('.invoice-line');
+      if (allLines.length > 1) {
+        line.remove();
+        if (window.updateTotals && typeof window.updateTotals === 'function') {
+          window.updateTotals();
+        }
+      }
+    });
+  }
+  
+  return line;
 }
 
 /**
@@ -434,7 +575,7 @@ async function goToPreview() {
     
     // Redirigir a preview con el ID del borrador
     console.log('🔄 Redirigiendo a preview con ID:', draftId);
-    window.location.href = `preview.html?draft=${draftId}`;
+    window.location.href = `preview?draft=${draftId}`;
     
   } catch (error) {
     console.error('❌ Error en goToPreview:', error);
@@ -469,5 +610,6 @@ window.initNewPage = initNewPage;
 window.saveDraft = saveDraft;
 window.goToPreview = goToPreview;
 window.collectFormData = collectFormData;
+window.loadInvoiceLines = loadInvoiceLines;
 
 console.log('✅ new-page.js cargado');
