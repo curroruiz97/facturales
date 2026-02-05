@@ -91,21 +91,28 @@ class InvoicePDFGenerator {
     this.doc.setTextColor(255, 255, 255);
     this.doc.setFontSize(20);
     this.doc.setFont(undefined, 'bold');
-    this.doc.text('SE', this.margin + 15, this.currentY + 20, { align: 'center' });
+    
+    // Usar iniciales del nombre del emisor
+    const initials = this.getInitials(issuer.name);
+    this.doc.text(initials, this.margin + 15, this.currentY + 20, { align: 'center' });
     
     // Datos del emisor (derecha)
     this.doc.setTextColor(0, 0, 0);
     this.doc.setFontSize(14);
     this.doc.setFont(undefined, 'bold');
-    this.doc.text(issuer.name || 'avenue sl', this.pageWidth - this.margin, this.currentY, { align: 'right' });
+    this.doc.text(issuer.name || 'Sin nombre', this.pageWidth - this.margin, this.currentY, { align: 'right' });
     
     this.doc.setFontSize(9);
     this.doc.setFont(undefined, 'normal');
-    const issuerLines = [
-      issuer.cif || '87082987',
-      issuer.address || 'Valladolid, España',
-      issuer.phone ? `Tel. ${issuer.phone}` : 'Tel. 655658565'
-    ];
+    const issuerLines = [];
+    
+    if (issuer.nif) issuerLines.push(issuer.nif);
+    if (issuer.address && issuer.postalCode) {
+      issuerLines.push(`${issuer.address}, ${issuer.postalCode}`);
+    } else if (issuer.address) {
+      issuerLines.push(issuer.address);
+    }
+    if (issuer.email) issuerLines.push(issuer.email);
     
     let lineY = this.currentY + 7;
     issuerLines.forEach(line => {
@@ -114,6 +121,18 @@ class InvoicePDFGenerator {
     });
     
     this.currentY += 40;
+  }
+
+  /**
+   * Obtiene las iniciales de un nombre
+   */
+  getInitials(name) {
+    if (!name) return 'SE';
+    const words = name.trim().split(' ');
+    if (words.length >= 2) {
+      return (words[0][0] + words[1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
   }
 
   /**
@@ -137,16 +156,20 @@ class InvoicePDFGenerator {
     this.doc.text('CLIENTE', this.margin, this.currentY);
     
     this.doc.setFontSize(10);
-    this.doc.setFont(undefined, 'bold');
-    this.doc.text(client.name || 'AVENUE DIGITAL GROUP SL', this.margin, this.currentY + 7);
+    this.doc.text(client.name || 'Sin nombre', this.margin, this.currentY + 7);
     
     this.doc.setFont(undefined, 'normal');
     this.doc.setFontSize(9);
-    const clientLines = [
-      client.cif || '87082987',
-      client.address || 'PLAZA MAYOR 23, 1A',
-      client.city || '47001 VALLADOLID, Valladolid, España'
-    ];
+    const clientLines = [];
+    
+    if (client.nif) clientLines.push(`NIF: ${client.nif}`);
+    if (client.email) clientLines.push(client.email);
+    if (client.address) {
+      const fullAddress = client.postalCode 
+        ? `${client.address}, ${client.postalCode}` 
+        : client.address;
+      clientLines.push(fullAddress);
+    }
     
     let clientY = this.currentY + 13;
     clientLines.forEach(line => {
@@ -161,11 +184,23 @@ class InvoicePDFGenerator {
     this.doc.text('FACTURA', rightX, this.currentY);
     
     this.doc.setFontSize(9);
-    const invoiceInfo = [
-      { label: 'Nº de factura', value: invoice.number || 'F20261' },
-      { label: 'Fecha factura', value: invoice.issueDate || '27/01/2026' },
-      { label: 'Fecha vencimiento', value: invoice.dueDate || '31/01/2026' }
-    ];
+    const invoiceInfo = [];
+    
+    if (invoice.series) {
+      invoiceInfo.push({ label: 'Serie', value: invoice.series });
+    }
+    if (invoice.number) {
+      invoiceInfo.push({ label: 'Nº de factura', value: invoice.number });
+    }
+    if (invoice.reference) {
+      invoiceInfo.push({ label: 'Referencia', value: invoice.reference });
+    }
+    if (invoice.issueDate) {
+      invoiceInfo.push({ label: 'Fecha factura', value: invoice.issueDate });
+    }
+    if (invoice.dueDate) {
+      invoiceInfo.push({ label: 'Vencimiento', value: invoice.dueDate });
+    }
     
     let invoiceY = this.currentY + 7;
     invoiceInfo.forEach(item => {
@@ -176,7 +211,7 @@ class InvoicePDFGenerator {
       invoiceY += 5;
     });
     
-    this.currentY += 40;
+    this.currentY = Math.max(clientY, invoiceY) + 5;
   }
 
   /**
@@ -229,11 +264,11 @@ class InvoicePDFGenerator {
       this.doc.text(descLines, this.margin + 2, rowY);
       
       // Datos numéricos
-      this.doc.text(String(concept.quantity || '100'), 85, rowY, { align: 'center' });
-      this.doc.text(this.formatCurrency(concept.unitPrice || 567), 125, rowY, { align: 'right' });
-      this.doc.text(`${concept.tax || '21'}%`, 148, rowY, { align: 'center' });
-      this.doc.text(`${concept.re || '5.2'}%`, 168, rowY, { align: 'center' });
-      this.doc.text(this.formatCurrency(concept.total || 715.55), this.pageWidth - this.margin - 2, rowY, { align: 'right' });
+      this.doc.text(String(concept.quantity || 0), 85, rowY, { align: 'center' });
+      this.doc.text(this.formatCurrency(concept.unitPrice || 0), 125, rowY, { align: 'right' });
+      this.doc.text(`${concept.taxRate || concept.tax || 0}%`, 148, rowY, { align: 'center' });
+      this.doc.text(`${concept.re || 0}%`, 168, rowY, { align: 'center' });
+      this.doc.text(this.formatCurrency(concept.total || 0), this.pageWidth - this.margin - 2, rowY, { align: 'right' });
       
       this.currentY += Math.max(10, descLines.length * 5);
       
@@ -261,9 +296,9 @@ class InvoicePDFGenerator {
     expenses.forEach(expense => {
       this.doc.setFont(undefined, 'normal');
       this.doc.setFontSize(9);
-      this.doc.text(expense.description || 'gasto suplido', this.margin + 2, this.currentY);
+      this.doc.text(expense.description || 'Gasto suplido', this.margin + 2, this.currentY);
       this.doc.setFont(undefined, 'bold');
-      this.doc.text(this.formatCurrency(expense.amount || 100), this.pageWidth - this.margin - 2, this.currentY, { align: 'right' });
+      this.doc.text(this.formatCurrency(expense.amount || 0), this.pageWidth - this.margin - 2, this.currentY, { align: 'right' });
       
       this.currentY += 5;
     });
@@ -290,12 +325,44 @@ class InvoicePDFGenerator {
     
     this.doc.setFontSize(9);
     
-    const summaryItems = [
-      { label: 'Base imponible', value: summary.taxBase || 567.00, bold: false },
-      { label: `IVA ${summary.taxRate || 21}%`, value: summary.taxAmount || 119.07, bold: false },
-      { label: `Recargo de equivalencia ${summary.reRate || 5.2}%`, value: summary.reAmount || 29.48, bold: false },
-      { label: `Retención ${summary.retentionRate || 2.00}%`, value: -summary.retentionAmount || -28.35, bold: false, negative: true }
-    ];
+    const summaryItems = [];
+    
+    // Subtotal (si hay descuento general)
+    if (summary.discount && summary.discount > 0) {
+      summaryItems.push({ label: 'Subtotal', value: summary.subtotal, bold: false });
+      summaryItems.push({ label: 'Descuento', value: -summary.discount, bold: false, negative: true });
+    }
+    
+    // Base imponible
+    summaryItems.push({ label: 'Base imponible', value: summary.taxBase, bold: false });
+    
+    // IVA (si existe)
+    if (summary.taxAmount && summary.taxAmount > 0) {
+      summaryItems.push({ 
+        label: `IVA ${summary.taxRate || 21}%`, 
+        value: summary.taxAmount, 
+        bold: false 
+      });
+    }
+    
+    // Recargo de equivalencia (si existe)
+    if (summary.reAmount && summary.reAmount > 0) {
+      summaryItems.push({ 
+        label: `R.E. ${summary.reRate || 5.2}%`, 
+        value: summary.reAmount, 
+        bold: false 
+      });
+    }
+    
+    // Retención (si existe)
+    if (summary.retentionAmount && summary.retentionAmount > 0) {
+      summaryItems.push({ 
+        label: `Retención ${summary.retentionRate}%`, 
+        value: -summary.retentionAmount, 
+        bold: false, 
+        negative: true 
+      });
+    }
     
     // Gastos suplidos si existen
     if (summary.expenses && summary.expenses > 0) {
@@ -325,7 +392,7 @@ class InvoicePDFGenerator {
     this.doc.setFont(undefined, 'bold');
     this.doc.setTextColor(0, 0, 0);
     this.doc.text('Total', rightColX, this.currentY);
-    this.doc.text(this.formatCurrency(summary.total || 787.20), valueX, this.currentY, { align: 'right' });
+    this.doc.text(this.formatCurrency(summary.total), valueX, this.currentY, { align: 'right' });
     
     this.currentY += 8;
     
@@ -347,6 +414,7 @@ class InvoicePDFGenerator {
     }
     
     // TOTAL A PAGAR (destacado)
+    const totalToPay = summary.totalToPay || summary.total;
     this.doc.setFillColor(orange.r, orange.g, orange.b);
     this.doc.rect(rightColX - 2, this.currentY - 6, valueX - rightColX + 4, 10, 'F');
     
@@ -354,7 +422,7 @@ class InvoicePDFGenerator {
     this.doc.setFont(undefined, 'bold');
     this.doc.setTextColor(255, 255, 255);
     this.doc.text('Total a pagar', rightColX, this.currentY);
-    this.doc.text(this.formatCurrency(summary.totalToPay || 687.20), valueX, this.currentY, { align: 'right' });
+    this.doc.text(this.formatCurrency(totalToPay), valueX, this.currentY, { align: 'right' });
     
     this.doc.setTextColor(0, 0, 0); // Reset color
     this.currentY += 15;
@@ -375,14 +443,18 @@ class InvoicePDFGenerator {
     
     methods.forEach(method => {
       let text = '';
-      if (method.type === 'transferencia') {
-        text = `Transferencia bancaria al número de cuenta ${method.iban || 'ES00 0000 0000 0000 0000 0000'}`;
-      } else if (method.type === 'bizum') {
-        text = `Bizum: ${method.phone || '655 8555 5555'}`;
+      if (method.type === 'transferencia' && method.iban) {
+        text = `Transferencia bancaria: ${method.iban}`;
+      } else if (method.type === 'bizum' && method.phone) {
+        text = `Bizum: ${method.phone}`;
       } else if (method.type === 'efectivo') {
         text = 'Efectivo';
+      } else if (method.type === 'domiciliacion') {
+        text = 'Domiciliación bancaria';
+      } else if (method.type === 'contrareembolso') {
+        text = 'Contrareembolso';
       } else {
-        text = method.type || 'Otro método de pago';
+        text = method.type || 'Método de pago';
       }
       
       const lines = this.doc.splitTextToSize(text, this.pageWidth - (2 * this.margin));
@@ -421,7 +493,7 @@ class InvoicePDFGenerator {
     this.doc.setFontSize(8);
     this.doc.setFont(undefined, 'normal');
     this.doc.setTextColor(gray.r, gray.g, gray.b);
-    this.doc.text(invoiceNumber || 'B7082987', this.margin, this.pageHeight - 10);
+    this.doc.text(invoiceNumber || 'Factura', this.margin, this.pageHeight - 10);
     this.doc.text('1 / 1', this.pageWidth - this.margin, this.pageHeight - 10, { align: 'right' });
   }
 

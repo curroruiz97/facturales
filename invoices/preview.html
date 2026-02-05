@@ -355,10 +355,13 @@
       }
 
       // Generar PDF al cargar la página
-      async function generatePreview() {
+      async function generatePreview(invoiceData) {
         try {
+          // Usar los datos proporcionados o cargar desde BD
+          const dataToUse = invoiceData || await loadInvoiceFromDB();
+          
           pdfGenerator = new InvoicePDFGenerator();
-          pdfGenerator.generatePDF(sampleInvoiceData);
+          pdfGenerator.generatePDF(dataToUse);
           
           // Obtener el PDF como data URL y mostrarlo en el iframe
           const pdfDataUrl = pdfGenerator.getPDFDataUrl();
@@ -367,7 +370,7 @@
           // Guardar el blob para descargas
           currentPDFBlob = pdfGenerator.getPDFBlob();
           
-          console.log('PDF generado correctamente');
+          console.log('PDF generado correctamente con datos reales');
         } catch (error) {
           console.error('Error generando PDF:', error);
           if (window.showToast) {
@@ -550,20 +553,22 @@
       window.handleSaveDraft = handleSaveDraft;
 
       // Actualizar el resumen en la interfaz
-      function updateSummaryUI() {
-        if (sampleInvoiceData.client) {
-          document.getElementById('summary-client-name').textContent = sampleInvoiceData.client.name;
+      function updateSummaryUI(invoiceData) {
+        const data = invoiceData || sampleInvoiceData;
+        
+        if (data.client) {
+          document.getElementById('summary-client-name').textContent = data.client.name || 'Sin cliente';
         }
-        if (sampleInvoiceData.summary) {
+        if (data.summary) {
           const formatCurrency = (value) => {
             const num = parseFloat(value) || 0;
             return num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, '.').replace(/\.(\d{2})$/, ',$1') + ' €';
           };
           
-          document.getElementById('summary-subtotal').textContent = formatCurrency(sampleInvoiceData.summary.subtotal);
-          document.getElementById('summary-base').textContent = formatCurrency(sampleInvoiceData.summary.taxBase);
-          document.getElementById('summary-tax').textContent = formatCurrency(sampleInvoiceData.summary.taxAmount);
-          document.getElementById('summary-total').textContent = formatCurrency(sampleInvoiceData.summary.totalToPay);
+          document.getElementById('summary-subtotal').textContent = formatCurrency(data.summary.subtotal);
+          document.getElementById('summary-base').textContent = formatCurrency(data.summary.taxBase);
+          document.getElementById('summary-tax').textContent = formatCurrency(data.summary.taxAmount);
+          document.getElementById('summary-total').textContent = formatCurrency(data.summary.totalToPay || data.summary.total);
         }
       }
 
@@ -587,11 +592,11 @@
           console.log('👁️ Modo solo lectura activado');
         }
         
-        // Actualizar UI
-        updateSummaryUI();
+        // Actualizar UI con datos reales
+        updateSummaryUI(invoiceData);
         
-        // Pequeño delay para asegurar que jsPDF esté cargado
-        setTimeout(generatePreview, 500);
+        // Pequeño delay para asegurar que jsPDF esté cargado, luego generar con datos reales
+        setTimeout(() => generatePreview(invoiceData), 500);
       });
 
       // Detectar cambio de tema oscuro/claro

@@ -35,10 +35,11 @@ class InvoiceDataHandler {
    */
   captureIssuerData() {
     return {
-      name: document.getElementById('issuer-name')?.value || 'avenue sl',
-      cif: document.getElementById('issuer-cif')?.value || '87082987',
-      address: document.getElementById('issuer-address')?.value || 'Valladolid, España',
-      phone: document.getElementById('issuer-phone')?.value || '655658565'
+      name: document.getElementById('issuer-name')?.value || '',
+      nif: document.getElementById('issuer-nif')?.value || '',
+      email: document.getElementById('issuer-email')?.value || '',
+      address: document.getElementById('issuer-address')?.value || '',
+      postalCode: document.getElementById('issuer-postal-code')?.value || ''
     };
   }
 
@@ -46,17 +47,12 @@ class InvoiceDataHandler {
    * Captura datos del cliente
    */
   captureClientData() {
-    // Buscar el dropdown del cliente seleccionado
-    const clientDropdown = document.getElementById('client-dropdown');
-    const selectedClient = clientDropdown?.querySelector('[data-selected="true"]');
-    
     return {
-      name: selectedClient?.querySelector('.font-semibold')?.textContent || 
-            document.getElementById('client-name')?.value || 
-            'AVENUE DIGITAL GROUP SL',
-      cif: document.getElementById('client-nif')?.value || '87082987',
-      address: document.getElementById('client-address')?.value || 'PLAZA MAYOR 23, 1A',
-      city: document.getElementById('client-city')?.value || '47001 VALLADOLID, Valladolid, España'
+      name: document.getElementById('client-name')?.value || '',
+      nif: document.getElementById('client-nif')?.value || '',
+      email: document.getElementById('client-email')?.value || '',
+      address: document.getElementById('client-address')?.value || '',
+      postalCode: document.getElementById('client-postal-code')?.value || ''
     };
   }
 
@@ -65,7 +61,9 @@ class InvoiceDataHandler {
    */
   captureInvoiceData() {
     return {
+      series: document.getElementById('invoice-series')?.value || 'A',
       number: document.getElementById('invoice-number')?.value || this.generateInvoiceNumber(),
+      reference: document.getElementById('invoice-reference')?.value || '',
       issueDate: document.getElementById('issue-date')?.value || this.getCurrentDate(),
       dueDate: document.getElementById('due-date')?.value || this.getDefaultDueDate()
     };
@@ -152,21 +150,21 @@ class InvoiceDataHandler {
   captureExpensesData() {
     const expenses = [];
     
-    // Buscar el contenedor de gastos suplidos
-    const expenseContainer = document.getElementById('gastos-suplidos-fields');
-    if (expenseContainer && !expenseContainer.classList.contains('hidden')) {
-      const inputs = expenseContainer.querySelectorAll('input');
-      // Asumir que los inputs vienen en pares: descripción, importe, descripción, importe...
-      for (let i = 0; i < inputs.length; i += 2) {
-        const description = inputs[i]?.value || '';
-        const amount = parseFloat(inputs[i + 1]?.value) || 0;
-        
-        if (description || amount > 0) {
-          expenses.push({
-            description: description || 'Gasto suplido',
-            amount
-          });
-        }
+    const checkbox = document.getElementById('gastos-suplidos');
+    if (!checkbox?.checked) return expenses;
+    
+    const container = checkbox.closest('.mb-4')?.querySelector('.mt-4');
+    if (!container || container.classList.contains('hidden')) return expenses;
+    
+    const descInput = container.querySelectorAll('input[type="text"]');
+    const amountInputs = container.querySelectorAll('input[type="number"]');
+    
+    for (let i = 0; i < Math.min(descInput.length, amountInputs.length); i++) {
+      const description = descInput[i]?.value || 'Gasto suplido';
+      const amount = parseFloat(amountInputs[i]?.value) || 0;
+      
+      if (amount > 0) {
+        expenses.push({ description, amount });
       }
     }
     
@@ -220,7 +218,12 @@ class InvoiceDataHandler {
    * Captura observaciones
    */
   captureObservations() {
-    return document.getElementById('observations')?.value || '';
+    const obsContainer = document.getElementById('observaciones-field');
+    if (!obsContainer || obsContainer.classList.contains('hidden')) {
+      return '';
+    }
+    const textarea = obsContainer.querySelector('textarea');
+    return textarea?.value || '';
   }
 
   /**
