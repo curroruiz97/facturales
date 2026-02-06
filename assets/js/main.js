@@ -1,5 +1,52 @@
+/**
+ * Inicializa los event handlers del layout (drawer, theme, etc.)
+ * Se llama después de que los componentes se cargan
+ */
+function initLayoutHandlers() {
+  console.log('🔄 Inicializando event handlers del layout...');
+  
+  //drawer button click
+  $(".drawer-btn").off("click").on("click", () => {
+    const checkClassExits = $(".layout-wrapper");
+    if (checkClassExits.hasClass("active")) {
+      checkClassExits.removeClass("active");
+    } else {
+      checkClassExits.addClass("active");
+    }
+  });
+  
+  // Theme toggle
+  var themeToggle = document.getElementById('theme-toggle');
+  if (themeToggle) {
+    // Remover listener anterior si existe
+    themeToggle.replaceWith(themeToggle.cloneNode(true));
+    themeToggle = document.getElementById('theme-toggle');
+    
+    themeToggle.addEventListener('click', function() {
+      // Check the current theme and toggle it
+      if (localStorage.theme === 'dark') {
+        localStorage.theme = 'light';
+      } else {
+        localStorage.theme = 'dark';
+      }
+
+      // Apply the new theme
+      if (localStorage.theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    });
+  }
+  
+  // Reinicializar sub-menús del sidebar
+  navSubmenu();
+  
+  console.log('✅ Event handlers inicializados');
+}
+
 $(function () {
-  //search
+  //search - usa delegación de eventos (funciona siempre)
   $(document).on("keydown", (e) => {
     switch (e.key) {
       case "k":
@@ -13,16 +60,8 @@ $(function () {
       $("#search").trigger("focus");
     }
   });
-  //drawer
-  $(".drawer-btn").on("click", () => {
-    const checkClassExits = $(".layout-wrapper");
-    if (checkClassExits.hasClass("active")) {
-      checkClassExits.removeClass("active");
-    } else {
-      checkClassExits.addClass("active");
-    }
-  });
-  //drawer key access
+  
+  //drawer key access - usa delegación de eventos (funciona siempre)
   $(document).on("keydown", (e) => {
     switch (e.key) {
       case "b":
@@ -40,6 +79,17 @@ $(function () {
       }
     }
   });
+  
+  // Escuchar el evento de componentes cargados
+  document.addEventListener('componentsLoaded', function() {
+    console.log('📦 Componentes cargados, inicializando handlers...');
+    initLayoutHandlers();
+  });
+  
+  // Si los componentes ya están (por alguna razón), inicializar
+  if (document.getElementById('sidebar-container')?.children.length > 0) {
+    initLayoutHandlers();
+  }
 });
 
 ///Editor
@@ -262,8 +312,7 @@ function navSubmenu() {
     return false;
   }
 }
-navSubmenu();
-
+// navSubmenu() ahora se llama desde initLayoutHandlers() después de cargar componentes
 
 // function initModeSetting() {
 //   var body = document.body;
@@ -291,32 +340,11 @@ navSubmenu();
 
 // initModeSetting()
 
-
-
-  // Check the initial theme preference and apply the appropriate class
-  if (localStorage.theme === 'dark' || (window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-    document.documentElement.classList.add('dark');
-  } else {
-    document.documentElement.classList.remove('dark');
-  }
-
-  // Toggle the theme when the button is clicked
-  var themeToggle = document.getElementById('theme-toggle');
-  if (themeToggle) {
-    themeToggle.addEventListener('click', function() {
-      // Check the current theme and toggle it
-      if (localStorage.theme === 'dark') {
-        localStorage.theme = 'light';
-      } else {
-        localStorage.theme = 'dark';
-      }
-
-      // Apply the new theme
-      if (localStorage.theme === 'dark') {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    });
-  }
+// Check the initial theme preference and apply the appropriate class
+// Esto se ejecuta inmediatamente, antes de cargar componentes
+if (localStorage.theme === 'dark' || (!localStorage.theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+  document.documentElement.classList.add('dark');
+} else {
+  document.documentElement.classList.remove('dark');
+}
 
