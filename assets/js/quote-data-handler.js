@@ -1,14 +1,14 @@
 /**
- * Sistema para capturar y transferir datos de factura entre páginas
+ * Sistema para capturar y transferir datos de presupuesto entre páginas
  */
 
-class InvoiceDataHandler {
+class QuoteDataHandler {
   constructor() {
-    this.storageKey = 'invoice_draft_data';
+    this.storageKey = 'quote_draft_data';
   }
 
   /**
-   * Captura todos los datos del formulario de factura
+   * Captura todos los datos del formulario de presupuesto
    */
   captureFormData() {
     // Capturar conceptos primero (necesarios para calcular el resumen)
@@ -18,7 +18,7 @@ class InvoiceDataHandler {
     const formData = {
       issuer: this.captureIssuerData(),
       client: this.captureClientData(),
-      invoice: this.captureInvoiceData(),
+      quote: this.captureQuoteData(),
       concepts: concepts,
       expenses: expenses,
       taxSettings: this.captureTaxSettings(),
@@ -57,12 +57,12 @@ class InvoiceDataHandler {
   }
 
   /**
-   * Captura datos de la factura
+   * Captura datos del presupuesto
    */
-  captureInvoiceData() {
+  captureQuoteData() {
     return {
-      series: document.getElementById('invoice-series')?.value || 'A',
-      number: document.getElementById('invoice-number')?.value || this.generateInvoiceNumber(),
+      series: document.getElementById('invoice-series')?.value || 'P',
+      number: document.getElementById('invoice-number')?.value || this.generateQuoteNumber(),
       reference: document.getElementById('invoice-reference')?.value || '',
       issueDate: document.getElementById('issue-date')?.value || this.getCurrentDate(),
       dueDate: document.getElementById('due-date')?.value || this.getDefaultDueDate()
@@ -70,12 +70,12 @@ class InvoiceDataHandler {
   }
 
   /**
-   * Captura conceptos/líneas de factura
+   * Captura conceptos/líneas de presupuesto
    */
   captureConceptsData() {
     const concepts = [];
     // Buscar todas las líneas de concepto por su estructura
-    const conceptContainers = document.querySelectorAll('#invoice-lines > div.rounded-lg');
+    const conceptContainers = document.querySelectorAll('#quote-lines > div.rounded-lg');
     
     conceptContainers.forEach((line, index) => {
       const inputs = line.querySelectorAll('input');
@@ -153,19 +153,15 @@ class InvoiceDataHandler {
     const checkbox = document.getElementById('gastos-suplidos');
     if (!checkbox?.checked) return expenses;
     
-    const container = checkbox.closest('.mb-4')?.querySelector('.mt-4');
-    if (!container || container.classList.contains('hidden')) return expenses;
+    // Buscar los campos específicos por ID
+    const descInput = document.getElementById('gastos-suplidos-description');
+    const amountInput = document.getElementById('gastos-suplidos-amount');
     
-    const descInput = container.querySelectorAll('input[type="text"]');
-    const amountInputs = container.querySelectorAll('input[type="number"]');
+    const description = descInput?.value || 'Gastos suplidos';
+    const amount = parseFloat(amountInput?.value) || 0;
     
-    for (let i = 0; i < Math.min(descInput.length, amountInputs.length); i++) {
-      const description = descInput[i]?.value || 'Gasto suplido';
-      const amount = parseFloat(amountInputs[i]?.value) || 0;
-      
-      if (amount > 0) {
-        expenses.push({ description, amount });
-      }
+    if (amount > 0) {
+      expenses.push({ description, amount });
     }
     
     return expenses;
@@ -365,12 +361,12 @@ class InvoiceDataHandler {
   }
 
   /**
-   * Genera un número de factura automático
+   * Genera un número de presupuesto automático
    */
-  generateInvoiceNumber() {
+  generateQuoteNumber() {
     const year = new Date().getFullYear();
     const random = Math.floor(Math.random() * 10000);
-    return `F${year}${random}`;
+    return `P${year}${random}`;
   }
 
   /**
@@ -404,12 +400,12 @@ class InvoiceDataHandler {
     if (this.saveToStorage(data)) {
       window.location.href = 'preview.html';
     } else {
-      alert('Error al guardar los datos de la factura');
+      alert('Error al guardar los datos del presupuesto');
     }
   }
 }
 
 // Exportar para uso global
 if (typeof window !== 'undefined') {
-  window.InvoiceDataHandler = InvoiceDataHandler;
+  window.QuoteDataHandler = QuoteDataHandler;
 }

@@ -1,6 +1,6 @@
 /**
- * new-page.js
- * Script para la página de creación/edición de facturas
+ * quote-page.js
+ * Script para la página de creación/edición de presupuestos
  */
 
 let currentDraftId = null;
@@ -9,9 +9,9 @@ let isEditMode = false;
 /**
  * Inicializar la página
  */
-async function initNewPage() {
+async function initQuotePage() {
   try {
-    console.log('🔄 Inicializando página de factura...');
+    console.log('🔄 Inicializando página de presupuesto...');
     
     // Verificar si estamos editando un borrador
     const urlParams = new URLSearchParams(window.location.search);
@@ -38,18 +38,18 @@ async function loadDraftToForm(draftId) {
   try {
     // Esperar a que el módulo esté disponible
     let attempts = 0;
-    while (!window.getInvoiceById && attempts < 50) {
+    while (!window.getQuoteById && attempts < 50) {
       await new Promise(resolve => setTimeout(resolve, 100));
       attempts++;
     }
     
-    if (!window.getInvoiceById) {
-      console.error('❌ Módulo de facturas no disponible');
+    if (!window.getQuoteById) {
+      console.error('❌ Módulo de presupuestos no disponible');
       return;
     }
     
     // Obtener el borrador
-    const result = await window.getInvoiceById(draftId);
+    const result = await window.getQuoteById(draftId);
     
     if (!result.success || !result.data) {
       console.error('❌ Error al cargar borrador:', result.error);
@@ -76,22 +76,22 @@ async function loadDraftToForm(draftId) {
 }
 
 /**
- * Poblar el formulario con datos de una factura
- * @param {Object} invoice - Datos de la factura
+ * Poblar el formulario con datos de un presupuesto
+ * @param {Object} quote - Datos del presupuesto
  */
-function populateFormWithData(invoice) {
+function populateFormWithData(quote) {
   try {
-    const data = invoice.invoice_data;
+    const data = quote.quote_data;
     
-    // Datos básicos de la factura
-    setValue('invoice-series', invoice.invoice_series);
-    setValue('invoice-number', invoice.invoice_number);
-    setValue('invoice-reference', data.invoice?.reference || '');
-    setValue('invoice-currency', invoice.currency);
+    // Datos básicos del presupuesto
+    setValue('invoice-series', quote.quote_series);
+    setValue('invoice-number', quote.quote_number);
+    setValue('invoice-reference', data.quote?.reference || '');
+    setValue('invoice-currency', quote.currency);
     
     // Fechas - usando setDate de flatpickr si está disponible
-    setDateValue('issue-date', invoice.issue_date);
-    setDateValue('due-date', invoice.due_date);
+    setDateValue('issue-date', quote.issue_date);
+    setDateValue('due-date', quote.due_date);
     setValue('payment-terms', data.payment?.terms || '');
     setDateValue('operation-date', data.dates?.operation || '');
     
@@ -113,9 +113,9 @@ function populateFormWithData(invoice) {
       setValue('client-postal-code', data.client.postalCode);
     }
     
-    // Conceptos - Cargar líneas de factura
+    // Conceptos - Cargar líneas de presupuesto
     if (data.concepts && data.concepts.length > 0) {
-      loadInvoiceLines(data.concepts);
+      loadQuoteLines(data.concepts);
       
       // Actualizar totales después de cargar líneas
       setTimeout(() => {
@@ -275,17 +275,17 @@ function setCheckbox(id, checked) {
 }
 
 /**
- * Cargar líneas de factura desde datos guardados
+ * Cargar líneas de presupuesto desde datos guardados
  * @param {Array} concepts - Array de conceptos/líneas
  */
-function loadInvoiceLines(concepts) {
+function loadQuoteLines(concepts) {
   try {
     if (!concepts || concepts.length === 0) {
       console.log('ℹ️ No hay conceptos guardados, se mantienen las líneas del HTML');
       return;
     }
     
-    const container = document.getElementById('invoice-lines');
+    const container = document.getElementById('quote-lines');
     if (!container) {
       console.error('❌ Contenedor de líneas no encontrado');
       return;
@@ -296,24 +296,24 @@ function loadInvoiceLines(concepts) {
     
     // Crear cada línea
     concepts.forEach((concept, index) => {
-      const line = createInvoiceLine(concept, index === 0);
+      const line = createQuoteLine(concept, index === 0);
       container.appendChild(line);
     });
     
     console.log(`✅ ${concepts.length} líneas cargadas`);
     
   } catch (error) {
-    console.error('❌ Error en loadInvoiceLines:', error);
+    console.error('❌ Error en loadQuoteLines:', error);
   }
 }
 
 /**
- * Crear elemento HTML de línea de factura
+ * Crear elemento HTML de línea de presupuesto
  * @param {Object} concept - Datos del concepto
  * @param {boolean} isFirst - Si es la primera línea
  * @returns {HTMLElement} Elemento de línea
  */
-function createInvoiceLine(concept, isFirst) {
+function createQuoteLine(concept, isFirst) {
   const line = document.createElement('div');
   line.className = 'rounded-lg border border-bgray-200 bg-white p-4 dark:border-darkblack-500 dark:bg-darkblack-500';
   
@@ -441,12 +441,20 @@ function createInvoiceLine(concept, isFirst) {
   const inputs = line.querySelectorAll('input, select');
   inputs.forEach(input => {
     input.addEventListener('input', function() {
-      updateConceptTotal(line);
-      updateInvoiceSummary();
+      if (typeof updateConceptTotal === 'function') {
+        updateConceptTotal(line);
+      }
+      if (typeof updateInvoiceSummary === 'function') {
+        updateInvoiceSummary();
+      }
     });
     input.addEventListener('change', function() {
-      updateConceptTotal(line);
-      updateInvoiceSummary();
+      if (typeof updateConceptTotal === 'function') {
+        updateConceptTotal(line);
+      }
+      if (typeof updateInvoiceSummary === 'function') {
+        updateInvoiceSummary();
+      }
     });
   });
   
@@ -454,12 +462,14 @@ function createInvoiceLine(concept, isFirst) {
   const removeBtn = line.querySelector('button[title="Eliminar línea"]');
   if (removeBtn) {
     removeBtn.addEventListener('click', () => {
-      const allLines = document.querySelectorAll('#invoice-lines > div.rounded-lg');
+      const allLines = document.querySelectorAll('#quote-lines > div.rounded-lg');
       if (allLines.length > 1) {
         line.remove();
-        updateInvoiceSummary();
+        if (typeof updateInvoiceSummary === 'function') {
+          updateInvoiceSummary();
+        }
       } else {
-        alert('Debe haber al menos un concepto en la factura');
+        alert('Debe haber al menos un concepto en el presupuesto');
       }
     });
   }
@@ -469,27 +479,27 @@ function createInvoiceLine(concept, isFirst) {
 
 /**
  * Recopilar datos del formulario
- * @returns {Object} Datos de la factura
+ * @returns {Object} Datos del presupuesto
  */
 function collectFormData() {
   try {
     console.log('📋 Recopilando datos del formulario...');
     
-    // Usar InvoiceDataHandler si está disponible para captura completa
+    // Usar QuoteDataHandler si está disponible para captura completa
     let rawData = null;
-    if (window.invoiceDataHandler && typeof window.invoiceDataHandler.captureFormData === 'function') {
-      rawData = window.invoiceDataHandler.captureFormData();
-      console.log('✅ Datos capturados con InvoiceDataHandler:', rawData);
+    if (window.quoteDataHandler && typeof window.quoteDataHandler.captureFormData === 'function') {
+      rawData = window.quoteDataHandler.captureFormData();
+      console.log('✅ Datos capturados con QuoteDataHandler:', rawData);
     }
     
     // Obtener datos básicos
     const clientName = document.getElementById('client-name')?.value || '';
     const issueDate = document.getElementById('issue-date')?.value || '';
-    let invoiceNumber = document.getElementById('invoice-number')?.value || '';
+    let quoteNumber = document.getElementById('invoice-number')?.value || '';
     
     // Si el número está vacío o es placeholder, dejarlo para que se genere automáticamente
-    if (!invoiceNumber || invoiceNumber.trim() === '' || invoiceNumber.toLowerCase() === 'automático') {
-      invoiceNumber = '';
+    if (!quoteNumber || quoteNumber.trim() === '' || quoteNumber.toLowerCase() === 'automático') {
+      quoteNumber = '';
     }
     
     // Validar datos obligatorios
@@ -521,10 +531,10 @@ function collectFormData() {
       totalAmount = parseFloat(totalElement?.textContent?.replace(/[^0-9,.-]/g, '')?.replace(',', '.')) || 0;
     }
     
-    // Preparar objeto de factura en formato Supabase
+    // Preparar objeto de presupuesto en formato Supabase
     const formData = {
-      invoice_series: document.getElementById('invoice-series')?.value || 'A',
-      invoice_number: invoiceNumber,
+      quote_series: document.getElementById('invoice-series')?.value || 'P',
+      quote_number: quoteNumber,
       client_name: clientName.trim(),
       issue_date: issueDate,
       due_date: document.getElementById('due-date')?.value || null,
@@ -533,7 +543,7 @@ function collectFormData() {
       tax_amount: taxAmount,
       total_amount: totalAmount,
       
-      invoice_data: {
+      quote_data: {
         issuer: {
           name: document.getElementById('issuer-name')?.value || '',
           nif: document.getElementById('issuer-nif')?.value || '',
@@ -548,10 +558,10 @@ function collectFormData() {
           address: document.getElementById('client-address')?.value || '',
           postalCode: document.getElementById('client-postal-code')?.value || ''
         },
-        invoice: {
-          number: invoiceNumber,
+        quote: {
+          number: quoteNumber,
           reference: document.getElementById('invoice-reference')?.value || '',
-          series: document.getElementById('invoice-series')?.value || 'A'
+          series: document.getElementById('invoice-series')?.value || 'P'
         },
         payment: {
           terms: document.getElementById('payment-terms')?.value || ''
@@ -596,27 +606,28 @@ function collectFormData() {
 /**
  * Guardar borrador
  */
-async function saveDraft() {
+async function saveQuoteDraft() {
   try {
     console.log('💾 Guardando borrador...');
+    
     console.log('📊 Estado de módulos:', {
-      createInvoice: typeof window.createInvoice,
-      updateInvoice: typeof window.updateInvoice,
+      createQuote: typeof window.createQuote,
+      updateQuote: typeof window.updateQuote,
       supabaseClient: typeof window.supabaseClient
     });
     
     // Verificar que las funciones estén disponibles INMEDIATAMENTE
-    if (!window.createInvoice) {
-      const availableFunctions = Object.keys(window).filter(k => k.toLowerCase().includes('invoice'));
-      console.error('❌ window.createInvoice no está definido');
-      console.error('Funciones disponibles con "invoice":', availableFunctions);
-      showToastMessage('Error: El módulo de facturas no está cargado. Por favor, recarga la página.', 'error');
+    if (!window.createQuote) {
+      const availableFunctions = Object.keys(window).filter(k => k.toLowerCase().includes('quote'));
+      console.error('❌ window.createQuote no está definido');
+      console.error('Funciones disponibles con "quote":', availableFunctions);
+      showToastMessage('Error: El módulo de presupuestos no está cargado. Por favor, recarga la página.', 'error');
       return;
     }
     
-    if (!window.updateInvoice) {
-      console.error('❌ window.updateInvoice no está definido');
-      showToastMessage('Error: El módulo de facturas no está cargado. Por favor, recarga la página.', 'error');
+    if (!window.updateQuote) {
+      console.error('❌ window.updateQuote no está definido');
+      showToastMessage('Error: El módulo de presupuestos no está cargado. Por favor, recarga la página.', 'error');
       return;
     }
     
@@ -632,11 +643,12 @@ async function saveDraft() {
     let formData;
     try {
       formData = collectFormData();
+      
       console.log('✅ Datos recopilados:', {
         cliente: formData.client_name,
         fecha: formData.issue_date,
         total: formData.total_amount,
-        conceptos: formData.invoice_data?.concepts?.length || 0
+        conceptos: formData.quote_data?.concepts?.length || 0
       });
     } catch (error) {
       console.error('❌ Error al recopilar datos:', error);
@@ -649,11 +661,11 @@ async function saveDraft() {
     if (isEditMode && currentDraftId) {
       // Actualizar borrador existente
       console.log('📝 Actualizando borrador existente:', currentDraftId);
-      result = await window.updateInvoice(currentDraftId, formData);
+      result = await window.updateQuote(currentDraftId, formData);
     } else {
       // Crear nuevo borrador
       console.log('➕ Creando nuevo borrador...');
-      result = await window.createInvoice(formData, 'draft');
+      result = await window.createQuote(formData, 'draft');
     }
     
     console.log('📤 Resultado de guardado:', result);
@@ -670,11 +682,11 @@ async function saveDraft() {
     // Redirigir a borradores después de un breve delay
     setTimeout(() => {
       console.log('🔄 Redirigiendo a borradores...');
-      window.location.href = 'drafts.html';
+      window.location.href = 'quote-drafts';
     }, 1500);
     
   } catch (error) {
-    console.error('❌ Error en saveDraft:', error);
+    console.error('❌ Error en saveQuoteDraft:', error);
     console.error('Stack trace:', error.stack);
     showToastMessage(error.message || 'Error al guardar el borrador', 'error');
   }
@@ -688,8 +700,8 @@ async function goToPreview() {
     console.log('👁️ Preparando vista previa...');
     
     // Verificar que los módulos estén disponibles
-    if (!window.createInvoice || !window.updateInvoice) {
-      console.error('❌ Módulos de facturas no disponibles');
+    if (!window.createQuote || !window.updateQuote) {
+      console.error('❌ Módulos de presupuestos no disponibles');
       showToastMessage('Error: El sistema aún está cargando. Espera unos segundos.', 'error');
       return;
     }
@@ -702,7 +714,7 @@ async function goToPreview() {
       
       try {
         const formData = collectFormData();
-        const result = await window.createInvoice(formData, 'draft');
+        const result = await window.createQuote(formData, 'draft');
         
         if (!result.success) {
           console.error('❌ Error al crear borrador:', result.error);
@@ -726,7 +738,7 @@ async function goToPreview() {
       
       try {
         const formData = collectFormData();
-        const result = await window.updateInvoice(draftId, formData);
+        const result = await window.updateQuote(draftId, formData);
         
         if (!result.success) {
           console.error('❌ Error al actualizar:', result.error);
@@ -753,6 +765,71 @@ async function goToPreview() {
 }
 
 /**
+ * Emitir presupuesto
+ */
+async function emitQuoteDirectly() {
+  try {
+    console.log('📤 Emitiendo presupuesto...');
+    
+    // Verificar módulos
+    if (!window.createQuote || !window.emitQuote) {
+      console.error('❌ Módulos no disponibles');
+      showToastMessage('Error: El sistema aún está cargando.', 'error');
+      return;
+    }
+    
+    // Recopilar datos
+    let formData;
+    try {
+      formData = collectFormData();
+    } catch (error) {
+      showToastMessage(error.message || 'Error al recopilar datos', 'error');
+      return;
+    }
+    
+    let quoteId;
+    
+    // Si estamos editando, usar ese ID
+    if (isEditMode && currentDraftId) {
+      quoteId = currentDraftId;
+      // Actualizar primero
+      const updateResult = await window.updateQuote(quoteId, formData);
+      if (!updateResult.success) {
+        showToastMessage(updateResult.error || 'Error al actualizar', 'error');
+        return;
+      }
+    } else {
+      // Crear como borrador primero
+      const createResult = await window.createQuote(formData, 'draft');
+      if (!createResult.success) {
+        showToastMessage(createResult.error || 'Error al crear presupuesto', 'error');
+        return;
+      }
+      quoteId = createResult.data.id;
+    }
+    
+    // Emitir
+    const emitResult = await window.emitQuote(quoteId);
+    if (!emitResult.success) {
+      showToastMessage(emitResult.error || 'Error al emitir', 'error');
+      return;
+    }
+    
+    console.log('✅ Presupuesto emitido');
+    showToastMessage('Presupuesto emitido correctamente', 'success');
+    
+    // Redirigir a emitidos
+    setTimeout(() => {
+      window.location.href = 'quote-issued';
+    }, 1500);
+    
+  } catch (error) {
+    console.error('❌ Error en emitQuoteDirectly:', error);
+    showToastMessage(error.message || 'Error al emitir presupuesto', 'error');
+  }
+}
+
+/**
  * Mostrar notificación toast
  * @param {string} message - Mensaje a mostrar
  * @param {string} type - Tipo: 'success' | 'error' | 'warning'
@@ -775,10 +852,11 @@ function showToastMessage(message, type = 'success') {
 }
 
 // Exportar funciones globalmente
-window.initNewPage = initNewPage;
-window.saveDraft = saveDraft;
+window.initQuotePage = initQuotePage;
+window.saveQuoteDraft = saveQuoteDraft;
+window.emitQuoteDirectly = emitQuoteDirectly;
 window.goToPreview = goToPreview;
 window.collectFormData = collectFormData;
-window.loadInvoiceLines = loadInvoiceLines;
+window.loadQuoteLines = loadQuoteLines;
 
-console.log('✅ new-page.js cargado');
+console.log('✅ quote-page.js cargado');
