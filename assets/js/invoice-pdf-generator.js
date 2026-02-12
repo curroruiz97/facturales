@@ -125,12 +125,30 @@ class InvoicePDFGenerator {
     // Logo: imagen real o cuadrado con iniciales
     if (this.logoData) {
       try {
-        // Detectar formato del logo
         var format = 'PNG';
         if (this.logoData.includes('image/jpeg') || this.logoData.includes('image/jpg')) format = 'JPEG';
-        this.doc.addImage(this.logoData, format, this.margin, this.currentY, 30, 30);
+        if (this.logoData.includes('image/webp')) format = 'WEBP';
+        
+        // Calcular proporciones correctas: máximo 50mm ancho x 25mm alto
+        var maxW = 50, maxH = 25;
+        var img = new Image();
+        img.src = this.logoData;
+        var ratio = img.naturalWidth / img.naturalHeight;
+        var w, h;
+        if (ratio >= 1) {
+          // Horizontal o cuadrado
+          w = Math.min(maxW, maxH * ratio);
+          h = w / ratio;
+        } else {
+          // Vertical
+          h = maxH;
+          w = h * ratio;
+        }
+        // Fallback si las dimensiones no se calculan bien
+        if (!w || !h || isNaN(w) || isNaN(h)) { w = 30; h = 20; }
+        
+        this.doc.addImage(this.logoData, format, this.margin, this.currentY + (30 - h) / 2, w, h);
       } catch (e) {
-        // Fallback: cuadrado con color de marca + iniciales
         this.drawLogoFallback(issuer, brandRgb);
       }
     } else {

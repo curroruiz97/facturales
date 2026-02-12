@@ -303,6 +303,30 @@
                         Normativa legal del servicio
                       </p>
                     </div>
+                  <div
+                    data-tab="tab8"
+                    class="tab flex gap-x-4 rounded-lg p-4 transition-all"
+                  >
+                    <div
+                      class="tab-icon inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-bgray-100 transition-all"
+                    >
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 7H15M9 11H12M3 5.5C3 4.11929 4.11929 3 5.5 3H18.5C19.8807 3 21 4.11929 21 5.5V18.5C21 19.8807 19.8807 21 18.5 21H5.5C4.11929 21 3 19.8807 3 18.5V5.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M7 15L10 18L17 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <h4
+                        class="text-base font-bold text-bgray-900 dark:text-white"
+                      >
+                        Series y numeración
+                      </h4>
+                      <p
+                        class="mt-0.5 text-sm font-medium text-bgray-700 dark:text-darkblack-300"
+                      >
+                        Gestiona series de facturación
+                      </p>
+                    </div>
                   </div>
                 </div>
                 <!-- Progressbar -->
@@ -554,98 +578,6 @@
                             </button>
                           </div>
                         </form>
-
-                        <!-- ======================== -->
-                        <!-- SERIES Y NUMERACIÓN      -->
-                        <!-- ======================== -->
-                        <div class="mt-10 border-t border-bgray-200 dark:border-darkblack-400 pt-8">
-                          <div class="flex items-center justify-between mb-4">
-                            <div>
-                              <h3 class="text-lg font-bold text-bgray-900 dark:text-white">
-                                Series y numeración
-                              </h3>
-                              <p class="mt-1 text-sm text-bgray-500 dark:text-bgray-400">
-                                Gestiona las series de facturación y su numeración automática.
-                              </p>
-                            </div>
-                            <button
-                              type="button"
-                              id="add-series-btn"
-                              onclick="openAddSeriesModal()"
-                              class="rounded-lg bg-success-300 hover:bg-success-400 px-4 py-2 text-sm font-semibold text-white transition flex items-center gap-1.5"
-                            >
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                              Nueva serie
-                            </button>
-                          </div>
-
-                          <!-- Tabla de series -->
-                          <div class="rounded-xl border border-bgray-200 dark:border-darkblack-400 overflow-hidden">
-                            <table class="w-full text-sm">
-                              <thead class="bg-bgray-50 dark:bg-darkblack-500">
-                                <tr>
-                                  <th class="px-4 py-3 text-left font-semibold text-bgray-700 dark:text-bgray-300">Serie</th>
-                                  <th class="px-4 py-3 text-left font-semibold text-bgray-700 dark:text-bgray-300">Descripción</th>
-                                  <th class="px-4 py-3 text-center font-semibold text-bgray-700 dark:text-bgray-300">Última factura</th>
-                                  <th class="px-4 py-3 text-center font-semibold text-bgray-700 dark:text-bgray-300">Total</th>
-                                  <th class="px-4 py-3 text-center font-semibold text-bgray-700 dark:text-bgray-300">Acciones</th>
-                                </tr>
-                              </thead>
-                              <tbody id="series-table-body" class="divide-y divide-bgray-200 dark:divide-darkblack-400">
-                                <!-- Se carga dinámicamente -->
-                                <tr>
-                                  <td colspan="5" class="px-4 py-8 text-center text-bgray-400 dark:text-bgray-500">
-                                    <svg class="animate-spin h-5 w-5 mx-auto mb-2 text-bgray-300" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity="0.25"/><path d="M12 2C6.477 2 2 6.477 2 12" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
-                                    Cargando series...
-                                  </td>
-                                </tr>
-                              </tbody>
-                            </table>
-                          </div>
-
-                          <p class="mt-3 text-xs text-bgray-400 dark:text-bgray-500">
-                            Formato de numeración: <span class="font-mono">SERIE-AÑO-NÚMERO</span> (ej: A-2026-00001). La numeración se asigna automáticamente al emitir.
-                          </p>
-                        </div>
-
-                        <!-- Modal: Nueva/Editar Serie -->
-                        <div id="series-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm">
-                          <div class="relative w-full max-w-md mx-4 rounded-2xl bg-white dark:bg-darkblack-600 p-6 shadow-2xl border border-bgray-200 dark:border-darkblack-400">
-                            <div class="flex items-center justify-between mb-5">
-                              <h3 id="series-modal-title" class="text-lg font-bold text-bgray-900 dark:text-white">Nueva serie</h3>
-                              <button type="button" onclick="closeSeriesModal()" class="rounded-lg p-2 text-bgray-500 hover:bg-bgray-100 dark:hover:bg-darkblack-500 transition-colors">
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                              </button>
-                            </div>
-                            <div class="space-y-4">
-                              <input type="hidden" id="series-edit-id" value="" />
-                              <div>
-                                <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">Código de serie <span class="text-red-400">*</span></label>
-                                <input type="text" id="series-code" maxlength="10" placeholder="Ej: A, B, RECT" class="h-11 w-full rounded-lg border border-bgray-200 px-4 text-sm text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-white uppercase" />
-                                <p class="mt-1 text-xs text-bgray-400">Máximo 10 caracteres, sin espacios.</p>
-                              </div>
-                              <div>
-                                <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">Descripción</label>
-                                <input type="text" id="series-description" placeholder="Ej: Serie general, Rectificativas..." class="h-11 w-full rounded-lg border border-bgray-200 px-4 text-sm text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-white" />
-                              </div>
-                              <div>
-                                <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">Siguiente número</label>
-                                <div class="h-11 w-full rounded-lg border border-bgray-200 bg-bgray-50 px-4 flex items-center text-sm text-bgray-500 dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-400" id="series-next-number">
-                                  Se calcula automáticamente
-                                </div>
-                              </div>
-                            </div>
-                            <div class="mt-6 flex justify-end gap-3">
-                              <button type="button" onclick="closeSeriesModal()" class="rounded-lg border border-bgray-300 dark:border-darkblack-400 px-5 py-2.5 text-sm font-semibold text-bgray-700 dark:text-bgray-100 hover:bg-bgray-50 dark:hover:bg-darkblack-500 transition">
-                                Cancelar
-                              </button>
-                              <button type="button" id="save-series-btn" onclick="saveSeries()" class="rounded-lg bg-success-300 hover:bg-success-400 px-5 py-2.5 text-sm font-semibold text-white transition">
-                                Guardar serie
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-
                       </div>
                     </div>
                     <div class="xl:col-span-5 2xl:col-span-4 2xl:mt-24">
@@ -744,26 +676,28 @@
                           Logo factura
                         </h4>
                         <p class="mb-4 text-sm text-bgray-500 dark:text-bgray-50">
-                          Sube tu logo para que aparezca en todas las facturas. PNG o JPG, máximo 500 KB.
+                          Se mostrará en la cabecera de todas tus facturas PDF. PNG, JPG o WebP, máx. 500 KB.
                         </p>
                         <input type="file" id="invoice-logo-input" accept="image/png,image/jpeg,image/jpg,image/webp" class="hidden" />
-                        <div class="flex items-start gap-4">
-                          <div id="invoice-logo-preview-container" class="relative flex h-24 w-24 items-center justify-center rounded-xl border-2 border-dashed border-bgray-300 dark:border-darkblack-400 bg-bgray-50 dark:bg-darkblack-500 overflow-hidden cursor-pointer transition hover:border-success-300" onclick="document.getElementById('invoice-logo-input').click()">
-                            <img id="invoice-logo-preview" src="" alt="" class="hidden h-full w-full object-contain p-1" />
-                            <div id="invoice-logo-placeholder" class="flex flex-col items-center gap-1 text-bgray-400 dark:text-bgray-500">
-                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M21 15V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V15M17 8L12 3M12 3L7 8M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                              <span class="text-[10px]">Subir logo</span>
-                            </div>
+                        <!-- Zona de drop + preview -->
+                        <div
+                          id="invoice-logo-dropzone"
+                          class="relative flex items-center justify-center rounded-xl border-2 border-dashed border-bgray-300 dark:border-darkblack-400 bg-bgray-50 dark:bg-darkblack-500 overflow-hidden cursor-pointer transition hover:border-success-300 hover:bg-success-50 dark:hover:bg-success-900/10"
+                          style="min-height: 80px; max-height: 120px;"
+                          onclick="document.getElementById('invoice-logo-input').click()"
+                        >
+                          <img id="invoice-logo-preview" src="" alt="Logo" class="hidden max-h-[100px] max-w-full object-contain p-2" />
+                          <div id="invoice-logo-placeholder" class="flex flex-col items-center gap-1.5 py-4 text-bgray-400 dark:text-bgray-500">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M21 15V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V15M17 8L12 3M12 3L7 8M12 3V15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <span class="text-xs font-medium">Arrastra tu logo aquí o haz clic</span>
+                            <span class="text-[10px]">PNG, JPG o WebP</span>
                           </div>
-                          <div class="flex-1">
-                            <button type="button" onclick="document.getElementById('invoice-logo-input').click()" class="rounded-lg border border-bgray-300 dark:border-darkblack-400 px-4 py-2 text-sm font-semibold text-bgray-700 dark:text-bgray-200 hover:bg-bgray-50 dark:hover:bg-darkblack-500 transition">
-                              Seleccionar imagen
-                            </button>
-                            <button type="button" id="remove-logo-btn" onclick="removeInvoiceLogo()" class="ml-2 rounded-lg border border-red-200 px-3 py-2 text-sm font-semibold text-red-500 hover:bg-red-50 dark:border-red-800 dark:hover:bg-red-900/20 transition hidden">
-                              Eliminar
-                            </button>
-                            <p id="invoice-logo-name" class="mt-2 text-xs text-bgray-400 dark:text-bgray-500">Ningún logo seleccionado</p>
-                          </div>
+                        </div>
+                        <div class="mt-3 flex items-center gap-2">
+                          <button type="button" id="remove-logo-btn" onclick="removeInvoiceLogo()" class="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-500 hover:bg-red-50 dark:border-red-800 dark:hover:bg-red-900/20 transition hidden">
+                            Eliminar logo
+                          </button>
+                          <p id="invoice-logo-name" class="text-xs text-bgray-400 dark:text-bgray-500">Ningún logo seleccionado</p>
                         </div>
                       </div>
                     </div>
@@ -2557,9 +2491,115 @@
                     </article>
                   </div>
                 </div>
+                <!-- Series y numeración -->
+                <div id="tab8" class="tab-pane">
+                  <div>
+                    <div class="flex items-center justify-between mb-6">
+                      <div>
+                        <h3 class="text-2xl font-bold text-bgray-900 dark:text-white">
+                          Series y numeración
+                        </h3>
+                        <p class="mt-1 text-sm text-bgray-500 dark:text-bgray-400">
+                          Gestiona las series de facturación y su numeración automática.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        id="add-series-btn"
+                        onclick="openAddSeriesModal()"
+                        class="rounded-lg bg-success-300 hover:bg-success-400 px-4 py-2.5 text-sm font-semibold text-white transition flex items-center gap-1.5"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        Nueva serie
+                      </button>
+                    </div>
+
+                    <!-- Tabla de series -->
+                    <div class="rounded-xl border border-bgray-200 dark:border-darkblack-400 overflow-hidden">
+                      <table class="w-full text-sm">
+                        <thead class="bg-bgray-50 dark:bg-darkblack-500">
+                          <tr>
+                            <th class="px-4 py-3 text-left font-semibold text-bgray-700 dark:text-bgray-300">Serie</th>
+                            <th class="px-4 py-3 text-left font-semibold text-bgray-700 dark:text-bgray-300">Descripción</th>
+                            <th class="px-4 py-3 text-center font-semibold text-bgray-700 dark:text-bgray-300">Última factura</th>
+                            <th class="px-4 py-3 text-center font-semibold text-bgray-700 dark:text-bgray-300">Total</th>
+                            <th class="px-4 py-3 text-center font-semibold text-bgray-700 dark:text-bgray-300">Acciones</th>
+                          </tr>
+                        </thead>
+                        <tbody id="series-table-body" class="divide-y divide-bgray-200 dark:divide-darkblack-400">
+                          <tr>
+                            <td colspan="5" class="px-4 py-8 text-center text-bgray-400 dark:text-bgray-500">
+                              Cargando series...
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div class="mt-6 rounded-lg border border-bgray-200 dark:border-darkblack-400 bg-bgray-50 dark:bg-darkblack-500 p-4">
+                      <h4 class="text-sm font-semibold text-bgray-900 dark:text-white mb-2">Cómo funciona la numeración</h4>
+                      <ul class="space-y-1.5 text-xs text-bgray-500 dark:text-bgray-400">
+                        <li class="flex items-start gap-2">
+                          <span class="text-success-300 mt-0.5">&#9679;</span>
+                          Formato: <span class="font-mono font-medium text-bgray-700 dark:text-bgray-300">SERIE-AÑO-NÚMERO</span> (ej: A-2026-00001)
+                        </li>
+                        <li class="flex items-start gap-2">
+                          <span class="text-success-300 mt-0.5">&#9679;</span>
+                          La numeración se asigna automáticamente al emitir la factura
+                        </li>
+                        <li class="flex items-start gap-2">
+                          <span class="text-success-300 mt-0.5">&#9679;</span>
+                          Cada serie tiene su propia secuencia numérica independiente
+                        </li>
+                        <li class="flex items-start gap-2">
+                          <span class="text-success-300 mt-0.5">&#9679;</span>
+                          También puedes asignar un número manual al crear la factura
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
             <!-- write your code here-->
+
+            <!-- Modal: Nueva/Editar Serie (fuera de los tabs para que funcione con z-index) -->
+            <div id="series-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm">
+              <div class="relative w-full max-w-md mx-4 rounded-2xl bg-white dark:bg-darkblack-600 p-6 shadow-2xl border border-bgray-200 dark:border-darkblack-400">
+                <div class="flex items-center justify-between mb-5">
+                  <h3 id="series-modal-title" class="text-lg font-bold text-bgray-900 dark:text-white">Nueva serie</h3>
+                  <button type="button" onclick="closeSeriesModal()" class="rounded-lg p-2 text-bgray-500 hover:bg-bgray-100 dark:hover:bg-darkblack-500 transition-colors">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                  </button>
+                </div>
+                <div class="space-y-4">
+                  <input type="hidden" id="series-edit-id" value="" />
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">Código de serie <span class="text-red-400">*</span></label>
+                    <input type="text" id="series-code" maxlength="10" placeholder="Ej: A, B, RECT" class="h-11 w-full rounded-lg border border-bgray-200 px-4 text-sm text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-white uppercase" />
+                    <p class="mt-1 text-xs text-bgray-400">Máximo 10 caracteres, sin espacios.</p>
+                  </div>
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">Descripción</label>
+                    <input type="text" id="series-description" placeholder="Ej: Serie general, Rectificativas..." class="h-11 w-full rounded-lg border border-bgray-200 px-4 text-sm text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-white" />
+                  </div>
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">Siguiente número</label>
+                    <div class="h-11 w-full rounded-lg border border-bgray-200 bg-bgray-50 px-4 flex items-center text-sm text-bgray-500 dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-400" id="series-next-number">
+                      Se calcula automáticamente
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-6 flex justify-end gap-3">
+                  <button type="button" onclick="closeSeriesModal()" class="rounded-lg border border-bgray-300 dark:border-darkblack-400 px-5 py-2.5 text-sm font-semibold text-bgray-700 dark:text-bgray-100 hover:bg-bgray-50 dark:hover:bg-darkblack-500 transition">
+                    Cancelar
+                  </button>
+                  <button type="button" id="save-series-btn" onclick="saveSeries()" class="rounded-lg bg-success-300 hover:bg-success-400 px-5 py-2.5 text-sm font-semibold text-white transition">
+                    Guardar serie
+                  </button>
+                </div>
+              </div>
+            </div>
           </main>
         </div>
       </div>
@@ -3229,10 +3269,10 @@
         var s = series[index];
         if (!s) return;
 
-        document.getElementById('series-modal-title').textContent = 'Editar serie ' + s.code;
+        document.getElementById('series-modal-title').textContent = 'Editar serie';
         document.getElementById('series-edit-id').value = index;
         document.getElementById('series-code').value = s.code;
-        document.getElementById('series-code').disabled = true;
+        document.getElementById('series-code').disabled = false; // Permitir editar el código
         document.getElementById('series-description').value = s.description || '';
 
         var year = new Date().getFullYear();
@@ -3264,6 +3304,16 @@
         if (editId !== '') {
           // Editar existente
           var idx = parseInt(editId, 10);
+          var oldCode = series[idx].code;
+          // Verificar duplicado si cambió el código
+          if (code !== oldCode) {
+            var dup = series.some(function(s, i) { return i !== idx && s.code === code; });
+            if (dup) {
+              alert('Ya existe una serie con el código "' + code + '"');
+              return;
+            }
+          }
+          series[idx].code = code;
           series[idx].description = description;
         } else {
           // Verificar duplicado
@@ -3320,8 +3370,42 @@
         if (nameEl) nameEl.textContent = 'Ningún logo seleccionado';
       }
 
+      function processLogoFile(file) {
+        var preview = document.getElementById('invoice-logo-preview');
+        var placeholder = document.getElementById('invoice-logo-placeholder');
+        var removeBtn = document.getElementById('remove-logo-btn');
+        var nameEl = document.getElementById('invoice-logo-name');
+
+        if (!file) return;
+
+        if (!['image/png', 'image/jpeg', 'image/jpg', 'image/webp'].includes(file.type)) {
+          alert('Formato no válido. Usa PNG, JPG o WebP.');
+          return;
+        }
+
+        if (file.size > 512000) {
+          alert('El logo es demasiado grande. Máximo 500 KB.');
+          return;
+        }
+
+        var reader = new FileReader();
+        reader.onload = function(ev) {
+          var base64 = ev.target.result;
+          saveInvoiceLogo(base64);
+          if (preview) {
+            preview.src = base64;
+            preview.classList.remove('hidden');
+          }
+          if (placeholder) placeholder.classList.add('hidden');
+          if (removeBtn) removeBtn.classList.remove('hidden');
+          if (nameEl) nameEl.textContent = file.name;
+        };
+        reader.readAsDataURL(file);
+      }
+
       function initLogoUpload() {
         var input = document.getElementById('invoice-logo-input');
+        var dropzone = document.getElementById('invoice-logo-dropzone');
         var preview = document.getElementById('invoice-logo-preview');
         var placeholder = document.getElementById('invoice-logo-placeholder');
         var removeBtn = document.getElementById('remove-logo-btn');
@@ -3339,34 +3423,39 @@
           if (nameEl) nameEl.textContent = 'Logo guardado';
         }
 
+        // Input file change
         input.addEventListener('change', function(e) {
-          var file = e.target.files[0];
-          if (!file) return;
-
-          if (!['image/png', 'image/jpeg', 'image/jpg', 'image/webp'].includes(file.type)) {
-            alert('Formato no válido. Usa PNG, JPG o WebP.');
-            return;
-          }
-
-          if (file.size > 512000) {
-            alert('El logo es demasiado grande. Máximo 500 KB.');
-            return;
-          }
-
-          var reader = new FileReader();
-          reader.onload = function(ev) {
-            var base64 = ev.target.result;
-            saveInvoiceLogo(base64);
-            if (preview) {
-              preview.src = base64;
-              preview.classList.remove('hidden');
-            }
-            if (placeholder) placeholder.classList.add('hidden');
-            if (removeBtn) removeBtn.classList.remove('hidden');
-            if (nameEl) nameEl.textContent = file.name;
-          };
-          reader.readAsDataURL(file);
+          processLogoFile(e.target.files[0]);
         });
+
+        // Drag & Drop
+        if (dropzone) {
+          dropzone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.classList.add('border-success-300', 'bg-success-50');
+            dropzone.classList.remove('border-bgray-300');
+          });
+
+          dropzone.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.classList.remove('border-success-300', 'bg-success-50');
+            dropzone.classList.add('border-bgray-300');
+          });
+
+          dropzone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.classList.remove('border-success-300', 'bg-success-50');
+            dropzone.classList.add('border-bgray-300');
+
+            var files = e.dataTransfer.files;
+            if (files.length > 0) {
+              processLogoFile(files[0]);
+            }
+          });
+        }
       }
 
       // Sincronizar color de marca con preview
