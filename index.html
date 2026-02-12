@@ -317,8 +317,16 @@
                   <div class="hidden flex-1 xl:block">
                     <div class="rounded-lg bg-white dark:bg-darkblack-600 h-full">
                       <div class="flex items-center justify-between border-b border-bgray-200 dark:border-darkblack-400 px-5 py-3">
-                        <h3 class="text-lg font-bold text-bgray-900 dark:text-white">Resumen financiero</h3>
-                        <span class="text-xs font-medium text-bgray-500 dark:text-bgray-400" id="finance-period">Año actual</span>
+                        <h3 class="text-lg font-bold text-bgray-900 dark:text-white">Objetivos</h3>
+                        <div class="flex items-center gap-2">
+                          <select id="finance-period-select" onchange="changeFinancePeriod(this.value)" class="rounded-lg border border-bgray-200 bg-bgray-50 px-2.5 py-1 text-xs font-medium text-bgray-700 dark:bg-darkblack-500 dark:border-darkblack-400 dark:text-bgray-300 focus:outline-none focus:border-success-300">
+                            <option value="year" selected>Año completo</option>
+                            <option value="q1">1º Trimestre</option>
+                            <option value="q2">2º Trimestre</option>
+                            <option value="q3">3º Trimestre</option>
+                            <option value="q4">4º Trimestre</option>
+                          </select>
+                        </div>
                       </div>
                       <div class="p-5 space-y-5">
                         <!-- Objetivo de ingresos -->
@@ -2113,59 +2121,66 @@
       let ingresosFull = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
       let gastosFull   = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-      // Función para obtener datos de transacciones del último año
+      // Cargar datos de evolución desde transacciones + facturas emitidas
       async function cargarDatosEvolucion() {
         try {
-          const now = new Date();
-          const currentYear = now.getFullYear();
+          var now = new Date();
+          var currentYear = now.getFullYear();
+          var startDate = currentYear + '-01-01';
+          var endDate = currentYear + '-12-31';
           
-          // Obtener primer día del año actual
-          const startDate = `${currentYear}-01-01`;
-          // Obtener último día del año actual
-          const endDate = `${currentYear}-12-31`;
-          
-          // Obtener todas las transacciones del año
-          const result = await window.getTransactions({
-            startDate: startDate,
-            endDate: endDate
-          });
+          var ingresosPorMes = Array(12).fill(0);
+          var gastosPorMes = Array(12).fill(0);
 
-          if (!result.success) {
-            console.error('Error al cargar transacciones para evolución:', result.error);
-            return;
+          // 1. Cargar transacciones manuales
+          if (window.getTransactions) {
+            var result = await window.getTransactions({ startDate: startDate, endDate: endDate });
+            if (result.success && result.data) {
+              result.data.forEach(function(t) {
+                var mes = new Date(t.fecha).getMonth();
+                var importe = parseFloat(t.importe || 0);
+                if (t.tipo === 'ingreso') ingresosPorMes[mes] += importe;
+                else if (t.tipo === 'gasto') gastosPorMes[mes] += importe;
+              });
+            }
           }
 
-          const transacciones = result.data || [];
+          // 2. Cargar facturas emitidas (ingresos reales de facturación)
+          if (window.supabaseClient) {
+            try {
+              var supabase = window.supabaseClient;
+              var userResult = await supabase.auth.getUser();
+              if (userResult.data && userResult.data.user) {
+                var uid = userResult.data.user.id;
+                var invResult = await supabase
+                  .from('invoices')
+                  .select('total_amount, issue_date')
+                  .eq('user_id', uid)
+                  .eq('status', 'issued')
+                  .gte('issue_date', startDate)
+                  .lte('issue_date', endDate);
+                
+                if (invResult.data) {
+                  invResult.data.forEach(function(inv) {
+                    var mes = new Date(inv.issue_date).getMonth();
+                    ingresosPorMes[mes] += parseFloat(inv.total_amount || 0);
+                  });
+                }
+              }
+            } catch (e) { /* silencioso */ }
+          }
+
+          // Decidir escala: si los valores son grandes usar miles (K), si no usar unidades
+          var maxVal = Math.max.apply(null, ingresosPorMes.concat(gastosPorMes));
+          if (maxVal >= 10000) {
+            ingresosFull = ingresosPorMes.map(function(v) { return Math.round((v / 1000) * 10) / 10; });
+            gastosFull = gastosPorMes.map(function(v) { return Math.round((v / 1000) * 10) / 10; });
+          } else {
+            ingresosFull = ingresosPorMes.map(function(v) { return Math.round(v * 100) / 100; });
+            gastosFull = gastosPorMes.map(function(v) { return Math.round(v * 100) / 100; });
+          }
           
-          // Inicializar arrays para cada mes (0-11)
-          const ingresosPorMes = Array(12).fill(0);
-          const gastosPorMes = Array(12).fill(0);
-          
-          // Agrupar transacciones por mes
-          transacciones.forEach(t => {
-            const fecha = new Date(t.fecha);
-            const mes = fecha.getMonth(); // 0-11
-            const importe = parseFloat(t.importe || 0);
-            
-            if (t.tipo === 'ingreso') {
-              ingresosPorMes[mes] += importe;
-            } else if (t.tipo === 'gasto') {
-              gastosPorMes[mes] += importe;
-            }
-          });
-          
-          // Convertir a miles (K) y redondear a 1 decimal
-          ingresosFull = ingresosPorMes.map(val => Math.round((val / 1000) * 10) / 10);
-          gastosFull = gastosPorMes.map(val => Math.round((val / 1000) * 10) / 10);
-          
-          // Actualizar el gráfico con los nuevos datos
           actualizarGraficoEvolucion();
-          
-          console.log('Datos de evolución cargados:', {
-            ingresos: ingresosFull,
-            gastos: gastosFull,
-            transacciones: transacciones.length
-          });
           
         } catch (error) {
           console.error('Error al cargar datos de evolución:', error);
@@ -2878,10 +2893,21 @@
           var userId = userResult.data.user.id;
 
           var year = new Date().getFullYear();
-          var yearStart = year + '-01-01';
-          var yearEnd = year + '-12-31';
+          
+          // Determinar rango según periodo seleccionado
+          var period = window.currentFinancePeriod || 'year';
+          var periodRanges = {
+            'year': { start: year + '-01-01', end: year + '-12-31', label: 'Año ' + year },
+            'q1':   { start: year + '-01-01', end: year + '-03-31', label: '1T ' + year },
+            'q2':   { start: year + '-04-01', end: year + '-06-30', label: '2T ' + year },
+            'q3':   { start: year + '-07-01', end: year + '-09-30', label: '3T ' + year },
+            'q4':   { start: year + '-10-01', end: year + '-12-31', label: '4T ' + year }
+          };
+          var pr = periodRanges[period] || periodRanges.year;
+          var yearStart = pr.start;
+          var yearEnd = pr.end;
 
-          // Consultar facturas emitidas del año
+          // Consultar facturas emitidas del periodo
           var invoicesResult = await supabase
             .from('invoices')
             .select('total_amount, status, is_paid')
@@ -2920,8 +2946,9 @@
             quotesCount = quotesResult.count || (quotesResult.data ? quotesResult.data.length : 0);
           } catch (e) {}
 
-          // Objetivo
-          var goal = parseFloat(localStorage.getItem(GOAL_STORAGE_KEY)) || 0;
+          // Objetivo (proporcionado por trimestre si no es año completo)
+          var goalFull = parseFloat(localStorage.getItem(GOAL_STORAGE_KEY)) || 0;
+          var goal = (period === 'year') ? goalFull : Math.round(goalFull / 4);
           var profit = totalRevenue - expensesTotal;
           var progressPct = goal > 0 ? Math.min(100, Math.round((totalRevenue / goal) * 100)) : 0;
           var remaining = Math.max(0, goal - totalRevenue);
@@ -2963,6 +2990,14 @@
         } catch (error) {
           console.error('Error cargando panel financiero:', error);
         }
+      }
+
+      // Cambiar periodo del panel de objetivos
+      window.currentFinancePeriod = 'year';
+      
+      function changeFinancePeriod(period) {
+        window.currentFinancePeriod = period;
+        loadFinancePanel();
       }
 
       // Iniciar
