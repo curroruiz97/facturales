@@ -29,6 +29,20 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Export for use in other files
 window.supabaseClient = supabase;
 
+// Create a promise that resolves when Supabase has finished reading the session from localStorage
+// This is critical because getSession() reads from memory which is populated ASYNCHRONOUSLY after createClient()
+window.supabaseAuthReady = new Promise((resolve) => {
+  const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    if (event === 'INITIAL_SESSION') {
+      console.log('✅ Supabase auth initialized, session:', session ? 'exists' : 'null');
+      resolve(session);
+      subscription.unsubscribe();
+    }
+  });
+  // Safety timeout in case INITIAL_SESSION never fires
+  setTimeout(() => resolve(null), 5000);
+});
+
 // Connection test (optional - for debugging)
 console.log('✅ Supabase client initialized successfully');
 console.log('📍 Project URL:', SUPABASE_URL);

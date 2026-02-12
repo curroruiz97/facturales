@@ -324,6 +324,85 @@
 }
 
 /* ============================================
+   CONCEPT LINES RESPONSIVE
+   ============================================ */
+
+/* En tablets, forzar que Importe + Delete estén en su propia fila */
+@media (min-width: 640px) and (max-width: 1279px) {
+  #invoice-lines .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  #invoice-lines .sm\:col-span-2 {
+    grid-column: span 2;
+  }
+}
+
+/* En desktop grande, las líneas de concepto se ven en fila */
+@media (min-width: 1280px) {
+  #invoice-lines .grid {
+    grid-template-columns: 3fr 1fr 1fr 1.2fr 0.8fr 1.2fr;
+    align-items: end;
+  }
+  #invoice-lines .xl\:col-span-3,
+  #invoice-lines .sm\:col-span-2.lg\:col-span-2.xl\:col-span-3 {
+    grid-column: span 1;
+  }
+  #invoice-lines .sm\:col-span-2.lg\:col-span-1 {
+    grid-column: span 1;
+  }
+}
+
+/* ============================================
+   TABULAR NUMS - Alinear cifras
+   ============================================ */
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================
+   INPUT FOCUS RING
+   ============================================ */
+
+#invoice-form input:focus,
+#invoice-form select:focus,
+#invoice-form textarea:focus {
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+  transition: box-shadow 0.15s ease-in-out, border-color 0.15s ease-in-out;
+}
+
+/* ============================================
+   SECTION CARDS
+   ============================================ */
+
+#invoice-form > .grid > section,
+#invoice-form > section {
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+#invoice-form > .grid > section:hover,
+#invoice-form > section:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* ============================================
+   BUTTON LOADING STATE
+   ============================================ */
+
+button[disabled] {
+  cursor: not-allowed;
+}
+
+.btn-spinner {
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================
    RESPONSIVE
    ============================================ */
 
@@ -334,6 +413,11 @@
   
   .invoice-preview {
     @apply p-6;
+  }
+  
+  /* Hacer el resumen full width en mobile */
+  #invoice-form .lg\:sticky {
+    position: static !important;
   }
 }
 

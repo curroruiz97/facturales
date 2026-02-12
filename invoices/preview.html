@@ -2,622 +2,635 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>BankCo - Preview Factura</title>
+    <title>Vista previa de factura</title>
+    <link rel="stylesheet" href="../assets/css/slick.css" />
     <link rel="stylesheet" href="../assets/css/output.css" />
     <link rel="stylesheet" href="../assets/css/style.css" />
     <style>
       #pdf-viewer {
         width: 100%;
-        height: calc(100vh - 180px);
+        min-height: 500px;
+        height: calc(100vh - 320px);
         border: none;
+        border-radius: 0 0 12px 12px;
         background: #f3f4f6;
       }
-      
       .dark #pdf-viewer {
         background: #1a1a1a;
       }
-      
-      .pdf-container {
-        background: white;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-      }
-      
-      .dark .pdf-container {
-        background: #1f2937;
-      }
-      
-      /* Botones de acción */
-      .action-buttons {
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        background: white;
-        border-bottom: 1px solid #e5e7eb;
-      }
-      
-      .dark .action-buttons {
-        background: #1f2937;
-        border-bottom-color: #374151;
+      @media (max-width: 1023px) {
+        #pdf-viewer {
+          min-height: 400px;
+          height: 60vh;
+        }
       }
     </style>
   </head>
   <body>
-    <div class="layout-wrapper w-full">
-      <!-- Header con breadcrumb -->
-      <div class="bg-white dark:bg-darkblack-600 border-b border-bgray-200 dark:border-darkblack-400">
-        <div class="container mx-auto px-6 py-4">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-4">
-              <a
-                href="new.html"
-                class="flex h-10 w-10 items-center justify-center rounded-lg border border-bgray-200 text-bgray-900 hover:bg-bgray-50 dark:border-darkblack-400 dark:text-white dark:hover:bg-darkblack-500"
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </a>
+    <div class="layout-wrapper active w-full">
+      <div class="relative flex w-full">
+        <div id="sidebar-container"></div>
+        <div class="body-wrapper flex-1 overflow-x-hidden dark:bg-darkblack-500">
+          <div id="header-container"></div>
+          <main class="w-full px-6 pb-6 pt-[100px] sm:pt-[156px] xl:px-[32px] xl:pb-[32px]">
+
+            <!-- Breadcrumb + Botones superiores -->
+            <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
               <div>
-                <h1 class="text-2xl font-bold text-bgray-900 dark:text-white">Crear factura</h1>
-                <p class="text-sm text-bgray-600 dark:text-bgray-400">PASO 2. Previsualización y emisión</p>
+                <nav class="flex items-center gap-1.5 text-sm text-bgray-500 dark:text-bgray-400 mb-1">
+                  <a href="/index.html" class="hover:text-bgray-900 dark:hover:text-white transition-colors">Inicio</a>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <a href="/invoices/new.html" class="hover:text-bgray-900 dark:hover:text-white transition-colors">Emitir factura</a>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <span class="text-bgray-900 dark:text-white font-medium">Vista previa</span>
+                </nav>
+                <h1 class="text-2xl font-bold text-bgray-900 dark:text-white">Vista previa</h1>
+                <p class="mt-1 text-sm text-bgray-500 dark:text-bgray-400">Revisa la factura antes de emitirla.</p>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Contenido principal -->
-      <div class="container mx-auto px-6 py-6">
-        <div class="grid gap-6 lg:grid-cols-12">
-          <!-- Visor PDF (Izquierda) -->
-          <div class="lg:col-span-7">
-            <div class="pdf-container rounded-xl">
-              <!-- Barra de acciones del PDF -->
-              <div class="action-buttons rounded-t-xl px-6 py-4">
-                <div class="flex items-center justify-between">
-                  <h2 class="text-lg font-semibold text-bgray-900 dark:text-white">
-                    Vista previa de la factura
-                  </h2>
-                  <div class="flex gap-3">
-                    <button
-                      id="download-pdf-btn"
-                      class="flex items-center gap-2 rounded-lg border border-bgray-200 px-4 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-50 dark:border-darkblack-400 dark:text-white dark:hover:bg-darkblack-500"
-                    >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15M7 10L12 15M12 15L17 10M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                      Descargar PDF
-                    </button>
-                    <button
-                      id="regenerate-pdf-btn"
-                      class="flex items-center gap-2 rounded-lg border border-bgray-200 px-4 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-50 dark:border-darkblack-400 dark:text-white dark:hover:bg-darkblack-500"
-                    >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M1 4V10H7M23 20V14H17M20.49 9C19.9828 7.56678 19.1209 6.28536 17.9845 5.27542C16.8482 4.26548 15.4745 3.55976 13.9917 3.22426C12.5089 2.88875 10.9652 2.93434 9.50481 3.35677C8.04437 3.77921 6.71475 4.56534 5.64 5.64L1 10M23 14L18.36 18.36C17.2853 19.4347 15.9556 20.2208 14.4952 20.6432C13.0348 21.0657 11.4911 21.1112 10.0083 20.7757C8.52547 20.4402 7.1518 19.7345 6.01547 18.7246C4.87913 17.7146 4.01717 16.4332 3.51 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                      Regenerar
-                    </button>
-                  </div>
-                </div>
-              </div>
-              
-              <!-- Iframe del PDF -->
-              <div class="px-6 pb-6">
-                <iframe
-                  id="pdf-viewer"
-                  title="Vista previa de factura"
-                ></iframe>
-              </div>
-            </div>
-          </div>
-
-          <!-- Resumen (Derecha) -->
-          <div class="lg:col-span-5">
-            <div class="space-y-6">
-              <!-- Resumen de la Factura -->
-              <section
-                class="rounded-xl p-6 shadow-2xl bg-gradient-to-br from-warning-50 to-white dark:from-warning-900/20 dark:to-darkblack-600"
-                style="border: 4px solid #f59e0b;"
-              >
-                <div class="flex items-center gap-2 mb-3">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-warning-500">
-                    <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  <h3 class="text-xl font-bold text-warning-700 dark:text-warning-300">
-                    Detalle de Factura
-                  </h3>
-                </div>
-                
-                <div class="mt-5 space-y-3 text-base">
-                  <!-- Cliente -->
-                  <div class="pb-3 border-b border-bgray-200 dark:border-darkblack-500">
-                    <h4 class="text-sm font-semibold text-bgray-600 dark:text-bgray-300 mb-2">Cliente</h4>
-                    <p id="summary-client-name" class="font-semibold text-bgray-900 dark:text-white">AVENUE DIGITAL GROUP SL</p>
-                  </div>
-                  
-                  <!-- Subtotal -->
-                  <div class="flex justify-between">
-                    <span class="text-bgray-600 dark:text-bgray-300">Subtotal</span>
-                    <span id="summary-subtotal" class="font-semibold text-bgray-900 dark:text-white">686,07 €</span>
-                  </div>
-                  
-                  <!-- Base imponible -->
-                  <div class="flex justify-between">
-                    <span class="text-bgray-600 dark:text-bgray-300">Base imponible</span>
-                    <span id="summary-base" class="font-semibold text-success-300">567,00 €</span>
-                  </div>
-                  
-                  <!-- IVA -->
-                  <div class="flex justify-between">
-                    <span class="text-bgray-600 dark:text-bgray-300">IVA 21%</span>
-                    <span id="summary-tax" class="font-semibold text-bgray-900 dark:text-white">119,07 €</span>
-                  </div>
-                  
-                  <hr class="border-bgray-200 dark:border-darkblack-500" />
-                  
-                  <!-- Total -->
-                  <div class="flex justify-between text-xl font-bold">
-                    <span class="text-bgray-900 dark:text-white">Total</span>
-                    <span id="summary-total" class="text-bgray-900 dark:text-white">686,07 €</span>
-                  </div>
-                </div>
-              </section>
-
-              <!-- Botones de acción -->
-              <div class="space-y-3">
-                <button
-                  id="emit-invoice-btn"
-                  class="w-full rounded-lg px-6 py-4 text-base font-semibold text-white shadow-lg transition hover:shadow-xl"
-                  style="background-color: #ea580c;"
-                  onmouseover="this.style.backgroundColor='#c2410c'"
-                  onmouseout="this.style.backgroundColor='#ea580c'"
+              <div class="flex flex-wrap items-center gap-2">
+                <a
+                  id="back-to-edit-btn"
+                  href="new.html"
+                  class="rounded-lg border border-bgray-300 px-4 py-2.5 text-sm font-semibold text-bgray-700 transition hover:border-success-300 hover:bg-success-50 dark:border-darkblack-400 dark:text-bgray-100 flex items-center gap-2"
                 >
-                  <div class="flex items-center justify-center gap-2">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M5 13L9 17L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    Emitir factura
-                  </div>
-                </button>
-                
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Volver a editar
+                </a>
                 <button
+                  type="button"
                   id="save-draft-btn"
-                  class="w-full rounded-lg border-2 border-bgray-200 bg-white px-6 py-3 text-base font-semibold text-bgray-900 transition hover:bg-bgray-50 dark:border-darkblack-400 dark:bg-darkblack-600 dark:text-white dark:hover:bg-darkblack-500"
+                  onclick="handleSaveDraft()"
+                  class="rounded-lg border border-bgray-300 px-5 py-2.5 text-sm font-semibold text-bgray-700 transition hover:border-success-300 hover:bg-success-50 dark:border-darkblack-400 dark:text-bgray-100 flex items-center gap-2"
                 >
-                  <div class="flex items-center justify-center gap-2">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16L21 8V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      <path d="M17 21V13H7V21M7 3V8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    Guardar borrador
-                  </div>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M19 21H5C3.89543 21 3 20.1046 3 19V5C3 3.89543 3.89543 3 5 3H16L21 8V19C21 20.1046 20.1046 21 19 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 21V13H7V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 3V8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Guardar borrador
+                </button>
+                <button
+                  type="button"
+                  id="emit-invoice-btn"
+                  onclick="handleEmitInvoice()"
+                  class="rounded-lg bg-success-300 hover:bg-success-400 px-6 py-2.5 text-sm font-semibold text-white transition shadow-sm flex items-center gap-2"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 13L9 17L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Emitir factura
                 </button>
               </div>
+            </div>
 
-              <!-- Información adicional -->
-              <div class="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
-                <div class="flex gap-3">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-blue-500 flex-shrink-0 mt-0.5">
-                    <path d="M12 16V12M12 8H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  <div class="text-sm text-blue-700 dark:text-blue-300">
-                    <p class="font-semibold mb-1">Los importes se recalculan automáticamente</p>
-                    <p class="text-xs">Revisa la vista previa antes de emitir la factura. Una vez emitida, no se podrá modificar.</p>
+            <!-- Grid principal: PDF + Resumen -->
+            <div class="grid gap-6 lg:grid-cols-12">
+              <!-- Visor PDF (Izquierda) -->
+              <div class="lg:col-span-7 xl:col-span-8">
+                <div class="rounded-xl border border-bgray-200 bg-white shadow-sm dark:border-darkblack-400 dark:bg-darkblack-600 overflow-hidden">
+                  <!-- Barra de acciones del PDF -->
+                  <div class="flex items-center justify-between border-b border-bgray-200 dark:border-darkblack-400 px-5 py-3">
+                    <h2 class="text-sm font-semibold text-bgray-900 dark:text-white">
+                      Vista previa PDF
+                    </h2>
+                    <div class="flex gap-2">
+                      <button
+                        id="download-pdf-btn"
+                        class="flex items-center gap-1.5 rounded-lg border border-bgray-200 px-3 py-1.5 text-xs font-semibold text-bgray-700 hover:bg-bgray-50 dark:border-darkblack-400 dark:text-bgray-300 dark:hover:bg-darkblack-500 transition"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M21 15V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V15M7 10L12 15M12 15L17 10M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        Descargar
+                      </button>
+                      <button
+                        id="regenerate-pdf-btn"
+                        class="flex items-center gap-1.5 rounded-lg border border-bgray-200 px-3 py-1.5 text-xs font-semibold text-bgray-700 hover:bg-bgray-50 dark:border-darkblack-400 dark:text-bgray-300 dark:hover:bg-darkblack-500 transition"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M1 4V10H7M23 20V14H17M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        Regenerar
+                      </button>
+                    </div>
                   </div>
+                  <!-- Iframe del PDF -->
+                  <iframe id="pdf-viewer" title="Vista previa de factura"></iframe>
+                </div>
+              </div>
+
+              <!-- Resumen (Derecha) -->
+              <div class="lg:col-span-5 xl:col-span-4">
+                <div class="space-y-5 lg:sticky lg:top-[170px]">
+
+                  <!-- Datos de la factura -->
+                  <section class="rounded-xl border border-bgray-200 bg-white p-5 shadow-sm dark:border-darkblack-400 dark:bg-darkblack-600">
+                    <h3 class="text-sm font-semibold text-bgray-900 dark:text-white mb-3">Datos de la factura</h3>
+                    <div class="space-y-2 text-sm">
+                      <div class="flex justify-between">
+                        <span class="text-bgray-500 dark:text-bgray-400">Nº factura</span>
+                        <span id="detail-number" class="font-medium text-bgray-900 dark:text-white">—</span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span class="text-bgray-500 dark:text-bgray-400">Serie</span>
+                        <span id="detail-series" class="font-medium text-bgray-900 dark:text-white">—</span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span class="text-bgray-500 dark:text-bgray-400">Fecha emisión</span>
+                        <span id="detail-issue-date" class="font-medium text-bgray-900 dark:text-white">—</span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span class="text-bgray-500 dark:text-bgray-400">Vencimiento</span>
+                        <span id="detail-due-date" class="font-medium text-bgray-900 dark:text-white">—</span>
+                      </div>
+                    </div>
+                  </section>
+
+                  <!-- Cliente -->
+                  <section class="rounded-xl border border-bgray-200 bg-white p-5 shadow-sm dark:border-darkblack-400 dark:bg-darkblack-600">
+                    <h3 class="text-sm font-semibold text-bgray-900 dark:text-white mb-2">Cliente</h3>
+                    <p id="detail-client-name" class="text-sm font-medium text-bgray-900 dark:text-white">—</p>
+                    <p id="detail-client-nif" class="text-xs text-bgray-500 dark:text-bgray-400 mt-0.5">—</p>
+                  </section>
+
+                  <!-- Resumen económico -->
+                  <section
+                    class="rounded-xl p-5 bg-gradient-to-br from-warning-50 to-white dark:from-warning-900/20 dark:to-darkblack-600"
+                    style="border: 1px solid #fbbf24; box-shadow: 0 0 0 1px rgba(251,191,36,0.12), 0 4px 16px rgba(251,191,36,0.06);"
+                  >
+                    <h3 class="text-sm font-bold text-warning-700 dark:text-warning-300 mb-3">Resumen económico</h3>
+                    <div class="space-y-2 text-sm">
+                      <div class="flex justify-between">
+                        <span class="text-bgray-600 dark:text-bgray-300">Subtotal</span>
+                        <span id="summary-subtotal" class="font-semibold text-bgray-900 dark:text-white tabular-nums">0,00 €</span>
+                      </div>
+                      <div id="summary-discount-row" class="flex justify-between text-red-600 dark:text-red-400 hidden">
+                        <span>Descuento</span>
+                        <span id="summary-discount" class="tabular-nums">-0,00 €</span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span class="text-bgray-600 dark:text-bgray-300">Base imponible</span>
+                        <span id="summary-base" class="font-semibold text-bgray-900 dark:text-white tabular-nums">0,00 €</span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span id="summary-tax-label" class="text-bgray-600 dark:text-bgray-300">Impuestos</span>
+                        <span id="summary-tax" class="font-semibold text-bgray-900 dark:text-white tabular-nums">0,00 €</span>
+                      </div>
+                      <div id="summary-re-row" class="flex justify-between hidden">
+                        <span id="summary-re-label" class="text-bgray-600 dark:text-bgray-300">R.E.</span>
+                        <span id="summary-re" class="font-semibold text-bgray-900 dark:text-white tabular-nums">0,00 €</span>
+                      </div>
+                      <div id="summary-retention-row" class="flex justify-between text-red-600 dark:text-red-400 hidden">
+                        <span id="summary-retention-label">Retención</span>
+                        <span id="summary-retention" class="tabular-nums">-0,00 €</span>
+                      </div>
+                      <div id="summary-expenses-row" class="flex justify-between hidden">
+                        <span class="text-bgray-600 dark:text-bgray-300">Gastos suplidos</span>
+                        <span id="summary-expenses" class="font-semibold text-bgray-900 dark:text-white tabular-nums">0,00 €</span>
+                      </div>
+                      <hr class="border-bgray-200 dark:border-darkblack-500 my-1" />
+                      <div class="flex justify-between text-base font-bold">
+                        <span class="text-bgray-900 dark:text-white">Total</span>
+                        <span id="summary-total" class="text-bgray-900 dark:text-white tabular-nums">0,00 €</span>
+                      </div>
+                      <div id="summary-paid-row" class="flex justify-between text-red-600 dark:text-red-400 hidden">
+                        <span>Cantidad pagada</span>
+                        <span id="summary-paid" class="tabular-nums">-0,00 €</span>
+                      </div>
+                      <hr class="border-bgray-200 dark:border-darkblack-500 my-1" />
+                      <div class="flex justify-between items-center rounded-lg bg-warning-100/60 dark:bg-warning-900/30 px-3 py-2">
+                        <span class="text-base font-bold text-warning-800 dark:text-warning-200">Total a pagar</span>
+                        <span id="summary-total-to-pay" class="text-base font-bold text-warning-800 dark:text-warning-200 tabular-nums">0,00 €</span>
+                      </div>
+                    </div>
+                  </section>
+
+                  <!-- Métodos de pago -->
+                  <section id="payment-methods-section" class="rounded-xl border border-bgray-200 bg-white p-5 shadow-sm dark:border-darkblack-400 dark:bg-darkblack-600 hidden">
+                    <h3 class="text-sm font-semibold text-bgray-900 dark:text-white mb-3">Métodos de pago</h3>
+                    <div id="preview-payment-methods" class="space-y-2"></div>
+                  </section>
+
+                  <!-- Info -->
+                  <div class="rounded-lg border border-bgray-200 dark:border-darkblack-400 bg-white dark:bg-darkblack-600 p-4">
+                    <div class="flex gap-3">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" class="text-bgray-400 flex-shrink-0 mt-0.5"><path d="M12 16V12M12 8H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      <p class="text-xs text-bgray-500 dark:text-bgray-400">
+                        Revisa la vista previa antes de emitir. Una vez emitida, la factura no se podrá modificar.
+                      </p>
+                    </div>
+                  </div>
+
                 </div>
               </div>
             </div>
-          </div>
+
+          </main>
         </div>
       </div>
     </div>
 
-    <!-- Scripts -->
+    <!-- Librerías base -->
+    <script src="../assets/js/jquery-3.6.0.min.js"></script>
+    <script src="../assets/js/slick.min.js"></script>
+    <script src="../assets/js/load-components.js"></script>
+    <script src="../assets/js/main.js"></script>
+
+    <!-- jsPDF para generación de PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="../assets/js/invoice-pdf-generator.js"></script>
     <script src="../assets/js/invoice-data-handler.js"></script>
-    <script>
-      // Cargar datos desde localStorage o usar datos de ejemplo
-      const dataHandler = new InvoiceDataHandler();
-      const loadedData = dataHandler.loadFromStorage();
-      
-      const sampleInvoiceData = loadedData || {
-        issuer: {
-          name: 'avenue sl',
-          cif: '87082987',
-          address: 'Valladolid, España',
-          phone: '655658565'
-        },
-        client: {
-          name: 'AVENUE DIGITAL GROUP SL',
-          cif: '87082987',
-          address: 'PLAZA MAYOR 23, 1A',
-          city: '47001 VALLADOLID, Valladolid, España'
-        },
-        invoice: {
-          number: 'F20261',
-          issueDate: '27/01/2026',
-          dueDate: '31/01/2026'
-        },
-        concepts: [
-          {
-            description: 'PRODUCTO/ZO',
-            quantity: 100,
-            unitPrice: 567.00,
-            tax: 21,
-            re: 5.2,
-            total: 715.55
-          }
-        ],
-        expenses: [
-          {
-            description: 'gasto suplido',
-            amount: 100.00
-          }
-        ],
-        summary: {
-          taxBase: 567.00,
-          taxRate: 21,
-          taxAmount: 119.07,
-          reRate: 5.2,
-          reAmount: 29.48,
-          retentionRate: 2.00,
-          retentionAmount: 28.35,
-          expenses: 100.00,
-          total: 787.20,
-          paid: 100.00,
-          totalToPay: 687.20
-        },
-        paymentMethods: [
-          {
-            type: 'transferencia',
-            iban: 'ES68 8695 9585 9855 9859'
-          }
-        ],
-        observations: 'observacione'
-      };
 
+    <!-- Supabase + Auth + Módulos -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module">
+      import '../assets/js/supabaseClient.js';
+      import '../assets/js/auth.js';
+      import '../assets/js/businessInfo.js';
+      import '../assets/js/checkBusinessInfo.js';
+    </script>
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+    <script src="../assets/js/user-header.js" defer></script>
+    <script src="../assets/js/toast.js" defer></script>
+    <script src="../assets/js/invoices.js" defer></script>
+
+    <!-- Lógica de la página de preview -->
+    <script>
+      let currentInvoiceData = null;
       let pdfGenerator = null;
-      let currentPDFBlob = null;
       let currentInvoiceId = null;
       let isReadOnly = false;
 
-      // Detectar si estamos viendo una factura desde BD
-      async function loadInvoiceFromDB() {
+      // ============================================
+      // Formateo de moneda
+      // ============================================
+      function fmtCurrency(value) {
+        const num = parseFloat(value) || 0;
+        return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(num);
+      }
+
+      // ============================================
+      // Cargar datos de la factura desde BD
+      // ============================================
+      async function loadInvoiceData() {
         const urlParams = new URLSearchParams(window.location.search);
         const draftId = urlParams.get('draft');
         const invoiceId = urlParams.get('invoice');
-        
+
         currentInvoiceId = draftId || invoiceId;
-        
-        if (!currentInvoiceId) {
-          console.log('📝 Usando datos del formulario/localStorage');
-          return sampleInvoiceData;
-        }
-        
-        // Si es una factura emitida, modo solo lectura
+
         if (invoiceId) {
           isReadOnly = true;
         }
-        
+
+        // Si no hay ID, intentar datos de localStorage
+        if (!currentInvoiceId) {
+          const dataHandler = new InvoiceDataHandler();
+          const stored = dataHandler.loadFromStorage();
+          if (stored) return stored;
+          // Si no hay nada, mostrar mensaje
+          alert('No se encontraron datos de factura. Vuelve a crearla desde "Emitir factura".');
+          window.location.href = 'new.html';
+          return null;
+        }
+
+        // Esperar a que el módulo de facturas esté disponible
+        let attempts = 0;
+        while (!window.getInvoiceById && attempts < 100) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          attempts++;
+        }
+
+        if (!window.getInvoiceById) {
+          alert('Error: el sistema no pudo cargar. Recarga la página.');
+          return null;
+        }
+
         try {
-          console.log('🔄 Cargando factura desde BD:', currentInvoiceId);
-          
-          // Esperar módulo
-          let attempts = 0;
-          while (!window.getInvoiceById && attempts < 50) {
-            await new Promise(resolve => setTimeout(resolve, 100));
-            attempts++;
-          }
-          
-          if (!window.getInvoiceById) {
-            console.error('❌ Módulo de facturas no disponible');
-            return sampleInvoiceData;
-          }
-          
           const result = await window.getInvoiceById(currentInvoiceId);
-          
+
           if (!result.success || !result.data) {
-            console.error('❌ Error al cargar factura:', result.error);
-            return sampleInvoiceData;
+            alert('Error al cargar la factura: ' + (result.error || 'No encontrada'));
+            return null;
           }
-          
-          const invoice = result.data;
-          console.log('✅ Factura cargada desde BD');
-          
-          // Convertir formato de BD a formato de sampleInvoiceData
-          // (Este es un mapeo básico, puede necesitar ajustes según la estructura exacta)
+
+          const inv = result.data;
+          const d = inv.invoice_data || {};
+
+          // Actualizar link "volver a editar" con el ID del borrador
+          const backBtn = document.getElementById('back-to-edit-btn');
+          if (backBtn && draftId) {
+            backBtn.href = 'new.html?draft=' + draftId;
+          }
+
+          // Mapeo completo de BD → formato preview
           return {
-            issuer: invoice.invoice_data.issuer || {},
-            client: invoice.invoice_data.client || {},
+            issuer: d.issuer || {},
+            client: d.client || {},
             invoice: {
-              number: invoice.invoice_number,
-              issueDate: window.formatDate ? window.formatDate(invoice.issue_date) : invoice.issue_date,
-              dueDate: invoice.due_date ? (window.formatDate ? window.formatDate(invoice.due_date) : invoice.due_date) : ''
+              series: d.invoice?.series || inv.invoice_series || '',
+              number: inv.invoice_number || d.invoice?.number || '',
+              reference: d.invoice?.reference || '',
+              issueDate: inv.issue_date ? formatDateForDisplay(inv.issue_date) : '',
+              dueDate: inv.due_date ? formatDateForDisplay(inv.due_date) : ''
             },
-            concepts: invoice.invoice_data.concepts || [],
-            expenses: invoice.invoice_data.options?.gastosSuplidos ? [{ amount: invoice.invoice_data.options.gastosSuplidos }] : [],
+            concepts: d.concepts || [],
+            expenses: d.expenses || [],
+            taxSettings: d.taxSettings || {},
+            paymentMethods: d.paymentMethods || [],
+            observations: d.options?.observaciones || '',
             summary: {
-              taxBase: invoice.subtotal,
-              taxAmount: invoice.tax_amount,
-              total: invoice.total_amount,
-              totalToPay: invoice.total_amount
-            },
-            paymentMethods: invoice.invoice_data.payment?.methods || [],
-            observations: invoice.invoice_data.options?.observaciones || ''
+              subtotal: d.summary?.subtotal || inv.subtotal || 0,
+              discount: d.summary?.discount || d.adjustments?.discount || 0,
+              taxBase: d.summary?.taxBase || inv.subtotal || 0,
+              taxRate: d.summary?.taxRate || 21,
+              taxAmount: d.summary?.taxAmount || d.summary?.tax || inv.tax_amount || 0,
+              reRate: d.summary?.reRate || 0,
+              reAmount: d.summary?.reAmount || 0,
+              retentionRate: d.summary?.retentionRate || d.adjustments?.withholding || 0,
+              retentionAmount: d.summary?.retentionAmount || 0,
+              expenses: d.summary?.expenses || 0,
+              total: d.summary?.total || inv.total_amount || 0,
+              paid: d.summary?.paid || 0,
+              totalToPay: d.summary?.totalToPay || d.summary?.total || inv.total_amount || 0
+            }
           };
-          
         } catch (error) {
-          console.error('❌ Error en loadInvoiceFromDB:', error);
-          return sampleInvoiceData;
+          console.error('Error cargando factura:', error);
+          alert('Error al cargar la factura.');
+          return null;
         }
       }
 
-      // Generar PDF al cargar la página
-      async function generatePreview(invoiceData) {
+      function formatDateForDisplay(isoDate) {
+        if (!isoDate) return '';
         try {
-          // Usar los datos proporcionados o cargar desde BD
-          const dataToUse = invoiceData || await loadInvoiceFromDB();
-          
+          const d = new Date(isoDate);
+          return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
+        } catch (e) {
+          return isoDate;
+        }
+      }
+
+      // ============================================
+      // Actualizar UI con los datos de la factura
+      // ============================================
+      function updateUI(data) {
+        if (!data) return;
+
+        // Datos de factura
+        var invoiceNum = data.invoice?.number || '';
+        if (!invoiceNum || invoiceNum === 'null') {
+          setText('detail-number', 'Se asignará al emitir');
+          var numEl = document.getElementById('detail-number');
+          if (numEl) numEl.className = 'text-xs font-medium text-bgray-400 dark:text-bgray-500 italic';
+        } else {
+          setText('detail-number', invoiceNum);
+        }
+        setText('detail-series', data.invoice?.series || '—');
+        setText('detail-issue-date', data.invoice?.issueDate || '—');
+        setText('detail-due-date', data.invoice?.dueDate || '—');
+
+        // Cliente
+        setText('detail-client-name', data.client?.name || 'Sin cliente');
+        setText('detail-client-nif', data.client?.nif ? 'NIF: ' + data.client.nif : '');
+
+        // Resumen económico
+        const s = data.summary || {};
+
+        setText('summary-subtotal', fmtCurrency(s.subtotal));
+        setText('summary-base', fmtCurrency(s.taxBase));
+
+        // Descuento
+        if (s.discount && s.discount > 0) {
+          setText('summary-discount', '-' + fmtCurrency(s.discount));
+          showEl('summary-discount-row');
+        }
+
+        // Impuestos
+        const taxLabel = s.taxRate ? 'IVA ' + s.taxRate + '%' : 'Impuestos';
+        setText('summary-tax-label', taxLabel);
+        setText('summary-tax', fmtCurrency(s.taxAmount));
+
+        // R.E.
+        if (s.reAmount && s.reAmount > 0) {
+          setText('summary-re-label', 'R.E. ' + (s.reRate || 5.2) + '%');
+          setText('summary-re', fmtCurrency(s.reAmount));
+          showEl('summary-re-row');
+        }
+
+        // Retención
+        if (s.retentionRate && s.retentionRate > 0) {
+          setText('summary-retention-label', 'Retención ' + s.retentionRate + '%');
+          setText('summary-retention', '-' + fmtCurrency(s.retentionAmount));
+          showEl('summary-retention-row');
+        }
+
+        // Gastos suplidos
+        if (s.expenses && s.expenses > 0) {
+          setText('summary-expenses', fmtCurrency(s.expenses));
+          showEl('summary-expenses-row');
+        }
+
+        // Total
+        setText('summary-total', fmtCurrency(s.total));
+
+        // Pagado
+        if (s.paid && s.paid > 0) {
+          setText('summary-paid', '-' + fmtCurrency(s.paid));
+          showEl('summary-paid-row');
+        }
+
+        // Total a pagar
+        setText('summary-total-to-pay', fmtCurrency(s.totalToPay));
+
+        // Métodos de pago
+        renderPaymentMethods(data.paymentMethods);
+      }
+
+      function renderPaymentMethods(methods) {
+        var container = document.getElementById('preview-payment-methods');
+        var section = document.getElementById('payment-methods-section');
+        if (!container || !section) return;
+        if (!methods || methods.length === 0) return;
+
+        section.classList.remove('hidden');
+        container.innerHTML = '';
+
+        var labels = {
+          'transferencia': 'Transferencia bancaria',
+          'domiciliacion': 'Domiciliación',
+          'efectivo': 'Efectivo',
+          'contrareembolso': 'Contrareembolso',
+          'bizum': 'Bizum',
+          'otro': 'Otro'
+        };
+
+        methods.forEach(function(m) {
+          var div = document.createElement('div');
+          div.className = 'rounded-lg border border-bgray-200 dark:border-darkblack-400 p-3';
+
+          var label = labels[m.type] || m.type || 'Método de pago';
+          var html = '<p class="text-sm font-semibold text-bgray-900 dark:text-white">' + label + '</p>';
+
+          if (m.type === 'transferencia' && m.iban) {
+            html += '<p class="text-xs text-bgray-600 dark:text-bgray-400 mt-1 font-mono">' + m.iban + '</p>';
+          }
+          if (m.type === 'bizum' && m.phone) {
+            html += '<p class="text-xs text-bgray-600 dark:text-bgray-400 mt-1">' + m.phone + '</p>';
+          }
+
+          div.innerHTML = html;
+          container.appendChild(div);
+        });
+      }
+
+      function setText(id, text) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = text;
+      }
+
+      function showEl(id) {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('hidden');
+      }
+
+      // ============================================
+      // Generar PDF
+      // ============================================
+      function generatePreview(data) {
+        try {
+          if (!data) return;
           pdfGenerator = new InvoicePDFGenerator();
-          pdfGenerator.generatePDF(dataToUse);
-          
-          // Obtener el PDF como data URL y mostrarlo en el iframe
+          pdfGenerator.generatePDF(data);
           const pdfDataUrl = pdfGenerator.getPDFDataUrl();
           document.getElementById('pdf-viewer').src = pdfDataUrl;
-          
-          // Guardar el blob para descargas
-          currentPDFBlob = pdfGenerator.getPDFBlob();
-          
-          console.log('PDF generado correctamente con datos reales');
         } catch (error) {
           console.error('Error generando PDF:', error);
           if (window.showToast) {
-            window.showToast('Error al generar el PDF. Por favor, recarga la página.', 'error');
+            window.showToast('Error al generar el PDF. Recarga la página.', 'error');
           }
         }
       }
 
+      // ============================================
+      // Botones: Emitir + Guardar borrador
+      // ============================================
+      function setLoading(btnId, loading, text) {
+        const btn = document.getElementById(btnId);
+        if (!btn) return;
+        if (loading) {
+          btn._originalHTML = btn.innerHTML;
+          btn.disabled = true;
+          btn.style.opacity = '0.6';
+          btn.style.pointerEvents = 'none';
+          btn.innerHTML = '<div class="flex items-center justify-center gap-2"><svg class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity="0.25"/><path d="M12 2C6.477 2 2 6.477 2 12" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg> ' + (text || '') + '</div>';
+        } else {
+          btn.disabled = false;
+          btn.style.opacity = '';
+          btn.style.pointerEvents = '';
+          if (btn._originalHTML) btn.innerHTML = btn._originalHTML;
+        }
+      }
+
+      async function handleEmitInvoice() {
+        if (!currentInvoiceId) {
+          if (window.showToast) window.showToast('No hay un borrador para emitir. Guarda primero.', 'error');
+          else alert('No hay un borrador para emitir.');
+          return;
+        }
+
+        // Esperar módulo
+        let attempts = 0;
+        while (!window.emitInvoice && attempts < 50) {
+          await new Promise(r => setTimeout(r, 100));
+          attempts++;
+        }
+
+        if (!window.emitInvoice) {
+          if (window.showToast) window.showToast('El sistema aún está cargando. Espera unos segundos.', 'error');
+          else alert('El sistema aún está cargando.');
+          return;
+        }
+
+        setLoading('emit-invoice-btn', true, 'Emitiendo...');
+
+        try {
+          const result = await window.emitInvoice(currentInvoiceId);
+
+          if (!result.success) {
+            if (window.showToast) window.showToast(result.error || 'Error al emitir', 'error');
+            else alert(result.error || 'Error al emitir');
+            setLoading('emit-invoice-btn', false);
+            return;
+          }
+
+          if (window.showToast) window.showToast('Factura emitida correctamente', 'success');
+
+          // Onboarding paso 4
+          try {
+            if (window.getCurrentUser && window.updateStepProgress) {
+              const ur = await window.getCurrentUser();
+              if (ur.success && ur.user) await window.updateStepProgress(ur.user.id, 4, true);
+            }
+          } catch (e) { /* no critical */ }
+
+          setTimeout(function() { window.location.href = 'issued.html'; }, 1500);
+        } catch (error) {
+          if (window.showToast) window.showToast(error.message || 'Error al emitir', 'error');
+          else alert(error.message);
+          setLoading('emit-invoice-btn', false);
+        }
+      }
+
+      async function handleSaveDraft() {
+        if (!currentInvoiceId) {
+          if (window.showToast) window.showToast('No hay borrador para guardar.', 'error');
+          else alert('No hay borrador para guardar.');
+          return;
+        }
+
+        setLoading('save-draft-btn', true, 'Guardando...');
+
+        if (window.showToast) window.showToast('Borrador guardado correctamente', 'success');
+
+        setTimeout(function() { window.location.href = 'drafts.html'; }, 1200);
+      }
+
+      // ============================================
       // Descargar PDF
+      // ============================================
       document.getElementById('download-pdf-btn').addEventListener('click', function() {
-        if (pdfGenerator) {
-          pdfGenerator.downloadPDF(`factura_${sampleInvoiceData.invoice.number}.pdf`);
+        if (pdfGenerator && currentInvoiceData) {
+          const num = currentInvoiceData.invoice?.number || 'factura';
+          pdfGenerator.downloadPDF('factura_' + num + '.pdf');
         }
       });
 
       // Regenerar PDF
       document.getElementById('regenerate-pdf-btn').addEventListener('click', function() {
-        generatePreview();
+        if (currentInvoiceData) generatePreview(currentInvoiceData);
       });
 
-      // ========================================
-      // FUNCIONES DE MANEJO DE BOTONES
-      // ========================================
-      
-      /**
-       * Deshabilitar botón durante operación
-       */
-      function disableButton(buttonId, loadingText) {
-        const btn = document.getElementById(buttonId);
-        if (!btn) return null;
-        
-        btn.disabled = true;
-        btn.style.opacity = '0.6';
-        btn.style.cursor = 'not-allowed';
-        
-        const originalHTML = btn.innerHTML;
-        btn.innerHTML = `
-          <div class="flex items-center justify-center gap-2">
-            <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            ${loadingText}
-          </div>
-        `;
-        
-        return originalHTML;
-      }
-      
-      /**
-       * Rehabilitar botón
-       */
-      function enableButton(buttonId, originalHTML) {
-        const btn = document.getElementById(buttonId);
-        if (!btn) return;
-        
-        btn.disabled = false;
-        btn.style.opacity = '1';
-        btn.style.cursor = 'pointer';
-        if (originalHTML) {
-          btn.innerHTML = originalHTML;
-        }
-      }
-      
-      /**
-       * Manejar emisión de factura
-       */
-      async function handleEmitInvoice() {
-        console.log('🖱️ Click en Emitir factura');
-        
-        // Verificar que tenemos el ID
-        if (!currentInvoiceId) {
-          if (window.showToast) {
-            window.showToast('Error: No hay un borrador para emitir', 'error');
-          }
-          console.error('❌ No hay currentInvoiceId');
-          return;
-        }
-        
-        // Verificar que la función está disponible
-        if (!window.emitInvoice || typeof window.emitInvoice !== 'function') {
-          if (window.showToast) {
-            window.showToast('Error: El sistema aún está cargando. Espera unos segundos.', 'error');
-          }
-          console.error('❌ window.emitInvoice no disponible');
-          return;
-        }
-        
-        try {
-          // Deshabilitar botón
-          const originalHTML = disableButton('emit-invoice-btn', 'Emitiendo...');
-          
-          console.log('📤 Emitiendo factura:', currentInvoiceId);
-          const result = await window.emitInvoice(currentInvoiceId);
-          
-          if (!result.success) {
-            console.error('❌ Error al emitir:', result.error);
-            if (window.showToast) {
-              window.showToast(result.error || 'Error al emitir la factura', 'error');
-            }
-            enableButton('emit-invoice-btn', originalHTML);
-            return;
-          }
-          
-          console.log('✅ Factura emitida correctamente');
-          if (window.showToast) {
-            window.showToast('Factura emitida correctamente', 'success');
-          }
-          
-          // Marcar paso 4 del onboarding como completado
-          try {
-            if (window.getCurrentUser && window.updateStepProgress) {
-              const userResult = await window.getCurrentUser();
-              if (userResult.success && userResult.user) {
-                await window.updateStepProgress(userResult.user.id, 4, true);
-                console.log('✅ Paso 4 "Primera factura" completado');
-              }
-            }
-          } catch (error) {
-            console.warn('⚠️ No se pudo actualizar progreso de onboarding:', error);
-          }
-          
-          // Redirigir a facturas emitidas
-          setTimeout(() => {
-            console.log('🔄 Redirigiendo a facturas emitidas...');
-            window.location.href = 'issued.html';
-          }, 1500);
-          
-        } catch (error) {
-          console.error('❌ Error en handleEmitInvoice:', error);
-          if (window.showToast) {
-            window.showToast(error.message || 'Error al emitir la factura', 'error');
-          }
-          enableButton('emit-invoice-btn');
-        }
-      }
-      
-      /**
-       * Manejar guardar borrador
-       */
-      async function handleSaveDraft() {
-        console.log('🖱️ Click en Guardar borrador');
-        
-        // Verificar que tenemos el ID
-        if (!currentInvoiceId) {
-          if (window.showToast) {
-            window.showToast('Error: No hay un borrador para guardar', 'error');
-          }
-          console.error('❌ No hay currentInvoiceId');
-          return;
-        }
-        
-        try {
-          // Deshabilitar botón
-          const originalHTML = disableButton('save-draft-btn', 'Guardando...');
-          
-          console.log('💾 El borrador ya está guardado con ID:', currentInvoiceId);
-          
-          if (window.showToast) {
-            window.showToast('Borrador guardado correctamente', 'success');
-          }
-          
-          // Redirigir a borradores
-          setTimeout(() => {
-            console.log('🔄 Redirigiendo a borradores...');
-            window.location.href = 'drafts.html';
-          }, 1500);
-          
-        } catch (error) {
-          console.error('❌ Error en handleSaveDraft:', error);
-          if (window.showToast) {
-            window.showToast(error.message || 'Error al guardar el borrador', 'error');
-          }
-          enableButton('save-draft-btn');
-        }
-      }
-      
-      // Hacer funciones globales
-      window.handleEmitInvoice = handleEmitInvoice;
-      window.handleSaveDraft = handleSaveDraft;
-
-      // Actualizar el resumen en la interfaz
-      function updateSummaryUI(invoiceData) {
-        const data = invoiceData || sampleInvoiceData;
-        
-        if (data.client) {
-          document.getElementById('summary-client-name').textContent = data.client.name || 'Sin cliente';
-        }
-        if (data.summary) {
-          const formatCurrency = (value) => {
-            const num = parseFloat(value) || 0;
-            return num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, '.').replace(/\.(\d{2})$/, ',$1') + ' €';
-          };
-          
-          document.getElementById('summary-subtotal').textContent = formatCurrency(data.summary.subtotal);
-          document.getElementById('summary-base').textContent = formatCurrency(data.summary.taxBase);
-          document.getElementById('summary-tax').textContent = formatCurrency(data.summary.taxAmount);
-          document.getElementById('summary-total').textContent = formatCurrency(data.summary.totalToPay || data.summary.total);
-        }
-      }
-
-      // Generar vista previa al cargar
+      // ============================================
+      // Inicialización
+      // ============================================
       window.addEventListener('load', async function() {
-        // Cargar datos desde BD si es necesario
-        const invoiceData = await loadInvoiceFromDB();
-        
-        // Actualizar sampleInvoiceData con los datos cargados
-        if (invoiceData && invoiceData !== sampleInvoiceData) {
-          Object.assign(sampleInvoiceData, invoiceData);
-        }
-        
-        // Si es modo solo lectura, ocultar botón de emitir
+        currentInvoiceData = await loadInvoiceData();
+
+        if (!currentInvoiceData) return;
+
+        // Modo solo lectura (factura ya emitida)
         if (isReadOnly) {
-          const emitBtn = document.getElementById('emit-invoice-btn');
-          const saveDraftBtn = document.getElementById('save-draft-btn');
+          var emitBtn = document.getElementById('emit-invoice-btn');
+          var draftBtn = document.getElementById('save-draft-btn');
+          var backBtn = document.getElementById('back-to-edit-btn');
           if (emitBtn) emitBtn.style.display = 'none';
-          if (saveDraftBtn) saveDraftBtn.style.display = 'none';
-          
-          console.log('👁️ Modo solo lectura activado');
+          if (draftBtn) draftBtn.style.display = 'none';
+          if (backBtn) backBtn.style.display = 'none';
         }
-        
-        // Actualizar UI con datos reales
-        updateSummaryUI(invoiceData);
-        
-        // Pequeño delay para asegurar que jsPDF esté cargado, luego generar con datos reales
-        setTimeout(() => generatePreview(invoiceData), 500);
-      });
 
-      // Detectar cambio de tema oscuro/claro
-      const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-          if (mutation.attributeName === 'class') {
-            // El tema ha cambiado, podríamos regenerar el PDF si fuera necesario
-            console.log('Tema cambiado');
-          }
-        });
-      });
+        // Actualizar UI
+        updateUI(currentInvoiceData);
 
-      observer.observe(document.documentElement, {
-        attributes: true
+        // Generar PDF (pequeño delay para asegurar que jsPDF está listo)
+        setTimeout(function() { generatePreview(currentInvoiceData); }, 400);
       });
     </script>
-
-    <!-- Supabase y módulos para actualizar progreso de onboarding -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script type="module" src="../assets/js/supabaseClient.js"></script>
-    <script type="module" src="../assets/js/auth.js"></script>
-    <script src="../assets/js/onboardingProgress.js"></script>
   </body>
 </html>

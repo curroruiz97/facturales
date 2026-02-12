@@ -59,6 +59,13 @@ async function protectPage() {
       await new Promise(resolve => setTimeout(resolve, 500));
     }
 
+    // Esperar a que Supabase haya terminado de leer la sesión de localStorage
+    if (window.supabaseAuthReady) {
+      console.log('⏳ Esperando a que Supabase auth esté listo...');
+      await window.supabaseAuthReady;
+      console.log('✅ Supabase auth listo');
+    }
+
     const isAuthenticated = await window.checkAuth();
 
     if (!isAuthenticated) {

@@ -72,6 +72,11 @@ async function createInvoice(invoiceData, status = 'draft') {
       invoice_data: invoiceData.invoice_data
     };
     
+    // Si hay un número manual, incluirlo (sino, el trigger de BD lo genera)
+    if (invoiceData.invoice_number && invoiceData.invoice_number.trim() !== '') {
+      data.invoice_number = invoiceData.invoice_number.trim();
+    }
+    
     // Insertar en Supabase
     const { data: invoice, error } = await supabase
       .from('invoices')

@@ -11,22 +11,16 @@ let isEditMode = false;
  */
 async function initNewPage() {
   try {
-    console.log('🔄 Inicializando página de factura...');
-    
-    // Verificar si estamos editando un borrador
     const urlParams = new URLSearchParams(window.location.search);
     currentDraftId = urlParams.get('draft');
     
     if (currentDraftId) {
       isEditMode = true;
-      console.log('✏️ Modo edición - Cargando borrador:', currentDraftId);
       await loadDraftToForm(currentDraftId);
-    } else {
-      console.log('➕ Modo creación - Formulario vacío');
     }
     
   } catch (error) {
-    console.error('❌ Error al inicializar página:', error);
+    console.error('Error al inicializar página:', error);
   }
 }
 
@@ -201,25 +195,24 @@ function loadPaymentMethods(methods) {
     methods.forEach(method => {
       let additionalInfo = '';
       if (method.type === 'transferencia' && method.iban) {
-        additionalInfo = `<div class="text-xs text-bgray-600 dark:text-bgray-400 mt-1">${method.iban}</div>`;
+        additionalInfo = '<div class="text-xs text-bgray-600 dark:text-bgray-400 mt-1">' + method.iban + '</div>';
       } else if (method.type === 'bizum' && method.phone) {
-        additionalInfo = `<div class="text-xs text-bgray-600 dark:text-bgray-400 mt-1">${method.phone}</div>`;
+        additionalInfo = '<div class="text-xs text-bgray-600 dark:text-bgray-400 mt-1">' + method.phone + '</div>';
       }
       
       const badge = document.createElement('div');
-      badge.className = 'flex items-center justify-between rounded-lg border-2 border-warning-300 bg-warning-50 px-3 py-2 text-sm dark:bg-warning-900/10';
-      badge.innerHTML = `
-        <div class="flex-1">
-          <span class="font-semibold text-warning-700 dark:text-warning-300">${methodLabels[method.type] || method.type}</span>
-          ${additionalInfo}
-        </div>
-        <button type="button" onclick="this.parentElement.remove()" class="text-warning-700 hover:text-warning-900 dark:text-warning-300 ml-2">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M6 18L18 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <path d="M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </button>
-      `;
+      badge.className = 'payment-method-badge flex items-center justify-between rounded-lg border-2 border-warning-300 bg-warning-50 px-3 py-2 text-sm dark:bg-warning-900/10';
+      badge.setAttribute('data-type', method.type || '');
+      badge.setAttribute('data-iban', method.iban || '');
+      badge.setAttribute('data-phone', method.phone || '');
+      badge.innerHTML =
+        '<div class="flex-1">' +
+          '<span class="font-semibold text-warning-700 dark:text-warning-300">' + (methodLabels[method.type] || method.type) + '</span>' +
+          additionalInfo +
+        '</div>' +
+        '<button type="button" onclick="this.parentElement.remove()" class="text-warning-700 hover:text-warning-900 dark:text-warning-300 ml-2">' +
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 18L18 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' +
+        '</button>';
       list.appendChild(badge);
     });
     
@@ -335,7 +328,7 @@ function createInvoiceLine(concept, isFirst) {
           type="text"
           class="h-11 w-full rounded-lg border border-bgray-200 bg-white px-3 text-sm text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-400 dark:bg-darkblack-600 dark:text-white"
           value="${concept.description || ''}"
-          placeholder="Descripción del servicio/producto"
+          placeholder="Descripción del servicio"
         />
       </div>
       
@@ -473,13 +466,10 @@ function createInvoiceLine(concept, isFirst) {
  */
 function collectFormData() {
   try {
-    console.log('📋 Recopilando datos del formulario...');
-    
     // Usar InvoiceDataHandler si está disponible para captura completa
     let rawData = null;
     if (window.invoiceDataHandler && typeof window.invoiceDataHandler.captureFormData === 'function') {
       rawData = window.invoiceDataHandler.captureFormData();
-      console.log('✅ Datos capturados con InvoiceDataHandler:', rawData);
     }
     
     // Obtener datos básicos
@@ -492,13 +482,25 @@ function collectFormData() {
       invoiceNumber = '';
     }
     
-    // Validar datos obligatorios
+    // Validar datos obligatorios con feedback visual
+    const errors = [];
+    
     if (!clientName || !clientName.trim()) {
-      throw new Error('El nombre del cliente es obligatorio');
+      errors.push('El nombre del cliente es obligatorio');
+      highlightField('client-name', true);
+    } else {
+      highlightField('client-name', false);
     }
     
     if (!issueDate) {
-      throw new Error('La fecha de emisión es obligatoria');
+      errors.push('La fecha de emisión es obligatoria');
+      highlightField('issue-date', true);
+    } else {
+      highlightField('issue-date', false);
+    }
+    
+    if (errors.length > 0) {
+      throw new Error(errors.join('. '));
     }
     
     // Calcular totales desde el resumen
@@ -584,7 +586,6 @@ function collectFormData() {
       }
     };
     
-    console.log('✅ Datos del formulario recopilados:', formData);
     return formData;
     
   } catch (error) {
@@ -598,84 +599,44 @@ function collectFormData() {
  */
 async function saveDraft() {
   try {
-    console.log('💾 Guardando borrador...');
-    console.log('📊 Estado de módulos:', {
-      createInvoice: typeof window.createInvoice,
-      updateInvoice: typeof window.updateInvoice,
-      supabaseClient: typeof window.supabaseClient
-    });
-    
-    // Verificar que las funciones estén disponibles INMEDIATAMENTE
-    if (!window.createInvoice) {
-      const availableFunctions = Object.keys(window).filter(k => k.toLowerCase().includes('invoice'));
-      console.error('❌ window.createInvoice no está definido');
-      console.error('Funciones disponibles con "invoice":', availableFunctions);
-      showToastMessage('Error: El módulo de facturas no está cargado. Por favor, recarga la página.', 'error');
+    if (!window.createInvoice || !window.updateInvoice) {
+      showToastMessage('El módulo de facturas no está cargado. Recarga la página.', 'error');
       return;
     }
     
-    if (!window.updateInvoice) {
-      console.error('❌ window.updateInvoice no está definido');
-      showToastMessage('Error: El módulo de facturas no está cargado. Por favor, recarga la página.', 'error');
-      return;
-    }
-    
-    // Verificar Supabase
     if (!window.supabaseClient) {
-      console.error('❌ Supabase no está inicializado');
-      showToastMessage('Error: No hay conexión con la base de datos. Por favor, recarga la página.', 'error');
+      showToastMessage('No hay conexión con la base de datos. Recarga la página.', 'error');
       return;
     }
     
-    // Recopilar datos del formulario
-    console.log('📋 Recopilando datos del formulario...');
     let formData;
     try {
       formData = collectFormData();
-      console.log('✅ Datos recopilados:', {
-        cliente: formData.client_name,
-        fecha: formData.issue_date,
-        total: formData.total_amount,
-        conceptos: formData.invoice_data?.concepts?.length || 0
-      });
     } catch (error) {
-      console.error('❌ Error al recopilar datos:', error);
       showToastMessage(error.message || 'Error al recopilar los datos del formulario', 'error');
       return;
     }
     
-    // Guardar o actualizar
     let result;
     if (isEditMode && currentDraftId) {
-      // Actualizar borrador existente
-      console.log('📝 Actualizando borrador existente:', currentDraftId);
       result = await window.updateInvoice(currentDraftId, formData);
     } else {
-      // Crear nuevo borrador
-      console.log('➕ Creando nuevo borrador...');
       result = await window.createInvoice(formData, 'draft');
     }
     
-    console.log('📤 Resultado de guardado:', result);
-    
     if (!result.success) {
-      console.error('❌ Error al guardar:', result.error);
       showToastMessage(result.error || 'Error al guardar el borrador', 'error');
       return;
     }
     
-    console.log('✅ Borrador guardado exitosamente:', result.data);
     showToastMessage('Borrador guardado correctamente', 'success');
     
-    // Redirigir a borradores después de un breve delay
     setTimeout(() => {
-      console.log('🔄 Redirigiendo a borradores...');
       window.location.href = 'drafts.html';
     }, 1500);
     
   } catch (error) {
-    console.error('❌ Error en saveDraft:', error);
-    console.error('Stack trace:', error.stack);
+    console.error('Error en saveDraft:', error);
     showToastMessage(error.message || 'Error al guardar el borrador', 'error');
   }
 }
@@ -685,69 +646,49 @@ async function saveDraft() {
  */
 async function goToPreview() {
   try {
-    console.log('👁️ Preparando vista previa...');
-    
-    // Verificar que los módulos estén disponibles
     if (!window.createInvoice || !window.updateInvoice) {
-      console.error('❌ Módulos de facturas no disponibles');
-      showToastMessage('Error: El sistema aún está cargando. Espera unos segundos.', 'error');
+      showToastMessage('El sistema aún está cargando. Espera unos segundos.', 'error');
       return;
     }
     
     let draftId = currentDraftId;
     
-    // Si NO tenemos un ID de borrador, crear uno nuevo primero
     if (!draftId) {
-      console.log('📝 Creando borrador antes de vista previa...');
-      
       try {
         const formData = collectFormData();
         const result = await window.createInvoice(formData, 'draft');
         
         if (!result.success) {
-          console.error('❌ Error al crear borrador:', result.error);
           showToastMessage(result.error || 'Error al guardar el borrador', 'error');
           return;
         }
         
         draftId = result.data.id;
         currentDraftId = draftId;
-        console.log('✅ Borrador creado:', draftId);
         showToastMessage('Borrador guardado correctamente', 'success');
       } catch (error) {
-        console.error('❌ Error al crear borrador:', error);
         showToastMessage(error.message || 'Error al guardar el borrador', 'error');
         return;
       }
-    }
-    // Si estamos editando un borrador existente, actualizarlo primero
-    else if (isEditMode) {
-      console.log('📝 Actualizando borrador antes de vista previa...');
-      
+    } else if (isEditMode) {
       try {
         const formData = collectFormData();
         const result = await window.updateInvoice(draftId, formData);
         
         if (!result.success) {
-          console.error('❌ Error al actualizar:', result.error);
           showToastMessage(result.error || 'Error al guardar cambios', 'error');
           return;
         }
-        
-        console.log('✅ Borrador actualizado');
       } catch (error) {
-        console.error('❌ Error al actualizar borrador:', error);
         showToastMessage(error.message || 'Error al actualizar', 'error');
         return;
       }
     }
     
-    // Redirigir a preview con el ID del borrador
-    console.log('🔄 Redirigiendo a preview con ID:', draftId);
-    window.location.href = `preview?draft=${draftId}`;
+    window.location.href = `preview.html?draft=${draftId}`;
     
   } catch (error) {
-    console.error('❌ Error en goToPreview:', error);
+    console.error('Error en goToPreview:', error);
     showToastMessage(error.message || 'Error al ir a vista previa', 'error');
   }
 }
@@ -774,11 +715,43 @@ function showToastMessage(message, type = 'success') {
   }
 }
 
+/**
+ * Resaltar campo con error o quitar el resaltado
+ * @param {string} fieldId - ID del campo
+ * @param {boolean} hasError - Si tiene error
+ */
+function highlightField(fieldId, hasError) {
+  const field = document.getElementById(fieldId);
+  if (!field) return;
+  
+  // Si el campo tiene altInput de flatpickr, usar ese
+  const target = field._flatpickr ? field._flatpickr.altInput || field : field;
+  
+  if (hasError) {
+    target.classList.add('border-red-400', 'ring-2', 'ring-red-100');
+    target.classList.remove('border-bgray-200');
+    // Scroll al primer campo con error
+    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Quitar el resaltado cuando el usuario escriba
+    const removeHighlight = function() {
+      highlightField(fieldId, false);
+      target.removeEventListener('input', removeHighlight);
+      target.removeEventListener('change', removeHighlight);
+    };
+    target.addEventListener('input', removeHighlight);
+    target.addEventListener('change', removeHighlight);
+  } else {
+    target.classList.remove('border-red-400', 'ring-2', 'ring-red-100');
+    target.classList.add('border-bgray-200');
+  }
+}
+
 // Exportar funciones globalmente
 window.initNewPage = initNewPage;
 window.saveDraft = saveDraft;
 window.goToPreview = goToPreview;
 window.collectFormData = collectFormData;
 window.loadInvoiceLines = loadInvoiceLines;
+window.highlightField = highlightField;
 
 console.log('✅ new-page.js cargado');

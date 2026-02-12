@@ -13,6 +13,11 @@
  */
 async function checkBusinessInfoComplete() {
   try {
+    // Esperar a que Supabase haya terminado de leer la sesión de localStorage
+    if (window.supabaseAuthReady) {
+      await window.supabaseAuthReady;
+    }
+
     // Verificar autenticación
     const userResult = await window.getCurrentUser();
     

@@ -2199,6 +2199,7 @@
       import './assets/js/supabaseClient.js';
       import './assets/js/auth.js';
       import './assets/js/businessInfo.js';
+      import './assets/js/checkBusinessInfo.js';
       
       // Esperar un momento para que se inicialice
       await new Promise(resolve => setTimeout(resolve, 100));
@@ -2212,25 +2213,7 @@
     <script src="./assets/js/transactions.js"></script>
     <script src="./assets/js/expenses-page.js"></script>
     
-    <!-- Supabase y Business Info Validation -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script type="module" src="./assets/js/supabaseClient.js"></script>
-    <script type="module" src="./assets/js/auth.js"></script>
-    <script type="module" src="./assets/js/businessInfo.js"></script>
-    <script type="module" src="./assets/js/checkBusinessInfo.js"></script>
-    <script src="./assets/js/onboardingProgress.js"></script>
-    
-    <!-- Verificar business info completo -->
-    <script type="module">
-      // Esperar a que todos los módulos se carguen
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
-      // Verificar que el usuario tenga información de negocio completa
-      await window.checkBusinessInfoComplete();
-      
-      // Cargar progreso de onboarding
-      await window.loadOnboardingProgress();
-    </script>
+    <!-- (Scripts de Supabase ya cargados arriba) -->
   </body>
 </html>
 

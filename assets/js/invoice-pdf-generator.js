@@ -11,14 +11,52 @@ class InvoicePDFGenerator {
     this.margin = 20;
     this.currentY = 20;
     
-    // Colores del proyecto
+    // Cargar color de marca del usuario (desde business_info o localStorage)
+    var brandColor = this.loadBrandColor();
+    
+    // Colores del proyecto - usa el color de marca del usuario
     this.colors = {
-      primary: '#f59e0b', // naranja
+      primary: brandColor,
       dark: '#1a1a1a',
       gray: '#6b7280',
       lightGray: '#e5e7eb',
       white: '#ffffff'
     };
+    
+    // Logo de factura (desde localStorage)
+    this.logoData = this.loadInvoiceLogo();
+  }
+
+  /**
+   * Carga el color de marca del usuario
+   */
+  loadBrandColor() {
+    // 1. Intentar desde DOM (si estamos en settings.html)
+    var colorInput = document.getElementById('brand-color');
+    if (colorInput && colorInput.value && colorInput.value !== '#000000') {
+      return colorInput.value;
+    }
+    // 2. Intentar desde localStorage de business_info cache
+    try {
+      var cached = localStorage.getItem('business_info_cache');
+      if (cached) {
+        var data = JSON.parse(cached);
+        if (data.brand_color) return data.brand_color;
+      }
+    } catch (e) {}
+    // 3. Default
+    return '#22C55E';
+  }
+
+  /**
+   * Carga el logo de factura desde localStorage
+   */
+  loadInvoiceLogo() {
+    try {
+      return localStorage.getItem('invoice_logo_data') || null;
+    } catch (e) {
+      return null;
+    }
   }
 
   /**
@@ -82,19 +120,22 @@ class InvoicePDFGenerator {
    * Dibuja la cabecera con logo y datos del emisor
    */
   drawHeader(issuer) {
-    const orange = this.hexToRgb(this.colors.primary);
+    const brandRgb = this.hexToRgb(this.colors.primary);
     
-    // Logo placeholder (cuadrado naranja con iniciales)
-    this.doc.setFillColor(orange.r, orange.g, orange.b);
-    this.doc.rect(this.margin, this.currentY, 30, 30, 'F');
-    
-    this.doc.setTextColor(255, 255, 255);
-    this.doc.setFontSize(20);
-    this.doc.setFont(undefined, 'bold');
-    
-    // Usar iniciales del nombre del emisor
-    const initials = this.getInitials(issuer.name);
-    this.doc.text(initials, this.margin + 15, this.currentY + 20, { align: 'center' });
+    // Logo: imagen real o cuadrado con iniciales
+    if (this.logoData) {
+      try {
+        // Detectar formato del logo
+        var format = 'PNG';
+        if (this.logoData.includes('image/jpeg') || this.logoData.includes('image/jpg')) format = 'JPEG';
+        this.doc.addImage(this.logoData, format, this.margin, this.currentY, 30, 30);
+      } catch (e) {
+        // Fallback: cuadrado con color de marca + iniciales
+        this.drawLogoFallback(issuer, brandRgb);
+      }
+    } else {
+      this.drawLogoFallback(issuer, brandRgb);
+    }
     
     // Datos del emisor (derecha)
     this.doc.setTextColor(0, 0, 0);
@@ -121,6 +162,21 @@ class InvoicePDFGenerator {
     });
     
     this.currentY += 40;
+  }
+
+  /**
+   * Dibuja el logo fallback (cuadrado con color de marca + iniciales)
+   */
+  drawLogoFallback(issuer, brandRgb) {
+    this.doc.setFillColor(brandRgb.r, brandRgb.g, brandRgb.b);
+    this.doc.roundedRect(this.margin, this.currentY, 30, 30, 3, 3, 'F');
+    
+    this.doc.setTextColor(255, 255, 255);
+    this.doc.setFontSize(18);
+    this.doc.setFont(undefined, 'bold');
+    
+    const initials = this.getInitials(issuer.name);
+    this.doc.text(initials, this.margin + 15, this.currentY + 19, { align: 'center' });
   }
 
   /**
@@ -502,7 +558,7 @@ class InvoicePDFGenerator {
    */
   formatCurrency(value) {
     const num = parseFloat(value) || 0;
-    return num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, '.').replace('.', ',') + ' €';
+    return new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num) + ' €';
   }
 
   /**

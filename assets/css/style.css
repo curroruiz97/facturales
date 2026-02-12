@@ -636,8 +636,17 @@ svg
     width: 100% !important;
     height: 600px !important;
   }
+}
+
+/* Sidebar responsive fix: below xl (1280px), always show collapsed sidebar
+   and hide full sidebar effects. This closes the gap between 1024px and 1280px
+   where both sidebars were invisible. */
+@media (max-width: 1279px) {
   .layout-wrapper.active .sidebar-wrapper-collapse {
     left: 0;
+  }
+  .layout-wrapper.active .sidebar-wrapper {
+    left: -308px;
   }
   .layout-wrapper.active .body-wrapper {
     margin-left: 0;
