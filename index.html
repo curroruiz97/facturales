@@ -313,259 +313,78 @@
                       <canvas id="revenueFlow" height="255"></canvas>
                     </div>
                   </div>
+                  <!-- Panel: Objetivos e Ingresos/Gastos reales -->
                   <div class="hidden flex-1 xl:block">
-                    <div class="rounded-lg bg-white dark:bg-darkblack-600">
-                      <div
-                        class="flex items-center justify-between border-b border-bgray-300 px-[20px] py-[12px] dark:border-darkblack-400"
-                      >
-                        <h3
-                          class="text-xl font-bold text-bgray-900 dark:text-white"
-                        >
-                          Eficiencia
-                        </h3>
-                        <div class="date-filter relative">
-                          <button
-                            onclick="dateFilterAction('#month-filter')"
-                            type="button"
-                            class="flex items-center space-x-1"
-                          >
-                            <span
-                              class="text-base font-semibold text-bgray-900 dark:text-white"
-                              >Mensual</span
-                            >
-                            <span>
-                              <svg
-                                class="stroke-bgray-900 dark:stroke-bgray-50"
-                                width="16"
-                                height="17"
-                                viewBox="0 0 16 17"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                              >
-                                <path
-                                  d="M4 6.5L8 10.5L12 6.5"
-                                  stroke-width="1.5"
-                                  stroke-linecap="round"
-                                  stroke-linejoin="round"
-                                />
-                              </svg>
-                            </span>
-                          </button>
-                          <div
-                            id="month-filter"
-                            class="absolute right-0 top-5 z-10 hidden overflow-hidden rounded-lg bg-white shadow-lg dark:bg-darkblack-500"
-                          >
-                            <ul>
-                              <li
-                                onclick="dateFilterAction('#month-filter')"
-                                class="text-bgray-90 cursor-pointer px-5 py-2 text-sm font-semibold hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
-                              >
-                                Enero
-                              </li>
-                              <li
-                                onclick="dateFilterAction('#month-filter')"
-                                class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
-                              >
-                                Febrero
-                              </li>
-
-                              <li
-                                onclick="dateFilterAction('#month-filter')"
-                                class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
-                              >
-                                Marzo
-                              </li>
-                              <li
-                                onclick="dateFilterAction('#month-filter')"
-                                class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
-                              >
-                                Abril
-                              </li>
-                              <li
-                                onclick="dateFilterAction('#month-filter')"
-                                class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
-                              >
-                                Mayo
-                              </li>
-                              <li
-                                onclick="dateFilterAction('#month-filter')"
-                                class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
-                              >
-                                Junio
-                              </li>
-                              <li
-                                onclick="dateFilterAction('#month-filter')"
-                                class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
-                              >
-                                Julio
-                              </li>
-                              <li
-                                onclick="dateFilterAction('#month-filter')"
-                                class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
-                              >
-                                Agosto
-                              </li>
-                              <li
-                                onclick="dateFilterAction('#month-filter')"
-                                class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
-                              >
-                                Septiembre
-                              </li>
-                              <li
-                                onclick="dateFilterAction('#month-filter')"
-                                class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
-                              >
-                                Octubre
-                              </li>
-                              <li
-                                onclick="dateFilterAction('#month-filter')"
-                                class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
-                              >
-                                Noviembre
-                              </li>
-                              <li
-                                onclick="dateFilterAction('#month-filter')"
-                                class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
-                              >
-                                Diciembre
-                              </li>
-                            </ul>
-                          </div>
-                        </div>
+                    <div class="rounded-lg bg-white dark:bg-darkblack-600 h-full">
+                      <div class="flex items-center justify-between border-b border-bgray-200 dark:border-darkblack-400 px-5 py-3">
+                        <h3 class="text-lg font-bold text-bgray-900 dark:text-white">Resumen financiero</h3>
+                        <span class="text-xs font-medium text-bgray-500 dark:text-bgray-400" id="finance-period">Año actual</span>
                       </div>
-                      <div class="px-[20px] py-[12px]">
-                        <div class="mb-4 flex items-center space-x-8">
-                          <div class="relative w-[180px]">
-                            <canvas id="pie_chart" height="168"></canvas>
-                            <div
-                              class="absolute z-0 h-[34px] w-[34px] rounded-full bg-[#EDF2F7]"
-                              style="
-                                left: calc(50% - 17px);
-                                top: calc(50% - 17px);
-                              "
-                            ></div>
+                      <div class="p-5 space-y-5">
+                        <!-- Objetivo de ingresos -->
+                        <div>
+                          <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-semibold text-bgray-600 dark:text-bgray-300 uppercase tracking-wider">Objetivo de ingresos</span>
+                            <button type="button" onclick="editRevenueGoal()" class="text-[10px] font-medium text-success-300 hover:text-success-400 transition">Editar</button>
                           </div>
-                          <div class="counting">
-                            <div class="mb-6">
-                              <div class="flex items-center space-x-[2px]">
-                                <p class="text-lg font-bold text-success-300">
-                                  $5,230
-                                </p>
-                                <span
-                                  ><svg
-                                    width="14"
-                                    height="12"
-                                    viewBox="0 0 14 12"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                  >
-                                    <path
-                                      fill-rule="evenodd"
-                                      clip-rule="evenodd"
-                                      d="M10.7749 0.558058C10.5309 0.313981 10.1351 0.313981 9.89107 0.558058L7.39107 3.05806C7.14699 3.30214 7.14699 3.69786 7.39107 3.94194C7.63514 4.18602 8.03087 4.18602 8.27495 3.94194L9.70801 2.50888V11C9.70801 11.3452 9.98783 11.625 10.333 11.625C10.6782 11.625 10.958 11.3452 10.958 11V2.50888L12.3911 3.94194C12.6351 4.18602 13.0309 4.18602 13.2749 3.94194C13.519 3.69786 13.519 3.30214 13.2749 3.05806L10.7749 0.558058Z"
-                                      fill="#22C55E"
-                                    />
-                                    <path
-                                      opacity="0.4"
-                                      fill-rule="evenodd"
-                                      clip-rule="evenodd"
-                                      d="M3.22407 11.4419C3.46815 11.686 3.86388 11.686 4.10796 11.4419L6.60796 8.94194C6.85203 8.69786 6.85203 8.30214 6.60796 8.05806C6.36388 7.81398 5.96815 7.81398 5.72407 8.05806L4.29102 9.49112L4.29101 1C4.29101 0.654823 4.01119 0.375001 3.66602 0.375001C3.32084 0.375001 3.04102 0.654823 3.04102 1L3.04102 9.49112L1.60796 8.05806C1.36388 7.81398 0.968151 7.81398 0.724074 8.05806C0.479996 8.30214 0.479996 8.69786 0.724074 8.94194L3.22407 11.4419Z"
-                                      fill="#22C55E"
-                                    />
-                                  </svg>
-                                </span>
-                              </div>
-                              <p class="text-base font-medium text-bgray-600">
-                                Ingresos
-                              </p>
-                            </div>
-                            <div>
-                              <div class="flex items-center space-x-[2px]">
-                                <p
-                                  class="text-lg font-bold text-bgray-900 dark:text-white"
-                                >
-                                  $6,230
-                                </p>
-                                <span>
-                                  <svg
-                                    class="fill-bgray-900 dark:fill-bgray-50"
-                                    width="14"
-                                    height="12"
-                                    viewBox="0 0 14 12"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                  >
-                                    <path
-                                      fill-rule="evenodd"
-                                      clip-rule="evenodd"
-                                      d="M10.7749 0.558058C10.5309 0.313981 10.1351 0.313981 9.89107 0.558058L7.39107 3.05806C7.14699 3.30214 7.14699 3.69786 7.39107 3.94194C7.63514 4.18602 8.03087 4.18602 8.27495 3.94194L9.70801 2.50888V11C9.70801 11.3452 9.98783 11.625 10.333 11.625C10.6782 11.625 10.958 11.3452 10.958 11V2.50888L12.3911 3.94194C12.6351 4.18602 13.0309 4.18602 13.2749 3.94194C13.519 3.69786 13.519 3.30214 13.2749 3.05806L10.7749 0.558058Z"
-                                    />
-                                    <path
-                                      opacity="0.4"
-                                      fill-rule="evenodd"
-                                      clip-rule="evenodd"
-                                      d="M3.22407 11.4419C3.46815 11.686 3.86388 11.686 4.10796 11.4419L6.60796 8.94194C6.85203 8.69786 6.85203 8.30214 6.60796 8.05806C6.36388 7.81398 5.96815 7.81398 5.72407 8.05806L4.29102 9.49112L4.29101 1C4.29101 0.654823 4.01119 0.375001 3.66602 0.375001C3.32084 0.375001 3.04102 0.654823 3.04102 1L3.04102 9.49112L1.60796 8.05806C1.36388 7.81398 0.968151 7.81398 0.724074 8.05806C0.479996 8.30214 0.479996 8.69786 0.724074 8.94194L3.22407 11.4419Z"
-                                    />
-                                  </svg>
-                                </span>
-                              </div>
-                              <p
-                                class="text-base font-medium text-bgray-600 dark:text-bgray-50"
-                              >
-                                Gastos
-                              </p>
-                            </div>
+                          <div class="flex items-end gap-2 mb-2">
+                            <span id="finance-revenue" class="text-2xl font-bold text-bgray-900 dark:text-white" style="font-variant-numeric:tabular-nums;">0,00 €</span>
+                            <span class="text-xs text-bgray-500 dark:text-bgray-400 mb-1">de <span id="finance-goal" class="font-semibold text-bgray-700 dark:text-bgray-200">0 €</span></span>
+                          </div>
+                          <!-- Barra de progreso -->
+                          <div class="relative h-2.5 w-full rounded-full bg-bgray-200 dark:bg-darkblack-400 overflow-hidden">
+                            <div id="finance-progress-bar" class="absolute left-0 top-0 h-full rounded-full bg-success-300 transition-all duration-700" style="width:0%"></div>
+                          </div>
+                          <div class="flex items-center justify-between mt-1.5">
+                            <span id="finance-progress-pct" class="text-xs font-bold text-success-300">0%</span>
+                            <span id="finance-goal-remaining" class="text-[10px] text-bgray-400 dark:text-bgray-500">Faltan 0 €</span>
                           </div>
                         </div>
-                        <div class="status">
-                          <div class="mb-1.5 flex items-center justify-between">
-                            <div class="flex items-center space-x-3">
-                              <div
-                                class="h-2.5 w-2.5 rounded-full bg-success-300"
-                              ></div>
-                              <span
-                                class="text-sm font-medium text-bgray-600 dark:text-bgray-50"
-                                >Meta</span
-                              >
-                            </div>
-                            <p
-                              class="text-sm font-bold text-bgray-900 dark:text-bgray-50"
-                            >
-                              13%
-                            </p>
-                          </div>
-                          <div class="mb-1.5 flex items-center justify-between">
-                            <div class="flex items-center space-x-3">
-                              <div
-                                class="h-2.5 w-2.5 rounded-full bg-warning-300"
-                              ></div>
-                              <span
-                                class="text-sm font-medium text-bgray-600 dark:text-white"
-                                >Gastos</span>
 
-                              >
+                        <!-- Divider -->
+                        <div class="border-t border-bgray-100 dark:border-darkblack-400"></div>
+
+                        <!-- Ingresos / Gastos / Beneficio -->
+                        <div class="grid grid-cols-3 gap-3">
+                          <div class="text-center">
+                            <div class="inline-flex items-center justify-center h-9 w-9 rounded-lg bg-success-50 dark:bg-success-900/20 mb-1.5">
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2v20M17 7l-5-5-5 5" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             </div>
-                            <p
-                              class="text-sm font-bold text-bgray-900 dark:text-bgray-50"
-                            >
-                              28%
-                            </p>
+                            <p id="finance-income" class="text-sm font-bold text-success-300" style="font-variant-numeric:tabular-nums;">0 €</p>
+                            <p class="text-[10px] text-bgray-500 dark:text-bgray-400 mt-0.5">Ingresos</p>
                           </div>
-                          <div class="mb-1.5 flex items-center justify-between">
-                            <div class="flex items-center space-x-3">
-                              <div
-                                class="h-2.5 w-2.5 rounded-full bg-bgray-200"
-                              ></div>
-                              <span
-                                class="text-sm font-medium text-bgray-600 dark:text-white"
-                                >Otros</span
-                              >
+                          <div class="text-center">
+                            <div class="inline-flex items-center justify-center h-9 w-9 rounded-lg bg-red-50 dark:bg-red-900/20 mb-1.5">
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 22V2M7 17l5 5 5-5" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             </div>
-                            <p
-                              class="text-sm font-bold text-bgray-900 dark:text-bgray-50"
-                            >
-                              59%
-                            </p>
+                            <p id="finance-expenses" class="text-sm font-bold text-red-500" style="font-variant-numeric:tabular-nums;">0 €</p>
+                            <p class="text-[10px] text-bgray-500 dark:text-bgray-400 mt-0.5">Gastos</p>
+                          </div>
+                          <div class="text-center">
+                            <div class="inline-flex items-center justify-center h-9 w-9 rounded-lg bg-bgray-100 dark:bg-darkblack-500 mb-1.5">
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stroke-bgray-600 dark:stroke-bgray-300"/></svg>
+                            </div>
+                            <p id="finance-profit" class="text-sm font-bold text-bgray-900 dark:text-white" style="font-variant-numeric:tabular-nums;">0 €</p>
+                            <p class="text-[10px] text-bgray-500 dark:text-bgray-400 mt-0.5">Beneficio</p>
+                          </div>
+                        </div>
+
+                        <!-- Divider -->
+                        <div class="border-t border-bgray-100 dark:border-darkblack-400"></div>
+
+                        <!-- Facturas emitidas / Pendientes cobro -->
+                        <div class="space-y-2">
+                          <div class="flex items-center justify-between">
+                            <span class="text-xs text-bgray-600 dark:text-bgray-300">Facturas emitidas</span>
+                            <span id="finance-issued-count" class="text-xs font-bold text-bgray-900 dark:text-white">0</span>
+                          </div>
+                          <div class="flex items-center justify-between">
+                            <span class="text-xs text-bgray-600 dark:text-bgray-300">Pendientes de cobro</span>
+                            <span id="finance-unpaid-count" class="text-xs font-bold text-warning-300">0</span>
+                          </div>
+                          <div class="flex items-center justify-between">
+                            <span class="text-xs text-bgray-600 dark:text-bgray-300">Presupuestos activos</span>
+                            <span id="finance-quotes-count" class="text-xs font-bold text-bgray-900 dark:text-white">0</span>
                           </div>
                         </div>
                       </div>
@@ -3018,6 +2837,139 @@
         });
       } else {
         setTimeout(calcularTotalesMesActual, 500);
+      }
+    </script>
+
+    <!-- Panel financiero: Objetivo + Datos reales -->
+    <script>
+      var GOAL_STORAGE_KEY = 'revenue_goal_annual';
+
+      function fmtEUR(v) {
+        return new Intl.NumberFormat('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.round(parseFloat(v) || 0)) + ' \u20AC';
+      }
+      function fmtEUR2(v) {
+        return new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(parseFloat(v) || 0) + ' \u20AC';
+      }
+
+      function editRevenueGoal() {
+        var current = localStorage.getItem(GOAL_STORAGE_KEY) || '0';
+        var input = prompt('Introduce tu objetivo de ingresos anuales (\u20AC):', current);
+        if (input === null) return;
+        var val = parseFloat(input.replace(/[^0-9.,]/g, '').replace(',', '.')) || 0;
+        if (val > 0) {
+          localStorage.setItem(GOAL_STORAGE_KEY, String(val));
+          loadFinancePanel();
+        }
+      }
+
+      async function loadFinancePanel() {
+        try {
+          // Esperar Supabase
+          var attempts = 0;
+          while (!window.supabaseClient && attempts < 100) {
+            await new Promise(function(r) { setTimeout(r, 100); });
+            attempts++;
+          }
+          if (!window.supabaseClient) return;
+
+          var supabase = window.supabaseClient;
+          var userResult = await supabase.auth.getUser();
+          if (!userResult.data || !userResult.data.user) return;
+          var userId = userResult.data.user.id;
+
+          var year = new Date().getFullYear();
+          var yearStart = year + '-01-01';
+          var yearEnd = year + '-12-31';
+
+          // Consultar facturas emitidas del año
+          var invoicesResult = await supabase
+            .from('invoices')
+            .select('total_amount, status, is_paid')
+            .eq('user_id', userId)
+            .gte('issue_date', yearStart)
+            .lte('issue_date', yearEnd);
+
+          var invoices = invoicesResult.data || [];
+          var issuedInvoices = invoices.filter(function(i) { return i.status === 'issued'; });
+          var unpaidInvoices = issuedInvoices.filter(function(i) { return !i.is_paid; });
+          var totalRevenue = issuedInvoices.reduce(function(s, i) { return s + (parseFloat(i.total_amount) || 0); }, 0);
+
+          // Consultar gastos (transacciones tipo gasto) del año
+          var expensesTotal = 0;
+          try {
+            var expResult = await supabase
+              .from('transacciones')
+              .select('importe, tipo')
+              .eq('user_id', userId)
+              .eq('tipo', 'gasto')
+              .gte('fecha', yearStart)
+              .lte('fecha', yearEnd);
+            if (expResult.data) {
+              expensesTotal = expResult.data.reduce(function(s, t) { return s + (parseFloat(t.importe) || 0); }, 0);
+            }
+          } catch (e) {}
+
+          // Consultar presupuestos activos
+          var quotesCount = 0;
+          try {
+            var quotesResult = await supabase
+              .from('quotes')
+              .select('id', { count: 'exact' })
+              .eq('user_id', userId)
+              .eq('status', 'issued');
+            quotesCount = quotesResult.count || (quotesResult.data ? quotesResult.data.length : 0);
+          } catch (e) {}
+
+          // Objetivo
+          var goal = parseFloat(localStorage.getItem(GOAL_STORAGE_KEY)) || 0;
+          var profit = totalRevenue - expensesTotal;
+          var progressPct = goal > 0 ? Math.min(100, Math.round((totalRevenue / goal) * 100)) : 0;
+          var remaining = Math.max(0, goal - totalRevenue);
+
+          // Actualizar DOM
+          var el = document.getElementById;
+          document.getElementById('finance-period').textContent = 'Año ' + year;
+          document.getElementById('finance-revenue').textContent = fmtEUR2(totalRevenue);
+          document.getElementById('finance-goal').textContent = goal > 0 ? fmtEUR(goal) : 'Sin definir';
+          document.getElementById('finance-progress-bar').style.width = progressPct + '%';
+          document.getElementById('finance-progress-pct').textContent = progressPct + '%';
+          document.getElementById('finance-goal-remaining').textContent = goal > 0 ? ('Faltan ' + fmtEUR(remaining)) : 'Define un objetivo';
+
+          document.getElementById('finance-income').textContent = fmtEUR(totalRevenue);
+          document.getElementById('finance-expenses').textContent = fmtEUR(expensesTotal);
+          document.getElementById('finance-profit').textContent = fmtEUR(profit);
+
+          // Color del beneficio
+          var profitEl = document.getElementById('finance-profit');
+          if (profit >= 0) {
+            profitEl.classList.remove('text-red-500');
+            profitEl.classList.add('text-bgray-900', 'dark:text-white');
+          } else {
+            profitEl.classList.remove('text-bgray-900', 'dark:text-white');
+            profitEl.classList.add('text-red-500');
+          }
+
+          document.getElementById('finance-issued-count').textContent = issuedInvoices.length;
+          document.getElementById('finance-unpaid-count').textContent = unpaidInvoices.length;
+          document.getElementById('finance-quotes-count').textContent = quotesCount;
+
+          // Color barra de progreso según avance
+          var bar = document.getElementById('finance-progress-bar');
+          if (progressPct >= 75) bar.classList.replace('bg-success-300', 'bg-success-300');
+          else if (progressPct >= 40) { bar.classList.remove('bg-success-300'); bar.classList.add('bg-warning-300'); }
+          else { bar.classList.remove('bg-success-300'); bar.classList.add('bg-bgray-400'); }
+          if (progressPct >= 75) { bar.className = bar.className.replace('bg-warning-300', 'bg-success-300').replace('bg-bgray-400', 'bg-success-300'); }
+
+        } catch (error) {
+          console.error('Error cargando panel financiero:', error);
+        }
+      }
+
+      // Iniciar
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() { setTimeout(loadFinancePanel, 1500); });
+      } else {
+        setTimeout(loadFinancePanel, 1500);
       }
     </script>
   </body>
