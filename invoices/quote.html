@@ -1,4 +1,4 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
@@ -106,19 +106,23 @@
           <main
             class="w-full px-6 pb-6 pt-[100px] sm:pt-[156px] xl:px-[32px] xl:pb-[32px]"
           >
-            <!-- Campo oculto para ID de borrador (modo edici?n) -->
+            <!-- Campo oculto para ID de borrador (modo edición) -->
             <input type="hidden" id="draft-id" />
             
-            <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
               <div>
-                <p class="text-sm font-medium text-bgray-600 dark:text-bgray-50">
-                  Presupuestos / Emisi?n
-                </p>
-                <h1 class="text-xl font-bold text-bgray-900 dark:text-white">
+                <nav class="flex items-center gap-1.5 text-sm text-bgray-500 dark:text-bgray-400 mb-1">
+                  <a href="/index.html" class="hover:text-bgray-900 dark:hover:text-white transition-colors">Inicio</a>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <a href="/invoices/quote-drafts.html" class="hover:text-bgray-900 dark:hover:text-white transition-colors">Presupuestos</a>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <span class="text-bgray-900 dark:text-white font-medium">Emisión</span>
+                </nav>
+                <h1 class="text-2xl font-bold text-bgray-900 dark:text-white">
                   Emitir presupuesto
                 </h1>
-                <p class="mt-1 text-xs text-bgray-600 dark:text-bgray-50">
-                  Configura un presupuesto profesional en un solo vistazo y listo para emitir.
+                <p class="mt-1 text-sm text-bgray-500 dark:text-bgray-400">
+                  Completa los datos y emite un presupuesto profesional.
                 </p>
               </div>
               <div class="flex flex-wrap items-center gap-2">
@@ -126,45 +130,55 @@
                   type="button"
                   id="save-draft-btn"
                   onclick="handleSaveDraft()"
-                  class="rounded-lg border border-bgray-200 px-5 py-3 text-sm font-semibold text-bgray-700 transition hover:border-success-300 hover:text-bgray-900 dark:border-darkblack-500 dark:text-bgray-100"
+                  class="rounded-lg border border-bgray-300 px-5 py-2.5 text-sm font-semibold text-bgray-700 transition hover:border-success-300 hover:bg-success-50 hover:text-bgray-900 dark:border-darkblack-400 dark:text-bgray-100 dark:hover:border-success-300 flex items-center gap-2"
                 >
-                  Guardar borrador
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="btn-icon">
+                    <path d="M19 21H5C3.89543 21 3 20.1046 3 19V5C3 3.89543 3.89543 3 5 3H16L21 8V19C21 20.1046 20.1046 21 19 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M17 21V13H7V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M7 3V8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span class="btn-text">Guardar borrador</span>
+                  <svg class="btn-spinner hidden animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity="0.25"/><path d="M12 2C6.477 2 2 6.477 2 12" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
                 </button>
                 <button
                   type="button"
                   id="go-to-preview-btn"
                   onclick="handleGoToPreview()"
-                  class="rounded-lg px-6 py-3 text-sm font-semibold text-white transition flex items-center gap-2"
-                  style="background-color: #ea580c;"
-                  onmouseover="this.style.backgroundColor='#c2410c'"
-                  onmouseout="this.style.backgroundColor='#ea580c'"
+                  class="rounded-lg bg-success-300 hover:bg-success-400 px-6 py-2.5 text-sm font-semibold text-white transition shadow-sm flex items-center gap-2"
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="btn-icon">
                     <path d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M2.45825 12C3.73253 7.94288 7.52281 5 12.0004 5C16.4781 5 20.2683 7.94291 21.5426 12C20.2683 16.0571 16.4781 19 12.0005 19C7.52281 19 3.73251 16.0571 2.45825 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
-                  Vista previa y emitir
+                  <span class="btn-text">Emitir presupuesto</span>
+                  <svg class="btn-spinner hidden animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity="0.25"/><path d="M12 2C6.477 2 2 6.477 2 12" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
                 </button>
               </div>
             </div>
 
             <form
-              id="invoice-form"
+              id="quote-form"
               class="space-y-6"
               onsubmit="return false;"
             >
-              <!-- Fila 1: Emisor, Cliente, Datos de presupuesto -->
+              <!-- Fila 1: Emisor, Cliente, Datos de factura -->
               <div class="grid gap-6 lg:grid-cols-3">
               <section
                 class="rounded-xl border border-bgray-200 bg-white p-6 shadow-sm dark:border-darkblack-400 dark:bg-darkblack-600"
               >
-                <div>
-                  <h2 class="text-lg font-semibold text-bgray-900 dark:text-white">
-                    Emisor
-                  </h2>
-                  <p class="mt-1 text-sm text-bgray-600 dark:text-bgray-50">
-                    Datos fiscales y de contacto.
-                  </p>
+                <div class="flex items-start justify-between">
+                  <div>
+                    <h2 class="text-base font-semibold text-bgray-900 dark:text-white">
+                      Emisor
+                    </h2>
+                    <p class="mt-0.5 text-xs text-bgray-500 dark:text-bgray-400">
+                      Se autocompleta con tus datos fiscales.
+                    </p>
+                  </div>
+                  <span class="inline-flex items-center gap-1 rounded-full bg-success-50 dark:bg-success-900/20 px-2 py-0.5 text-[10px] font-medium text-success-700 dark:text-success-300">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Auto
+                  </span>
                 </div>
                 <div class="mt-5 grid gap-4">
                   <div>
@@ -172,14 +186,14 @@
                       class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white"
                       for="issuer-name"
                     >
-                      Raz?n social
+                      Razón social
                     </label>
                     <input
                       id="issuer-name"
                       type="text"
-                      placeholder="BankCo Digital S.L."
+                      placeholder="Razón social"
                       disabled
-                      class="h-12 w-full rounded-lg border border-bgray-200 px-4 text-base text-bgray-600 bg-bgray-100 dark:bg-darkblack-400 dark:text-bgray-300 cursor-not-allowed"
+                      class="h-11 w-full rounded-lg border border-bgray-200 px-4 text-sm text-bgray-600 bg-bgray-100 dark:bg-darkblack-400 dark:text-bgray-300 cursor-not-allowed"
                     />
                   </div>
                   <div class="grid gap-4 sm:grid-cols-2">
@@ -195,7 +209,7 @@
                         type="text"
                         placeholder="B12345678"
                         disabled
-                        class="h-12 w-full rounded-lg border border-bgray-200 px-4 text-base text-bgray-600 bg-bgray-100 dark:bg-darkblack-400 dark:text-bgray-300 cursor-not-allowed"
+                        class="h-11 w-full rounded-lg border border-bgray-200 px-4 text-sm text-bgray-600 bg-bgray-100 dark:bg-darkblack-400 dark:text-bgray-300 cursor-not-allowed"
                       />
                     </div>
                     <div>
@@ -208,8 +222,8 @@
                       <input
                         id="issuer-email"
                         type="email"
-                        placeholder="presupuestos@bankco.com"
-                        class="h-12 w-full rounded-lg border border-bgray-200 px-4 text-base text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
+                        placeholder="email@empresa.com"
+                        class="h-11 w-full rounded-lg border border-bgray-200 px-4 text-sm text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
                       />
                     </div>
                   </div>
@@ -219,13 +233,13 @@
                         class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white"
                         for="issuer-address"
                       >
-                        Direcci?n fiscal
+                        Dirección fiscal
                       </label>
                       <input
                         id="issuer-address"
                         type="text"
-                        placeholder="Calle Serrano 45, Madrid"
-                        class="h-12 w-full rounded-lg border border-bgray-200 px-4 text-base text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
+                        placeholder="Dirección completa"
+                        class="h-11 w-full rounded-lg border border-bgray-200 px-4 text-sm text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
                       />
                     </div>
                     <div>
@@ -233,13 +247,13 @@
                         class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white"
                         for="issuer-postal-code"
                       >
-                        C?digo postal
+                        Código postal
                       </label>
                       <input
                         id="issuer-postal-code"
                         type="text"
                         placeholder="28001"
-                        class="h-12 w-full rounded-lg border border-bgray-200 px-4 text-base text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
+                        class="h-11 w-full rounded-lg border border-bgray-200 px-4 text-sm text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
                       />
                     </div>
                   </div>
@@ -250,11 +264,11 @@
                 class="rounded-xl border border-bgray-200 bg-white p-6 shadow-sm dark:border-darkblack-400 dark:bg-darkblack-600"
               >
                 <div>
-                  <h2 class="text-lg font-semibold text-bgray-900 dark:text-white">
+                  <h2 class="text-base font-semibold text-bgray-900 dark:text-white">
                     Cliente
                   </h2>
-                  <p class="mt-1 text-sm text-bgray-600 dark:text-bgray-50">
-                    Selecciona o crea el receptor.
+                  <p class="mt-0.5 text-xs text-bgray-500 dark:text-bgray-400">
+                    Busca un cliente existente o crea uno nuevo.
                   </p>
                 </div>
                 <div class="mt-5 grid gap-4">
@@ -263,16 +277,16 @@
                       class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white"
                       for="client-name"
                     >
-                      Raz?n social / Nombre
+                      Razón social / Nombre <span class="text-red-400">*</span>
                     </label>
                     <div class="relative">
                       <input
                         id="client-name"
                         type="text"
-                        placeholder="Escribe para buscar..."
+                        placeholder="Buscar cliente..."
                         oninput="handleClientSearch(this.value)"
                         onfocus="showClientDropdown()"
-                        class="h-12 w-full rounded-lg border border-bgray-200 px-4 text-base text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
+                        class="h-11 w-full rounded-lg border border-bgray-200 px-4 text-sm text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
                         autocomplete="off"
                       />
                       <div
@@ -280,12 +294,12 @@
                         class="absolute top-full z-20 mt-1 hidden w-full overflow-hidden rounded-lg bg-white shadow-xl border border-bgray-200 dark:bg-darkblack-500 dark:border-darkblack-400 max-h-[300px] overflow-y-auto"
                       >
                         <div id="client-options-list" class="p-2">
-                          <!-- Las opciones se cargar?n din?micamente -->
+                          <!-- Las opciones se cargarán dinámicamente -->
                         </div>
                         <div class="border-t border-bgray-200 dark:border-darkblack-400 p-2">
                           <button
                             type="button"
-                            onclick="event.preventDefault(); event.stopPropagation(); openQuoteCreateClientModal();"
+                            onclick="event.preventDefault(); event.stopPropagation(); openInvoiceCreateClientModal();"
                             class="w-full text-left px-4 py-3 text-sm font-semibold text-success-300 hover:bg-success-50 dark:hover:bg-success-900/10 rounded-lg transition-colors flex items-center gap-2"
                           >
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -309,7 +323,7 @@
                         id="client-nif"
                         type="text"
                         placeholder="A12345678"
-                        class="h-12 w-full rounded-lg border border-bgray-200 px-4 text-base text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
+                        class="h-11 w-full rounded-lg border border-bgray-200 px-4 text-sm text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
                       />
                     </div>
                     <div>
@@ -322,8 +336,8 @@
                       <input
                         id="client-email"
                         type="email"
-                        placeholder="compras@cliente.com"
-                        class="h-12 w-full rounded-lg border border-bgray-200 px-4 text-base text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
+                        placeholder="Email"
+                        class="h-11 w-full rounded-lg border border-bgray-200 px-4 text-sm text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
                       />
                     </div>
                   </div>
@@ -333,13 +347,13 @@
                         class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white"
                         for="client-address"
                       >
-                        Direcci?n fiscal
+                        Dirección fiscal
                       </label>
                       <input
                         id="client-address"
                         type="text"
-                        placeholder="Av. Diagonal 120, Barcelona"
-                        class="h-12 w-full rounded-lg border border-bgray-200 px-4 text-base text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
+                        placeholder="Dirección completa"
+                        class="h-11 w-full rounded-lg border border-bgray-200 px-4 text-sm text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
                       />
                     </div>
                     <div>
@@ -347,13 +361,13 @@
                         class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white"
                         for="client-postal-code"
                       >
-                        C?digo postal
+                        Código postal
                       </label>
                       <input
                         id="client-postal-code"
                         type="text"
                         placeholder="08018"
-                        class="h-12 w-full rounded-lg border border-bgray-200 px-4 text-base text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
+                        class="h-11 w-full rounded-lg border border-bgray-200 px-4 text-sm text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
                       />
                     </div>
                   </div>
@@ -364,14 +378,15 @@
                 class="rounded-xl border border-bgray-200 bg-white p-6 shadow-sm dark:border-darkblack-400 dark:bg-darkblack-600"
               >
                 <div>
-                  <h2 class="text-lg font-semibold text-bgray-900 dark:text-white">
-                    Datos de presupuesto
+                  <h2 class="text-base font-semibold text-bgray-900 dark:text-white">
+                    Datos del presupuesto
                   </h2>
-                  <p class="mt-1 text-sm text-bgray-600 dark:text-bgray-50">
-                    Serie, numeraci?n y referencia.
+                  <p class="mt-0.5 text-xs text-bgray-500 dark:text-bgray-400">
+                    Serie, numeración y moneda.
                   </p>
                 </div>
                 <div class="mt-5 grid gap-4">
+                  <!-- Serie + Número -->
                   <div class="grid gap-4 sm:grid-cols-2">
                     <div>
                       <label
@@ -380,58 +395,72 @@
                       >
                         Serie
                       </label>
-                      <input
+                      <select
                         id="invoice-series"
+                        class="h-11 w-full rounded-lg border border-bgray-200 bg-white px-4 text-sm text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
+                      >
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="R">R (rectificativa)</option>
+                      </select>
+                      <button type="button" onclick="promptAddSeries()" class="mt-1.5 text-[11px] font-medium text-success-300 hover:text-success-300 transition-colors">
+                        + Añadir nueva serie
+                      </button>
+                    </div>
+                    <div>
+                      <div class="mb-2 flex items-center justify-between">
+                        <label
+                          class="block text-sm font-semibold text-bgray-900 dark:text-white"
+                          for="invoice-number"
+                        >
+                          Número
+                        </label>
+                        <label class="flex items-center gap-1.5 cursor-pointer">
+                          <input type="checkbox" id="manual-number-toggle" onchange="toggleManualNumber()" class="h-3.5 w-3.5 rounded border-bgray-300 text-success-300 focus:ring-success-200 dark:border-darkblack-400" />
+                          <span class="text-[11px] text-bgray-500 dark:text-bgray-400">Manual</span>
+                        </label>
+                      </div>
+                      <input
+                        id="invoice-number"
                         type="text"
-                        placeholder="2024-A"
-                        class="h-12 w-full rounded-lg border border-bgray-200 px-4 text-base text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
+                        placeholder="Automático"
+                        class="h-11 w-full rounded-lg border border-bgray-200 bg-bgray-50 px-4 text-sm text-bgray-500 dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-400"
+                        disabled
+                      />
+                    </div>
+                  </div>
+                  <!-- Referencia + Moneda -->
+                  <div class="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label
+                        class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white"
+                        for="invoice-reference"
+                      >
+                        Referencia
+                      </label>
+                      <input
+                        id="invoice-reference"
+                        type="text"
+                        placeholder="Opcional"
+                        class="h-11 w-full rounded-lg border border-bgray-200 px-4 text-sm text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
                       />
                     </div>
                     <div>
                       <label
                         class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white"
-                        for="invoice-number"
+                        for="invoice-currency"
                       >
-                        N?mero
+                        Moneda
                       </label>
-                      <input
-                        id="invoice-number"
-                        type="text"
-                        placeholder="Autom?tico"
-                        class="h-12 w-full rounded-lg border border-bgray-200 bg-bgray-50 px-4 text-base text-bgray-500 dark:border-darkblack-500 dark:bg-darkblack-500"
-                        disabled
-                      />
+                      <select
+                        id="invoice-currency"
+                        class="h-11 w-full rounded-lg border border-bgray-200 bg-white px-4 text-sm text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
+                      >
+                        <option value="EUR">EUR (€)</option>
+                        <option value="USD">USD ($)</option>
+                        <option value="GBP">GBP (£)</option>
+                      </select>
                     </div>
-                  </div>
-                  <div>
-                    <label
-                      class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white"
-                      for="invoice-reference"
-                    >
-                      Referencia interna
-                    </label>
-                    <input
-                      id="invoice-reference"
-                      type="text"
-                      placeholder="PO-2024-014"
-                      class="h-12 w-full rounded-lg border border-bgray-200 px-4 text-base text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
-                    />
-                  </div>
-                  <div>
-                    <label
-                      class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white"
-                      for="invoice-currency"
-                    >
-                      Moneda
-                    </label>
-                    <select
-                      id="invoice-currency"
-                      class="h-12 w-full rounded-lg border border-bgray-200 bg-white px-4 text-base text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
-                    >
-                      <option>EUR (?)</option>
-                      <option>USD ($)</option>
-                      <option>GBP (?)</option>
-                    </select>
                   </div>
                 </div>
               </section>
@@ -442,76 +471,74 @@
                 class="rounded-xl border border-bgray-200 bg-white p-6 shadow-sm dark:border-darkblack-400 dark:bg-darkblack-600"
               >
                 <div>
-                  <h2 class="text-lg font-semibold text-bgray-900 dark:text-white">
-                    Fechas & condiciones
+                  <h2 class="text-base font-semibold text-bgray-900 dark:text-white">
+                    Fechas y condiciones
                   </h2>
-                  <p class="mt-1 text-sm text-bgray-600 dark:text-bgray-50">
-                    Emisi?n, vencimiento y condiciones.
+                  <p class="mt-0.5 text-xs text-bgray-500 dark:text-bgray-400">
+                    Emisión, vencimiento y condiciones de pago.
                   </p>
                 </div>
-                <div class="mt-5 grid gap-4">
-                  <div class="grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <label
-                        class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white"
-                        for="issue-date"
-                      >
-                        Fecha de emisi?n
-                      </label>
-                      <input
-                        id="issue-date"
-                        type="text"
-                        placeholder="Seleccionar"
-                        class="js-date h-12 w-full rounded-lg border border-bgray-200 bg-white px-4 text-base text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
-                      />
-                    </div>
-                    <div>
-                      <label
-                        class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white"
-                        for="due-date"
-                      >
-                        Fecha de vencimiento
-                      </label>
-                      <input
-                        id="due-date"
-                        type="text"
-                        placeholder="Seleccionar"
-                        class="js-date h-12 w-full rounded-lg border border-bgray-200 bg-white px-4 text-base text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
-                      />
-                    </div>
+                <div class="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                  <div>
+                    <label
+                      class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white"
+                      for="issue-date"
+                    >
+                      Fecha de emisión <span class="text-red-400">*</span>
+                    </label>
+                    <input
+                      id="issue-date"
+                      type="text"
+                      placeholder="Seleccionar fecha"
+                      required
+                      class="js-date h-11 w-full rounded-lg border border-bgray-200 bg-white px-4 text-sm text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
+                    />
                   </div>
-                  <div class="grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <label
-                        class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white"
-                        for="payment-terms"
-                      >
-                        Condiciones
-                      </label>
-                      <select
-                        id="payment-terms"
-                        class="h-12 w-full rounded-lg border border-bgray-200 bg-white px-4 text-base text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
-                      >
-                        <option>Pago inmediato</option>
-                        <option>15 d?as</option>
-                        <option>30 d?as</option>
-                        <option>60 d?as</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label
-                        class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white"
-                        for="operation-date"
-                      >
-                        Fecha operaci?n
-                      </label>
-                      <input
-                        id="operation-date"
-                        type="text"
-                        placeholder="Opcional"
-                        class="js-date h-12 w-full rounded-lg border border-bgray-200 bg-white px-4 text-base text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
-                      />
-                    </div>
+                  <div>
+                    <label
+                      class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white"
+                      for="due-date"
+                    >
+                      Fecha de vencimiento
+                    </label>
+                    <input
+                      id="due-date"
+                      type="text"
+                      placeholder="Seleccionar fecha"
+                      class="js-date h-11 w-full rounded-lg border border-bgray-200 bg-white px-4 text-sm text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white"
+                      for="payment-terms"
+                    >
+                      Condiciones de pago
+                    </label>
+                    <select
+                      id="payment-terms"
+                      class="h-11 w-full rounded-lg border border-bgray-200 bg-white px-4 text-sm text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
+                    >
+                      <option value="immediate">Pago inmediato</option>
+                      <option value="15">15 días</option>
+                      <option value="30" selected>30 días</option>
+                      <option value="60">60 días</option>
+                      <option value="90">90 días</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label
+                      class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white"
+                      for="operation-date"
+                    >
+                      Fecha operación
+                    </label>
+                    <input
+                      id="operation-date"
+                      type="text"
+                      placeholder="Opcional"
+                      class="js-date h-11 w-full rounded-lg border border-bgray-200 bg-white px-4 text-sm text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
+                    />
                   </div>
                 </div>
               </section>
@@ -520,37 +547,38 @@
               <section
                 class="rounded-xl border border-bgray-200 bg-white p-6 shadow-sm dark:border-darkblack-400 dark:bg-darkblack-600"
               >
-                <div class="flex flex-wrap items-start justify-between gap-3">
+                <div class="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <h2 class="text-lg font-semibold text-bgray-900 dark:text-white">
+                    <h2 class="text-base font-semibold text-bgray-900 dark:text-white">
                       Conceptos
                     </h2>
-                    <p class="mt-1 text-sm text-bgray-600 dark:text-bgray-50">
-                      Registra conceptos de forma compacta y clara.
+                    <p class="mt-0.5 text-xs text-bgray-500 dark:text-bgray-400">
+                      Añade los productos o servicios facturados.
                     </p>
                   </div>
                   <button
                     type="button"
                     id="add-line"
-                    class="rounded-lg border border-bgray-200 px-4 py-2 text-sm font-semibold text-bgray-600 transition hover:border-success-300 hover:text-bgray-900 dark:border-darkblack-500 dark:text-bgray-50"
+                    class="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-bgray-300 px-4 py-2 text-sm font-semibold text-bgray-600 transition hover:border-success-300 hover:bg-success-50 hover:text-success-300 dark:border-darkblack-400 dark:text-bgray-300 dark:hover:border-success-300"
                   >
-                    + A?adir l?nea
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Añadir línea
                   </button>
                 </div>
-                <div id="quote-lines" class="mt-5 space-y-4">
-                  <!-- L?nea de concepto 1 -->
+                <div id="invoice-lines" class="mt-5 space-y-4">
+                  <!-- Línea de concepto 1 -->
                   <div class="rounded-lg border border-bgray-200 bg-white p-4 dark:border-darkblack-500 dark:bg-darkblack-500">
                     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
-                      <!-- Descripci?n -->
+                      <!-- Descripción -->
                       <div class="sm:col-span-2 lg:col-span-2 xl:col-span-3">
                         <label class="mb-2 block text-xs font-semibold text-bgray-500 dark:text-bgray-400">
-                          Descripci?n
+                          Descripción
                         </label>
                         <input
                           type="text"
                           class="h-11 w-full rounded-lg border border-bgray-200 bg-white px-3 text-sm text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-400 dark:bg-darkblack-600 dark:text-white"
-                          value="Consultor?a estrat?gica"
-                          placeholder="Descripci?n del servicio/producto"
+                          value=""
+                          placeholder="Descripción del servicio"
                         />
                       </div>
                       
@@ -576,7 +604,7 @@
                         <input
                           type="number"
                           class="h-11 w-full rounded-lg border border-bgray-200 bg-white px-3 text-sm text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-400 dark:bg-darkblack-600 dark:text-white"
-                          value="1200"
+                          value="0"
                           min="0"
                           step="0.01"
                           placeholder="0.00"
@@ -591,13 +619,13 @@
                         <select
                           class="h-11 w-full rounded-lg border border-bgray-200 bg-white px-3 text-sm text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-400 dark:bg-darkblack-600 dark:text-white"
                         >
-                          <optgroup label="IVA ? Pen?nsula/Baleares">
+                          <optgroup label="IVA — Península/Baleares">
                             <option value="IVA_21" selected>IVA 21%</option>
                             <option value="IVA_10">IVA 10%</option>
                             <option value="IVA_4">IVA 4%</option>
                             <option value="IVA_0">IVA 0%</option>
                           </optgroup>
-                          <optgroup label="IGIC ? Canarias">
+                          <optgroup label="IGIC — Canarias">
                             <option value="IGIC_7">IGIC 7%</option>
                             <option value="IGIC_3">IGIC 3%</option>
                             <option value="IGIC_0">IGIC 0%</option>
@@ -625,133 +653,20 @@
                         />
                       </div>
                       
-                      <!-- Importe y bot?n eliminar -->
+                      <!-- Importe y botón eliminar -->
                       <div class="sm:col-span-2 lg:col-span-1 flex items-end gap-2">
                         <div class="flex-1">
                           <label class="mb-2 block text-xs font-semibold text-bgray-500 dark:text-bgray-400">
                             Importe
                           </label>
                           <div class="concept-total flex h-11 items-center rounded-lg border border-bgray-200 bg-bgray-50 px-3 text-sm font-semibold text-bgray-900 dark:border-darkblack-400 dark:bg-darkblack-700 dark:text-white">
-                            0,00 ?
+                            0,00 €
                           </div>
                         </div>
                         <button
                           type="button"
                           class="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg border border-bgray-200 text-bgray-500 transition hover:border-red-300 hover:bg-red-50 hover:text-red-500 dark:border-darkblack-400 dark:hover:bg-red-900/20"
-                          title="Eliminar l?nea"
-                        >
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M19 7L18.133 19.142C18.046 20.168 17.194 21 16.166 21H7.834C6.806 21 5.954 20.168 5.867 19.142L5 7M10 11V17M14 11V17M15 7V4C15 3.448 14.552 3 14 3H10C9.448 3 9 3.448 9 4V7M4 7H20" 
-                                  stroke="currentColor" 
-                                  stroke-width="2" 
-                                  stroke-linecap="round"
-                                  stroke-linejoin="round"/>
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  <!-- L?nea de concepto 2 -->
-                  <div class="rounded-lg border border-bgray-200 bg-white p-4 dark:border-darkblack-500 dark:bg-darkblack-500">
-                    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
-                      <!-- Descripci?n -->
-                      <div class="sm:col-span-2 lg:col-span-2 xl:col-span-3">
-                        <label class="mb-2 block text-xs font-semibold text-bgray-500 dark:text-bgray-400">
-                          Descripci?n
-                        </label>
-                        <input
-                          type="text"
-                          class="h-11 w-full rounded-lg border border-bgray-200 bg-white px-3 text-sm text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-400 dark:bg-darkblack-600 dark:text-white"
-                          value="Dise?o de marca"
-                          placeholder="Descripci?n del servicio/producto"
-                        />
-                      </div>
-                      
-                      <!-- Cantidad -->
-                      <div>
-                        <label class="mb-2 block text-xs font-semibold text-bgray-500 dark:text-bgray-400">
-                          Cant.
-                        </label>
-                        <input
-                          type="number"
-                          class="h-11 w-full rounded-lg border border-bgray-200 bg-white px-3 text-sm text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-400 dark:bg-darkblack-600 dark:text-white"
-                          value="1"
-                          min="0"
-                          step="0.01"
-                        />
-                      </div>
-                      
-                      <!-- Precio -->
-                      <div>
-                        <label class="mb-2 block text-xs font-semibold text-bgray-500 dark:text-bgray-400">
-                          Precio
-                        </label>
-                        <input
-                          type="number"
-                          class="h-11 w-full rounded-lg border border-bgray-200 bg-white px-3 text-sm text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-400 dark:bg-darkblack-600 dark:text-white"
-                          value="850"
-                          min="0"
-                          step="0.01"
-                          placeholder="0.00"
-                        />
-                      </div>
-                      
-                      <!-- Impuestos -->
-                      <div>
-                        <label class="mb-2 block text-xs font-semibold text-bgray-500 dark:text-bgray-400">
-                          Impuestos
-                        </label>
-                        <select
-                          class="h-11 w-full rounded-lg border border-bgray-200 bg-white px-3 text-sm text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-400 dark:bg-darkblack-600 dark:text-white"
-                        >
-                          <optgroup label="IVA ? Pen?nsula/Baleares">
-                            <option value="IVA_21" selected>IVA 21%</option>
-                            <option value="IVA_10">IVA 10%</option>
-                            <option value="IVA_4">IVA 4%</option>
-                            <option value="IVA_0">IVA 0%</option>
-                          </optgroup>
-                          <optgroup label="IGIC ? Canarias">
-                            <option value="IGIC_7">IGIC 7%</option>
-                            <option value="IGIC_3">IGIC 3%</option>
-                            <option value="IGIC_0">IGIC 0%</option>
-                          </optgroup>
-                          <optgroup label="Exenciones">
-                            <option value="EXENTO">Exento</option>
-                          </optgroup>
-                        </select>
-                        <div class="re-info mt-1 text-xs text-bgray-500 dark:text-bgray-400">R.E 5,2% incluido</div>
-                      </div>
-                      
-                      <!-- Descuento -->
-                      <div>
-                        <label class="mb-2 block text-xs font-semibold text-bgray-500 dark:text-bgray-400">
-                          Dto. %
-                        </label>
-                        <input
-                          type="number"
-                          class="h-11 w-full rounded-lg border border-bgray-200 bg-white px-3 text-sm text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-400 dark:bg-darkblack-600 dark:text-white"
-                          value="0"
-                          min="0"
-                          max="100"
-                          step="0.01"
-                          placeholder="0"
-                        />
-                      </div>
-                      
-                      <!-- Importe y bot?n eliminar -->
-                      <div class="sm:col-span-2 lg:col-span-1 flex items-end gap-2">
-                        <div class="flex-1">
-                          <label class="mb-2 block text-xs font-semibold text-bgray-500 dark:text-bgray-400">
-                            Importe
-                          </label>
-                          <div class="concept-total flex h-11 items-center rounded-lg border border-bgray-200 bg-bgray-50 px-3 text-sm font-semibold text-bgray-900 dark:border-darkblack-400 dark:bg-darkblack-700 dark:text-white">
-                            0,00 ?
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          class="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg border border-bgray-200 text-bgray-500 transition hover:border-red-300 hover:bg-red-50 hover:text-red-500 dark:border-darkblack-400 dark:hover:bg-red-900/20"
-                          title="Eliminar l?nea"
+                          title="Eliminar línea"
                         >
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M19 7L18.133 19.142C18.046 20.168 17.194 21 16.166 21H7.834C6.806 21 5.954 20.168 5.867 19.142L5 7M10 11V17M14 11V17M15 7V4C15 3.448 14.552 3 14 3H10C9.448 3 9 3.448 9 4V7M4 7H20" 
@@ -774,12 +689,15 @@
                 <button
                   type="button"
                   onclick="toggleAdvancedOptions()"
-                  class="w-full flex items-center justify-between p-6 text-left hover:bg-bgray-50 dark:hover:bg-darkblack-500 transition-colors rounded-xl"
+                  class="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-bgray-50 dark:hover:bg-darkblack-500 transition-colors rounded-xl"
                 >
                   <div>
-                    <h2 class="text-lg font-semibold text-bgray-900 dark:text-white">
-                      Opciones avanzadas de presupuesto
+                    <h2 class="text-base font-semibold text-bgray-900 dark:text-white">
+                      Opciones avanzadas
                     </h2>
+                    <p class="mt-0.5 text-xs text-bgray-500 dark:text-bgray-400">
+                      Gastos suplidos, observaciones y más
+                    </p>
                   </div>
                   <svg
                     id="arrow-advanced-options"
@@ -803,7 +721,7 @@
                     <span class="text-sm font-medium text-bgray-900 dark:text-white">Recargo de equivalencia</span>
                   </label>
 
-                  <!-- Checkbox: A?adir gastos suplidos -->
+                  <!-- Checkbox: Añadir gastos suplidos -->
                   <div>
                     <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-bgray-50 dark:hover:bg-darkblack-500 transition-colors">
                       <input
@@ -812,7 +730,7 @@
                         onclick="toggleConditionalField('gastos-suplidos', 'gastos-suplidos-fields')"
                         class="w-5 h-5 rounded border-2 border-bgray-300 text-success-300 focus:ring-2 focus:ring-success-200 focus:border-success-300 dark:border-darkblack-400"
                       />
-                      <span class="text-sm font-medium text-bgray-900 dark:text-white">A?adir gastos suplidos</span>
+                      <span class="text-sm font-medium text-bgray-900 dark:text-white">Añadir gastos suplidos</span>
                     </label>
                     <div id="gastos-suplidos-fields" class="hidden mt-3 ml-8 grid gap-3 sm:grid-cols-2">
                       <input
@@ -862,46 +780,33 @@
                         onclick="toggleConditionalField('observaciones', 'observaciones-field')"
                         class="w-5 h-5 rounded border-2 border-bgray-300 text-success-300 focus:ring-2 focus:ring-success-200 focus:border-success-300 dark:border-darkblack-400"
                       />
-                      <span class="text-sm font-medium text-bgray-900 dark:text-white">Incluir Observaciones para el receptor del presupuesto</span>
+                      <span class="text-sm font-medium text-bgray-900 dark:text-white">Incluir observaciones para el receptor del presupuesto</span>
                     </label>
                     <div id="observaciones-field" class="hidden mt-3 ml-8">
                       <textarea
-                        placeholder="A?adir observaciones"
+                        placeholder="Añadir observaciones"
                         rows="3"
                         class="w-full rounded-lg border border-bgray-200 px-3 py-2 text-sm focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500"
                       ></textarea>
                     </div>
                   </div>
 
-                  <!-- Select: Moneda -->
-                  <div class="pt-4 border-t border-bgray-200 dark:border-darkblack-400">
-                    <label class="mb-2 block text-xs font-bold tracking-wider text-bgray-500 dark:text-bgray-400 uppercase">
-                      ELIGE LA MONEDA DEL DOCUMENTO
-                    </label>
-                    <select
-                      id="currency"
-                      class="h-10 w-full rounded-lg border border-bgray-200 bg-white px-3 text-sm focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500"
-                    >
-                      <option value="EUR">Euro (?)</option>
-                      <option value="USD">USD ($)</option>
-                      <option value="GBP">GBP (?)</option>
-                    </select>
-                  </div>
+                  <!-- Nota: La moneda se selecciona en "Datos de factura" -->
                 </div>
               </section>
 
-              <!-- Fila 5: M?todos de pago, Ajustes fiscales y Resumen (destacado) -->
+              <!-- Fila 5: Métodos de pago, Ajustes fiscales y Resumen (destacado) -->
               <div class="grid gap-6 lg:grid-cols-3">
-              <!-- M?todos de Pago -->
+              <!-- Métodos de Pago -->
               <section
                 class="rounded-xl border border-bgray-200 bg-white p-6 shadow-sm dark:border-darkblack-400 dark:bg-darkblack-600"
               >
                 <div>
-                  <h2 class="text-lg font-semibold text-bgray-900 dark:text-white">
-                    M?todos de Pago
+                  <h2 class="text-base font-semibold text-bgray-900 dark:text-white">
+                    Métodos de pago
                   </h2>
-                  <p class="mt-1 text-sm text-bgray-600 dark:text-bgray-50">
-                    A?ade formas de pago para tu factura.
+                  <p class="mt-0.5 text-xs text-bgray-500 dark:text-bgray-400">
+                    Indica las condiciones de pago del presupuesto.
                   </p>
                 </div>
                 <div class="mt-5">
@@ -909,17 +814,26 @@
                     type="button"
                     id="add-payment-method-btn"
                     onclick="openPaymentMethodModal()"
-                    class="w-full flex items-center justify-center gap-2 rounded-lg px-5 py-3 text-base font-semibold text-white transition shadow-sm"
-                    style="background-color: #ea580c;"
-                    onmouseover="this.style.backgroundColor='#c2410c'"
-                    onmouseout="this.style.backgroundColor='#ea580c'"
+                    class="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-bgray-300 hover:border-success-300 hover:bg-success-50 px-5 py-3 text-sm font-semibold text-bgray-600 hover:text-success-300 transition dark:border-darkblack-400 dark:text-bgray-300 dark:hover:border-success-300"
                   >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
-                    A?adir m?todo de pago
+                    Añadir método de pago
                   </button>
                   <div id="payment-methods-list" class="mt-4 space-y-2"></div>
+                  <!-- Guardar métodos como predeterminados -->
+                  <div id="save-payment-defaults-container" class="mt-3 hidden">
+                    <button
+                      type="button"
+                      id="save-payment-defaults-btn"
+                      onclick="handleSavePaymentDefaults()"
+                      class="w-full flex items-center justify-center gap-1.5 rounded-lg border border-bgray-200 px-4 py-2 text-[12px] font-medium text-bgray-500 hover:border-success-300 hover:text-success-300 transition dark:border-darkblack-400 dark:text-bgray-400"
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M19 21H5C3.89543 21 3 20.1046 3 19V5C3 3.89543 3.89543 3 5 3H16L21 8V19C21 20.1046 20.1046 21 19 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      Guardar como predeterminado
+                    </button>
+                  </div>
                 </div>
               </section>
 
@@ -927,11 +841,11 @@
               <section
                 class="rounded-xl border border-bgray-200 bg-white p-6 shadow-sm dark:border-darkblack-400 dark:bg-darkblack-600"
               >
-                <h3 class="text-lg font-semibold text-bgray-900 dark:text-white">
+                <h3 class="text-base font-semibold text-bgray-900 dark:text-white">
                   Ajustes fiscales
                 </h3>
-                <p class="mt-1 text-sm text-bgray-600 dark:text-bgray-50">
-                  Descuentos, IRPF y exenciones.
+                <p class="mt-0.5 text-xs text-bgray-500 dark:text-bgray-400">
+                  Descuentos globales y retenciones.
                 </p>
                 <div class="mt-5 grid gap-4">
                   <div>
@@ -939,106 +853,122 @@
                       class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white"
                       for="discount"
                     >
-                      Descuento
+                      Descuento general
                     </label>
-                    <input
-                      id="discount"
-                      type="text"
-                      placeholder="0%"
-                      class="h-12 w-full rounded-lg border border-bgray-200 px-4 text-base text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
-                    />
+                    <div class="relative">
+                      <input
+                        id="discount"
+                        type="number"
+                        placeholder="0"
+                        min="0"
+                        max="100"
+                        step="0.01"
+                        class="h-11 w-full rounded-lg border border-bgray-200 px-4 pr-10 text-sm text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
+                      />
+                      <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-bgray-400">%</span>
+                    </div>
                   </div>
                   <div>
                     <label
                       class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white"
                       for="withholding"
                     >
-                      Retenci?n IRPF
+                      Retención IRPF
                     </label>
-                    <input
-                      id="withholding"
-                      type="text"
-                      placeholder="0%"
-                      class="h-12 w-full rounded-lg border border-bgray-200 px-4 text-base text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
-                    />
+                    <div class="relative">
+                      <select
+                        id="withholding"
+                        class="h-11 w-full rounded-lg border border-bgray-200 bg-white px-4 text-sm text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
+                      >
+                        <option value="0">Sin retención</option>
+                        <option value="7">7% (reducido)</option>
+                        <option value="15" selected>15% (general)</option>
+                        <option value="19">19%</option>
+                        <option value="24">24%</option>
+                      </select>
+                    </div>
+                    <p class="mt-1 text-[11px] text-bgray-400 dark:text-bgray-500">Se aplica sobre la base imponible</p>
                   </div>
                 </div>
               </section>
 
-              <!-- Resumen del Presupuesto (DESTACADO) -->
+              <!-- Resumen de la Factura (DESTACADO) -->
               <section
-                class="rounded-xl p-6 shadow-2xl bg-gradient-to-br from-warning-50 to-white dark:from-warning-900/20 dark:to-darkblack-600"
-                style="border: 4px solid #f59e0b;"
+                class="rounded-xl p-6 bg-gradient-to-br from-warning-50 to-white dark:from-warning-900/20 dark:to-darkblack-600 lg:sticky lg:top-[170px]"
+                style="border: 1px solid #fbbf24; box-shadow: 0 0 0 1px rgba(251,191,36,0.15), 0 4px 20px rgba(251,191,36,0.08);"
               >
-                <div class="flex items-center gap-2 mb-3">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-warning-500">
+                <div class="flex items-center gap-2 mb-4">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-warning-500">
                     <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
-                  <h3 class="text-xl font-bold text-warning-700 dark:text-warning-300">
-                    Resumen del Presupuesto
+                  <h3 class="text-lg font-bold text-warning-700 dark:text-warning-300">
+                    Resumen del presupuesto
                   </h3>
                 </div>
-                <div class="mt-5 space-y-3 text-base">
+                <div class="space-y-2.5 text-sm">
                   <!-- Subtotal -->
-                  <div class="flex justify-between">
+                  <div class="flex justify-between items-center">
                     <span class="text-bgray-600 dark:text-bgray-300">Subtotal</span>
-                    <span id="summary-subtotal" class="font-semibold text-bgray-900 dark:text-white">6.666,67 ?</span>
+                    <span id="summary-subtotal" class="font-semibold text-bgray-900 dark:text-white tabular-nums">0,00 €</span>
                   </div>
                   
                   <!-- Descuento -->
-                  <div class="flex justify-between text-red-600 dark:text-red-400">
+                  <div class="flex justify-between items-center text-red-600 dark:text-red-400 hidden">
                     <span>Descuento</span>
-                    <span id="summary-discount">-5.666,67 ?</span>
+                    <span id="summary-discount" class="tabular-nums">-0,00 €</span>
                   </div>
                   
                   <!-- Base imponible -->
-                  <div class="flex justify-between">
-                    <span class="text-bgray-600 dark:text-bgray-300">Base imponible 0%</span>
-                    <span id="summary-base" class="font-semibold text-bgray-900 dark:text-white">1.000,00 ?</span>
+                  <div class="flex justify-between items-center">
+                    <span class="text-bgray-600 dark:text-bgray-300">Base imponible</span>
+                    <span id="summary-base" class="font-semibold text-bgray-900 dark:text-white tabular-nums">0,00 €</span>
                   </div>
                   
                   <!-- Impuestos -->
-                  <div class="flex justify-between">
+                  <div class="flex justify-between items-center">
                     <span id="summary-tax-label" class="text-bgray-600 dark:text-bgray-300">Impuestos</span>
-                    <span id="summary-tax" class="font-semibold text-bgray-900 dark:text-white">0,00 ?</span>
+                    <span id="summary-tax" class="font-semibold text-bgray-900 dark:text-white tabular-nums">0,00 €</span>
                   </div>
                   
-                  <!-- Retenci?n -->
-                  <div class="flex justify-between text-red-600 dark:text-red-400">
-                    <span id="summary-retention-label">Retenci?n (0%)</span>
-                    <span id="summary-retention">-0,00 ?</span>
+                  <!-- Retención -->
+                  <div class="flex justify-between items-center text-red-600 dark:text-red-400 hidden">
+                    <span id="summary-retention-label">Retención (0%)</span>
+                    <span id="summary-retention" class="tabular-nums">-0,00 €</span>
                   </div>
                   
                   <!-- Gastos suplidos -->
-                  <div class="flex justify-between">
+                  <div class="flex justify-between items-center hidden" id="summary-expenses-row">
                     <span class="text-bgray-600 dark:text-bgray-300">Gastos suplidos</span>
-                    <span id="summary-expenses" class="font-semibold text-bgray-900 dark:text-white">0,00 ?</span>
+                    <span id="summary-expenses" class="font-semibold text-bgray-900 dark:text-white tabular-nums">0,00 €</span>
                   </div>
                   
-                  <hr class="border-bgray-200 dark:border-darkblack-500" />
+                  <hr class="border-bgray-200 dark:border-darkblack-500 my-2" />
                   
                   <!-- Total -->
-                  <div class="flex justify-between text-lg font-bold">
+                  <div class="flex justify-between items-center text-base font-bold">
                     <span class="text-bgray-900 dark:text-white">Total</span>
-                    <span id="summary-total-amount" class="text-bgray-900 dark:text-white">1.000,00 ?</span>
+                    <span id="summary-total-amount" class="text-bgray-900 dark:text-white tabular-nums">0,00 €</span>
                   </div>
                   
                   <!-- Cantidad ya pagada -->
-                  <div class="flex justify-between text-red-600 dark:text-red-400">
-                    <span>Cantidad ya pagada</span>
-                    <span id="summary-paid">-0,00 ?</span>
+                  <div class="flex justify-between items-center text-red-600 dark:text-red-400 hidden">
+                    <span>Cantidad pagada</span>
+                    <span id="summary-paid" class="tabular-nums">-0,00 €</span>
                   </div>
                   
-                  <hr class="border-bgray-200 dark:border-darkblack-500" />
+                  <hr class="border-bgray-200 dark:border-darkblack-500 my-2" />
                   
                   <!-- Total a pagar -->
-                  <div class="flex justify-between text-xl font-bold">
-                    <span class="text-bgray-900 dark:text-white">Total a pagar</span>
-                    <span id="summary-total-to-pay" class="text-bgray-900 dark:text-white">1.000 ?</span>
+                  <div class="flex justify-between items-center rounded-lg bg-warning-100/60 dark:bg-warning-900/30 px-3 py-2.5">
+                    <span class="text-lg font-bold text-warning-800 dark:text-warning-200">Total a pagar</span>
+                    <span id="summary-total-to-pay" class="text-lg font-bold text-warning-800 dark:text-warning-200 tabular-nums">0,00 €</span>
                   </div>
                 </div>
-                <div class="mt-4 rounded-lg border border-dashed border-bgray-200 px-3 py-2 text-[11px] text-bgray-500 dark:border-darkblack-500 dark:text-bgray-400">
-                  Los importes se recalculan autom?ticamente
+                <div class="mt-3 flex items-center gap-1.5 text-[11px] text-bgray-400 dark:text-bgray-500">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 8V12M12 16H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Se recalcula automáticamente
                 </div>
               </section>
               </div>
@@ -1088,7 +1018,7 @@
                 Crear cliente
               </h3>
               <p class="mt-1 text-sm text-bgray-600 dark:text-bgray-50">
-                Guarda la informaci?n b?sica sin salir de la factura.
+                Guarda la información básica sin salir del presupuesto.
               </p>
             </div>
             <button
@@ -1120,7 +1050,7 @@
           <div class="mt-5 space-y-4">
             <div>
               <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
-                Raz?n social / Nombre
+                Razón social / Nombre
               </label>
               <input
                 type="text"
@@ -1147,23 +1077,23 @@
                   class="h-12 w-full rounded-lg border border-bgray-200 bg-white px-4 text-sm text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
                 >
                   <option>Empresa / Particular</option>
-                  <option>Aut?nomo / Profesional</option>
+                  <option>Autónomo / Profesional</option>
                 </select>
               </div>
             </div>
             <div>
               <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
-                Direcci?n
+                Dirección
               </label>
               <input
                 type="text"
-                placeholder="Direcci?n completa"
+                placeholder="Dirección completa"
                 class="h-12 w-full rounded-lg border border-bgray-200 px-4 text-sm text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
               />
             </div>
             <div>
               <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
-                Email de env?o
+                Email de envío
               </label>
               <input
                 type="email"
@@ -1190,7 +1120,7 @@
       </div>
     </div>
 
-    <!-- Modal: M?todos de Pago -->
+    <!-- Modal: Métodos de Pago -->
     <div
       id="payment-method-modal"
       class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm"
@@ -1199,10 +1129,10 @@
         <div class="flex items-start justify-between">
           <div>
             <h3 class="text-lg font-semibold text-bgray-900 dark:text-white">
-              A?adir m?todo de pago
+              Añadir método de pago
             </h3>
             <p class="mt-1 text-sm text-bgray-600 dark:text-bgray-50">
-              Selecciona el m?todo de pago aceptado en tus facturas
+              Selecciona el método de pago aceptado en tus facturas
             </p>
           </div>
           <button
@@ -1247,7 +1177,7 @@
                 <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2"/>
                 <path d="M12 8V16M8 12H16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               </svg>
-              <span class="text-sm font-semibold text-bgray-900 dark:text-white">Domiciliaci?n</span>
+              <span class="text-sm font-semibold text-bgray-900 dark:text-white">Domiciliación</span>
             </div>
           </label>
 
@@ -1329,7 +1259,7 @@
               placeholder="Cuenta principal"
               class="h-12 w-full rounded-lg border border-bgray-200 px-4 text-sm focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500"
             />
-            <p class="mt-1 text-xs text-bgray-500">No se mostrar? en el documento</p>
+            <p class="mt-1 text-xs text-bgray-500">No se mostrará en el documento</p>
           </div>
           <div>
             <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
@@ -1344,7 +1274,7 @@
           </div>
           <div>
             <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
-              C?digo BIC
+              Código BIC
             </label>
             <input
               type="text"
@@ -1357,7 +1287,7 @@
               type="checkbox"
               class="h-5 w-5 rounded border-2 border-bgray-300 text-success-300 focus:ring-2 focus:ring-success-200"
             />
-            <span class="text-sm text-bgray-700 dark:text-bgray-300">Incluir en los presupuestos recurrentes programados y borradores</span>
+            <span class="text-sm text-bgray-700 dark:text-bgray-300">Incluir en las facturas recurrentes programadas y borradores</span>
           </label>
         </div>
 
@@ -1365,7 +1295,7 @@
         <div id="bizum-fields" class="mt-6 hidden space-y-4">
           <div>
             <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
-              Enviar Bizum al tel?fono *
+              Enviar Bizum al teléfono *
             </label>
             <input
               id="bizum-telefono"
@@ -1379,7 +1309,7 @@
               type="checkbox"
               class="h-5 w-5 rounded border-2 border-bgray-300 text-success-300 focus:ring-2 focus:ring-success-200"
             />
-            <span class="text-sm text-bgray-700 dark:text-bgray-300">Incluir en los presupuestos recurrentes programados y borradores</span>
+            <span class="text-sm text-bgray-700 dark:text-bgray-300">Incluir en las facturas recurrentes programadas y borradores</span>
           </label>
         </div>
 
@@ -1395,18 +1325,15 @@
           <button
             type="button"
             onclick="addPaymentMethod()"
-            class="rounded-lg px-6 py-2.5 text-sm font-semibold text-white"
-            style="background-color: #ea580c;"
-            onmouseover="this.style.backgroundColor='#c2410c'"
-            onmouseout="this.style.backgroundColor='#ea580c'"
+            class="rounded-lg bg-success-300 hover:bg-success-400 px-6 py-2.5 text-sm font-semibold text-white transition"
           >
-            A?adir m?todo de pago
+            Añadir método de pago
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Modal Unificado de Cliente (Presupuestos) -->
+    <!-- Modal Unificado de Cliente (Facturas) -->
 <div id="create-client-modal" class="modal fixed inset-0 z-50 hidden items-center justify-center overflow-y-auto bg-black/50 backdrop-blur-sm transition-opacity duration-200" role="dialog" aria-labelledby="modal-title-invoice" aria-modal="true">
   <!-- Overlay -->
   <div class="modal-overlay absolute inset-0"></div>
@@ -1434,17 +1361,17 @@
       
       <!-- Body -->
       <div class="px-6 py-5 max-h-[calc(100vh-200px)] overflow-y-auto">
-        <form id="invoice-client-form" class="space-y-5" onsubmit="handleQuoteSaveClient(event)">
+        <form id="invoice-client-form" class="space-y-5" onsubmit="handleInvoiceSaveClient(event)">
           
           <!-- Grid de 2 columnas - Responsive -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             
             <!-- Columna 1 -->
             <div class="space-y-4">
-              <!-- Nombre / Raz?n Social -->
+              <!-- Nombre / Razón Social -->
               <div>
                 <label for="new-client-name" class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
-                  Nombre / Raz?n Social <span class="text-red-500">*</span>
+                  Nombre / Razón Social <span class="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -1482,10 +1409,10 @@
                 />
               </div>
               
-              <!-- Tel?fono -->
+              <!-- Teléfono -->
               <div>
                 <label for="new-client-phone" class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
-                  Tel?fono
+                  Teléfono
                 </label>
                 <input
                   type="tel"
@@ -1512,10 +1439,10 @@
             
             <!-- Columna 2 -->
             <div class="space-y-4">
-              <!-- Direcci?n -->
+              <!-- Dirección -->
               <div>
                 <label for="new-client-address" class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
-                  Direcci?n
+                  Dirección
                 </label>
                 <input
                   type="text"
@@ -1525,10 +1452,10 @@
                 />
               </div>
               
-              <!-- C?digo Postal -->
+              <!-- Código Postal -->
               <div>
                 <label for="new-client-postal" class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
-                  C?digo Postal
+                  Código Postal
                 </label>
                 <input
                   type="text"
@@ -1551,37 +1478,37 @@
                 />
               </div>
               
-              <!-- Pa?s -->
+              <!-- País -->
               <div>
                 <label for="new-client-country" class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
-                  Pa?s
+                  País
                 </label>
                 <input
                   type="text"
                   id="new-client-country"
                   class="w-full h-12 rounded-lg border border-bgray-300 dark:border-darkblack-400 bg-white dark:bg-darkblack-500 px-4 py-3 text-sm text-bgray-900 dark:text-white placeholder:text-bgray-500 focus:border-success-300 focus:ring-2 focus:ring-success-300/20 transition-all"
-                  placeholder="Espa?a"
+                  placeholder="España"
                 />
               </div>
               
-              <!-- D?a de Facturaci?n -->
+              <!-- Día de Facturación -->
               <div>
                 <label for="new-client-billing-day" class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
-                  D?a de Facturaci?n
+                  Día de Facturación
                 </label>
                 <select
                   id="new-client-billing-day"
                   class="w-full h-12 rounded-lg border border-bgray-300 dark:border-darkblack-400 bg-white dark:bg-darkblack-500 px-4 py-3 text-sm text-bgray-900 dark:text-white focus:border-success-300 focus:ring-2 focus:ring-success-300/20 transition-all"
                 >
                   <option value="">Sin especificar</option>
-                  <option value="1">D?a 1</option>
-                  <option value="5">D?a 5</option>
-                  <option value="10">D?a 10</option>
-                  <option value="15">D?a 15</option>
-                  <option value="20">D?a 20</option>
-                  <option value="25">D?a 25</option>
-                  <option value="30" selected>D?a 30</option>
-                  <option value="31">D?a 31</option>
+                  <option value="1">Día 1</option>
+                  <option value="5">Día 5</option>
+                  <option value="10">Día 10</option>
+                  <option value="15">Día 15</option>
+                  <option value="20">Día 20</option>
+                  <option value="25">Día 25</option>
+                  <option value="30" selected>Día 30</option>
+                  <option value="31">Día 31</option>
                 </select>
               </div>
             </div>
@@ -1656,11 +1583,11 @@
         return Number(value.replace(/,/g, ".")) || 0;
       };
 
-      // Funci?n para a?adir event listener de eliminar a una l?nea
+      // Función para añadir event listener de eliminar a una línea
       function attachDeleteListener(conceptLine) {
-        const deleteBtn = conceptLine.querySelector('button[title="Eliminar l?nea"]');
+        const deleteBtn = conceptLine.querySelector('button[title="Eliminar línea"]');
         if (deleteBtn) {
-          // Eliminar listeners anteriores clonando el bot?n
+          // Eliminar listeners anteriores clonando el botón
           const newDeleteBtn = deleteBtn.cloneNode(true);
           deleteBtn.parentNode.replaceChild(newDeleteBtn, deleteBtn);
           
@@ -1668,7 +1595,7 @@
             e.preventDefault();
             e.stopPropagation();
             
-            const container = document.getElementById('quote-lines');
+            const container = document.querySelector('.space-y-4');
             const allLines = container.querySelectorAll('div.rounded-lg');
             
             if (allLines.length > 1) {
@@ -1676,31 +1603,31 @@
               updateAllConceptTotals();
               updateInvoiceSummary();
             } else {
-              alert('Debe haber al menos un concepto en el presupuesto');
+              alert('Debe haber al menos un concepto en la factura');
             }
           });
         }
       }
       
-      // Funci?n para a?adir una nueva l?nea de concepto
+      // Función para añadir una nueva línea de concepto
       function addConceptLine() {
-        const container = document.getElementById('quote-lines');
+        const container = document.getElementById('invoice-lines');
         const firstLine = container?.querySelector('div.rounded-lg');
         
         if (!firstLine) {
-          alert('Error: No se puede a?adir una l?nea. Por favor, recarga la p?gina.');
+          alert('Error: No se puede añadir una línea. Por favor, recarga la página.');
           return;
         }
         
-        // Clonar la primera l?nea
+        // Clonar la primera línea
         const clone = firstLine.cloneNode(true);
         
         // Limpiar valores de los inputs
         const inputs = clone.querySelectorAll('input');
         inputs.forEach((input, index) => {
-          // inputs[0] = descripci?n, inputs[1] = cantidad, inputs[2] = precio, inputs[3] = descuento
+          // inputs[0] = descripción, inputs[1] = cantidad, inputs[2] = precio, inputs[3] = descuento
           if (index === 0) {
-            input.value = ''; // Descripci?n vac?a
+            input.value = ''; // Descripción vacía
           } else if (index === 1) {
             input.value = '1'; // Cantidad = 1
           } else if (index === 2) {
@@ -1719,7 +1646,7 @@
         // Resetear el importe
         const totalDiv = clone.querySelector('.concept-total');
         if (totalDiv) {
-          totalDiv.textContent = '0,00 ?';
+          totalDiv.textContent = '0,00 €';
         }
         
         // Resetear el texto de RE
@@ -1734,7 +1661,7 @@
           }
         }
         
-        // A?adir event listeners a los inputs/selects de la nueva l?nea
+        // Añadir event listeners a los inputs/selects de la nueva línea
         const newInputs = clone.querySelectorAll('input, select');
         newInputs.forEach(input => {
           input.addEventListener('input', function() {
@@ -1747,10 +1674,10 @@
           });
         });
         
-        // A?adir la nueva l?nea al contenedor
+        // Añadir la nueva línea al contenedor
         container.appendChild(clone);
         
-        // A?adir funcionalidad al bot?n de eliminar de la nueva l?nea
+        // Añadir funcionalidad al botón de eliminar de la nueva línea
         attachDeleteListener(clone);
         
         // Calcular el importe inicial y actualizar resumen
@@ -1758,11 +1685,11 @@
         updateInvoiceSummary();
       }
 
-      // Listener para el bot?n "A?adir l?nea"
+      // Listener para el botón "Añadir línea"
       document.getElementById("add-line")?.addEventListener("click", addConceptLine);
       
-      // A?adir funcionalidad de eliminar a las l?neas existentes
-      document.querySelectorAll('#quote-lines > div.rounded-lg').forEach(conceptLine => {
+      // Añadir funcionalidad de eliminar a las líneas existentes
+      document.querySelectorAll('.space-y-4 > div.rounded-lg').forEach(conceptLine => {
         attachDeleteListener(conceptLine);
       });
 
@@ -1798,31 +1725,81 @@
         updateIrpfState(event.target.value);
       });
 
+      // Configuración de flatpickr en español
+      const fpLocale = {
+        weekdays: {
+          shorthand: ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"],
+          longhand: ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"]
+        },
+        months: {
+          shorthand: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"],
+          longhand: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+        },
+        firstDayOfWeek: 1,
+        rangeSeparator: " a ",
+        weekAbbreviation: "Sem",
+        time_24hr: true
+      };
+
       if (window.flatpickr) {
-        window.flatpickr(".js-date", {
-          dateFormat: "Y-m-d",  // Formato ISO para Supabase
-          altInput: true,        // Mostrar formato alternativo al usuario
-          altFormat: "d/m/Y",    // Formato visual DD/MM/YYYY
-          locale: {
-            weekdays: {
-              shorthand: ["Dom", "Lun", "Mar", "Mi?", "Jue", "Vie", "S?b"],
-              longhand: ["Domingo", "Lunes", "Martes", "Mi?rcoles", "Jueves", "Viernes", "S?bado"]
-            },
-            months: {
-              shorthand: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"],
-              longhand: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
-            },
-            firstDayOfWeek: 1,
-            rangeSeparator: " a ",
-            weekAbbreviation: "Sem",
-            scrollTitle: "Desplazar para aumentar",
-            toggleTitle: "Click para cambiar",
-            time_24hr: true
+        // Fecha de emisión: por defecto hoy
+        window.flatpickr("#issue-date", {
+          dateFormat: "Y-m-d",
+          altInput: true,
+          altFormat: "d/m/Y",
+          defaultDate: "today",
+          locale: fpLocale,
+          onChange: function(selectedDates) {
+            // Auto-calcular fecha de vencimiento según condiciones
+            autoCalculateDueDate(selectedDates[0]);
           }
+        });
+
+        // Fecha de vencimiento
+        window.flatpickr("#due-date", {
+          dateFormat: "Y-m-d",
+          altInput: true,
+          altFormat: "d/m/Y",
+          locale: fpLocale
+        });
+
+        // Fecha de operación
+        window.flatpickr("#operation-date", {
+          dateFormat: "Y-m-d",
+          altInput: true,
+          altFormat: "d/m/Y",
+          locale: fpLocale
         });
       }
 
-      // Funci?n para actualizar totales de la factura
+      // Auto-calcular fecha de vencimiento basada en condiciones de pago
+      function autoCalculateDueDate(issueDate) {
+        if (!issueDate) return;
+        const termsSelect = document.getElementById('payment-terms');
+        const termsValue = termsSelect ? termsSelect.value : '30';
+        
+        if (termsValue === 'immediate') return;
+        
+        const days = parseInt(termsValue) || 30;
+        const dueDate = new Date(issueDate);
+        dueDate.setDate(dueDate.getDate() + days);
+        
+        const dueDateInput = document.getElementById('due-date');
+        if (dueDateInput && dueDateInput._flatpickr) {
+          dueDateInput._flatpickr.setDate(dueDate, true);
+        }
+      }
+
+      // Recalcular vencimiento cuando cambian las condiciones
+      document.getElementById('payment-terms')?.addEventListener('change', function() {
+        const issueDateInput = document.getElementById('issue-date');
+        if (issueDateInput && issueDateInput._flatpickr) {
+          const selected = issueDateInput._flatpickr.selectedDates[0];
+          if (selected) autoCalculateDueDate(selected);
+        }
+      });
+
+      // Función para actualizar totales de la factura
       function updateTotals() {
         if (typeof updateInvoiceSummary === 'function') {
           updateInvoiceSummary();
@@ -1909,7 +1886,7 @@
         });
       });
 
-      // Funciones para modal de m?todos de pago
+      // Funciones para modal de métodos de pago
       function openPaymentMethodModal() {
         const modal = document.getElementById('payment-method-modal');
         if (modal) {
@@ -1924,7 +1901,7 @@
           modal.classList.add('hidden');
           modal.classList.remove('flex');
         }
-        // Limpiar selecci?n
+        // Limpiar selección
         document.querySelectorAll('input[name="payment-method"]').forEach(input => {
           input.checked = false;
           // Limpiar estilos inline
@@ -1947,7 +1924,7 @@
         document.getElementById('transferencia-fields')?.classList.add('hidden');
         document.getElementById('bizum-fields')?.classList.add('hidden');
         
-        // Limpiar estilos previos de todos los m?todos
+        // Limpiar estilos previos de todos los métodos
         document.querySelectorAll('input[name="payment-method"]').forEach(input => {
           const container = input.nextElementSibling;
           if (container) {
@@ -1957,14 +1934,14 @@
           }
         });
         
-        // Aplicar estilo al m?todo seleccionado (compatible con modo oscuro)
+        // Aplicar estilo al método seleccionado (compatible con modo oscuro)
         const selectedInput = document.querySelector(`input[name="payment-method"][value="${method}"]`);
         if (selectedInput) {
           const container = selectedInput.nextElementSibling;
           const isDarkMode = document.documentElement.classList.contains('dark');
           if (container) {
             container.style.border = '3px solid #f59e0b';
-            // Usar fondo diferente seg?n el modo
+            // Usar fondo diferente según el modo
             if (isDarkMode) {
               container.style.backgroundColor = 'rgba(245, 158, 11, 0.15)';
             } else {
@@ -1973,7 +1950,7 @@
           }
         }
         
-        // Mostrar campos seg?n el m?todo seleccionado
+        // Mostrar campos según el método seleccionado
         if (method === 'transferencia') {
           document.getElementById('transferencia-fields')?.classList.remove('hidden');
         } else if (method === 'bizum') {
@@ -1984,14 +1961,14 @@
       function addPaymentMethod() {
         const selectedMethod = document.querySelector('input[name="payment-method"]:checked');
         if (!selectedMethod) {
-          alert('Por favor, selecciona un m?todo de pago');
+          alert('Por favor, selecciona un método de pago');
           return;
         }
         
         const methodValue = selectedMethod.value;
         const methodLabels = {
           'transferencia': 'Transferencia bancaria',
-          'domiciliacion': 'Domiciliaci?n',
+          'domiciliacion': 'Domiciliación',
           'efectivo': 'Efectivo',
           'contrareembolso': 'Contrareembolso',
           'bizum': 'Bizum',
@@ -2000,39 +1977,37 @@
         
         // Obtener datos adicionales
         let additionalInfo = '';
+        let dataIban = '';
+        let dataPhone = '';
         if (methodValue === 'transferencia') {
-          const iban = document.getElementById('transferencia-iban')?.value;
-          if (iban) {
-            additionalInfo = `<div class="text-xs text-bgray-600 dark:text-bgray-400 mt-1">${iban}</div>`;
+          dataIban = (document.getElementById('transferencia-iban')?.value || '').trim();
+          if (dataIban) {
+            additionalInfo = '<div class="text-xs text-bgray-600 dark:text-bgray-400 mt-1">' + dataIban + '</div>';
           }
         } else if (methodValue === 'bizum') {
-          const telefono = document.getElementById('bizum-telefono')?.value;
-          if (telefono) {
-            additionalInfo = `<div class="text-xs text-bgray-600 dark:text-bgray-400 mt-1">${telefono}</div>`;
+          dataPhone = (document.getElementById('bizum-telefono')?.value || '').trim();
+          if (dataPhone) {
+            additionalInfo = '<div class="text-xs text-bgray-600 dark:text-bgray-400 mt-1">' + dataPhone + '</div>';
           }
         }
         
-        // A?adir a la lista
+        // Añadir a la lista con data-attributes para captura fiable
         const list = document.getElementById('payment-methods-list');
         const badge = document.createElement('div');
-        badge.className = 'flex items-center justify-between rounded-lg border-2 border-warning-300 bg-warning-50 px-3 py-2 text-sm dark:bg-warning-900/10';
-        badge.innerHTML = `
-          <div class="flex-1">
-            <span class="font-semibold text-warning-700 dark:text-warning-300">${methodLabels[methodValue]}</span>
-            ${additionalInfo}
-          </div>
-          <button type="button" onclick="this.parentElement.remove()" class="text-warning-700 hover:text-warning-900 dark:text-warning-300 ml-2">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M6 18L18 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </button>
-        `;
+        badge.className = 'payment-method-badge flex items-center justify-between rounded-lg border-2 border-warning-300 bg-warning-50 px-3 py-2 text-sm dark:bg-warning-900/10';
+        badge.setAttribute('data-type', methodValue);
+        badge.setAttribute('data-iban', dataIban);
+        badge.setAttribute('data-phone', dataPhone);
+        badge.innerHTML =
+          '<div class="flex-1">' +
+            '<span class="font-semibold text-warning-700 dark:text-warning-300">' + methodLabels[methodValue] + '</span>' +
+            additionalInfo +
+          '</div>' +
+          '<button type="button" onclick="this.parentElement.remove()" class="text-warning-700 hover:text-warning-900 dark:text-warning-300 ml-2">' +
+            '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 18L18 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' +
+          '</button>';
         list.appendChild(badge);
         
-        // El bot?n mantiene su estilo naranja original
-        
-        // Cerrar el modal
         closePaymentMethodModal();
       }
 
@@ -2070,26 +2045,25 @@
         // Cerrar modal
         closeCreateClientModal();
         
-        // Mostrar mensaje de ?xito
-        alert('Cliente creado y a?adido correctamente');
+        // Mostrar mensaje de éxito
+        alert('Cliente creado y añadido correctamente');
       }
 
     </script>
     
-    <!-- Sistema de manejo de datos de presupuesto -->
+    <!-- Sistema de manejo de datos de factura -->
     <script src="../assets/js/quote-data-handler.js"></script>
     <script>
       // Inicializar el manejador de datos y hacerlo global
       window.quoteDataHandler = new QuoteDataHandler();
-      console.log('? QuoteDataHandler inicializado globalmente');
 
       // ============================================
-      // Sistema de rec�lculo autom�tico del resumen
+      // Sistema de recálculo automático del resumen
       // ============================================
       
       function formatCurrencySummary(value) {
         const num = parseFloat(value) || 0;
-        return num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, '.').replace(/\.(\d{2})$/, ',$1') + ' ?';
+        return num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, '.').replace(/\.(\d{2})$/, ',$1') + ' €';
       }
 
       function updateInvoiceSummary() {
@@ -2121,6 +2095,11 @@
           }
           if (document.getElementById('summary-expenses')) {
             document.getElementById('summary-expenses').textContent = formatCurrencySummary(summary.expenses);
+            const expRow = document.getElementById('summary-expenses-row');
+            if (expRow) {
+              if (summary.expenses > 0) expRow.classList.remove('hidden');
+              else expRow.classList.add('hidden');
+            }
           }
           if (totalElem) totalElem.textContent = formatCurrencySummary(summary.total);
           const paidElem = document.getElementById('summary-paid');
@@ -2144,10 +2123,10 @@
           
           const retentionLabel = document.getElementById('summary-retention-label');
           if (retentionLabel) {
-            retentionLabel.textContent = `Retenci?n (${summary.retentionRate}%)`;
+            retentionLabel.textContent = `Retención (${summary.retentionRate}%)`;
           }
           
-          // Mostrar u ocultar la l?nea de retenci?n seg?n si hay retenci?n
+          // Mostrar u ocultar la línea de retención según si hay retención
           const retentionElem = document.getElementById('summary-retention');
           if (retentionElem) {
             if (summary.retentionRate > 0) {
@@ -2162,7 +2141,7 @@
         }
       }
 
-      // Obtener el recargo de equivalencia seg?n el IVA
+      // Obtener el recargo de equivalencia según el IVA
       function getREForTax(tax) {
         if (tax === 21) return 5.2;
         if (tax === 10) return 1.4;
@@ -2170,7 +2149,7 @@
         return 0;
       }
       
-      // Calcular y actualizar el importe de un concepto espec?fico
+      // Calcular y actualizar el importe de un concepto específico
       function updateConceptTotal(conceptContainer) {
         const inputs = conceptContainer.querySelectorAll('input');
         const selects = conceptContainer.querySelectorAll('select');
@@ -2191,11 +2170,11 @@
         else if (taxValue.includes('3')) tax = 3;
         else if (taxValue.includes('0')) tax = 0;
         
-        // Verificar si el recargo de equivalencia est? activado
+        // Verificar si el recargo de equivalencia está activado
         const reCheckbox = document.getElementById('recargo-equivalencia');
         const applyRE = reCheckbox?.checked || false;
         
-        // Calcular RE seg?n el IVA solo si est? activado
+        // Calcular RE según el IVA solo si está activado
         const re = applyRE ? getREForTax(tax) : 0;
         
         // Actualizar el texto de RE debajo del select
@@ -2224,15 +2203,15 @@
       
       // Actualizar todos los importes de conceptos
       function updateAllConceptTotals() {
-        const conceptContainers = document.querySelectorAll('#quote-lines > div.rounded-lg');
+        const conceptContainers = document.querySelectorAll('.space-y-4 > div.rounded-lg');
         conceptContainers.forEach(container => {
           updateConceptTotal(container);
         });
       }
       
-      // A?adir listeners a todos los inputs de conceptos
+      // Añadir listeners a todos los inputs de conceptos
       function attachConceptListeners() {
-        const conceptContainers = document.querySelectorAll('#quote-lines > div.rounded-lg');
+        const conceptContainers = document.querySelectorAll('.space-y-4 > div.rounded-lg');
         
         conceptContainers.forEach(container => {
           const inputs = container.querySelectorAll('input, select');
@@ -2250,7 +2229,7 @@
         });
       }
 
-      // A?adir listeners a gastos suplidos
+      // Añadir listeners a gastos suplidos
       function attachExpenseListeners() {
         const expenseContainer = document.getElementById('gastos-suplidos-fields');
         if (expenseContainer) {
@@ -2262,7 +2241,7 @@
         }
       }
 
-      // A?adir listeners a ajustes fiscales y otros campos del resumen
+      // Añadir listeners a ajustes fiscales y otros campos del resumen
       function attachTaxSettingsListeners() {
         const taxTypeSelect = document.getElementById('tax-type');
         const withholdingSelect = document.getElementById('withholding');
@@ -2316,8 +2295,10 @@
       import '../assets/js/supabaseClient.js';
       import '../assets/js/auth.js';
       import '../assets/js/businessInfo.js';
+      import '../assets/js/checkBusinessInfo.js';
       import '../assets/js/clients.js';
     </script>
+    <script type="module" src="../assets/js/auth-guard.js"></script>
     
     <!-- Utilidades -->
     <script src="../assets/js/user-header.js" defer></script>
@@ -2328,46 +2309,201 @@
     <!-- Sistema de presupuestos -->
     <script src="../assets/js/quotes.js" defer></script>
     <script src="../assets/js/quote-page.js" defer></script>
+    <!-- Sistema de valores por defecto -->
+    <script src="../assets/js/invoice-defaults.js" defer></script>
 
     <!-- Funciones de manejo de botones -->
     <script>
-      // Funciones globales simples para los botones
-      async function handleSaveDraft() {
-        console.log('??? Click en Guardar borrador');
+      // ============================================
+      // Gestión de series de factura
+      // ============================================
+      function promptAddSeries() {
+        const newSeries = prompt('Introduce el nombre de la nueva serie (ej: C, 2026-A, RECT):');
+        if (!newSeries || !newSeries.trim()) return;
         
-        // Verificar que los m?dulos est?n disponibles
-        if (!window.saveQuoteDraft || typeof window.saveQuoteDraft !== 'function') {
-          console.error('? window.saveQuoteDraft no est? disponible');
-          alert('Error: El sistema a?n est? cargando. Espera unos segundos y vuelve a intentar.');
-          return;
+        const select = document.getElementById('invoice-series');
+        if (!select) return;
+        
+        // Verificar si ya existe
+        for (let i = 0; i < select.options.length; i++) {
+          if (select.options[i].value === newSeries.trim().toUpperCase()) {
+            select.value = newSeries.trim().toUpperCase();
+            return;
+          }
         }
         
-        // Llamar a la funci?n
-        console.log('? Llamando window.saveQuoteDraft()');
-        await window.saveQuoteDraft();
+        // Añadir nueva opción
+        const opt = document.createElement('option');
+        opt.value = newSeries.trim().toUpperCase();
+        opt.textContent = newSeries.trim().toUpperCase();
+        select.appendChild(opt);
+        select.value = opt.value;
+        
+        // Guardar series personalizadas en localStorage
+        const saved = JSON.parse(localStorage.getItem('invoice_custom_series') || '[]');
+        if (!saved.includes(opt.value)) {
+          saved.push(opt.value);
+          localStorage.setItem('invoice_custom_series', JSON.stringify(saved));
+        }
+      }
+      
+      // Cargar series personalizadas al iniciar
+      (function loadCustomSeries() {
+        const saved = JSON.parse(localStorage.getItem('invoice_custom_series') || '[]');
+        const select = document.getElementById('invoice-series');
+        if (!select) return;
+        saved.forEach(function(s) {
+          // Verificar que no exista ya
+          let exists = false;
+          for (let i = 0; i < select.options.length; i++) {
+            if (select.options[i].value === s) { exists = true; break; }
+          }
+          if (!exists) {
+            const opt = document.createElement('option');
+            opt.value = s;
+            opt.textContent = s;
+            select.appendChild(opt);
+          }
+        });
+      })();
+
+      // ============================================
+      // Toggle número manual/automático
+      // ============================================
+      function toggleManualNumber() {
+        const checkbox = document.getElementById('manual-number-toggle');
+        const input = document.getElementById('invoice-number');
+        if (!checkbox || !input) return;
+        
+        if (checkbox.checked) {
+          input.disabled = false;
+          input.classList.remove('bg-bgray-50', 'text-bgray-500', 'dark:text-bgray-400');
+          input.classList.add('text-bgray-900', 'dark:text-white');
+          input.placeholder = 'Ej: 001';
+          input.value = '';
+          input.focus();
+        } else {
+          input.disabled = true;
+          input.classList.add('bg-bgray-50', 'text-bgray-500', 'dark:text-bgray-400');
+          input.classList.remove('text-bgray-900', 'dark:text-white');
+          input.placeholder = 'Automático';
+          input.value = '';
+          // Refrescar preview de número automático
+          refreshNumberPreview();
+        }
+      }
+
+      // Actualizar el preview del número automático cuando cambia la serie
+      function refreshNumberPreview() {
+        var series = document.getElementById('invoice-series')?.value || 'A';
+        if (typeof window.updateInvoiceNumberPreview === 'function') {
+          window.updateInvoiceNumberPreview(series);
+        }
+      }
+
+      // Conectar el cambio de serie al preview del número
+      document.getElementById('invoice-series')?.addEventListener('change', refreshNumberPreview);
+
+      // Inicializar preview del número tras cargar módulos
+      setTimeout(refreshNumberPreview, 2000);
+
+      // ============================================
+      // Guardar métodos de pago como predeterminados
+      // ============================================
+      function handleSavePaymentDefaults() {
+        if (typeof window.saveInvoiceDefaults === 'function') {
+          const success = window.saveInvoiceDefaults();
+          if (success) {
+            const btn = document.getElementById('save-payment-defaults-btn');
+            if (btn) {
+              btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg> Guardado como predeterminado';
+              btn.classList.add('text-success-300', 'border-success-300');
+              setTimeout(function() {
+                btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M19 21H5C3.89543 21 3 20.1046 3 19V5C3 3.89543 3.89543 3 5 3H16L21 8V19C21 20.1046 20.1046 21 19 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Guardar como predeterminado';
+                btn.classList.remove('text-success-300', 'border-success-300');
+              }, 2500);
+            }
+          }
+        }
+      }
+
+      // Mostrar botón "guardar como predeterminado" cuando hay métodos de pago
+      const paymentListObserver = new MutationObserver(function() {
+        const list = document.getElementById('payment-methods-list');
+        const container = document.getElementById('save-payment-defaults-container');
+        if (list && container) {
+          if (list.children.length > 0) {
+            container.classList.remove('hidden');
+          } else {
+            container.classList.add('hidden');
+          }
+        }
+      });
+      const pmList = document.getElementById('payment-methods-list');
+      if (pmList) {
+        paymentListObserver.observe(pmList, { childList: true });
+      }
+
+      // ============================================
+      // Función para guardar valores por defecto (legacy)
+      // ============================================
+      function handleSaveDefaults() {
+        if (typeof window.saveInvoiceDefaults === 'function') {
+          window.saveInvoiceDefaults();
+        }
+      }
+
+      // Funciones globales simples para los botones
+      function setButtonLoading(btnId, loading) {
+        const btn = document.getElementById(btnId);
+        if (!btn) return;
+        const icon = btn.querySelector('.btn-icon');
+        const spinner = btn.querySelector('.btn-spinner');
+        if (loading) {
+          btn.disabled = true;
+          btn.style.opacity = '0.7';
+          btn.style.pointerEvents = 'none';
+          if (icon) icon.classList.add('hidden');
+          if (spinner) spinner.classList.remove('hidden');
+        } else {
+          btn.disabled = false;
+          btn.style.opacity = '';
+          btn.style.pointerEvents = '';
+          if (icon) icon.classList.remove('hidden');
+          if (spinner) spinner.classList.add('hidden');
+        }
+      }
+
+      async function handleSaveDraft() {
+        if (!window.saveQuoteDraft || typeof window.saveQuoteDraft !== 'function') {
+          alert('El sistema aún está cargando. Espera unos segundos.');
+          return;
+        }
+        setButtonLoading('save-draft-btn', true);
+        try {
+          await window.saveQuoteDraft();
+        } finally {
+          setButtonLoading('save-draft-btn', false);
+        }
       }
       
       async function handleGoToPreview() {
-        console.log('??? Click en Vista previa y emitir');
-        
-        // Verificar que los m?dulos est?n disponibles
-        if (!window.goToPreview || typeof window.goToPreview !== 'function') {
-          console.error('? window.goToPreview no est? disponible');
-          alert('Error: El sistema a?n est? cargando. Espera unos segundos y vuelve a intentar.');
+        if (!window.emitQuoteDirectly || typeof window.emitQuoteDirectly !== 'function') {
+          alert('El sistema aún está cargando. Espera unos segundos.');
           return;
         }
-        
-        // Llamar a la funci?n
-        console.log('? Llamando window.goToPreview()');
-        await window.goToPreview();
+        setButtonLoading('go-to-preview-btn', true);
+        try {
+          await window.emitQuoteDirectly();
+        } finally {
+          setButtonLoading('go-to-preview-btn', false);
+        }
       }
       
-      // Inicializar p?gina cuando todo est? listo
+      // Inicializar página cuando todo esté listo
       window.addEventListener('DOMContentLoaded', function() {
-        // Esperar un poco a que los scripts se carguen
         setTimeout(function() {
           if (window.initQuotePage && typeof window.initQuotePage === 'function') {
-            console.log('?? Ejecutando initQuotePage()');
             window.initQuotePage();
           }
         }, 1000);
@@ -2377,80 +2513,37 @@
     <!-- Autocompletar datos del emisor -->
     <script>
       (function() {
-        console.log('?? Inicializando autocompletado de datos del emisor...');
-        
         async function loadIssuerData() {
           try {
-            // Esperar a que los m?dulos de Supabase est?n disponibles
             let attempts = 0;
             while ((!window.getCurrentUser || !window.getBusinessInfo) && attempts < 50) {
               await new Promise(resolve => setTimeout(resolve, 100));
               attempts++;
             }
 
-            if (!window.getCurrentUser || !window.getBusinessInfo) {
-              console.error('? M?dulos de Supabase no disponibles');
-              return;
-            }
+            if (!window.getCurrentUser || !window.getBusinessInfo) return;
 
-            console.log('? M?dulos de Supabase listos');
-
-            // Obtener usuario actual
             const userResult = await window.getCurrentUser();
-            if (!userResult.success || !userResult.user) {
-              console.warn('?? No hay usuario autenticado');
-              return;
-            }
+            if (!userResult.success || !userResult.user) return;
 
             const currentUser = userResult.user;
-            console.log('? Usuario obtenido:', currentUser.email);
-
-            // Obtener datos de negocio
             const businessResult = await window.getBusinessInfo(currentUser.id);
             
-            if (!businessResult.success || !businessResult.data) {
-              console.warn('?? No se encontraron datos de negocio');
-              return;
-            }
+            if (!businessResult.success || !businessResult.data) return;
 
-            const businessData = businessResult.data;
-            console.log('? Datos de negocio obtenidos');
+            const bd = businessResult.data;
 
-            // Autocompletar campos del emisor
-            const issuerNameInput = document.getElementById('issuer-name');
-            const issuerNifInput = document.getElementById('issuer-nif');
-            const issuerEmailInput = document.getElementById('issuer-email');
-            const issuerAddressInput = document.getElementById('issuer-address');
-            const issuerPostalCodeInput = document.getElementById('issuer-postal-code');
-
-            if (issuerNameInput && businessData.nombre_fiscal) {
-              issuerNameInput.value = businessData.nombre_fiscal;
-            }
-
-            if (issuerNifInput && businessData.nif_cif) {
-              issuerNifInput.value = businessData.nif_cif;
-            }
-
-            if (issuerEmailInput && currentUser.email) {
-              issuerEmailInput.value = currentUser.email;
-            }
-
-            if (issuerAddressInput && businessData.direccion_facturacion) {
-              issuerAddressInput.value = businessData.direccion_facturacion;
-            }
-
-            if (issuerPostalCodeInput && businessData.codigo_postal) {
-              issuerPostalCodeInput.value = businessData.codigo_postal;
-            }
-
-            console.log('? Datos del emisor autocompletados correctamente');
+            if (bd.nombre_fiscal) document.getElementById('issuer-name').value = bd.nombre_fiscal;
+            if (bd.nif_cif) document.getElementById('issuer-nif').value = bd.nif_cif;
+            if (currentUser.email) document.getElementById('issuer-email').value = currentUser.email;
+            if (bd.direccion_facturacion) document.getElementById('issuer-address').value = bd.direccion_facturacion;
+            if (bd.codigo_postal) document.getElementById('issuer-postal-code').value = bd.codigo_postal;
             
           } catch (error) {
-            console.error('? Error al cargar datos del emisor:', error);
+            console.error('Error al cargar datos del emisor:', error);
           }
         }
 
-        // Inicializar cuando el DOM est? listo
         if (document.readyState === 'loading') {
           document.addEventListener('DOMContentLoaded', loadIssuerData);
         } else {
