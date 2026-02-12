@@ -146,57 +146,80 @@
                     <h3 class="text-sm font-semibold text-bgray-900 dark:text-white mb-2">Cliente</h3>
                     <p id="detail-client-name" class="text-sm font-medium text-bgray-900 dark:text-white">—</p>
                     <p id="detail-client-nif" class="text-xs text-bgray-500 dark:text-bgray-400 mt-0.5">—</p>
+                    <p id="detail-client-address" class="text-xs text-bgray-500 dark:text-bgray-400 mt-0.5 hidden"></p>
+                    <p id="detail-client-postal" class="text-xs text-bgray-500 dark:text-bgray-400 hidden"></p>
+                    <p id="detail-client-email" class="text-xs text-bgray-500 dark:text-bgray-400 mt-1 hidden"></p>
                   </section>
 
-                  <!-- Resumen económico -->
+                  <!-- Resumen (mismo estilo que new.html) -->
                   <section
-                    class="rounded-xl p-5 bg-gradient-to-br from-warning-50 to-white dark:from-warning-900/20 dark:to-darkblack-600"
-                    style="border: 1px solid #fbbf24; box-shadow: 0 0 0 1px rgba(251,191,36,0.12), 0 4px 16px rgba(251,191,36,0.06);"
+                    class="rounded-xl p-6 bg-gradient-to-br from-warning-50 to-white dark:from-warning-900/20 dark:to-darkblack-600"
+                    style="border: 1px solid #fbbf24; box-shadow: 0 0 0 1px rgba(251,191,36,0.15), 0 4px 20px rgba(251,191,36,0.08);"
                   >
-                    <h3 class="text-sm font-bold text-warning-700 dark:text-warning-300 mb-3">Resumen económico</h3>
-                    <div class="space-y-2 text-sm">
-                      <div class="flex justify-between">
+                    <div class="flex items-center gap-2 mb-4">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-warning-500">
+                        <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      <h3 class="text-lg font-bold text-warning-700 dark:text-warning-300">Resumen</h3>
+                    </div>
+                    <div class="space-y-2.5 text-sm">
+                      <!-- Subtotal -->
+                      <div class="flex justify-between items-center">
                         <span class="text-bgray-600 dark:text-bgray-300">Subtotal</span>
                         <span id="summary-subtotal" class="font-semibold text-bgray-900 dark:text-white tabular-nums">0,00 €</span>
                       </div>
-                      <div id="summary-discount-row" class="flex justify-between text-red-600 dark:text-red-400 hidden">
+                      <!-- Descuento -->
+                      <div id="summary-discount-row" class="flex justify-between items-center text-red-600 dark:text-red-400 hidden">
                         <span>Descuento</span>
                         <span id="summary-discount" class="tabular-nums">-0,00 €</span>
                       </div>
-                      <div class="flex justify-between">
+                      <!-- Base imponible -->
+                      <div class="flex justify-between items-center">
                         <span class="text-bgray-600 dark:text-bgray-300">Base imponible</span>
                         <span id="summary-base" class="font-semibold text-bgray-900 dark:text-white tabular-nums">0,00 €</span>
                       </div>
-                      <div class="flex justify-between">
+                      <!-- Impuestos -->
+                      <div class="flex justify-between items-center">
                         <span id="summary-tax-label" class="text-bgray-600 dark:text-bgray-300">Impuestos</span>
                         <span id="summary-tax" class="font-semibold text-bgray-900 dark:text-white tabular-nums">0,00 €</span>
                       </div>
-                      <div id="summary-re-row" class="flex justify-between hidden">
-                        <span id="summary-re-label" class="text-bgray-600 dark:text-bgray-300">R.E.</span>
-                        <span id="summary-re" class="font-semibold text-bgray-900 dark:text-white tabular-nums">0,00 €</span>
-                      </div>
-                      <div id="summary-retention-row" class="flex justify-between text-red-600 dark:text-red-400 hidden">
-                        <span id="summary-retention-label">Retención</span>
+                      <!-- Retención -->
+                      <div id="summary-retention-row" class="flex justify-between items-center text-red-600 dark:text-red-400 hidden">
+                        <span id="summary-retention-label">Retención (0%)</span>
                         <span id="summary-retention" class="tabular-nums">-0,00 €</span>
                       </div>
-                      <div id="summary-expenses-row" class="flex justify-between hidden">
+                      <!-- Gastos suplidos -->
+                      <div id="summary-expenses-row" class="flex justify-between items-center hidden">
                         <span class="text-bgray-600 dark:text-bgray-300">Gastos suplidos</span>
                         <span id="summary-expenses" class="font-semibold text-bgray-900 dark:text-white tabular-nums">0,00 €</span>
                       </div>
-                      <hr class="border-bgray-200 dark:border-darkblack-500 my-1" />
-                      <div class="flex justify-between text-base font-bold">
+
+                      <hr class="border-bgray-200 dark:border-darkblack-500 my-2" />
+
+                      <!-- Total -->
+                      <div class="flex justify-between items-center text-base font-bold">
                         <span class="text-bgray-900 dark:text-white">Total</span>
                         <span id="summary-total" class="text-bgray-900 dark:text-white tabular-nums">0,00 €</span>
                       </div>
-                      <div id="summary-paid-row" class="flex justify-between text-red-600 dark:text-red-400 hidden">
+                      <!-- Cantidad pagada -->
+                      <div id="summary-paid-row" class="flex justify-between items-center text-red-600 dark:text-red-400 hidden">
                         <span>Cantidad pagada</span>
                         <span id="summary-paid" class="tabular-nums">-0,00 €</span>
                       </div>
-                      <hr class="border-bgray-200 dark:border-darkblack-500 my-1" />
-                      <div class="flex justify-between items-center rounded-lg bg-warning-100/60 dark:bg-warning-900/30 px-3 py-2">
-                        <span class="text-base font-bold text-warning-800 dark:text-warning-200">Total a pagar</span>
-                        <span id="summary-total-to-pay" class="text-base font-bold text-warning-800 dark:text-warning-200 tabular-nums">0,00 €</span>
+
+                      <hr class="border-bgray-200 dark:border-darkblack-500 my-2" />
+
+                      <!-- Total a pagar -->
+                      <div class="flex justify-between items-center rounded-lg bg-warning-100/60 dark:bg-warning-900/30 px-3 py-2.5">
+                        <span class="text-lg font-bold text-warning-800 dark:text-warning-200">Total a pagar</span>
+                        <span id="summary-total-to-pay" class="text-lg font-bold text-warning-800 dark:text-warning-200 tabular-nums">0,00 €</span>
                       </div>
+
+                      <!-- Nota de cálculo automático -->
+                      <p class="text-xs text-bgray-400 dark:text-bgray-500 flex items-center gap-1 mt-1">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" class="opacity-50"><path d="M12 8V12M12 16H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        Se recalcula automáticamente
+                      </p>
                     </div>
                   </section>
 
@@ -410,41 +433,59 @@
           showEl('payment-terms-section');
         }
 
-        // Cliente
+        // Cliente — mostrar todos los datos disponibles
         setText('detail-client-name', data.client?.name || 'Sin cliente');
         setText('detail-client-nif', data.client?.nif ? 'NIF: ' + data.client.nif : '');
 
-        // Resumen económico
+        if (data.client?.address) {
+          setText('detail-client-address', data.client.address);
+          showEl('detail-client-address');
+        }
+        if (data.client?.postalCode) {
+          setText('detail-client-postal', data.client.postalCode);
+          showEl('detail-client-postal');
+        }
+        if (data.client?.email) {
+          setText('detail-client-email', data.client.email);
+          showEl('detail-client-email');
+        }
+
+        // Resumen (mismo estilo que new.html)
         var s = data.summary || {};
         setText('summary-subtotal', fmtCurrency(s.subtotal));
-        setText('summary-base', fmtCurrency(s.taxBase));
 
         if (s.discount && s.discount > 0) {
           setText('summary-discount', '-' + fmtCurrency(s.discount));
           showEl('summary-discount-row');
         }
-        setText('summary-tax-label', s.taxRate ? 'IVA ' + s.taxRate + '%' : 'Impuestos');
-        setText('summary-tax', fmtCurrency(s.taxAmount));
 
-        if (s.reAmount && s.reAmount > 0) {
-          setText('summary-re-label', 'R.E. ' + (s.reRate || 5.2) + '%');
-          setText('summary-re', fmtCurrency(s.reAmount));
-          showEl('summary-re-row');
-        }
+        setText('summary-base', fmtCurrency(s.taxBase));
+
+        // Impuestos = IVA + R.E. combinados (como en new.html)
+        var totalTaxes = (parseFloat(s.taxAmount) || 0) + (parseFloat(s.reAmount) || 0);
+        setText('summary-tax-label', 'Impuestos');
+        setText('summary-tax', fmtCurrency(totalTaxes));
+
+        // Retención
         if (s.retentionRate && s.retentionRate > 0) {
-          setText('summary-retention-label', 'Retención ' + s.retentionRate + '%');
+          setText('summary-retention-label', 'Retención (' + s.retentionRate + '%)');
           setText('summary-retention', '-' + fmtCurrency(s.retentionAmount));
           showEl('summary-retention-row');
         }
+
+        // Gastos suplidos
         if (s.expenses && s.expenses > 0) {
           setText('summary-expenses', fmtCurrency(s.expenses));
           showEl('summary-expenses-row');
         }
+
         setText('summary-total', fmtCurrency(s.total));
+
         if (s.paid && s.paid > 0) {
           setText('summary-paid', '-' + fmtCurrency(s.paid));
           showEl('summary-paid-row');
         }
+
         setText('summary-total-to-pay', fmtCurrency(s.totalToPay));
 
         // Métodos de pago

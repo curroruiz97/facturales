@@ -2565,7 +2565,7 @@
 
             <!-- Modal: Nueva/Editar Serie (fuera de los tabs para que funcione con z-index) -->
             <div id="series-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm">
-              <div class="relative w-full max-w-md mx-4 rounded-2xl bg-white dark:bg-darkblack-600 p-6 shadow-2xl border border-bgray-200 dark:border-darkblack-400">
+              <div class="relative w-full max-w-md mx-4 rounded-2xl bg-white dark:bg-darkblack-600 p-6 shadow-2xl border-2 border-success-300">
                 <div class="flex items-center justify-between mb-5">
                   <h3 id="series-modal-title" class="text-lg font-bold text-bgray-900 dark:text-white">Nueva serie</h3>
                   <button type="button" onclick="closeSeriesModal()" class="rounded-lg p-2 text-bgray-500 hover:bg-bgray-100 dark:hover:bg-darkblack-500 transition-colors">
@@ -2600,6 +2600,30 @@
                 </div>
               </div>
             </div>
+            <!-- Modal: Confirmar eliminación de serie -->
+            <div id="delete-series-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm">
+              <div class="relative w-full max-w-sm mx-4 rounded-2xl bg-white dark:bg-darkblack-600 p-6 shadow-2xl border-2 border-red-400">
+                <div class="flex flex-col items-center text-center">
+                  <div class="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
+                    <svg class="h-7 w-7 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                  </div>
+                  <h3 class="text-lg font-bold text-bgray-900 dark:text-white mb-2">Eliminar serie</h3>
+                  <p class="text-sm text-bgray-500 dark:text-bgray-400 mb-1">¿Estás seguro de que quieres eliminar esta serie?</p>
+                  <p id="delete-series-name" class="text-sm font-semibold text-bgray-700 dark:text-bgray-200 mb-6"></p>
+                </div>
+                <div class="flex justify-center gap-3">
+                  <button type="button" onclick="closeDeleteSeriesModal()" class="rounded-lg border border-bgray-300 dark:border-darkblack-400 px-5 py-2.5 text-sm font-semibold text-bgray-700 dark:text-bgray-100 hover:bg-bgray-50 dark:hover:bg-darkblack-500 transition">
+                    Cancelar
+                  </button>
+                  <button type="button" id="confirm-delete-series-btn" onclick="confirmDeleteSeries()" class="rounded-lg bg-red-500 hover:bg-red-600 px-5 py-2.5 text-sm font-semibold text-white transition">
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            </div>
+
           </main>
         </div>
       </div>
@@ -2873,6 +2897,7 @@
     </script>
     <script type="module" src="./assets/js/auth-guard.js"></script>
     <script src="./assets/js/user-header.js"></script>
+    <script src="./assets/js/invoice-series-db.js"></script>
 
     <!-- Business Info Logic -->
     <script type="module">
@@ -3191,35 +3216,33 @@
     <!-- Gestión de series y logo de factura -->
     <script>
       // ============================================
-      // SERIES DE FACTURACIÓN
+      // SERIES DE FACTURACIÓN (con Supabase)
       // ============================================
-      var SERIES_STORAGE_KEY = 'invoice_series_config';
 
-      function getSeriesConfig() {
-        try {
-          var raw = localStorage.getItem(SERIES_STORAGE_KEY);
-          if (raw) return JSON.parse(raw);
-        } catch (e) {}
-        // Series por defecto
-        return [
-          { code: 'A', description: 'Serie general', active: true },
-          { code: 'B', description: 'Serie simplificada', active: true },
-          { code: 'R', description: 'Rectificativas', active: true }
-        ];
-      }
-
-      function saveSeriesConfig(series) {
-        localStorage.setItem(SERIES_STORAGE_KEY, JSON.stringify(series));
-      }
+      // Cache local de series cargadas
+      var _settingsSeriesList = [];
 
       async function loadSeriesTable() {
         var tbody = document.getElementById('series-table-body');
         if (!tbody) return;
 
-        var series = getSeriesConfig();
-        var stats = {};
+        // Esperar a que Supabase y el módulo de series estén listos
+        if (window.supabaseAuthReady) await window.supabaseAuthReady;
+        var tries = 0;
+        while (!window.getUserSeries && tries < 30) {
+          await new Promise(function(r) { setTimeout(r, 100); });
+          tries++;
+        }
+        if (!window.getUserSeries) {
+          console.warn('getUserSeries no disponible');
+          return;
+        }
 
-        // Intentar cargar estadísticas reales de Supabase
+        // Cargar series desde BD
+        _settingsSeriesList = await window.getUserSeries();
+
+        // Cargar estadísticas de facturas
+        var stats = {};
         try {
           if (window.supabaseClient) {
             var supabase = window.supabaseClient;
@@ -3249,7 +3272,8 @@
 
         // Renderizar tabla
         var html = '';
-        series.forEach(function(s, index) {
+        _settingsSeriesList.forEach(function(s) {
+          var seriesId = s.id || '';
           var st = stats[s.code] || { total: 0, lastNumber: '—' };
           html += '<tr class="bg-white dark:bg-darkblack-600">' +
             '<td class="px-4 py-3"><span class="inline-flex items-center rounded-lg bg-bgray-100 dark:bg-darkblack-500 px-2.5 py-1 text-xs font-bold text-bgray-900 dark:text-white">' + s.code + '</span></td>' +
@@ -3258,16 +3282,16 @@
             '<td class="px-4 py-3 text-center"><span class="inline-flex items-center rounded-full bg-success-50 dark:bg-success-900/20 px-2 py-0.5 text-xs font-semibold text-success-700 dark:text-success-300">' + st.total + '</span></td>' +
             '<td class="px-4 py-3 text-center">' +
               '<div class="flex items-center justify-center gap-1">' +
-                '<button type="button" onclick="editSeries(' + index + ')" class="rounded p-1.5 text-bgray-500 hover:bg-bgray-100 dark:hover:bg-darkblack-500 transition" title="Editar">' +
+                '<button type="button" onclick="editSeries(\'' + seriesId + '\')" class="rounded p-1.5 text-bgray-500 hover:bg-bgray-100 dark:hover:bg-darkblack-500 transition" title="Editar">' +
                   '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.43739 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
                 '</button>' +
-                (st.total === 0 ? '<button type="button" onclick="deleteSeries(' + index + ')" class="rounded p-1.5 text-bgray-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition" title="Eliminar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 6H5H21M19 6V20C19 21.1046 18.1046 22 17 22H7C5.89543 22 5 21.1046 5 20V6M8 6V4C8 2.89543 8.89543 2 10 2H14C15.1046 2 16 2.89543 16 4V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' : '') +
+                (st.total === 0 ? '<button type="button" onclick="handleDeleteSeries(\'' + seriesId + '\')" class="rounded p-1.5 text-bgray-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition" title="Eliminar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 6H5H21M19 6V20C19 21.1046 18.1046 22 17 22H7C5.89543 22 5 21.1046 5 20V6M8 6V4C8 2.89543 8.89543 2 10 2H14C15.1046 2 16 2.89543 16 4V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' : '') +
               '</div>' +
             '</td>' +
           '</tr>';
         });
 
-        if (series.length === 0) {
+        if (_settingsSeriesList.length === 0) {
           html = '<tr><td colspan="5" class="px-4 py-6 text-center text-bgray-400">No hay series configuradas</td></tr>';
         }
 
@@ -3286,15 +3310,14 @@
         modal.classList.add('flex');
       }
 
-      function editSeries(index) {
-        var series = getSeriesConfig();
-        var s = series[index];
+      function editSeries(seriesId) {
+        var s = _settingsSeriesList.find(function(item) { return item.id === seriesId; });
         if (!s) return;
 
         document.getElementById('series-modal-title').textContent = 'Editar serie';
-        document.getElementById('series-edit-id').value = index;
+        document.getElementById('series-edit-id').value = seriesId;
         document.getElementById('series-code').value = s.code;
-        document.getElementById('series-code').disabled = false; // Permitir editar el código
+        document.getElementById('series-code').disabled = false;
         document.getElementById('series-description').value = s.description || '';
 
         var year = new Date().getFullYear();
@@ -3311,60 +3334,96 @@
         modal.classList.remove('flex');
       }
 
-      function saveSeries() {
+      async function saveSeries() {
         var code = document.getElementById('series-code').value.trim().toUpperCase().replace(/\s/g, '');
         var description = document.getElementById('series-description').value.trim();
         var editId = document.getElementById('series-edit-id').value;
 
         if (!code) {
-          alert('El código de serie es obligatorio');
+          if (window.showToast) window.showToast('El código de serie es obligatorio', 'error');
+          else alert('El código de serie es obligatorio');
           return;
         }
 
-        var series = getSeriesConfig();
+        var saveBtn = document.getElementById('save-series-btn');
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Guardando...';
 
-        if (editId !== '') {
-          // Editar existente
-          var idx = parseInt(editId, 10);
-          var oldCode = series[idx].code;
-          // Verificar duplicado si cambió el código
-          if (code !== oldCode) {
-            var dup = series.some(function(s, i) { return i !== idx && s.code === code; });
-            if (dup) {
-              alert('Ya existe una serie con el código "' + code + '"');
-              return;
-            }
+        try {
+          var result;
+          if (editId) {
+            // Editar existente
+            result = await window.updateSeriesDB(editId, code, description);
+          } else {
+            // Crear nueva
+            result = await window.createSeries(code, description);
           }
-          series[idx].code = code;
-          series[idx].description = description;
-        } else {
-          // Verificar duplicado
-          var exists = series.some(function(s) { return s.code === code; });
-          if (exists) {
-            alert('Ya existe una serie con el código "' + code + '"');
+
+          if (!result.success) {
+            if (window.showToast) window.showToast(result.error, 'error');
+            else alert(result.error);
             return;
           }
-          series.push({ code: code, description: description, active: true });
-        }
 
-        saveSeriesConfig(series);
-        closeSeriesModal();
-        loadSeriesTable();
+          closeSeriesModal();
+          await loadSeriesTable();
 
-        // Actualizar select de series en localStorage para new.html
-        var customSeries = JSON.parse(localStorage.getItem('invoice_custom_series') || '[]');
-        if (!customSeries.includes(code) && !['A', 'B', 'R'].includes(code)) {
-          customSeries.push(code);
-          localStorage.setItem('invoice_custom_series', JSON.stringify(customSeries));
+          if (window.showToast) {
+            window.showToast(editId ? 'Serie actualizada' : 'Serie creada correctamente', 'success');
+          }
+        } catch (e) {
+          console.error('Error al guardar serie:', e);
+          if (window.showToast) window.showToast('Error al guardar la serie', 'error');
+          else alert('Error al guardar la serie');
+        } finally {
+          saveBtn.disabled = false;
+          saveBtn.textContent = 'Guardar serie';
         }
       }
 
-      function deleteSeries(index) {
-        if (!confirm('¿Eliminar esta serie?')) return;
-        var series = getSeriesConfig();
-        series.splice(index, 1);
-        saveSeriesConfig(series);
-        loadSeriesTable();
+      var _seriesToDeleteId = null;
+
+      function handleDeleteSeries(seriesId) {
+        _seriesToDeleteId = seriesId;
+        // Buscar nombre de la serie
+        var s = _settingsSeriesList.find(function(item) { return item.id === seriesId; });
+        var nameEl = document.getElementById('delete-series-name');
+        if (nameEl && s) {
+          nameEl.textContent = 'Serie: ' + s.code + (s.description ? ' — ' + s.description : '');
+        }
+        var modal = document.getElementById('delete-series-modal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+
+      function closeDeleteSeriesModal() {
+        var modal = document.getElementById('delete-series-modal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        _seriesToDeleteId = null;
+      }
+
+      async function confirmDeleteSeries() {
+        if (!_seriesToDeleteId) return;
+        var btn = document.getElementById('confirm-delete-series-btn');
+        btn.disabled = true;
+        btn.textContent = 'Eliminando...';
+        try {
+          var result = await window.deleteSeriesDB(_seriesToDeleteId);
+          if (result.success) {
+            closeDeleteSeriesModal();
+            await loadSeriesTable();
+            if (window.showToast) window.showToast('Serie eliminada correctamente', 'success');
+          } else {
+            if (window.showToast) window.showToast(result.error || 'Error al eliminar', 'error');
+          }
+        } catch (e) {
+          console.error('Error al eliminar serie:', e);
+          if (window.showToast) window.showToast('Error al eliminar la serie', 'error');
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Eliminar';
+        }
       }
 
       // ============================================
@@ -3532,10 +3591,10 @@
 
       // Inicializar al cargar
       document.addEventListener('DOMContentLoaded', function() {
-        // Esperar un poco a que Supabase cargue
+        // Cargar series (la función espera internamente a Supabase)
         setTimeout(function() {
           loadSeriesTable();
-        }, 2000);
+        }, 500);
         initLogoUpload();
         initBrandColorPreview();
       });

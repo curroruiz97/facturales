@@ -385,71 +385,84 @@ function renderTransactions(transactions) {
 }
 
 /**
- * Actualizar controles de paginación
+ * Actualizar controles de paginación (dinámico, mismo estilo que contactos)
  */
 function updatePagination(totalTransactions) {
   const totalPages = Math.ceil(totalTransactions / resultsPerPage);
-  const paginationContainer = document.querySelector('.pagination-content .flex.items-center');
-  
-  if (!paginationContainer) return;
-  
-  // Limpiar botones de páginas existentes
-  const pageButtonsContainer = paginationContainer.querySelector('.flex.items-center:last-child');
-  if (pageButtonsContainer) {
-    pageButtonsContainer.innerHTML = '';
-    
-    if (totalPages <= 1) {
-      // Si solo hay una página, mostrar solo el botón 1
-      pageButtonsContainer.innerHTML = `
-        <button
-          type="button"
-          class="rounded-lg bg-success-50 px-4 py-1.5 text-xs font-bold text-success-300 dark:bg-darkblack-500 dark:text-bgray-50 lg:px-6 lg:py-2.5 lg:text-sm"
-        >
-          1
-        </button>
-      `;
-    } else if (totalPages <= 5) {
-      // Mostrar todos los botones si hay 5 o menos páginas
-      for (let i = 1; i <= totalPages; i++) {
-        const isActive = i === currentPage;
-        pageButtonsContainer.innerHTML += `
-          <button
-            type="button"
-            onclick="goToPage(${i})"
-            class="rounded-lg ${isActive ? 'bg-success-50 text-success-300' : 'text-bgray-500 hover:bg-success-50 hover:text-success-300'} px-4 py-1.5 text-xs font-bold transition duration-300 ease-in-out dark:hover:bg-darkblack-500 lg:px-6 lg:py-2.5 lg:text-sm ${isActive ? 'dark:bg-darkblack-500 dark:text-bgray-50' : ''}"
-          >
-            ${i}
-          </button>
-        `;
-      }
-    } else {
-      // Mostrar con elipsis para muchas páginas
-      pageButtonsContainer.innerHTML = `
-        <button
-          type="button"
-          onclick="goToPage(1)"
-          class="rounded-lg ${currentPage === 1 ? 'bg-success-50 text-success-300 dark:bg-darkblack-500 dark:text-bgray-50' : 'text-bgray-500 hover:bg-success-50 hover:text-success-300 dark:hover:bg-darkblack-500'} px-4 py-1.5 text-xs font-bold transition duration-300 ease-in-out lg:px-6 lg:py-2.5 lg:text-sm"
-        >
-          1
-        </button>
-        <button
-          type="button"
-          onclick="goToPage(2)"
-          class="rounded-lg ${currentPage === 2 ? 'bg-success-50 text-success-300 dark:bg-darkblack-500 dark:text-bgray-50' : 'text-bgray-500 hover:bg-success-50 hover:text-success-300 dark:hover:bg-darkblack-500'} px-4 py-1.5 text-xs font-bold transition duration-300 ease-in-out lg:px-6 lg:py-2.5 lg:text-sm"
-        >
-          2
-        </button>
-        <span class="text-sm text-bgray-500">. . . .</span>
-        <button
-          type="button"
-          onclick="goToPage(${totalPages})"
-          class="rounded-lg ${currentPage === totalPages ? 'bg-success-50 text-success-300 dark:bg-darkblack-500 dark:text-bgray-50' : 'text-bgray-500 hover:bg-success-50 hover:text-success-300 dark:hover:bg-darkblack-500'} px-4 py-1.5 text-xs font-bold transition duration-300 ease-in-out lg:px-6 lg:py-2.5 lg:text-sm"
-        >
-          ${totalPages}
-        </button>
-      `;
-    }
+  const container = document.getElementById('expenses-page-buttons');
+  if (!container) return;
+  container.innerHTML = '';
+
+  if (totalPages <= 1) return;
+
+  // Botón anterior
+  const prevBtn = document.createElement('button');
+  prevBtn.type = 'button';
+  prevBtn.innerHTML = '<svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.7217 5.03271L7.72168 10.0327L12.7217 15.0327" stroke="#A0AEC0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  if (currentPage <= 1) {
+    prevBtn.classList.add('opacity-40', 'cursor-not-allowed');
+  } else {
+    prevBtn.onclick = function () { goToPage(currentPage - 1); };
   }
+  container.appendChild(prevBtn);
+
+  // Contenedor de números
+  const nums = document.createElement('div');
+  nums.className = 'flex items-center';
+
+  const activeClass = 'rounded-lg bg-success-50 px-4 py-1.5 text-xs font-bold text-success-300 dark:bg-darkblack-500 dark:text-bgray-50 lg:px-6 lg:py-2.5 lg:text-sm';
+  const normalClass = 'rounded-lg px-4 py-1.5 text-xs font-bold text-bgray-500 transition duration-300 ease-in-out hover:bg-success-50 hover:text-success-300 dark:hover:bg-darkblack-500 lg:px-6 lg:py-2.5 lg:text-sm';
+
+  function addPageBtn(page) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = page;
+    btn.className = page === currentPage ? activeClass : normalClass;
+    if (page !== currentPage) btn.onclick = function () { goToPage(page); };
+    nums.appendChild(btn);
+  }
+
+  function addEllipsis() {
+    const span = document.createElement('span');
+    span.className = 'text-sm text-bgray-500 px-1';
+    span.textContent = '...';
+    nums.appendChild(span);
+  }
+
+  if (totalPages <= 7) {
+    for (let i = 1; i <= totalPages; i++) addPageBtn(i);
+  } else {
+    addPageBtn(1);
+    if (currentPage > 3) addEllipsis();
+    var start = Math.max(2, currentPage - 1);
+    var end = Math.min(totalPages - 1, currentPage + 1);
+    if (currentPage <= 3) { start = 2; end = 4; }
+    if (currentPage >= totalPages - 2) { start = totalPages - 3; end = totalPages - 1; }
+    for (let i = start; i <= end; i++) addPageBtn(i);
+    if (currentPage < totalPages - 2) addEllipsis();
+    addPageBtn(totalPages);
+  }
+
+  container.appendChild(nums);
+
+  // Botón siguiente
+  const nextBtn = document.createElement('button');
+  nextBtn.type = 'button';
+  nextBtn.innerHTML = '<svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.72168 5.03271L12.7217 10.0327L7.72168 15.0327" stroke="#A0AEC0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  if (currentPage >= totalPages) {
+    nextBtn.classList.add('opacity-40', 'cursor-not-allowed');
+  } else {
+    nextBtn.onclick = function () { goToPage(currentPage + 1); };
+  }
+  container.appendChild(nextBtn);
+}
+
+/**
+ * Toggle dropdown de resultados por página
+ */
+function toggleExpensesPerPageDropdown() {
+  const dd = document.getElementById('result-filter');
+  if (dd) dd.classList.toggle('hidden');
 }
 
 /**
@@ -472,6 +485,10 @@ function setResultsPerPage(perPage) {
   if (display) {
     display.textContent = perPage;
   }
+  
+  // Cerrar dropdown
+  const dd = document.getElementById('result-filter');
+  if (dd) dd.classList.add('hidden');
   
   // Re-renderizar con el nuevo límite
   renderTransactions(allTransactions);
@@ -810,6 +827,7 @@ window.applyDateFilter = applyDateFilter;
 window.goToPage = goToPage;
 window.setResultsPerPage = setResultsPerPage;
 window.updatePagination = updatePagination;
+window.toggleExpensesPerPageDropdown = toggleExpensesPerPageDropdown;
 
 // Cargar transacciones al iniciar la página
 document.addEventListener('DOMContentLoaded', () => {

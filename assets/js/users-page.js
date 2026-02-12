@@ -4,9 +4,12 @@
  */
 
 // Estado global
-let currentClientId = null; // ID del cliente siendo editado (null = modo crear)
-let clientToDelete = null; // Cliente pendiente de eliminar
-let allClients = []; // Cache de todos los clientes
+let currentClientId = null;
+let clientToDelete = null;
+let allClients = [];
+let _usersInvoiceTotals = {}; // { client_id: totalAmount }
+let _usersCurrentPage = 1;
+let _usersPerPage = 10;
 
 /**
  * Inicializar la página al cargar
@@ -17,15 +20,52 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /**
+ * Cargar totales facturados por cliente desde invoices (status = 'issued')
+ */
+async function loadInvoiceTotals() {
+  try {
+    if (!window.supabaseClient) return;
+    const supabase = window.supabaseClient;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from('invoices')
+      .select('client_id, total_amount')
+      .eq('user_id', user.id)
+      .eq('status', 'issued');
+
+    if (error || !data) return;
+
+    _usersInvoiceTotals = {};
+    data.forEach(function(inv) {
+      if (inv.client_id) {
+        _usersInvoiceTotals[inv.client_id] = (_usersInvoiceTotals[inv.client_id] || 0) + (parseFloat(inv.total_amount) || 0);
+      }
+    });
+  } catch (e) {
+    console.error('Error loading invoice totals:', e);
+  }
+}
+
+/**
  * Cargar clientes desde Supabase
  */
 async function loadClients(searchTerm = '') {
   try {
+    // Cargar totales de facturas primero
+    await loadInvoiceTotals();
+
     const result = await getClients(searchTerm);
     
     if (result.success) {
+      // Añadir total facturado a cada cliente
+      result.data.forEach(function(c) {
+        c._totalFacturado = _usersInvoiceTotals[c.id] || 0;
+      });
       allClients = result.data;
-      renderClientsTable(result.data);
+      _usersCurrentPage = 1;
+      renderPage();
       updateClientsCount(result.data.length);
     } else {
       showToast('Error al cargar clientes: ' + result.error, 'error');
@@ -49,6 +89,28 @@ function updateClientsCount(count) {
 }
 
 /**
+ * Formatear moneda EUR
+ */
+function formatEUR(amount) {
+  return new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount) + ' €';
+}
+
+/**
+ * Renderizar la página actual
+ */
+function renderPage() {
+  var total = allClients.length;
+  var totalPages = Math.max(1, Math.ceil(total / _usersPerPage));
+  if (_usersCurrentPage > totalPages) _usersCurrentPage = totalPages;
+  var start = (_usersCurrentPage - 1) * _usersPerPage;
+  var end = start + _usersPerPage;
+  var pageClients = allClients.slice(start, end);
+
+  renderClientsTable(pageClients);
+  renderPagination(totalPages);
+}
+
+/**
  * Renderizar la tabla de clientes
  */
 function renderClientsTable(clients) {
@@ -59,25 +121,28 @@ function renderClientsTable(clients) {
     return;
   }
   
-  // Limpiar tabla
   tbody.innerHTML = '';
   
-  // Si no hay clientes, mostrar estado vacío
-  if (clients.length === 0) {
+  if (clients.length === 0 && allClients.length === 0) {
     renderEmptyState();
     return;
   }
+
+  if (clients.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="py-12 text-center"><p class="text-sm text-bgray-600 dark:text-bgray-50">No hay clientes en esta página</p></td></tr>';
+    return;
+  }
   
-  // Renderizar cada cliente
   clients.forEach(client => {
     const row = document.createElement('tr');
     row.className = 'border-b border-bgray-200 dark:border-darkblack-400';
     
-    // Columna: Cliente
     const initials = getInitials(client.nombre_razon_social);
     const estadoBadge = client.estado === 'activo' 
       ? `<button onclick="toggleClientStatus('${client.id}', '${client.estado}')" class="inline-flex items-center rounded-lg bg-success-50 px-3 py-1 text-xs font-semibold text-success-300 dark:bg-darkblack-500 hover:bg-success-100 transition-colors cursor-pointer">Activo</button>`
       : `<button onclick="toggleClientStatus('${client.id}', '${client.estado}')" class="inline-flex items-center rounded-lg bg-bgray-100 px-3 py-1 text-xs font-semibold text-bgray-700 dark:bg-darkblack-500 dark:text-bgray-50 hover:bg-bgray-200 transition-colors cursor-pointer">Inactivo</button>`;
+    
+    const totalFacturado = client._totalFacturado || 0;
     
     row.innerHTML = `
       <td class="py-5 pr-6">
@@ -105,6 +170,9 @@ function renderClientsTable(clients) {
       <td class="px-6 py-5">
         ${estadoBadge}
       </td>
+      <td class="px-6 py-5">
+        <p class="text-sm font-semibold text-bgray-900 dark:text-white">${formatEUR(totalFacturado)}</p>
+      </td>
       <td class="py-5 pl-6 text-right">
         <div class="inline-flex items-center gap-2">
           <button onclick="openEditClientModal('${client.id}')" class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-bgray-100 transition hover:bg-bgray-200 dark:bg-darkblack-500 hover:dark:bg-darkblack-400" type="button" title="Editar">
@@ -129,6 +197,89 @@ function renderClientsTable(clients) {
 }
 
 /**
+ * Renderizar paginación
+ */
+function renderPagination(totalPages) {
+  var container = document.getElementById('users-page-buttons');
+  if (!container) return;
+  container.innerHTML = '';
+
+  // Botón anterior
+  var prevBtn = document.createElement('button');
+  prevBtn.type = 'button';
+  prevBtn.innerHTML = '<svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.7217 5.03271L7.72168 10.0327L12.7217 15.0327" stroke="#A0AEC0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  prevBtn.disabled = _usersCurrentPage <= 1;
+  prevBtn.style.opacity = _usersCurrentPage <= 1 ? '0.3' : '1';
+  prevBtn.onclick = function() { if (_usersCurrentPage > 1) { _usersCurrentPage--; renderPage(); } };
+  container.appendChild(prevBtn);
+
+  // Botones de página
+  var pagesDiv = document.createElement('div');
+  pagesDiv.className = 'flex items-center';
+
+  for (var i = 1; i <= totalPages; i++) {
+    (function(page) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = page;
+      if (page === _usersCurrentPage) {
+        btn.className = 'rounded-lg bg-success-50 px-4 py-1.5 text-xs font-bold text-success-300 dark:bg-darkblack-500 dark:text-bgray-50 lg:px-6 lg:py-2.5 lg:text-sm';
+      } else {
+        btn.className = 'rounded-lg px-4 py-1.5 text-xs font-bold text-bgray-500 transition duration-300 ease-in-out hover:bg-success-50 hover:text-success-300 dark:hover:bg-darkblack-500 lg:px-6 lg:py-2.5 lg:text-sm';
+      }
+      btn.onclick = function() { _usersCurrentPage = page; renderPage(); };
+      pagesDiv.appendChild(btn);
+    })(i);
+
+    // Si hay muchas páginas, mostrar "..."
+    if (totalPages > 5 && i === 2 && _usersCurrentPage > 3) {
+      var dots = document.createElement('span');
+      dots.className = 'text-sm text-bgray-500';
+      dots.textContent = '. . . .';
+      pagesDiv.appendChild(dots);
+      i = Math.max(i, Math.min(_usersCurrentPage - 1, totalPages - 2));
+    }
+    if (totalPages > 5 && i === _usersCurrentPage + 1 && i < totalPages - 1) {
+      var dots2 = document.createElement('span');
+      dots2.className = 'text-sm text-bgray-500';
+      dots2.textContent = '. . . .';
+      pagesDiv.appendChild(dots2);
+      i = totalPages - 1;
+    }
+  }
+  container.appendChild(pagesDiv);
+
+  // Botón siguiente
+  var nextBtn = document.createElement('button');
+  nextBtn.type = 'button';
+  nextBtn.innerHTML = '<svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.72168 5.03271L12.7217 10.0327L7.72168 15.0327" stroke="#A0AEC0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  nextBtn.disabled = _usersCurrentPage >= totalPages;
+  nextBtn.style.opacity = _usersCurrentPage >= totalPages ? '0.3' : '1';
+  nextBtn.onclick = function() { if (_usersCurrentPage < totalPages) { _usersCurrentPage++; renderPage(); } };
+  container.appendChild(nextBtn);
+}
+
+/**
+ * Paginación: cambiar items por página
+ */
+function setUsersPerPage(n) {
+  _usersPerPage = n;
+  _usersCurrentPage = 1;
+  var display = document.getElementById('users-per-page-display');
+  if (display) display.textContent = n;
+  var dd = document.getElementById('users-per-page-filter');
+  if (dd) dd.classList.add('hidden');
+  renderPage();
+}
+window.setUsersPerPage = setUsersPerPage;
+
+function toggleUsersPerPageDropdown() {
+  var dd = document.getElementById('users-per-page-filter');
+  if (dd) dd.classList.toggle('hidden');
+}
+window.toggleUsersPerPageDropdown = toggleUsersPerPageDropdown;
+
+/**
  * Renderizar estado vacío cuando no hay clientes
  */
 function renderEmptyState() {
@@ -137,7 +288,7 @@ function renderEmptyState() {
   
   tbody.innerHTML = `
     <tr>
-      <td colspan="5" class="py-12 text-center">
+      <td colspan="6" class="py-12 text-center">
         <div class="flex flex-col items-center gap-4">
           <svg class="stroke-bgray-300 dark:stroke-darkblack-400" width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M17 21H7C5.89543 21 5 20.1046 5 19V5C5 3.89543 5.89543 3 7 3H12L17 8V19C17 20.1046 16.1046 21 17 21Z" stroke-width="2"/>
@@ -173,77 +324,47 @@ function initModal() {
   const modal = document.getElementById('multi-step-modal');
   const form = document.getElementById('client-form');
   
-  // Botones para abrir el modal
   const openButtons = document.querySelectorAll('.modal-open');
   openButtons.forEach(btn => {
     btn.addEventListener('click', () => openCreateClientModal());
   });
   
-  // Botones para cerrar el modal
   const closeButtons = document.querySelectorAll('#step-1-cancel, #step-1-cancel-2');
   closeButtons.forEach(btn => {
     btn.addEventListener('click', () => closeClientModal());
   });
   
-  // Overlay para cerrar
   const overlay = modal?.querySelector('.modal-overlay');
   if (overlay) {
     overlay.addEventListener('click', () => closeClientModal());
   }
   
-  // Form submit
   if (form) {
     form.addEventListener('submit', handleSubmitClient);
   }
 }
 
-/**
- * Abrir modal en modo crear
- */
 function openCreateClientModal() {
   currentClientId = null;
-  
-  // Cambiar título
   const title = document.querySelector('#multi-step-modal h2, #multi-step-modal h3');
   if (title) title.textContent = 'Nuevo Cliente';
-  
-  // Limpiar formulario
   document.getElementById('client-form').reset();
   document.getElementById('client-id').value = '';
-  
-  // Cambiar texto del botón
   const saveBtn = document.getElementById('client-save-btn');
   if (saveBtn) saveBtn.textContent = 'Guardar';
-  
-  // Mostrar modal
   const modal = document.getElementById('multi-step-modal');
-  if (modal) {
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-  }
+  if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
 }
 
-/**
- * Abrir modal en modo editar
- */
 async function openEditClientModal(clientId) {
   currentClientId = clientId;
-  
-  // Cambiar título
   const title = document.querySelector('#multi-step-modal h2, #multi-step-modal h3');
   if (title) title.textContent = 'Editar Cliente';
-  
-  // Cambiar texto del botón
   const saveBtn = document.getElementById('client-save-btn');
   if (saveBtn) saveBtn.textContent = 'Actualizar';
-  
-  // Cargar datos del cliente
   const result = await getClientById(clientId);
-  
   if (result.success) {
     const client = result.data;
-    
-    // Rellenar formulario
     document.getElementById('client-id').value = client.id;
     document.getElementById('client-name').value = client.nombre_razon_social || '';
     document.getElementById('client-taxid').value = client.identificador || '';
@@ -255,46 +376,26 @@ async function openEditClientModal(clientId) {
     document.getElementById('client-country').value = client.pais || '';
     document.getElementById('client-billing-day').value = client.dia_facturacion || '30';
     document.getElementById('client-status').value = client.estado === 'activo' ? 'active' : 'inactive';
-    
-    // Mostrar modal
     const modal = document.getElementById('multi-step-modal');
-    if (modal) {
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-    }
+    if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
   } else {
     showToast('Error al cargar el cliente', 'error');
   }
 }
 
-/**
- * Cerrar modal
- */
 function closeClientModal() {
   const modal = document.getElementById('multi-step-modal');
-  if (modal) {
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
-  }
-  
-  // Limpiar estado
+  if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
   currentClientId = null;
 }
 
-/**
- * Manejar envío del formulario (crear o actualizar)
- */
 async function handleSubmitClient(event) {
   event.preventDefault();
-  
-  // Deshabilitar botón para evitar doble submit
   const saveBtn = document.getElementById('client-save-btn');
   const originalText = saveBtn.textContent;
   saveBtn.disabled = true;
   saveBtn.textContent = 'Guardando...';
-  
   try {
-    // Recoger datos del formulario
     const clientData = {
       nombre_razon_social: document.getElementById('client-name').value,
       identificador: document.getElementById('client-taxid').value,
@@ -307,107 +408,58 @@ async function handleSubmitClient(event) {
       dia_facturacion: document.getElementById('client-billing-day').value || null,
       estado: document.getElementById('client-status').value === 'active' ? 'activo' : 'inactivo'
     };
-    
     let result;
-    
-    // Crear o actualizar según el modo
     if (currentClientId) {
       result = await updateClient(currentClientId, clientData);
-      if (result.success) {
-        showToast('Cliente actualizado correctamente', 'success');
-      }
+      if (result.success) showToast('Cliente actualizado correctamente', 'success');
     } else {
       result = await createClient(clientData);
-      if (result.success) {
-        showToast('Cliente creado correctamente', 'success');
-      }
+      if (result.success) showToast('Cliente creado correctamente', 'success');
     }
-    
-    if (result.success) {
-      closeClientModal();
-      loadClients(); // Recargar la tabla
-    } else {
-      showToast(result.error || 'Error al guardar el cliente', 'error');
-    }
+    if (result.success) { closeClientModal(); loadClients(); }
+    else showToast(result.error || 'Error al guardar el cliente', 'error');
   } catch (error) {
     console.error('Error saving client:', error);
     showToast('Error al guardar el cliente', 'error');
   } finally {
-    // Rehabilitar botón
     saveBtn.disabled = false;
     saveBtn.textContent = originalText;
   }
 }
 
-/**
- * Abrir modal de confirmación de eliminación
- */
 function openDeleteModal(clientId, clientName) {
   clientToDelete = clientId;
-  
-  // Mostrar nombre del cliente
   const nameElement = document.getElementById('delete-client-name');
-  if (nameElement) {
-    nameElement.textContent = `Cliente: ${clientName}`;
-  }
-  
-  // Mostrar modal
+  if (nameElement) nameElement.textContent = `Cliente: ${clientName}`;
   const modal = document.getElementById('delete-confirm-modal');
-  if (modal) {
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-  }
+  if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
 }
 
-/**
- * Cerrar modal de eliminación
- */
 function closeDeleteModal() {
   const modal = document.getElementById('delete-confirm-modal');
-  if (modal) {
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
-  }
+  if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
   clientToDelete = null;
 }
 
-/**
- * Confirmar eliminación del cliente
- */
 async function confirmDeleteClient() {
   if (!clientToDelete) return;
-  
   try {
     const result = await deleteClient(clientToDelete);
-    
-    if (result.success) {
-      showToast('Cliente eliminado correctamente', 'success');
-      closeDeleteModal();
-      loadClients(); // Recargar la tabla
-    } else {
-      showToast(result.error || 'Error al eliminar el cliente', 'error');
-    }
+    if (result.success) { showToast('Cliente eliminado correctamente', 'success'); closeDeleteModal(); loadClients(); }
+    else showToast(result.error || 'Error al eliminar el cliente', 'error');
   } catch (error) {
     console.error('Error deleting client:', error);
     showToast('Error al eliminar el cliente', 'error');
   }
 }
 
-/**
- * Cambiar estado del cliente con un solo clic
- */
 async function toggleClientStatus(clientId, currentStatus) {
   try {
-    // Determinar el nuevo estado
     const newStatus = currentStatus === 'activo' ? 'inactivo' : 'activo';
-    
-    // Actualizar en Supabase
     const result = await updateClient(clientId, { estado: newStatus });
-    
     if (result.success) {
-      const statusText = newStatus === 'activo' ? 'activado' : 'desactivado';
-      showToast(`Cliente ${statusText} correctamente`, 'success');
-      loadClients(); // Recargar la tabla
+      showToast(`Cliente ${newStatus === 'activo' ? 'activado' : 'desactivado'} correctamente`, 'success');
+      loadClients();
     } else {
       showToast(result.error || 'Error al cambiar el estado', 'error');
     }
@@ -417,7 +469,7 @@ async function toggleClientStatus(clientId, currentStatus) {
   }
 }
 
-// Hacer funciones globales para que puedan ser llamadas desde HTML
+// Hacer funciones globales
 window.handleSearchClients = handleSearchClients;
 window.openCreateClientModal = openCreateClientModal;
 window.openEditClientModal = openEditClientModal;

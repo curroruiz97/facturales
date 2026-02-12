@@ -400,10 +400,8 @@
                         class="h-11 w-full rounded-lg border border-bgray-200 bg-white px-4 text-sm text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
                       >
                         <option value="A">A</option>
-                        <option value="B">B</option>
-                        <option value="R">R (rectificativa)</option>
                       </select>
-                      <button type="button" onclick="promptAddSeries()" class="mt-1.5 text-[11px] font-medium text-success-300 hover:text-success-300 transition-colors">
+                      <button type="button" onclick="openNewSeriesModal()" class="mt-1.5 text-[11px] font-medium text-success-300 hover:text-success-300 transition-colors">
                         + Añadir nueva serie
                       </button>
                     </div>
@@ -1583,6 +1581,25 @@
         return Number(value.replace(/,/g, ".")) || 0;
       };
 
+      // Función para actualizar visibilidad de botones de eliminar
+      function updateDeleteButtons() {
+        const container = document.getElementById('invoice-lines');
+        if (!container) return;
+        const allLines = container.querySelectorAll(':scope > div.rounded-lg');
+        const deleteBtns = container.querySelectorAll('button[title="Eliminar línea"]');
+        deleteBtns.forEach(function(btn) {
+          if (allLines.length <= 1) {
+            btn.style.opacity = '0.3';
+            btn.style.pointerEvents = 'none';
+            btn.setAttribute('disabled', 'true');
+          } else {
+            btn.style.opacity = '1';
+            btn.style.pointerEvents = 'auto';
+            btn.removeAttribute('disabled');
+          }
+        });
+      }
+
       // Función para añadir event listener de eliminar a una línea
       function attachDeleteListener(conceptLine) {
         const deleteBtn = conceptLine.querySelector('button[title="Eliminar línea"]');
@@ -1595,15 +1612,15 @@
             e.preventDefault();
             e.stopPropagation();
             
-            const container = document.querySelector('.space-y-4');
-            const allLines = container.querySelectorAll('div.rounded-lg');
+            const container = document.getElementById('invoice-lines');
+            if (!container) return;
+            const allLines = container.querySelectorAll(':scope > div.rounded-lg');
             
             if (allLines.length > 1) {
               conceptLine.remove();
               updateAllConceptTotals();
               updateInvoiceSummary();
-            } else {
-              alert('Debe haber al menos un concepto en la factura');
+              updateDeleteButtons();
             }
           });
         }
@@ -1686,12 +1703,17 @@
       }
 
       // Listener para el botón "Añadir línea"
-      document.getElementById("add-line")?.addEventListener("click", addConceptLine);
+      document.getElementById("add-line")?.addEventListener("click", function() {
+        addConceptLine();
+        updateDeleteButtons();
+      });
       
       // Añadir funcionalidad de eliminar a las líneas existentes
-      document.querySelectorAll('.space-y-4 > div.rounded-lg').forEach(conceptLine => {
+      document.querySelectorAll('#invoice-lines > div.rounded-lg').forEach(conceptLine => {
         attachDeleteListener(conceptLine);
       });
+      // Inicializar visibilidad de botones de eliminar
+      updateDeleteButtons();
 
       const clientSearch = document.getElementById("client-search");
       const clientOptions = Array.from(
@@ -2312,61 +2334,128 @@
     <!-- Sistema de valores por defecto -->
     <script src="../assets/js/invoice-defaults.js" defer></script>
     <script src="../assets/js/invoice-numbering.js" defer></script>
+    <!-- Series de facturación (BD) -->
+    <script src="../assets/js/invoice-series-db.js" defer></script>
 
     <!-- Funciones de manejo de botones -->
     <script>
       // ============================================
-      // Gestión de series de factura
+      // Gestión de series de factura (con BD)
       // ============================================
-      function promptAddSeries() {
-        const newSeries = prompt('Introduce el nombre de la nueva serie (ej: C, 2026-A, RECT):');
-        if (!newSeries || !newSeries.trim()) return;
-        
-        const select = document.getElementById('invoice-series');
+
+      // Cargar series del usuario desde BD al iniciar
+      async function loadSeriesFromDB() {
+        // Esperar a que Supabase esté listo
+        if (window.supabaseAuthReady) await window.supabaseAuthReady;
+        // Esperar a que getUserSeries esté disponible
+        var tries = 0;
+        while (!window.getUserSeries && tries < 20) {
+          await new Promise(function(r) { setTimeout(r, 100); });
+          tries++;
+        }
+        if (!window.getUserSeries) return;
+
+        var series = await window.getUserSeries();
+        var select = document.getElementById('invoice-series');
         if (!select) return;
-        
-        // Verificar si ya existe
-        for (let i = 0; i < select.options.length; i++) {
-          if (select.options[i].value === newSeries.trim().toUpperCase()) {
-            select.value = newSeries.trim().toUpperCase();
+
+        // Guardar valor actual (puede venir de defaults)
+        var currentVal = select.value;
+
+        // Limpiar opciones existentes
+        select.innerHTML = '';
+
+        // Añadir las series de la BD
+        series.forEach(function(s) {
+          var opt = document.createElement('option');
+          opt.value = s.code;
+          opt.textContent = s.description ? s.code + ' (' + s.description + ')' : s.code;
+          select.appendChild(opt);
+        });
+
+        // Restaurar valor si existía
+        if (currentVal) {
+          var found = false;
+          for (var i = 0; i < select.options.length; i++) {
+            if (select.options[i].value === currentVal) { found = true; break; }
+          }
+          if (found) select.value = currentVal;
+        }
+
+        // Disparar change para actualizar número
+        select.dispatchEvent(new Event('change'));
+      }
+
+      // Iniciar carga de series
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+          setTimeout(loadSeriesFromDB, 600);
+        });
+      } else {
+        setTimeout(loadSeriesFromDB, 600);
+      }
+
+      // ============================================
+      // Modal de nueva serie (reemplaza prompt)
+      // ============================================
+      function openNewSeriesModal() {
+        var modal = document.getElementById('new-series-modal');
+        if (!modal) return;
+        document.getElementById('new-series-code').value = '';
+        document.getElementById('new-series-description').value = '';
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.getElementById('new-series-code').focus();
+      }
+
+      function closeNewSeriesModal() {
+        var modal = document.getElementById('new-series-modal');
+        if (!modal) return;
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+
+      async function saveNewSeries() {
+        var code = document.getElementById('new-series-code').value.trim().toUpperCase().replace(/\s/g, '');
+        var description = document.getElementById('new-series-description').value.trim();
+
+        if (!code) {
+          if (window.showToast) window.showToast('El código de serie es obligatorio', 'error');
+          return;
+        }
+
+        var btn = document.getElementById('save-new-series-btn');
+        btn.disabled = true;
+        btn.textContent = 'Guardando...';
+
+        try {
+          var result = await window.createSeries(code, description);
+          if (!result.success) {
+            if (window.showToast) window.showToast(result.error, 'error');
             return;
           }
-        }
-        
-        // Añadir nueva opción
-        const opt = document.createElement('option');
-        opt.value = newSeries.trim().toUpperCase();
-        opt.textContent = newSeries.trim().toUpperCase();
-        select.appendChild(opt);
-        select.value = opt.value;
-        
-        // Guardar series personalizadas en localStorage
-        const saved = JSON.parse(localStorage.getItem('invoice_custom_series') || '[]');
-        if (!saved.includes(opt.value)) {
-          saved.push(opt.value);
-          localStorage.setItem('invoice_custom_series', JSON.stringify(saved));
+
+          closeNewSeriesModal();
+
+          // Recargar series en el select
+          await loadSeriesFromDB();
+
+          // Seleccionar la nueva serie
+          var select = document.getElementById('invoice-series');
+          if (select) {
+            select.value = code;
+            select.dispatchEvent(new Event('change'));
+          }
+
+          if (window.showToast) window.showToast('Serie "' + code + '" creada correctamente', 'success');
+        } catch (e) {
+          console.error('Error al crear serie:', e);
+          if (window.showToast) window.showToast('Error al crear la serie', 'error');
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Guardar serie';
         }
       }
-      
-      // Cargar series personalizadas al iniciar
-      (function loadCustomSeries() {
-        const saved = JSON.parse(localStorage.getItem('invoice_custom_series') || '[]');
-        const select = document.getElementById('invoice-series');
-        if (!select) return;
-        saved.forEach(function(s) {
-          // Verificar que no exista ya
-          let exists = false;
-          for (let i = 0; i < select.options.length; i++) {
-            if (select.options[i].value === s) { exists = true; break; }
-          }
-          if (!exists) {
-            const opt = document.createElement('option');
-            opt.value = s;
-            opt.textContent = s;
-            select.appendChild(opt);
-          }
-        });
-      })();
 
       // ============================================
       // Toggle número manual/automático
@@ -2554,6 +2643,43 @@
         }
       })();
     </script>
+
+    <!-- Modal: Nueva Serie -->
+    <div id="new-series-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div class="relative w-full max-w-md mx-4 rounded-2xl bg-white dark:bg-darkblack-600 p-6 shadow-2xl border-2 border-success-300">
+        <div class="flex items-center justify-between mb-5">
+          <h3 class="text-lg font-bold text-bgray-900 dark:text-white">Nueva serie</h3>
+          <button type="button" onclick="closeNewSeriesModal()" class="rounded-lg p-2 text-bgray-500 hover:bg-bgray-100 dark:hover:bg-darkblack-500 transition-colors">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="space-y-4">
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">Código de serie <span class="text-red-400">*</span></label>
+            <input type="text" id="new-series-code" maxlength="10" placeholder="EJ. A, B, RECT" class="h-11 w-full rounded-lg border border-bgray-200 px-4 text-sm text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-white uppercase" />
+            <p class="mt-1 text-xs text-bgray-400">Máximo 10 caracteres, sin espacios.</p>
+          </div>
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">Descripción</label>
+            <input type="text" id="new-series-description" placeholder="Ej: Serie general, Rectificativas..." class="h-11 w-full rounded-lg border border-bgray-200 px-4 text-sm text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-white" />
+          </div>
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">Siguiente número</label>
+            <div class="h-11 w-full rounded-lg border border-bgray-200 bg-bgray-50 px-4 flex items-center text-sm text-bgray-500 dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-400">
+              Se calcula automáticamente
+            </div>
+          </div>
+        </div>
+        <div class="mt-6 flex justify-end gap-3">
+          <button type="button" onclick="closeNewSeriesModal()" class="rounded-lg border border-bgray-300 dark:border-darkblack-400 px-5 py-2.5 text-sm font-semibold text-bgray-700 dark:text-bgray-100 hover:bg-bgray-50 dark:hover:bg-darkblack-500 transition">
+            Cancelar
+          </button>
+          <button type="button" id="save-new-series-btn" onclick="saveNewSeries()" class="rounded-lg bg-success-300 hover:bg-success-400 px-5 py-2.5 text-sm font-semibold text-white transition">
+            Guardar serie
+          </button>
+        </div>
+      </div>
+    </div>
 
   </body>
 </html>
