@@ -46,31 +46,18 @@ function initLayoutHandlers() {
 }
 
 $(function () {
-  //search - usa delegación de eventos (funciona siempre)
+  //search - Ctrl+K para enfocar búsqueda (solo con Ctrl pulsado)
   $(document).on("keydown", (e) => {
-    switch (e.key) {
-      case "k":
-      case "Control":
-        e.preventDefault();
-        e.stopPropagation();
-        break;
-    }
-    ``;
     if (e.key === "k" && e.ctrlKey) {
+      e.preventDefault();
       $("#search").trigger("focus");
     }
   });
   
-  //drawer key access - usa delegación de eventos (funciona siempre)
+  //drawer key access - Ctrl+B para toggle sidebar (solo con Ctrl pulsado)
   $(document).on("keydown", (e) => {
-    switch (e.key) {
-      case "b":
-      case "Control":
-        e.preventDefault();
-        e.stopPropagation();
-        break;
-    }
     if (e.key === "b" && e.ctrlKey) {
+      e.preventDefault();
       const checkClassExits = $(".layout-wrapper");
       if (checkClassExits.hasClass("active")) {
         checkClassExits.removeClass("active");

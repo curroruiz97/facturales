@@ -3360,6 +3360,7 @@
 
       function removeInvoiceLogo() {
         localStorage.removeItem(LOGO_STORAGE_KEY);
+        localStorage.removeItem('invoice_logo_dimensions');
         var preview = document.getElementById('invoice-logo-preview');
         var placeholder = document.getElementById('invoice-logo-placeholder');
         var removeBtn = document.getElementById('remove-logo-btn');
@@ -3391,14 +3392,26 @@
         var reader = new FileReader();
         reader.onload = function(ev) {
           var base64 = ev.target.result;
-          saveInvoiceLogo(base64);
-          if (preview) {
-            preview.src = base64;
-            preview.classList.remove('hidden');
-          }
-          if (placeholder) placeholder.classList.add('hidden');
-          if (removeBtn) removeBtn.classList.remove('hidden');
-          if (nameEl) nameEl.textContent = file.name;
+          
+          // Obtener dimensiones reales de la imagen antes de guardar
+          var tempImg = new Image();
+          tempImg.onload = function() {
+            // Guardar dimensiones para que el PDF generator las use
+            localStorage.setItem('invoice_logo_dimensions', JSON.stringify({
+              w: tempImg.naturalWidth,
+              h: tempImg.naturalHeight
+            }));
+            
+            saveInvoiceLogo(base64);
+            if (preview) {
+              preview.src = base64;
+              preview.classList.remove('hidden');
+            }
+            if (placeholder) placeholder.classList.add('hidden');
+            if (removeBtn) removeBtn.classList.remove('hidden');
+            if (nameEl) nameEl.textContent = file.name;
+          };
+          tempImg.src = base64;
         };
         reader.readAsDataURL(file);
       }

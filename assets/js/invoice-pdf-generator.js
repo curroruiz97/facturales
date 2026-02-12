@@ -49,11 +49,19 @@ class InvoicePDFGenerator {
   }
 
   /**
-   * Carga el logo de factura desde localStorage
+   * Carga el logo de factura desde localStorage (con dimensiones)
    */
   loadInvoiceLogo() {
     try {
-      return localStorage.getItem('invoice_logo_data') || null;
+      var data = localStorage.getItem('invoice_logo_data') || null;
+      if (data) {
+        // Intentar cargar dimensiones guardadas
+        var dims = localStorage.getItem('invoice_logo_dimensions');
+        if (dims) {
+          try { this.logoDimensions = JSON.parse(dims); } catch (e) {}
+        }
+      }
+      return data;
     } catch (e) {
       return null;
     }
@@ -127,27 +135,25 @@ class InvoicePDFGenerator {
       try {
         var format = 'PNG';
         if (this.logoData.includes('image/jpeg') || this.logoData.includes('image/jpg')) format = 'JPEG';
-        if (this.logoData.includes('image/webp')) format = 'WEBP';
         
-        // Calcular proporciones correctas: máximo 50mm ancho x 25mm alto
-        var maxW = 50, maxH = 25;
-        var img = new Image();
-        img.src = this.logoData;
-        var ratio = img.naturalWidth / img.naturalHeight;
-        var w, h;
-        if (ratio >= 1) {
-          // Horizontal o cuadrado
-          w = Math.min(maxW, maxH * ratio);
-          h = w / ratio;
-        } else {
-          // Vertical
-          h = maxH;
-          w = h * ratio;
+        // Usar dimensiones guardadas para calcular proporciones correctas
+        var maxW = 50, maxH = 22;
+        var w = 30, h = 15; // defaults
+        
+        if (this.logoDimensions && this.logoDimensions.w && this.logoDimensions.h) {
+          var ratio = this.logoDimensions.w / this.logoDimensions.h;
+          if (ratio >= 1) {
+            w = Math.min(maxW, maxH * ratio);
+            h = w / ratio;
+          } else {
+            h = Math.min(maxH, maxW / ratio);
+            w = h * ratio;
+          }
         }
-        // Fallback si las dimensiones no se calculan bien
-        if (!w || !h || isNaN(w) || isNaN(h)) { w = 30; h = 20; }
         
-        this.doc.addImage(this.logoData, format, this.margin, this.currentY + (30 - h) / 2, w, h);
+        // Centrar verticalmente en el espacio del header (30mm)
+        var yOffset = Math.max(0, (28 - h) / 2);
+        this.doc.addImage(this.logoData, format, this.margin, this.currentY + yOffset, w, h);
       } catch (e) {
         this.drawLogoFallback(issuer, brandRgb);
       }

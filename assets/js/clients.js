@@ -309,14 +309,13 @@ async function deleteClient(clientId) {
 }
 
 /**
- * Buscar clientes para autocompletado (mínimo 3 caracteres)
+ * Buscar clientes para autocompletado (mínimo 1 carácter)
  * @param {string} term - Término de búsqueda
  * @returns {Promise<Array>} Lista filtrada de clientes
  */
 async function searchClientsAutocomplete(term) {
   try {
-    // Validar que el término tenga al menos 3 caracteres
-    if (!term || term.trim().length < 3) {
+    if (!term || term.trim().length < 1) {
       return { success: true, data: [] };
     }
 
