@@ -220,7 +220,7 @@
                 <!-- revenue, flow -->
                 <div class="mb-[24px] w-full xl:flex xl:space-x-[24px]">
                   <div
-                    class="flex w-full flex-col justify-between rounded-lg bg-white px-[24px] py-3 dark:bg-darkblack-600 xl:w-66"
+                    class="flex w-full flex-col rounded-lg bg-white px-[24px] py-3 dark:bg-darkblack-600 xl:w-66"
                   >
                     <div
                       class="mb-2 flex items-center justify-between border-b border-bgray-300 pb-2 dark:border-darkblack-400"
@@ -309,8 +309,8 @@
                         </div>
                       </div>
                     </div>
-                    <div class="w-full">
-                      <canvas id="revenueFlow" height="255"></canvas>
+                    <div class="w-full flex-1 relative min-h-[300px]">
+                      <canvas id="revenueFlow" class="absolute inset-0 w-full h-full"></canvas>
                     </div>
                   </div>
                   <!-- Panel: Objetivos e Ingresos/Gastos reales -->
@@ -319,7 +319,7 @@
                       <div class="flex items-center justify-between border-b border-bgray-200 dark:border-darkblack-400 px-5 py-3">
                         <h3 class="text-lg font-bold text-bgray-900 dark:text-white">Objetivos</h3>
                         <div class="flex items-center gap-2">
-                          <select id="finance-period-select" onchange="changeFinancePeriod(this.value)" class="rounded-lg border border-bgray-200 bg-bgray-50 px-2.5 py-1 text-xs font-medium text-bgray-700 dark:bg-darkblack-500 dark:border-darkblack-400 dark:text-bgray-300 focus:outline-none focus:border-success-300">
+                          <select id="finance-period-select" onchange="changeFinancePeriod(this.value)" class="rounded-lg border border-bgray-200 bg-bgray-50 pl-3 pr-8 py-1.5 text-sm font-medium text-bgray-700 dark:bg-darkblack-500 dark:border-darkblack-400 dark:text-bgray-300 focus:outline-none focus:border-success-300 min-w-[140px]">
                             <option value="year" selected>Año completo</option>
                             <option value="q1">1º Trimestre</option>
                             <option value="q2">2º Trimestre</option>
@@ -2254,6 +2254,7 @@
         },
         options: {
           maintainAspectRatio: false,
+          responsive: true,
           scales: {
             y: {
               beginAtZero: true,
@@ -2855,10 +2856,92 @@
       }
     </script>
 
+    <!-- Modal: Editar Objetivo de Ingresos -->
+    <div id="income-goal-modal" class="modal fixed inset-0 z-50 hidden flex items-center justify-center overflow-y-auto bg-black/50 backdrop-blur-sm transition-opacity duration-200" role="dialog" aria-labelledby="income-goal-modal-title" aria-modal="true">
+      <!-- Overlay -->
+      <div class="modal-overlay absolute inset-0" onclick="closeIncomeGoalModal()"></div>
+      
+      <!-- Modal Content -->
+      <div class="modal-content relative w-full max-w-sm mx-4 transform transition-all duration-200">
+        <div class="relative rounded-2xl bg-white dark:bg-darkblack-600 shadow-2xl border-2 border-warning-300">
+          <!-- Header -->
+          <div class="flex items-center justify-between border-b border-bgray-200 dark:border-darkblack-400 px-6 py-4">
+            <h3 id="income-goal-modal-title" class="text-lg font-bold text-bgray-900 dark:text-white">
+              Objetivo de Ingresos
+            </h3>
+            <button 
+              type="button" 
+              onclick="closeIncomeGoalModal()"
+              class="rounded-lg p-2 text-bgray-500 hover:bg-bgray-100 dark:hover:bg-darkblack-500 transition-colors"
+              aria-label="Cerrar modal"
+            >
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+          
+          <!-- Body -->
+          <div class="px-6 py-5">
+            <form id="income-goal-form" onsubmit="handleSaveIncomeGoal(event)">
+              <div>
+                <label for="income-goal-input" class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
+                  Objetivo de ingresos anuales (&euro;)
+                </label>
+                <input
+                  type="number"
+                  id="income-goal-input"
+                  min="0"
+                  step="0.01"
+                  required
+                  class="w-full h-12 rounded-lg border border-bgray-300 dark:border-darkblack-400 bg-white dark:bg-darkblack-500 px-4 py-3 text-sm text-bgray-900 dark:text-white placeholder:text-bgray-500 focus:border-success-300 focus:ring-2 focus:ring-success-300/20 transition-all"
+                  placeholder="Ej: 50000"
+                />
+              </div>
+              
+              <!-- Footer -->
+              <div class="flex items-center justify-end gap-3 mt-5">
+                <button
+                  type="button"
+                  onclick="closeIncomeGoalModal()"
+                  class="rounded-lg border border-bgray-300 dark:border-darkblack-400 px-5 py-2.5 text-sm font-semibold text-bgray-700 dark:text-bgray-50 hover:bg-bgray-50 dark:hover:bg-darkblack-500 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  id="income-goal-save-btn"
+                  class="rounded-lg bg-success-300 hover:bg-success-400 px-5 py-2.5 text-sm font-semibold text-white transition-colors"
+                >
+                  Guardar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estilos animaciones modal -->
+    <style>
+      .modal.flex {
+        animation: fadeIn 0.2s ease-out;
+      }
+      .modal.flex .modal-content {
+        animation: slideIn 0.2s ease-out;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      @keyframes slideIn {
+        from { opacity: 0; transform: scale(0.95) translateY(-10px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+      }
+    </style>
+
     <!-- Panel financiero: Objetivo + Datos reales -->
     <script>
-      var GOAL_STORAGE_KEY = 'revenue_goal_annual';
-
       function fmtEUR(v) {
         return new Intl.NumberFormat('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.round(parseFloat(v) || 0)) + ' \u20AC';
       }
@@ -2866,15 +2949,82 @@
         return new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(parseFloat(v) || 0) + ' \u20AC';
       }
 
-      function editRevenueGoal() {
-        var current = localStorage.getItem(GOAL_STORAGE_KEY) || '0';
-        var input = prompt('Introduce tu objetivo de ingresos anuales (\u20AC):', current);
-        if (input === null) return;
-        var val = parseFloat(input.replace(/[^0-9.,]/g, '').replace(',', '.')) || 0;
-        if (val > 0) {
-          localStorage.setItem(GOAL_STORAGE_KEY, String(val));
+      // --- Modal: Editar Objetivo de Ingresos ---
+      function openIncomeGoalModal() {
+        var modal = document.getElementById('income-goal-modal');
+        var input = document.getElementById('income-goal-input');
+        // Prellenar con el valor actual guardado
+        input.value = window._currentIncomeGoal || '';
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        setTimeout(function() { input.focus(); input.select(); }, 100);
+      }
+
+      function closeIncomeGoalModal() {
+        var modal = document.getElementById('income-goal-modal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+
+      // Cerrar con Escape
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeIncomeGoalModal();
+      });
+
+      async function handleSaveIncomeGoal(e) {
+        e.preventDefault();
+        var input = document.getElementById('income-goal-input');
+        var val = parseFloat(input.value) || 0;
+        if (val < 0) val = 0;
+
+        var btn = document.getElementById('income-goal-save-btn');
+        btn.disabled = true;
+        btn.textContent = 'Guardando...';
+
+        try {
+          // Esperar Supabase
+          var attempts = 0;
+          while (!window.supabaseClient && attempts < 100) {
+            await new Promise(function(r) { setTimeout(r, 100); });
+            attempts++;
+          }
+          if (!window.supabaseClient) throw new Error('Supabase no disponible');
+
+          var supabase = window.supabaseClient;
+          var userResult = await supabase.auth.getUser();
+          if (!userResult.data || !userResult.data.user) throw new Error('No autenticado');
+          var userId = userResult.data.user.id;
+
+          // Upsert en business_info
+          var { error } = await supabase
+            .from('business_info')
+            .update({ income_goal: val })
+            .eq('user_id', userId);
+
+          if (error) {
+            // Si no existe registro, intentar insert
+            if (error.code === 'PGRST116') {
+              await supabase.from('business_info').insert({ user_id: userId, income_goal: val });
+            } else {
+              throw error;
+            }
+          }
+
+          window._currentIncomeGoal = val;
+          closeIncomeGoalModal();
           loadFinancePanel();
+        } catch (err) {
+          console.error('Error guardando objetivo:', err);
+          alert('Error al guardar el objetivo. Inténtalo de nuevo.');
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Guardar';
         }
+      }
+
+      // Alias para el botón "Editar" del HTML
+      function editRevenueGoal() {
+        openIncomeGoalModal();
       }
 
       async function loadFinancePanel() {
@@ -2946,8 +3096,19 @@
             quotesCount = quotesResult.count || (quotesResult.data ? quotesResult.data.length : 0);
           } catch (e) {}
 
-          // Objetivo (proporcionado por trimestre si no es año completo)
-          var goalFull = parseFloat(localStorage.getItem(GOAL_STORAGE_KEY)) || 0;
+          // Cargar objetivo desde business_info en Supabase
+          var goalFull = 0;
+          try {
+            var bizResult = await supabase
+              .from('business_info')
+              .select('income_goal')
+              .eq('user_id', userId)
+              .single();
+            if (bizResult.data && bizResult.data.income_goal != null) {
+              goalFull = parseFloat(bizResult.data.income_goal) || 0;
+            }
+          } catch (e) {}
+          window._currentIncomeGoal = goalFull;
           var goal = (period === 'year') ? goalFull : Math.round(goalFull / 4);
           var profit = totalRevenue - expensesTotal;
           var progressPct = goal > 0 ? Math.min(100, Math.round((totalRevenue / goal) * 100)) : 0;

@@ -3003,6 +3003,22 @@
             if (data.profile_image_url) {
               profileImagePreview.src = data.profile_image_url;
             }
+
+            // Cargar logo de factura desde Supabase y sincronizar con localStorage
+            if (data.invoice_image_url) {
+              localStorage.setItem('invoice_logo_data', data.invoice_image_url);
+              var logoPreview = document.getElementById('invoice-logo-preview');
+              var logoPlaceholder = document.getElementById('invoice-logo-placeholder');
+              var logoRemoveBtn = document.getElementById('remove-logo-btn');
+              var logoNameEl = document.getElementById('invoice-logo-name');
+              if (logoPreview) {
+                logoPreview.src = data.invoice_image_url;
+                logoPreview.classList.remove('hidden');
+              }
+              if (logoPlaceholder) logoPlaceholder.classList.add('hidden');
+              if (logoRemoveBtn) logoRemoveBtn.classList.remove('hidden');
+              if (logoNameEl) logoNameEl.textContent = 'Logo guardado';
+            }
           } else {
             // Si no tiene datos de negocio, redirigir a complete-profile
             window.location.href = './complete-profile.html';
@@ -3110,6 +3126,12 @@
                 saveButton.textContent = 'Guardar perfil';
                 return;
               }
+            }
+
+            // Si el logo de factura ha cambiado, incluirlo en la actualización
+            if (_invoiceLogoChanged) {
+              updates.invoice_image_url = _invoiceLogoBase64;
+              _invoiceLogoChanged = false;
             }
 
             const result = await window.updateBusinessInfo(currentUser.id, updates);
@@ -3346,21 +3368,32 @@
       }
 
       // ============================================
-      // LOGO DE FACTURA
+      // LOGO DE FACTURA (persistido en Supabase + cache localStorage)
       // ============================================
       var LOGO_STORAGE_KEY = 'invoice_logo_data';
+
+      // Bandera para saber si el logo ha cambiado y hay que guardarlo en Supabase al submit
+      var _invoiceLogoChanged = false;
+      var _invoiceLogoBase64 = null;
 
       function getInvoiceLogo() {
         return localStorage.getItem(LOGO_STORAGE_KEY) || null;
       }
 
       function saveInvoiceLogo(base64Data) {
+        // Guardar en localStorage (cache para PDF generator)
         localStorage.setItem(LOGO_STORAGE_KEY, base64Data);
+        // Marcar como pendiente de guardar en Supabase
+        _invoiceLogoChanged = true;
+        _invoiceLogoBase64 = base64Data;
       }
 
-      function removeInvoiceLogo() {
+      async function removeInvoiceLogo() {
         localStorage.removeItem(LOGO_STORAGE_KEY);
         localStorage.removeItem('invoice_logo_dimensions');
+        _invoiceLogoChanged = true;
+        _invoiceLogoBase64 = null;
+
         var preview = document.getElementById('invoice-logo-preview');
         var placeholder = document.getElementById('invoice-logo-placeholder');
         var removeBtn = document.getElementById('remove-logo-btn');
@@ -3369,6 +3402,21 @@
         if (placeholder) placeholder.classList.remove('hidden');
         if (removeBtn) removeBtn.classList.add('hidden');
         if (nameEl) nameEl.textContent = 'Ningún logo seleccionado';
+
+        // Eliminar directamente de Supabase también
+        try {
+          if (window.supabaseClient) {
+            var supabase = window.supabaseClient;
+            var userResult = await supabase.auth.getUser();
+            if (userResult.data && userResult.data.user) {
+              await supabase.from('business_info')
+                .update({ invoice_image_url: null })
+                .eq('user_id', userResult.data.user.id);
+            }
+          }
+        } catch (e) {
+          console.error('Error eliminando logo de Supabase:', e);
+        }
       }
 
       function processLogoFile(file) {
@@ -3426,7 +3474,7 @@
 
         if (!input) return;
 
-        // Cargar logo existente
+        // Cargar logo existente (primero localStorage, luego Supabase lo sobreescribirá si hay datos)
         var existing = getInvoiceLogo();
         if (existing && preview) {
           preview.src = existing;

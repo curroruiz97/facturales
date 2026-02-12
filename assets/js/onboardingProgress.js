@@ -416,10 +416,12 @@ async function loadOnboardingProgress() {
       const arrow = document.getElementById('arrowPrimerosPasos');
       
       if (content && arrow) {
-        // Expandir por defecto
+        // Expandir por defecto con transición
+        content.style.transition = 'all 0.5s ease-in-out';
         content.style.maxHeight = content.scrollHeight + 'px';
         content.style.opacity = '1';
-        arrow.style.transform = 'rotate(180deg)';
+        content.style.marginTop = '1.5rem';
+        arrow.style.transform = 'rotate(0deg)';
       }
     }, 100);
 

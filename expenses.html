@@ -2168,24 +2168,26 @@
           // Colapsar
           content.style.maxHeight = '0px';
           content.style.opacity = '0';
-          arrow.style.transform = 'rotate(0deg)';
+          content.style.marginTop = '0';
+          arrow.style.transform = 'rotate(-90deg)';
         } else {
           // Expandir
           content.style.maxHeight = content.scrollHeight + 'px';
           content.style.opacity = '1';
-          arrow.style.transform = 'rotate(180deg)';
+          content.style.marginTop = '1.5rem';
+          arrow.style.transform = 'rotate(0deg)';
         }
       }
 
-      // Inicializar el estado expandido al cargar la página
-      document.addEventListener('DOMContentLoaded', function() {
+      // Inicializar el estado expandido por defecto
+      window.addEventListener('DOMContentLoaded', function() {
         const content = document.getElementById('primerosPasosContent');
-        const arrow = document.getElementById('arrowPrimerosPasos');
-        
-        // Expandir por defecto
-        content.style.maxHeight = content.scrollHeight + 'px';
-        content.style.opacity = '1';
-        arrow.style.transform = 'rotate(180deg)';
+        if (content) {
+          content.style.maxHeight = content.scrollHeight + 'px';
+          content.style.opacity = '1';
+          content.style.marginTop = '1.5rem';
+          content.style.transition = 'all 0.5s ease-in-out';
+        }
       });
     </script>
 
@@ -2208,6 +2210,15 @@
     
     <!-- User header y utilidades -->
     <script src="./assets/js/user-header.js"></script>
+    <script src="./assets/js/onboardingProgress.js"></script>
+    
+    <!-- Cargar onboarding y verificar business info -->
+    <script type="module">
+      await new Promise(resolve => setTimeout(resolve, 200));
+      await window.checkBusinessInfoComplete();
+      await window.loadOnboardingProgress();
+    </script>
+
     <script src="./assets/js/toast.js"></script>
     <script src="./assets/js/clients.js"></script>
     <script src="./assets/js/transactions.js"></script>
