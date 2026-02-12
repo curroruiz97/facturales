@@ -179,7 +179,7 @@ function createDraftRow(draft) {
  */
 function editDraft(draftId) {
   console.log('✏️ Editando borrador:', draftId);
-  window.location.href = `quote?draft=${draftId}`;
+  window.location.href = `quote.html?draft=${draftId}`;
 }
 
 /**

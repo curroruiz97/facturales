@@ -31,7 +31,7 @@ async function loadIssuedQuotes() {
     
     if (!resultIssued.success) {
       console.error('❌ Error al cargar presupuestos emitidos:', resultIssued.error);
-      showToast('Error al cargar presupuestos', 'error');
+      showQuoteToast('Error al cargar presupuestos', 'error');
       return;
     }
     
@@ -54,7 +54,7 @@ async function loadIssuedQuotes() {
     
   } catch (error) {
     console.error('❌ Error en loadIssuedQuotes:', error);
-    showToast('Error al cargar presupuestos', 'error');
+    showQuoteToast('Error al cargar presupuestos', 'error');
   }
 }
 
@@ -243,7 +243,7 @@ function createIssuedRow(quote) {
  */
 function viewQuote(quoteId) {
   console.log('👁️ Viendo presupuesto:', quoteId);
-  window.location.href = `preview?quote=${quoteId}`;
+  window.location.href = `preview.html?quote=${quoteId}`;
 }
 
 /**
@@ -259,19 +259,19 @@ async function togglePaymentStatus(quoteId, newPaidStatus) {
     
     if (!result.success) {
       console.error('❌ Error al cambiar estado:', result.error);
-      showToast(result.error || 'Error al actualizar el estado de pago', 'error');
+      showQuoteToast(result.error || 'Error al actualizar el estado de pago', 'error');
       return;
     }
     
     console.log('✅ Estado de pago actualizado');
-    showToast(newPaidStatus ? 'Presupuesto marcado como pagado' : 'Presupuesto marcado como no pagado', 'success');
+    showQuoteToast(newPaidStatus ? 'Presupuesto marcado como pagado' : 'Presupuesto marcado como no pagado', 'success');
     
     // Recargar lista para actualizar UI
     await loadIssuedQuotes();
     
   } catch (error) {
     console.error('❌ Error en togglePaymentStatus:', error);
-    showToast('Error al actualizar el estado de pago', 'error');
+    showQuoteToast('Error al actualizar el estado de pago', 'error');
   }
 }
 
@@ -318,12 +318,12 @@ async function confirmCancelQuote() {
     
     if (!result.success) {
       console.error('❌ Error al anular:', result.error);
-      showToast(result.error || 'Error al anular el presupuesto', 'error');
+      showQuoteToast(result.error || 'Error al anular el presupuesto', 'error');
       return;
     }
     
     console.log('✅ Presupuesto anulado');
-    showToast('Presupuesto anulado correctamente', 'success');
+    showQuoteToast('Presupuesto anulado correctamente', 'success');
     
     // Cerrar modal
     closeCancelModal();
@@ -333,7 +333,7 @@ async function confirmCancelQuote() {
     
   } catch (error) {
     console.error('❌ Error en confirmCancelQuote:', error);
-    showToast('Error al anular el presupuesto', 'error');
+    showQuoteToast('Error al anular el presupuesto', 'error');
   }
 }
 
@@ -364,11 +364,10 @@ function handleSearchIssued(searchTerm) {
  * @param {string} message - Mensaje a mostrar
  * @param {string} type - Tipo: 'success' | 'error'
  */
-function showToast(message, type = 'success') {
-  if (window.showToast) {
-    window.showToast(message, type);
+function showQuoteToast(message, type) {
+  if (window.showToast && typeof window.showToast === 'function') {
+    try { window.showToast(message, type || 'success'); } catch (e) { alert(message); }
   } else {
-    // Fallback
     alert(message);
   }
 }

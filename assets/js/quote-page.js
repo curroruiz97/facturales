@@ -682,7 +682,7 @@ async function saveQuoteDraft() {
     // Redirigir a borradores después de un breve delay
     setTimeout(() => {
       console.log('🔄 Redirigiendo a borradores...');
-      window.location.href = 'quote-drafts';
+      window.location.href = 'quote-drafts.html';
     }, 1500);
     
   } catch (error) {
@@ -756,7 +756,7 @@ async function goToPreview() {
     
     // Redirigir a preview con el ID del borrador
     console.log('🔄 Redirigiendo a preview con ID:', draftId);
-    window.location.href = `preview?draft=${draftId}`;
+    window.location.href = `preview.html?draft=${draftId}`;
     
   } catch (error) {
     console.error('❌ Error en goToPreview:', error);
@@ -820,7 +820,7 @@ async function emitQuoteDirectly() {
     
     // Redirigir a emitidos
     setTimeout(() => {
-      window.location.href = 'quote-issued';
+      window.location.href = 'quote-issued.html';
     }, 1500);
     
   } catch (error) {
