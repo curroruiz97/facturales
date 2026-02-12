@@ -556,7 +556,11 @@ function collectFormData() {
           series: document.getElementById('invoice-series')?.value || 'A'
         },
         payment: {
-          terms: document.getElementById('payment-terms')?.value || ''
+          terms: document.getElementById('payment-terms')?.value || '',
+          termsLabel: (function() {
+            var sel = document.getElementById('payment-terms');
+            return sel ? sel.options[sel.selectedIndex]?.text || '' : '';
+          })()
         },
         dates: {
           issue: issueDate,
@@ -570,7 +574,14 @@ function collectFormData() {
         options: {
           recargoEquivalencia: document.getElementById('recargo-equivalencia')?.checked || false,
           gastosSuplidos: parseFloat(document.getElementById('gastos-suplidos-amount')?.value) || 0,
-          observaciones: document.getElementById('observaciones')?.value || null
+          observaciones: (function() {
+            var cb = document.getElementById('observaciones');
+            if (!cb || !cb.checked) return null;
+            var field = document.getElementById('observaciones-field');
+            if (!field || field.classList.contains('hidden')) return null;
+            var ta = field.querySelector('textarea');
+            return ta && ta.value.trim() ? ta.value.trim() : null;
+          })()
         },
         adjustments: {
           discount: parseFloat(document.getElementById('discount')?.value) || 0,

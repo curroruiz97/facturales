@@ -114,7 +114,7 @@ class InvoicePDFGenerator {
     }
     
     // Observaciones
-    if (invoiceData.observations) {
+    if (invoiceData.observations && invoiceData.observations !== 'on' && invoiceData.observations.trim()) {
       this.drawObservations(invoiceData.observations);
     }
     
@@ -134,26 +134,30 @@ class InvoicePDFGenerator {
     if (this.logoData) {
       try {
         var format = 'PNG';
-        if (this.logoData.includes('image/jpeg') || this.logoData.includes('image/jpg')) format = 'JPEG';
+        if (this.logoData.indexOf('image/jpeg') !== -1 || this.logoData.indexOf('image/jpg') !== -1) format = 'JPEG';
         
-        // Usar dimensiones guardadas para calcular proporciones correctas
-        var maxW = 50, maxH = 22;
-        var w = 30, h = 15; // defaults
+        // Obtener dimensiones del logo
+        var maxW = 45, maxH = 20;
+        var imgW = 30, imgH = 15;
+        var dims = this.logoDimensions;
         
-        if (this.logoDimensions && this.logoDimensions.w && this.logoDimensions.h) {
-          var ratio = this.logoDimensions.w / this.logoDimensions.h;
+        if (dims && dims.w > 0 && dims.h > 0) {
+          var ratio = dims.w / dims.h;
           if (ratio >= 1) {
-            w = Math.min(maxW, maxH * ratio);
-            h = w / ratio;
+            // Horizontal: limitar por ancho
+            imgW = maxW;
+            imgH = imgW / ratio;
+            if (imgH > maxH) { imgH = maxH; imgW = imgH * ratio; }
           } else {
-            h = Math.min(maxH, maxW / ratio);
-            w = h * ratio;
+            // Vertical: limitar por alto
+            imgH = maxH;
+            imgW = imgH * ratio;
+            if (imgW > maxW) { imgW = maxW; imgH = imgW / ratio; }
           }
         }
         
-        // Centrar verticalmente en el espacio del header (30mm)
-        var yOffset = Math.max(0, (28 - h) / 2);
-        this.doc.addImage(this.logoData, format, this.margin, this.currentY + yOffset, w, h);
+        var yOff = Math.max(0, (26 - imgH) / 2);
+        this.doc.addImage(this.logoData, format, this.margin, this.currentY + yOff, imgW, imgH);
       } catch (e) {
         this.drawLogoFallback(issuer, brandRgb);
       }
@@ -280,6 +284,9 @@ class InvoicePDFGenerator {
     }
     if (invoice.dueDate) {
       invoiceInfo.push({ label: 'Vencimiento', value: invoice.dueDate });
+    }
+    if (invoice.paymentTerms) {
+      invoiceInfo.push({ label: 'Condiciones', value: invoice.paymentTerms });
     }
     
     let invoiceY = this.currentY + 7;

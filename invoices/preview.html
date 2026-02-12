@@ -206,6 +206,12 @@
                     <div id="preview-payment-methods" class="space-y-2"></div>
                   </section>
 
+                  <!-- Condiciones de pago -->
+                  <section id="payment-terms-section" class="rounded-xl border border-bgray-200 bg-white p-5 shadow-sm dark:border-darkblack-400 dark:bg-darkblack-600 hidden">
+                    <h3 class="text-sm font-semibold text-bgray-900 dark:text-white mb-2">Condiciones de pago</h3>
+                    <p id="detail-payment-terms" class="text-sm text-bgray-600 dark:text-bgray-400">—</p>
+                  </section>
+
                   <!-- Info -->
                   <div class="rounded-lg border border-bgray-200 dark:border-darkblack-400 bg-white dark:bg-darkblack-600 p-4">
                     <div class="flex gap-3">
@@ -214,6 +220,28 @@
                         Revisa la vista previa antes de emitir. Una vez emitida, la factura no se podrá modificar.
                       </p>
                     </div>
+                  </div>
+
+                  <!-- Botones de acción (duplicados abajo) -->
+                  <div id="bottom-actions" class="space-y-2">
+                    <button
+                      type="button"
+                      id="emit-invoice-btn-bottom"
+                      onclick="handleEmitInvoice()"
+                      class="w-full rounded-lg bg-success-300 hover:bg-success-400 px-6 py-3.5 text-sm font-semibold text-white transition shadow-sm flex items-center justify-center gap-2"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 13L9 17L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      Emitir factura
+                    </button>
+                    <button
+                      type="button"
+                      id="save-draft-btn-bottom"
+                      onclick="handleSaveDraft()"
+                      class="w-full rounded-lg border border-bgray-300 px-6 py-3 text-sm font-semibold text-bgray-700 transition hover:border-success-300 hover:bg-success-50 dark:border-darkblack-400 dark:text-bgray-100 flex items-center justify-center gap-2"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M19 21H5C3.89543 21 3 20.1046 3 19V5C3 3.89543 3.89543 3 5 3H16L21 8V19C21 20.1046 20.1046 21 19 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 21V13H7V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      Guardar borrador
+                    </button>
                   </div>
 
                 </div>
@@ -251,74 +279,74 @@
 
     <!-- Lógica de la página de preview -->
     <script>
-      let currentInvoiceData = null;
-      let pdfGenerator = null;
-      let currentInvoiceId = null;
-      let isReadOnly = false;
+      var currentInvoiceData = null;
+      var pdfGenerator = null;
+      var currentInvoiceId = null;
+      var isReadOnly = false;
 
-      // ============================================
-      // Formateo de moneda
-      // ============================================
       function fmtCurrency(value) {
-        const num = parseFloat(value) || 0;
-        return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(num);
+        return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(parseFloat(value) || 0);
       }
 
+      function formatDateForDisplay(isoDate) {
+        if (!isoDate) return '';
+        try {
+          var d = new Date(isoDate);
+          return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
+        } catch (e) { return isoDate; }
+      }
+
+      function setText(id, text) { var el = document.getElementById(id); if (el) el.textContent = text; }
+      function showEl(id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); }
+
       // ============================================
-      // Cargar datos de la factura desde BD
+      // Cargar datos de la factura
       // ============================================
       async function loadInvoiceData() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const draftId = urlParams.get('draft');
-        const invoiceId = urlParams.get('invoice');
-
+        var urlParams = new URLSearchParams(window.location.search);
+        var draftId = urlParams.get('draft');
+        var invoiceId = urlParams.get('invoice');
         currentInvoiceId = draftId || invoiceId;
+        if (invoiceId) isReadOnly = true;
 
-        if (invoiceId) {
-          isReadOnly = true;
-        }
-
-        // Si no hay ID, intentar datos de localStorage
+        // Sin ID → intentar localStorage
         if (!currentInvoiceId) {
-          const dataHandler = new InvoiceDataHandler();
-          const stored = dataHandler.loadFromStorage();
-          if (stored) return stored;
-          // Si no hay nada, mostrar mensaje
-          alert('No se encontraron datos de factura. Vuelve a crearla desde "Emitir factura".');
+          try {
+            var dh = new InvoiceDataHandler();
+            var stored = dh.loadFromStorage();
+            if (stored) return stored;
+          } catch (e) {}
           window.location.href = 'new.html';
           return null;
         }
 
-        // Esperar a que el módulo de facturas esté disponible
-        let attempts = 0;
-        while (!window.getInvoiceById && attempts < 100) {
-          await new Promise(resolve => setTimeout(resolve, 100));
-          attempts++;
+        // Esperar a que getInvoiceById esté disponible (hasta 15s)
+        for (var i = 0; i < 150; i++) {
+          if (window.getInvoiceById) break;
+          await new Promise(function(r) { setTimeout(r, 100); });
         }
 
         if (!window.getInvoiceById) {
-          alert('Error: el sistema no pudo cargar. Recarga la página.');
+          document.getElementById('pdf-viewer').style.display = 'none';
           return null;
         }
 
         try {
-          const result = await window.getInvoiceById(currentInvoiceId);
+          var result = await window.getInvoiceById(currentInvoiceId);
+          if (!result.success || !result.data) return null;
 
-          if (!result.success || !result.data) {
-            alert('Error al cargar la factura: ' + (result.error || 'No encontrada'));
-            return null;
-          }
+          var inv = result.data;
+          var d = inv.invoice_data || {};
 
-          const inv = result.data;
-          const d = inv.invoice_data || {};
+          // Actualizar link volver a editar
+          var backBtn = document.getElementById('back-to-edit-btn');
+          if (backBtn && draftId) backBtn.href = 'new.html?draft=' + draftId;
 
-          // Actualizar link "volver a editar" con el ID del borrador
-          const backBtn = document.getElementById('back-to-edit-btn');
-          if (backBtn && draftId) {
-            backBtn.href = 'new.html?draft=' + draftId;
-          }
+          // Mapear condiciones de pago
+          var paymentTermsMap = { 'immediate': 'Pago inmediato', '15': '15 días', '30': '30 días', '60': '60 días', '90': '90 días' };
+          var termsValue = d.payment?.terms || '';
+          var termsLabel = d.payment?.termsLabel || paymentTermsMap[termsValue] || termsValue || '';
 
-          // Mapeo completo de BD → formato preview
           return {
             issuer: d.issuer || {},
             client: d.client || {},
@@ -327,16 +355,17 @@
               number: inv.invoice_number || d.invoice?.number || '',
               reference: d.invoice?.reference || '',
               issueDate: inv.issue_date ? formatDateForDisplay(inv.issue_date) : '',
-              dueDate: inv.due_date ? formatDateForDisplay(inv.due_date) : ''
+              dueDate: inv.due_date ? formatDateForDisplay(inv.due_date) : '',
+              paymentTerms: termsLabel
             },
             concepts: d.concepts || [],
             expenses: d.expenses || [],
             taxSettings: d.taxSettings || {},
             paymentMethods: d.paymentMethods || [],
-            observations: d.options?.observaciones || '',
+            observations: (d.options?.observaciones && d.options.observaciones !== 'on') ? d.options.observaciones : '',
             summary: {
               subtotal: d.summary?.subtotal || inv.subtotal || 0,
-              discount: d.summary?.discount || d.adjustments?.discount || 0,
+              discount: d.summary?.discount || 0,
               taxBase: d.summary?.taxBase || inv.subtotal || 0,
               taxRate: d.summary?.taxRate || 21,
               taxAmount: d.summary?.taxAmount || d.summary?.tax || inv.tax_amount || 0,
@@ -352,28 +381,17 @@
           };
         } catch (error) {
           console.error('Error cargando factura:', error);
-          alert('Error al cargar la factura.');
           return null;
         }
       }
 
-      function formatDateForDisplay(isoDate) {
-        if (!isoDate) return '';
-        try {
-          const d = new Date(isoDate);
-          return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
-        } catch (e) {
-          return isoDate;
-        }
-      }
-
       // ============================================
-      // Actualizar UI con los datos de la factura
+      // Actualizar UI
       // ============================================
       function updateUI(data) {
         if (!data) return;
 
-        // Datos de factura
+        // Número de factura
         var invoiceNum = data.invoice?.number || '';
         if (!invoiceNum || invoiceNum === 'null') {
           setText('detail-number', 'Se asignará al emitir');
@@ -386,57 +404,47 @@
         setText('detail-issue-date', data.invoice?.issueDate || '—');
         setText('detail-due-date', data.invoice?.dueDate || '—');
 
+        // Condiciones de pago
+        if (data.invoice?.paymentTerms) {
+          setText('detail-payment-terms', data.invoice.paymentTerms);
+          showEl('payment-terms-section');
+        }
+
         // Cliente
         setText('detail-client-name', data.client?.name || 'Sin cliente');
         setText('detail-client-nif', data.client?.nif ? 'NIF: ' + data.client.nif : '');
 
         // Resumen económico
-        const s = data.summary || {};
-
+        var s = data.summary || {};
         setText('summary-subtotal', fmtCurrency(s.subtotal));
         setText('summary-base', fmtCurrency(s.taxBase));
 
-        // Descuento
         if (s.discount && s.discount > 0) {
           setText('summary-discount', '-' + fmtCurrency(s.discount));
           showEl('summary-discount-row');
         }
-
-        // Impuestos
-        const taxLabel = s.taxRate ? 'IVA ' + s.taxRate + '%' : 'Impuestos';
-        setText('summary-tax-label', taxLabel);
+        setText('summary-tax-label', s.taxRate ? 'IVA ' + s.taxRate + '%' : 'Impuestos');
         setText('summary-tax', fmtCurrency(s.taxAmount));
 
-        // R.E.
         if (s.reAmount && s.reAmount > 0) {
           setText('summary-re-label', 'R.E. ' + (s.reRate || 5.2) + '%');
           setText('summary-re', fmtCurrency(s.reAmount));
           showEl('summary-re-row');
         }
-
-        // Retención
         if (s.retentionRate && s.retentionRate > 0) {
           setText('summary-retention-label', 'Retención ' + s.retentionRate + '%');
           setText('summary-retention', '-' + fmtCurrency(s.retentionAmount));
           showEl('summary-retention-row');
         }
-
-        // Gastos suplidos
         if (s.expenses && s.expenses > 0) {
           setText('summary-expenses', fmtCurrency(s.expenses));
           showEl('summary-expenses-row');
         }
-
-        // Total
         setText('summary-total', fmtCurrency(s.total));
-
-        // Pagado
         if (s.paid && s.paid > 0) {
           setText('summary-paid', '-' + fmtCurrency(s.paid));
           showEl('summary-paid-row');
         }
-
-        // Total a pagar
         setText('summary-total-to-pay', fmtCurrency(s.totalToPay));
 
         // Métodos de pago
@@ -446,191 +454,112 @@
       function renderPaymentMethods(methods) {
         var container = document.getElementById('preview-payment-methods');
         var section = document.getElementById('payment-methods-section');
-        if (!container || !section) return;
-        if (!methods || methods.length === 0) return;
-
+        if (!container || !section || !methods || methods.length === 0) return;
         section.classList.remove('hidden');
         container.innerHTML = '';
-
-        var labels = {
-          'transferencia': 'Transferencia bancaria',
-          'domiciliacion': 'Domiciliación',
-          'efectivo': 'Efectivo',
-          'contrareembolso': 'Contrareembolso',
-          'bizum': 'Bizum',
-          'otro': 'Otro'
-        };
-
+        var labels = { 'transferencia': 'Transferencia bancaria', 'domiciliacion': 'Domiciliación', 'efectivo': 'Efectivo', 'contrareembolso': 'Contrareembolso', 'bizum': 'Bizum', 'otro': 'Otro' };
         methods.forEach(function(m) {
           var div = document.createElement('div');
           div.className = 'rounded-lg border border-bgray-200 dark:border-darkblack-400 p-3';
-
-          var label = labels[m.type] || m.type || 'Método de pago';
-          var html = '<p class="text-sm font-semibold text-bgray-900 dark:text-white">' + label + '</p>';
-
-          if (m.type === 'transferencia' && m.iban) {
-            html += '<p class="text-xs text-bgray-600 dark:text-bgray-400 mt-1 font-mono">' + m.iban + '</p>';
-          }
-          if (m.type === 'bizum' && m.phone) {
-            html += '<p class="text-xs text-bgray-600 dark:text-bgray-400 mt-1">' + m.phone + '</p>';
-          }
-
+          var html = '<p class="text-sm font-semibold text-bgray-900 dark:text-white">' + (labels[m.type] || m.type) + '</p>';
+          if (m.type === 'transferencia' && m.iban) html += '<p class="text-xs text-bgray-600 dark:text-bgray-400 mt-1 font-mono">' + m.iban + '</p>';
+          if (m.type === 'bizum' && m.phone) html += '<p class="text-xs text-bgray-600 dark:text-bgray-400 mt-1">' + m.phone + '</p>';
           div.innerHTML = html;
           container.appendChild(div);
         });
-      }
-
-      function setText(id, text) {
-        const el = document.getElementById(id);
-        if (el) el.textContent = text;
-      }
-
-      function showEl(id) {
-        const el = document.getElementById(id);
-        if (el) el.classList.remove('hidden');
       }
 
       // ============================================
       // Generar PDF
       // ============================================
       function generatePreview(data) {
+        if (!data) return;
         try {
-          if (!data) return;
           pdfGenerator = new InvoicePDFGenerator();
           pdfGenerator.generatePDF(data);
-          const pdfDataUrl = pdfGenerator.getPDFDataUrl();
-          document.getElementById('pdf-viewer').src = pdfDataUrl;
+          document.getElementById('pdf-viewer').src = pdfGenerator.getPDFDataUrl();
         } catch (error) {
           console.error('Error generando PDF:', error);
-          if (window.showToast) {
-            window.showToast('Error al generar el PDF. Recarga la página.', 'error');
-          }
         }
       }
 
       // ============================================
-      // Botones: Emitir + Guardar borrador
+      // Botones
       // ============================================
-      function setLoading(btnId, loading, text) {
-        const btn = document.getElementById(btnId);
-        if (!btn) return;
-        if (loading) {
-          btn._originalHTML = btn.innerHTML;
-          btn.disabled = true;
-          btn.style.opacity = '0.6';
-          btn.style.pointerEvents = 'none';
-          btn.innerHTML = '<div class="flex items-center justify-center gap-2"><svg class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity="0.25"/><path d="M12 2C6.477 2 2 6.477 2 12" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg> ' + (text || '') + '</div>';
-        } else {
-          btn.disabled = false;
-          btn.style.opacity = '';
-          btn.style.pointerEvents = '';
-          if (btn._originalHTML) btn.innerHTML = btn._originalHTML;
-        }
+      function setLoadingAll(loading, text) {
+        ['emit-invoice-btn', 'emit-invoice-btn-bottom', 'save-draft-btn', 'save-draft-btn-bottom'].forEach(function(id) {
+          var btn = document.getElementById(id);
+          if (!btn) return;
+          if (loading) {
+            btn._oHTML = btn._oHTML || btn.innerHTML;
+            btn.disabled = true; btn.style.opacity = '0.6'; btn.style.pointerEvents = 'none';
+          } else {
+            btn.disabled = false; btn.style.opacity = ''; btn.style.pointerEvents = '';
+            if (btn._oHTML) btn.innerHTML = btn._oHTML;
+          }
+        });
       }
 
       async function handleEmitInvoice() {
-        if (!currentInvoiceId) {
-          if (window.showToast) window.showToast('No hay un borrador para emitir. Guarda primero.', 'error');
-          else alert('No hay un borrador para emitir.');
-          return;
-        }
-
-        // Esperar módulo
-        let attempts = 0;
-        while (!window.emitInvoice && attempts < 50) {
-          await new Promise(r => setTimeout(r, 100));
-          attempts++;
-        }
-
-        if (!window.emitInvoice) {
-          if (window.showToast) window.showToast('El sistema aún está cargando. Espera unos segundos.', 'error');
-          else alert('El sistema aún está cargando.');
-          return;
-        }
-
-        setLoading('emit-invoice-btn', true, 'Emitiendo...');
-
+        if (!currentInvoiceId) { alert('No hay borrador para emitir.'); return; }
+        for (var i = 0; i < 50 && !window.emitInvoice; i++) await new Promise(function(r){setTimeout(r,100);});
+        if (!window.emitInvoice) { alert('El sistema aún está cargando.'); return; }
+        setLoadingAll(true);
         try {
-          const result = await window.emitInvoice(currentInvoiceId);
-
-          if (!result.success) {
-            if (window.showToast) window.showToast(result.error || 'Error al emitir', 'error');
-            else alert(result.error || 'Error al emitir');
-            setLoading('emit-invoice-btn', false);
-            return;
-          }
-
+          var result = await window.emitInvoice(currentInvoiceId);
+          if (!result.success) { alert(result.error || 'Error al emitir'); setLoadingAll(false); return; }
           if (window.showToast) window.showToast('Factura emitida correctamente', 'success');
-
-          // Onboarding paso 4
-          try {
-            if (window.getCurrentUser && window.updateStepProgress) {
-              const ur = await window.getCurrentUser();
-              if (ur.success && ur.user) await window.updateStepProgress(ur.user.id, 4, true);
-            }
-          } catch (e) { /* no critical */ }
-
+          try { if (window.getCurrentUser && window.updateStepProgress) { var ur = await window.getCurrentUser(); if (ur.success && ur.user) await window.updateStepProgress(ur.user.id, 4, true); } } catch(e){}
           setTimeout(function() { window.location.href = 'issued.html'; }, 1500);
-        } catch (error) {
-          if (window.showToast) window.showToast(error.message || 'Error al emitir', 'error');
-          else alert(error.message);
-          setLoading('emit-invoice-btn', false);
-        }
+        } catch (error) { alert(error.message || 'Error'); setLoadingAll(false); }
       }
 
       async function handleSaveDraft() {
-        if (!currentInvoiceId) {
-          if (window.showToast) window.showToast('No hay borrador para guardar.', 'error');
-          else alert('No hay borrador para guardar.');
-          return;
-        }
-
-        setLoading('save-draft-btn', true, 'Guardando...');
-
+        if (!currentInvoiceId) { alert('No hay borrador.'); return; }
+        setLoadingAll(true);
         if (window.showToast) window.showToast('Borrador guardado correctamente', 'success');
-
         setTimeout(function() { window.location.href = 'drafts.html'; }, 1200);
       }
 
       // ============================================
-      // Descargar PDF
+      // Descargar / Regenerar PDF
       // ============================================
       document.getElementById('download-pdf-btn').addEventListener('click', function() {
-        if (pdfGenerator && currentInvoiceData) {
-          const num = currentInvoiceData.invoice?.number || 'factura';
-          pdfGenerator.downloadPDF('factura_' + num + '.pdf');
-        }
+        if (pdfGenerator && currentInvoiceData) pdfGenerator.downloadPDF('factura_' + (currentInvoiceData.invoice?.number || 'borrador') + '.pdf');
       });
-
-      // Regenerar PDF
       document.getElementById('regenerate-pdf-btn').addEventListener('click', function() {
         if (currentInvoiceData) generatePreview(currentInvoiceData);
       });
 
       // ============================================
-      // Inicialización
+      // INICIALIZACIÓN - Se ejecuta inmediatamente
       // ============================================
-      window.addEventListener('load', async function() {
-        currentInvoiceData = await loadInvoiceData();
+      (async function initPreview() {
+        // Esperar a que el DOM esté listo
+        if (document.readyState === 'loading') {
+          await new Promise(function(r) { document.addEventListener('DOMContentLoaded', r); });
+        }
 
+        // Cargar datos (espera internamente a que los módulos estén listos)
+        currentInvoiceData = await loadInvoiceData();
         if (!currentInvoiceData) return;
 
-        // Modo solo lectura (factura ya emitida)
+        // Modo solo lectura
         if (isReadOnly) {
-          var emitBtn = document.getElementById('emit-invoice-btn');
-          var draftBtn = document.getElementById('save-draft-btn');
-          var backBtn = document.getElementById('back-to-edit-btn');
-          if (emitBtn) emitBtn.style.display = 'none';
-          if (draftBtn) draftBtn.style.display = 'none';
-          if (backBtn) backBtn.style.display = 'none';
+          ['emit-invoice-btn', 'emit-invoice-btn-bottom', 'save-draft-btn', 'save-draft-btn-bottom', 'back-to-edit-btn'].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) el.style.display = 'none';
+          });
+          var ba = document.getElementById('bottom-actions');
+          if (ba) ba.style.display = 'none';
         }
 
         // Actualizar UI
         updateUI(currentInvoiceData);
 
-        // Generar PDF (pequeño delay para asegurar que jsPDF está listo)
-        setTimeout(function() { generatePreview(currentInvoiceData); }, 400);
-      });
+        // Generar PDF inmediatamente (jsPDF ya está cargado antes de este script)
+        generatePreview(currentInvoiceData);
+      })();
     </script>
   </body>
 </html>
