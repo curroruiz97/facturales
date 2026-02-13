@@ -394,11 +394,89 @@ async function togglePaidStatus(invoiceId, isPaid) {
     }
     
     console.log(`✅ Estado de pago actualizado: ${isPaid ? 'Pagada' : 'No pagada'}`);
+    
+    // Gestionar transacción asociada a la factura
+    try {
+      if (isPaid) {
+        await _createInvoiceTransaction(supabase, data);
+      } else {
+        await _deleteInvoiceTransaction(supabase, invoiceId);
+      }
+    } catch (txError) {
+      console.error('⚠️ Error al gestionar transacción de factura:', txError);
+      // No fallar la operación principal si la transacción falla
+    }
+    
     return { success: true, data };
   } catch (error) {
     console.error('Error in togglePaidStatus:', error);
     return { success: false, error: error.message };
   }
+}
+
+/**
+ * Crear transacción automática de ingreso al pagar una factura
+ * @param {Object} supabase - Cliente Supabase
+ * @param {Object} invoice - Datos de la factura pagada
+ */
+async function _createInvoiceTransaction(supabase, invoice) {
+  // Verificar que no exista ya una transacción para esta factura
+  const { data: existing } = await supabase
+    .from('transacciones')
+    .select('id')
+    .eq('invoice_id', invoice.id)
+    .maybeSingle();
+  
+  if (existing) {
+    console.log('ℹ️ Ya existe transacción para esta factura, omitiendo creación');
+    return;
+  }
+  
+  const invoiceData = invoice.invoice_data || {};
+  const invoiceNumber = invoice.invoice_number || 'Sin número';
+  const totalAmount = invoice.total_amount || invoiceData.summary?.total || 0;
+  
+  const transactionData = {
+    user_id: invoice.user_id,
+    cliente_id: invoice.client_id || null,
+    importe: parseFloat(totalAmount),
+    concepto: `Factura ${invoiceNumber}`,
+    fecha: new Date().toISOString().split('T')[0],
+    categoria: 'factura',
+    tipo: 'ingreso',
+    invoice_id: invoice.id,
+    observaciones: null
+  };
+  
+  const { error } = await supabase
+    .from('transacciones')
+    .insert([transactionData]);
+  
+  if (error) {
+    console.error('Error creando transacción de factura:', error);
+    throw error;
+  }
+  
+  console.log(`✅ Transacción de ingreso creada para factura ${invoiceNumber}`);
+}
+
+/**
+ * Eliminar transacción asociada a una factura al desmarcar como pagada
+ * @param {Object} supabase - Cliente Supabase
+ * @param {string} invoiceId - UUID de la factura
+ */
+async function _deleteInvoiceTransaction(supabase, invoiceId) {
+  const { error } = await supabase
+    .from('transacciones')
+    .delete()
+    .eq('invoice_id', invoiceId);
+  
+  if (error) {
+    console.error('Error eliminando transacción de factura:', error);
+    throw error;
+  }
+  
+  console.log(`✅ Transacción de factura eliminada para invoice ${invoiceId}`);
 }
 
 /**

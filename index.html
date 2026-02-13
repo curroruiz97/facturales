@@ -1227,7 +1227,7 @@
       let ingresosFull = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
       let gastosFull   = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-      // Cargar datos de evolución desde transacciones + facturas emitidas
+      // Cargar datos de evolución desde transacciones (incluye facturas pagadas como ingreso automático)
       async function cargarDatosEvolucion() {
         try {
           var now = new Date();
@@ -1251,30 +1251,8 @@
             }
           }
 
-          // 2. Cargar facturas emitidas (ingresos reales de facturación)
-          if (window.supabaseClient) {
-            try {
-              var supabase = window.supabaseClient;
-              var userResult = await supabase.auth.getUser();
-              if (userResult.data && userResult.data.user) {
-                var uid = userResult.data.user.id;
-                var invResult = await supabase
-                  .from('invoices')
-                  .select('total_amount, issue_date')
-                  .eq('user_id', uid)
-                  .eq('status', 'issued')
-                  .gte('issue_date', startDate)
-                  .lte('issue_date', endDate);
-                
-                if (invResult.data) {
-                  invResult.data.forEach(function(inv) {
-                    var mes = new Date(inv.issue_date).getMonth();
-                    ingresosPorMes[mes] += parseFloat(inv.total_amount || 0);
-                  });
-                }
-              }
-            } catch (e) { /* silencioso */ }
-          }
+          // Los ingresos de facturas pagadas ya están incluidos como transacciones
+          // automáticas (categoría 'factura'), no es necesario sumarlos de nuevo.
 
           // Decidir escala: si los valores son grandes usar miles (K), si no usar unidades
           var maxVal = Math.max.apply(null, ingresosPorMes.concat(gastosPorMes));

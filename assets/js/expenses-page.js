@@ -209,6 +209,12 @@ async function handleSaveExpense(event) {
       return;
     }
     
+    // Bloquear creación/edición manual de categoría 'factura'
+    if (transactionData.categoria === 'factura') {
+      showToast('No se pueden crear transacciones de tipo Factura manualmente', 'error');
+      return;
+    }
+    
     let result;
     const tipoTexto = tipo === 'gasto' ? 'Gasto' : 'Ingreso';
     
@@ -365,6 +371,16 @@ function renderTransactions(transactions) {
       </td>
       <td class="px-6 py-5 xl:px-0">
         <div class="flex justify-center space-x-2 relative">
+          ${transaction.categoria === 'factura' || transaction.invoice_id ? `
+          <a 
+            href="/invoices/preview.html?invoice=${transaction.invoice_id}"
+            class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-success-300 border border-success-300 hover:bg-success-50 transition"
+            title="Ver factura"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Ver factura
+          </a>
+          ` : `
           <button 
             type="button" 
             onclick="editTransaction('${transaction.id}')"
@@ -385,6 +401,7 @@ function renderTransactions(transactions) {
               <path d="M2 5H16M7 8V13M11 8V13M3 5L4 15C4 16.1046 4.89543 17 6 17H12C13.1046 17 14 16.1046 14 15L15 5M6 5V3C6 2.44772 6.44772 2 7 2H11C11.5523 2 12 2.44772 12 3V5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </button>
+          `}
         </div>
       </td>
     `;
@@ -680,6 +697,13 @@ function applyDateFilter() {
  */
 async function editTransaction(transactionId) {
   try {
+    // Verificar si es transacción de factura (no editable)
+    const txCheck = allTransactions.find(t => t.id === transactionId);
+    if (txCheck && (txCheck.categoria === 'factura' || txCheck.invoice_id)) {
+      showToast('Las transacciones de factura no se pueden editar', 'error');
+      return;
+    }
+    
     // Obtener datos de la transacción
     const result = await window.getTransactionById(transactionId);
     
@@ -809,7 +833,12 @@ async function confirmDeleteTransaction() {
  * Función para llamar desde el botón de eliminar en la tabla
  */
 function handleDeleteTransaction(transactionId) {
+  // Verificar si es transacción de factura (no eliminable manualmente)
   const t = allTransactions.find(tx => tx.id === transactionId);
+  if (t && (t.categoria === 'factura' || t.invoice_id)) {
+    showToast('Las transacciones de factura no se pueden eliminar manualmente', 'error');
+    return;
+  }
   const transactionName = t ? t.concepto : 'Sin nombre';
   openDeleteTransactionModal(transactionId, transactionName);
 }

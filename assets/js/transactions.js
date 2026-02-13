@@ -451,10 +451,20 @@ function getCategoryLabel(categoria) {
     'alquiler': 'Alquiler',
     'transporte': 'Transporte',
     'marketing': 'Marketing',
-    'otros': 'Otros'
+    'otros': 'Otros',
+    'factura': 'Factura'
   };
   
   return labels[categoria] || categoria;
+}
+
+/**
+ * Comprobar si una transacción es de tipo factura (no editable/eliminable manualmente)
+ * @param {Object} transaction - Datos de la transacción
+ * @returns {boolean}
+ */
+function isInvoiceTransaction(transaction) {
+  return transaction.categoria === 'factura' || transaction.invoice_id != null;
 }
 
 /**
@@ -497,6 +507,7 @@ window.formatDate = formatDate;
 window.getClientName = getClientName;
 window.validateTransactionData = validateTransactionData;
 window.getCategoryLabel = getCategoryLabel;
+window.isInvoiceTransaction = isInvoiceTransaction;
 window.getTransactionStats = getTransactionStats;
 
 // Exportar utilidades
@@ -506,6 +517,7 @@ window.transactionsUtils = {
   getClientName,
   validateTransactionData,
   getCategoryLabel,
+  isInvoiceTransaction,
   getTransactionStats
 };
 
