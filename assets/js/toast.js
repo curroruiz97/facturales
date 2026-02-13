@@ -3,6 +3,12 @@
  * Sistema de notificaciones estilo toast para feedback al usuario
  */
 
+// Sanitización XSS
+function _escapeHtmlToast(str) {
+  if (str == null) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
 // Contenedor para los toasts
 let toastContainer = null;
 
@@ -70,7 +76,7 @@ function showToast(message, type = 'success', duration = 3000) {
     <div class="flex-shrink-0">
       ${config.icon}
     </div>
-    <p class="flex-1 text-sm font-medium">${message}</p>
+    <p class="flex-1 text-sm font-medium">${_escapeHtmlToast(message)}</p>
     <button onclick="this.parentElement.remove()" class="flex-shrink-0 hover:bg-white/20 rounded p-1 transition-colors">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>

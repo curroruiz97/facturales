@@ -3,6 +3,12 @@
  * Lógica específica para la página de gastos (expenses.html)
  */
 
+// Sanitización XSS
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
 // Variables globales para filtros
 let currentFilters = {
   search: '',
@@ -15,6 +21,9 @@ let currentFilters = {
 
 // Variable para almacenar todas las transacciones cargadas
 let allTransactions = [];
+
+// Almacenar últimos resultados del autocompletado (para lookup seguro)
+let _lastAutocompleteResults = [];
 
 // Variables para paginación
 let currentPage = 1;
@@ -106,12 +115,13 @@ async function handleContactAutocomplete(searchTerm) {
     const result = await window.searchClientsAutocomplete(searchTerm);
     
     if (result.success && result.data.length > 0) {
+      _lastAutocompleteResults = result.data;
       resultsDiv.innerHTML = result.data.map(client => `
         <div 
           class="px-4 py-3 hover:bg-bgray-100 dark:hover:bg-darkblack-400 cursor-pointer border-b border-bgray-100 dark:border-darkblack-400 last:border-b-0"
-          onclick="selectContact('${client.id}', '${client.nombre_razon_social.replace(/'/g, "\\'")}')">
-          <p class="text-sm font-semibold text-bgray-900 dark:text-white">${client.nombre_razon_social}</p>
-          <p class="text-xs text-bgray-500 dark:text-bgray-400">${client.identificador || 'Sin NIF'}</p>
+          onclick="selectContact('${client.id}')">
+          <p class="text-sm font-semibold text-bgray-900 dark:text-white">${escapeHtml(client.nombre_razon_social)}</p>
+          <p class="text-xs text-bgray-500 dark:text-bgray-400">${escapeHtml(client.identificador || 'Sin NIF')}</p>
         </div>
       `).join('');
       
@@ -129,7 +139,9 @@ async function handleContactAutocomplete(searchTerm) {
 /**
  * Seleccionar un contacto del autocompletado
  */
-function selectContact(clientId, clientName) {
+function selectContact(clientId) {
+  const client = _lastAutocompleteResults.find(c => c.id === clientId);
+  const clientName = client ? client.nombre_razon_social : 'Sin nombre';
   document.getElementById('expense-contact').value = clientName;
   document.getElementById('expense-contact-id').value = clientId;
   
@@ -319,21 +331,21 @@ function renderTransactions(transactions) {
       <td class="px-6 py-5 xl:px-0">
         <div class="flex w-full items-center space-x-2.5">
           <div class="h-10 w-10 flex items-center justify-center rounded-full bg-success-100 dark:bg-success-900/20">
-            <span class="text-sm font-bold text-success-600 dark:text-success-400">${initials}</span>
+            <span class="text-sm font-bold text-success-600 dark:text-success-400">${escapeHtml(initials)}</span>
           </div>
           <p class="text-base font-semibold text-bgray-900 dark:text-white">
-            ${clientName}
+            ${escapeHtml(clientName)}
           </p>
         </div>
       </td>
       <td class="px-6 py-5 xl:px-0">
         <p class="text-base font-medium text-bgray-900 dark:text-white">
-          ${transaction.concepto}
+          ${escapeHtml(transaction.concepto)}
         </p>
       </td>
       <td class="px-6 py-5 xl:px-0">
         <p class="text-sm font-medium text-bgray-600 dark:text-bgray-400">
-          ${window.getCategoryLabel(transaction.categoria)}
+          ${escapeHtml(window.getCategoryLabel(transaction.categoria))}
         </p>
       </td>
       <td class="px-6 py-5 xl:px-0">
@@ -348,7 +360,7 @@ function renderTransactions(transactions) {
       </td>
       <td class="px-6 py-5 xl:px-0">
         <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold ${tipoBadgeColor}">
-          ${transaction.tipo.charAt(0).toUpperCase() + transaction.tipo.slice(1)}
+          ${escapeHtml(transaction.tipo.charAt(0).toUpperCase() + transaction.tipo.slice(1))}
         </span>
       </td>
       <td class="px-6 py-5 xl:px-0">
@@ -365,7 +377,7 @@ function renderTransactions(transactions) {
           </button>
           <button 
             type="button" 
-            onclick="handleDeleteTransaction('${transaction.id}', '${transaction.concepto.replace(/'/g, "\\'")}')"
+            onclick="handleDeleteTransaction('${transaction.id}')"
             class="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
             title="Eliminar transacción"
           >
@@ -796,7 +808,9 @@ async function confirmDeleteTransaction() {
 /**
  * Función para llamar desde el botón de eliminar en la tabla
  */
-function handleDeleteTransaction(transactionId, transactionName) {
+function handleDeleteTransaction(transactionId) {
+  const t = allTransactions.find(tx => tx.id === transactionId);
+  const transactionName = t ? t.concepto : 'Sin nombre';
   openDeleteTransactionModal(transactionId, transactionName);
 }
 

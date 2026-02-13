@@ -398,7 +398,7 @@ class QuoteDataHandler {
   goToPreview() {
     const data = this.captureFormData();
     if (this.saveToStorage(data)) {
-      window.location.href = 'preview.html';
+      window.location.href = 'quote-preview.html';
     } else {
       alert('Error al guardar los datos del presupuesto');
     }

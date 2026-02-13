@@ -3,6 +3,12 @@
  * Script para la página de creación/edición de presupuestos
  */
 
+// Sanitización XSS
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
 let currentDraftId = null;
 let isEditMode = false;
 
@@ -111,6 +117,15 @@ function populateFormWithData(quote) {
       setValue('client-email', data.client.email);
       setValue('client-address', data.client.address);
       setValue('client-postal-code', data.client.postalCode);
+      
+      // Restaurar el client_id seleccionado para que se conserve al guardar/emitir
+      if (quote.client_id) {
+        if (typeof window.setSelectedClientId === 'function') {
+          window.setSelectedClientId(quote.client_id);
+        } else if (typeof selectedClientId !== 'undefined') {
+          selectedClientId = quote.client_id;
+        }
+      }
     }
     
     // Conceptos - Cargar líneas de presupuesto
@@ -201,16 +216,16 @@ function loadPaymentMethods(methods) {
     methods.forEach(method => {
       let additionalInfo = '';
       if (method.type === 'transferencia' && method.iban) {
-        additionalInfo = `<div class="text-xs text-bgray-600 dark:text-bgray-400 mt-1">${method.iban}</div>`;
+        additionalInfo = `<div class="text-xs text-bgray-600 dark:text-bgray-400 mt-1">${escapeHtml(method.iban)}</div>`;
       } else if (method.type === 'bizum' && method.phone) {
-        additionalInfo = `<div class="text-xs text-bgray-600 dark:text-bgray-400 mt-1">${method.phone}</div>`;
+        additionalInfo = `<div class="text-xs text-bgray-600 dark:text-bgray-400 mt-1">${escapeHtml(method.phone)}</div>`;
       }
       
       const badge = document.createElement('div');
       badge.className = 'flex items-center justify-between rounded-lg border-2 border-warning-300 bg-warning-50 px-3 py-2 text-sm dark:bg-warning-900/10';
       badge.innerHTML = `
         <div class="flex-1">
-          <span class="font-semibold text-warning-700 dark:text-warning-300">${methodLabels[method.type] || method.type}</span>
+          <span class="font-semibold text-warning-700 dark:text-warning-300">${escapeHtml(methodLabels[method.type] || method.type)}</span>
           ${additionalInfo}
         </div>
         <button type="button" onclick="this.parentElement.remove()" class="text-warning-700 hover:text-warning-900 dark:text-warning-300 ml-2">
@@ -531,10 +546,16 @@ function collectFormData() {
       totalAmount = parseFloat(totalElement?.textContent?.replace(/[^0-9,.-]/g, '')?.replace(',', '.')) || 0;
     }
     
+    // Obtener el client_id del cliente seleccionado
+    const clientId = (typeof window.getSelectedClientId === 'function')
+      ? window.getSelectedClientId()
+      : (typeof selectedClientId !== 'undefined' ? selectedClientId : null);
+    
     // Preparar objeto de presupuesto en formato Supabase
     const formData = {
       quote_series: document.getElementById('invoice-series')?.value || 'P',
       quote_number: quoteNumber,
+      client_id: clientId,
       client_name: clientName.trim(),
       issue_date: issueDate,
       due_date: document.getElementById('due-date')?.value || null,
@@ -754,9 +775,9 @@ async function goToPreview() {
       }
     }
     
-    // Redirigir a preview con el ID del borrador
-    console.log('🔄 Redirigiendo a preview con ID:', draftId);
-    window.location.href = `preview.html?draft=${draftId}`;
+    // Redirigir a quote-preview con el ID del borrador
+    console.log('🔄 Redirigiendo a quote-preview con ID:', draftId);
+    window.location.href = `quote-preview.html?draft=${draftId}`;
     
   } catch (error) {
     console.error('❌ Error en goToPreview:', error);

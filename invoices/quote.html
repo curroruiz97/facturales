@@ -150,7 +150,7 @@
                     <path d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M2.45825 12C3.73253 7.94288 7.52281 5 12.0004 5C16.4781 5 20.2683 7.94291 21.5426 12C20.2683 16.0571 16.4781 19 12.0005 19C7.52281 19 3.73251 16.0571 2.45825 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
-                  <span class="btn-text">Emitir presupuesto</span>
+                  <span class="btn-text">Vista previa y emitir</span>
                   <svg class="btn-spinner hidden animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity="0.25"/><path d="M12 2C6.477 2 2 6.477 2 12" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
                 </button>
               </div>
@@ -2577,13 +2577,13 @@
       }
       
       async function handleGoToPreview() {
-        if (!window.emitQuoteDirectly || typeof window.emitQuoteDirectly !== 'function') {
+        if (!window.goToPreview || typeof window.goToPreview !== 'function') {
           alert('El sistema aún está cargando. Espera unos segundos.');
           return;
         }
         setButtonLoading('go-to-preview-btn', true);
         try {
-          await window.emitQuoteDirectly();
+          await window.goToPreview();
         } finally {
           setButtonLoading('go-to-preview-btn', false);
         }

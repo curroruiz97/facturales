@@ -3,6 +3,12 @@
  * Script para la página de borradores de presupuestos
  */
 
+// Sanitización XSS
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
 let allDrafts = [];
 let currentDeleteId = null;
 
@@ -115,16 +121,16 @@ function createDraftRow(draft) {
       <!-- Columna: Presupuesto -->
       <td class="py-5 pr-6">
         <div class="flex flex-col">
-          <p class="text-sm font-semibold text-bgray-900 dark:text-white">${quoteNumber}</p>
-          <p class="text-xs text-bgray-600 dark:text-bgray-50">Serie ${draft.quote_series}</p>
+          <p class="text-sm font-semibold text-bgray-900 dark:text-white">${escapeHtml(quoteNumber)}</p>
+          <p class="text-xs text-bgray-600 dark:text-bgray-50">Serie ${escapeHtml(draft.quote_series)}</p>
         </div>
       </td>
       
       <!-- Columna: Cliente -->
       <td class="px-6 py-5">
         <div class="flex flex-col">
-          <p class="text-sm font-medium text-bgray-900 dark:text-white">${clientName}</p>
-          <p class="text-xs text-bgray-600 dark:text-bgray-50">${clientNif}</p>
+          <p class="text-sm font-medium text-bgray-900 dark:text-white">${escapeHtml(clientName)}</p>
+          <p class="text-xs text-bgray-600 dark:text-bgray-50">${escapeHtml(clientNif)}</p>
         </div>
       </td>
       
@@ -158,7 +164,7 @@ function createDraftRow(draft) {
           
           <!-- Botón Eliminar -->
           <button
-            onclick="openDeleteModal('${draft.id}', '${quoteNumber}')"
+            onclick="openDeleteModal('${draft.id}')"
             class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-bgray-100 transition hover:bg-bgray-200 dark:bg-darkblack-500 hover:dark:bg-darkblack-400"
             type="button"
             title="Eliminar"
@@ -187,8 +193,10 @@ function editDraft(draftId) {
  * @param {string} draftId - ID del borrador
  * @param {string} quoteNumber - Número de presupuesto
  */
-function openDeleteModal(draftId, quoteNumber) {
+function openDeleteModal(draftId) {
   currentDeleteId = draftId;
+  const draft = allDrafts.find(d => d.id === draftId);
+  const quoteNumber = draft ? (draft.quote_number || 'Sin número') : 'Sin número';
   
   const modal = document.getElementById('delete-confirm-modal');
   const nameElement = document.getElementById('delete-draft-name');

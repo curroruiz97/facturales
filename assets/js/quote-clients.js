@@ -3,6 +3,12 @@
  * Lógica para autocompletado y selección de clientes en la página de presupuestos
  */
 
+// Sanitización XSS
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
 // Estado global
 let selectedClientId = null;
 let searchTimeout = null;
@@ -77,8 +83,8 @@ function renderClientOptions(clients) {
     button.onclick = () => selectClientById(client.id);
     
     button.innerHTML = `
-      <p class="font-semibold text-bgray-900 dark:text-white text-sm">${client.nombre_razon_social}</p>
-      <p class="text-xs text-bgray-500">Identificador: ${client.identificador}</p>
+      <p class="font-semibold text-bgray-900 dark:text-white text-sm">${escapeHtml(client.nombre_razon_social)}</p>
+      <p class="text-xs text-bgray-500">Identificador: ${escapeHtml(client.identificador)}</p>
     `;
     
     optionsList.appendChild(button);
@@ -294,6 +300,22 @@ if (closeModalBtn) {
   closeModalBtn.onclick = closeQuoteCreateClientModal;
 }
 
+/**
+ * Obtener el ID del cliente actualmente seleccionado
+ * @returns {string|null}
+ */
+function getSelectedClientId() {
+  return selectedClientId;
+}
+
+/**
+ * Establecer el ID del cliente seleccionado (útil al cargar borradores)
+ * @param {string|null} id
+ */
+function setSelectedClientId(id) {
+  selectedClientId = id || null;
+}
+
 // Hacer funciones globales
 window.handleClientSearch = handleClientSearch;
 window.showClientDropdown = showClientDropdown;
@@ -302,3 +324,5 @@ window.selectClientById = selectClientById;
 window.openQuoteCreateClientModal = openQuoteCreateClientModal;
 window.closeQuoteCreateClientModal = closeQuoteCreateClientModal;
 window.handleQuoteSaveClient = handleQuoteSaveClient;
+window.getSelectedClientId = getSelectedClientId;
+window.setSelectedClientId = setSelectedClientId;

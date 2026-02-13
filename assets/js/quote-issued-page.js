@@ -3,6 +3,12 @@
  * Script para la página de presupuestos emitidos
  */
 
+// Sanitización XSS
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
 let allIssuedQuotes = [];
 let currentCancelId = null;
 
@@ -176,7 +182,7 @@ function createIssuedRow(quote) {
         
         <!-- Botón Anular -->
         <button
-          onclick="openCancelModal('${quote.id}', '${quoteNumber}')"
+          onclick="openCancelModal('${quote.id}')"
           class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-bgray-100 transition hover:bg-bgray-200 dark:bg-darkblack-500 hover:dark:bg-darkblack-400"
           type="button"
           title="Anular"
@@ -198,16 +204,16 @@ function createIssuedRow(quote) {
       <!-- Columna: Presupuesto -->
       <td class="py-5 pr-6">
         <div class="flex flex-col">
-          <p class="text-sm font-semibold text-bgray-900 dark:text-white ${isCancelled ? 'line-through' : ''}">${quoteNumber}</p>
-          <p class="text-xs text-bgray-600 dark:text-bgray-50">Serie ${quote.quote_series}</p>
+          <p class="text-sm font-semibold text-bgray-900 dark:text-white ${isCancelled ? 'line-through' : ''}">${escapeHtml(quoteNumber)}</p>
+          <p class="text-xs text-bgray-600 dark:text-bgray-50">Serie ${escapeHtml(quote.quote_series)}</p>
         </div>
       </td>
       
       <!-- Columna: Cliente -->
       <td class="px-6 py-5">
         <div class="flex flex-col">
-          <p class="text-sm font-medium text-bgray-900 dark:text-white">${clientName}</p>
-          <p class="text-xs text-bgray-600 dark:text-bgray-50">${clientNif}</p>
+          <p class="text-sm font-medium text-bgray-900 dark:text-white">${escapeHtml(clientName)}</p>
+          <p class="text-xs text-bgray-600 dark:text-bgray-50">${escapeHtml(clientNif)}</p>
         </div>
       </td>
       
@@ -243,7 +249,7 @@ function createIssuedRow(quote) {
  */
 function viewQuote(quoteId) {
   console.log('👁️ Viendo presupuesto:', quoteId);
-  window.location.href = `preview.html?quote=${quoteId}`;
+  window.location.href = `quote-preview.html?quote=${quoteId}`;
 }
 
 /**
@@ -280,8 +286,10 @@ async function togglePaymentStatus(quoteId, newPaidStatus) {
  * @param {string} quoteId - ID del presupuesto
  * @param {string} quoteNumber - Número de presupuesto
  */
-function openCancelModal(quoteId, quoteNumber) {
+function openCancelModal(quoteId) {
   currentCancelId = quoteId;
+  const q = allIssuedQuotes.find(i => i.id === quoteId);
+  const quoteNumber = q ? (q.quote_number || 'Sin número') : 'Sin número';
   
   const modal = document.getElementById('cancel-confirm-modal');
   const nameElement = document.getElementById('cancel-invoice-name');

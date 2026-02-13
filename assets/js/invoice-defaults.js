@@ -10,6 +10,12 @@
 (function () {
   'use strict';
 
+  // Sanitización XSS
+  function escapeHtml(str) {
+    if (str == null) return '';
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
   const STORAGE_KEY = 'invoice_user_defaults';
 
   /**
@@ -291,9 +297,9 @@
     methods.forEach(function (method) {
       var additionalInfo = '';
       if (method.type === 'transferencia' && method.iban) {
-        additionalInfo = '<div class="text-xs text-bgray-600 dark:text-bgray-400 mt-1">' + method.iban + '</div>';
+        additionalInfo = '<div class="text-xs text-bgray-600 dark:text-bgray-400 mt-1">' + escapeHtml(method.iban) + '</div>';
       } else if (method.type === 'bizum' && method.phone) {
-        additionalInfo = '<div class="text-xs text-bgray-600 dark:text-bgray-400 mt-1">' + method.phone + '</div>';
+        additionalInfo = '<div class="text-xs text-bgray-600 dark:text-bgray-400 mt-1">' + escapeHtml(method.phone) + '</div>';
       }
 
       var badge = document.createElement('div');
@@ -303,7 +309,7 @@
       badge.setAttribute('data-phone', method.phone || '');
       badge.innerHTML =
         '<div class="flex-1">' +
-          '<span class="font-semibold text-warning-700 dark:text-warning-300">' + (method.label || method.type) + '</span>' +
+          '<span class="font-semibold text-warning-700 dark:text-warning-300">' + escapeHtml(method.label || method.type) + '</span>' +
           additionalInfo +
           '<span class="ml-2 inline-flex items-center rounded-full bg-warning-100 dark:bg-warning-900/30 px-1.5 py-0.5 text-[9px] font-medium text-warning-600 dark:text-warning-300">Predeterminado</span>' +
         '</div>' +

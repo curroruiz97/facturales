@@ -1,0 +1,178 @@
+---
+name: Fix XSS vulnerabilities
+overview: Crear una utilidad compartida escapeHtml() y aplicarla en todos los puntos donde se interpolan datos de usuario en innerHTML, ademas de refactorizar los onclick inline que pasan texto de usuario para que solo pasen UUIDs y busquen el texto en los arrays ya existentes en memoria.
+todos:
+  - id: create-sanitize-util
+    content: Crear assets/js/sanitize.js con funcion escapeHtml() exportable
+    status: completed
+  - id: escape-expenses-page
+    content: Aplicar escapeHtml en expenses-page.js (autocomplete + tabla transacciones) + refactorizar selectContact y handleDeleteTransaction
+    status: completed
+  - id: escape-users-page
+    content: Aplicar escapeHtml en users-page.js (tabla clientes) + refactorizar openDeleteModal
+    status: completed
+  - id: escape-index-html
+    content: Aplicar escapeHtml en index.html (seccion contactos dashboard)
+    status: completed
+  - id: escape-drafts-issued
+    content: Aplicar escapeHtml en drafts-page.js, issued-page.js, quote-drafts-page.js, quote-issued-page.js + refactorizar onclick
+    status: completed
+  - id: escape-clients-modules
+    content: Aplicar escapeHtml en invoice-clients.js y quote-clients.js
+    status: completed
+  - id: escape-new-page-toast-settings
+    content: Aplicar escapeHtml en new-page.js (badges pago), toast.js (mensaje), settings.html (tabla series)
+    status: completed
+  - id: verify-lints-no-regressions
+    content: Ejecutar ReadLints en todos los archivos modificados y verificar que no quedan interpolaciones sin escapar
+    status: completed
+isProject: false
+---
+
+# Correccion de vulnerabilidades XSS (innerHTML + onclick inline)
+
+## Estrategia general
+
+Se adopta el enfoque **mas seguro y menos invasivo**: en lugar de reescribir todos los renderizados con `createElement` + `textContent` (alto riesgo de romper cosas), se:
+
+1. Crea una funcion `escapeHtml()` compartida
+2. Se aplica a todos los datos de usuario interpolados en `innerHTML`
+3. Se refactorizan los `onclick` que pasan texto de usuario para que solo pasen UUIDs (buscan el texto en arrays ya cargados en memoria)
+
+---
+
+## Fase 1: Crear utilidad compartida
+
+Crear [`assets/js/sanitize.js`](assets/js/sanitize.js) con:
+
+```javascript
+export function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+```
+
+Para archivos que no usan ES modules (como `index.html`, `settings.html` con scripts inline), definir la funcion localmente o en un bloque `<script>` previo, ya que no importan modulos.
+
+---
+
+## Fase 2: Aplicar escapeHtml a innerHTML (BAJO riesgo)
+
+### Que se cambia
+
+En cada template literal o concatenacion que usa `innerHTML`, envolver los campos de texto de usuario con `escapeHtml()`. Los campos numericos formateados (`formatCurrency`, `formatDate`) y los UUIDs no necesitan escapado.
+
+### Archivos afectados y campos a escapar
+
+| Archivo | Campos a escapar |
+
+|---------|-----------------|
+
+| `expenses-page.js` (linea ~109) | `client.nombre_razon_social`, `client.identificador` |
+
+| `expenses-page.js` (linea ~310) | `clientName`, `transaction.concepto`, tipo |
+
+| `users-page.js` (linea ~147) | `client.nombre_razon_social`, `client.identificador`, `client.email`, `client.telefono`, address |
+
+| `index.html` (linea ~1980) | `client.nombre_razon_social`, `client.identificador`, `client.email`, `client.telefono`, address |
+
+| `drafts-page.js` (linea ~105) | `invoiceNumber`, `clientName`, `clientNif`, `invoice_series` |
+
+| `issued-page.js` (linea ~112) | `invoiceNumber`, `clientName`, `clientNif`, `invoice_series` |
+
+| `quote-drafts-page.js` (linea ~105) | `quoteNumber`, `clientName`, `clientNif`, `quote_series` |
+
+| `quote-issued-page.js` (linea ~112) | `quoteNumber`, `clientName`, `clientNif`, `quote_series` |
+
+| `invoice-clients.js` (linea ~79) | `client.nombre_razon_social`, `client.identificador` |
+
+| `quote-clients.js` (linea ~79) | `client.nombre_razon_social`, `client.identificador` |
+
+| `new-page.js` (linea ~198) | `method.iban`, `method.phone` |
+
+| `toast.js` (linea ~73) | `message` |
+
+| `settings.html` (linea ~3275) | `s.code`, `s.description` |
+
+### Riesgo funcional
+
+- **Muy bajo**. La estructura HTML no cambia. Solo se escapan los valores dinamicos.
+- **Unico riesgo**: Si algun dato en la BD ya contiene entidades HTML (ej. `&amp;`), se mostraria como texto literal (`&amp;`). Esto es improbable ya que los datos se guardan como texto plano.
+
+---
+
+## Fase 3: Refactorizar onclick que pasan texto de usuario (BAJO-MEDIO riesgo)
+
+### Que se cambia
+
+6 funciones onclick actualmente pasan texto de usuario como segundo argumento. Se refactorizan para pasar **solo el UUID** y buscar el texto en el array ya existente en memoria.
+
+### Cambios especificos
+
+**1. `handleDeleteTransaction` en `expenses-page.js`**
+
+- onclick actual: `handleDeleteTransaction('${transaction.id}', '${transaction.concepto.replace(...)}')`
+- onclick nuevo: `handleDeleteTransaction('${transaction.id}')`
+- Dentro de la funcion (linea ~799): buscar `allTransactions.find(t => t.id === id)` para obtener `.concepto`
+
+**2. `openDeleteModal` en `users-page.js`**
+
+- onclick actual: `openDeleteModal('${client.id}', '${client.nombre_razon_social.replace(...)}')`
+- onclick nuevo: `openDeleteModal('${client.id}')`
+- Dentro de la funcion (linea ~430): buscar `allClients.find(c => c.id === id)` para obtener `.nombre_razon_social`
+
+**3. `openCancelModal` en `issued-page.js`**
+
+- onclick actual: `openCancelModal('${invoice.id}', '${invoiceNumber}')`
+- onclick nuevo: `openCancelModal('${invoice.id}')`
+- Dentro de la funcion (linea ~283): buscar `allIssuedInvoices.find(i => i.id === id)` para obtener `.invoice_number`
+
+**4. `openCancelModal` en `quote-issued-page.js`**
+
+- onclick actual: `openCancelModal('${quote.id}', '${quoteNumber}')`
+- onclick nuevo: `openCancelModal('${quote.id}')`
+- Dentro de la funcion (linea ~283): buscar `allIssuedQuotes.find(q => q.id === id)` para obtener `.quote_number`
+
+**5. `openDeleteModal` en `drafts-page.js`**
+
+- onclick actual: `openDeleteModal('${draft.id}', '${quoteNumber}')`
+- onclick nuevo: `openDeleteModal('${draft.id}')`
+- Dentro de la funcion (linea ~190): buscar `allDrafts.find(d => d.id === id)` para obtener `.invoice_number`
+
+**6. `openDeleteModal` en `quote-drafts-page.js`**
+
+- onclick actual: `openDeleteModal('${draft.id}', '${quoteNumber}')`
+- onclick nuevo: `openDeleteModal('${draft.id}')`
+- Dentro de la funcion (linea ~190): buscar `allDrafts.find(d => d.id === id)` para obtener `.quote_number`
+
+### Caso especial: `selectContact` en `expenses-page.js`
+
+- onclick actual: `selectContact('${client.id}', '${client.nombre_razon_social.replace(...)}')`
+- **No se puede hacer lookup** porque los resultados del autocomplete no se almacenan globalmente.
+- **Solucion**: Almacenar los resultados del autocomplete en una variable temporal (`_lastAutocompleteResults`) y hacer lookup por ID dentro de `selectContact`.
+
+### Riesgo funcional
+
+- **Bajo**: Las funciones ya hacen lookups internos. Solo se elimina el parametro redundante.
+- **Punto de fallo potencial**: Si un elemento se elimina del array antes de hacer click (ej. recarga parcial), `.find()` devolveria `undefined`. Se debe manejar con un fallback: `nombre || 'Sin nombre'`.
+
+---
+
+## Fase 4: Verificacion
+
+Comprobar que no hay errores de lint en todos los archivos modificados. Verificar que no quedan interpolaciones sin escapar.
+
+---
+
+## Que podria romperse y como prevenirlo
+
+- **Doble codificacion HTML**: Si un nombre de cliente en la BD contiene `&amp;`, se mostraria como `&amp;` literal. Probabilidad baja. Verificacion manual post-cambio.
+- **Modal de confirmacion muestra "undefined"**: Si `.find()` no encuentra el registro. Se previene con fallbacks tipo `|| 'Sin nombre'`.
+- **Autocomplete de contactos en expenses.html**: El mas delicado. Se necesita almacenar los resultados temporalmente.
+- **Toast con HTML intencional**: Si algun toast usa HTML intencionalmente en el mensaje, `escapeHtml` lo romperia. Se verifica que todas las llamadas a `showToast` usan texto plano.
+- **Badges de metodo de pago**: Si un IBAN o telefono contiene caracteres especiales (improbable), se mostraria escapado. Sin impacto real.

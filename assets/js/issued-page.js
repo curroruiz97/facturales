@@ -3,6 +3,12 @@
  * Script para la página de facturas emitidas
  */
 
+// Sanitización XSS
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
 let allIssuedInvoices = [];
 let currentCancelId = null;
 
@@ -31,7 +37,7 @@ async function loadIssuedInvoices() {
     
     if (!resultIssued.success) {
       console.error('❌ Error al cargar facturas emitidas:', resultIssued.error);
-      showToast('Error al cargar facturas', 'error');
+      _showIssuedToast('Error al cargar facturas', 'error');
       return;
     }
     
@@ -54,7 +60,7 @@ async function loadIssuedInvoices() {
     
   } catch (error) {
     console.error('❌ Error en loadIssuedInvoices:', error);
-    showToast('Error al cargar facturas', 'error');
+    _showIssuedToast('Error al cargar facturas', 'error');
   }
 }
 
@@ -176,7 +182,7 @@ function createIssuedRow(invoice) {
         
         <!-- Botón Anular -->
         <button
-          onclick="openCancelModal('${invoice.id}', '${invoiceNumber}')"
+          onclick="openCancelModal('${invoice.id}')"
           class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-bgray-100 transition hover:bg-bgray-200 dark:bg-darkblack-500 hover:dark:bg-darkblack-400"
           type="button"
           title="Anular"
@@ -198,16 +204,16 @@ function createIssuedRow(invoice) {
       <!-- Columna: Factura -->
       <td class="py-5 pr-6">
         <div class="flex flex-col">
-          <p class="text-sm font-semibold text-bgray-900 dark:text-white ${isCancelled ? 'line-through' : ''}">${invoiceNumber}</p>
-          <p class="text-xs text-bgray-600 dark:text-bgray-50">Serie ${invoice.invoice_series}</p>
+          <p class="text-sm font-semibold text-bgray-900 dark:text-white ${isCancelled ? 'line-through' : ''}">${escapeHtml(invoiceNumber)}</p>
+          <p class="text-xs text-bgray-600 dark:text-bgray-50">Serie ${escapeHtml(invoice.invoice_series)}</p>
         </div>
       </td>
       
       <!-- Columna: Cliente -->
       <td class="px-6 py-5">
         <div class="flex flex-col">
-          <p class="text-sm font-medium text-bgray-900 dark:text-white">${clientName}</p>
-          <p class="text-xs text-bgray-600 dark:text-bgray-50">${clientNif}</p>
+          <p class="text-sm font-medium text-bgray-900 dark:text-white">${escapeHtml(clientName)}</p>
+          <p class="text-xs text-bgray-600 dark:text-bgray-50">${escapeHtml(clientNif)}</p>
         </div>
       </td>
       
@@ -259,19 +265,19 @@ async function togglePaymentStatus(invoiceId, newPaidStatus) {
     
     if (!result.success) {
       console.error('❌ Error al cambiar estado:', result.error);
-      showToast(result.error || 'Error al actualizar el estado de pago', 'error');
+      _showIssuedToast(result.error || 'Error al actualizar el estado de pago', 'error');
       return;
     }
     
     console.log('✅ Estado de pago actualizado');
-    showToast(newPaidStatus ? 'Factura marcada como pagada' : 'Factura marcada como no pagada', 'success');
+    _showIssuedToast(newPaidStatus ? 'Factura marcada como pagada' : 'Factura marcada como no pagada', 'success');
     
     // Recargar lista para actualizar UI
     await loadIssuedInvoices();
     
   } catch (error) {
     console.error('❌ Error en togglePaymentStatus:', error);
-    showToast('Error al actualizar el estado de pago', 'error');
+    _showIssuedToast('Error al actualizar el estado de pago', 'error');
   }
 }
 
@@ -280,8 +286,10 @@ async function togglePaymentStatus(invoiceId, newPaidStatus) {
  * @param {string} invoiceId - ID de la factura
  * @param {string} invoiceNumber - Número de factura
  */
-function openCancelModal(invoiceId, invoiceNumber) {
+function openCancelModal(invoiceId) {
   currentCancelId = invoiceId;
+  const inv = allIssuedInvoices.find(i => i.id === invoiceId);
+  const invoiceNumber = inv ? (inv.invoice_number || 'Sin número') : 'Sin número';
   
   const modal = document.getElementById('cancel-confirm-modal');
   const nameElement = document.getElementById('cancel-invoice-name');
@@ -318,22 +326,23 @@ async function confirmCancelInvoice() {
     
     if (!result.success) {
       console.error('❌ Error al anular:', result.error);
-      showToast(result.error || 'Error al anular la factura', 'error');
+      _showIssuedToast(result.error || 'Error al anular la factura', 'error');
       return;
     }
     
     console.log('✅ Factura anulada');
-    showToast('Factura anulada correctamente', 'success');
     
-    // Cerrar modal
+    // Cerrar modal primero
     closeCancelModal();
+    
+    _showIssuedToast('Factura anulada correctamente', 'success');
     
     // Recargar lista
     await loadIssuedInvoices();
     
   } catch (error) {
     console.error('❌ Error en confirmCancelInvoice:', error);
-    showToast('Error al anular la factura', 'error');
+    _showIssuedToast('Error al anular la factura', 'error');
   }
 }
 
@@ -364,11 +373,11 @@ function handleSearchIssued(searchTerm) {
  * @param {string} message - Mensaje a mostrar
  * @param {string} type - Tipo: 'success' | 'error'
  */
-function showToast(message, type = 'success') {
-  if (window.showToast) {
-    window.showToast(message, type);
+function _showIssuedToast(message, type) {
+  // Usar la función global de toast.js (NO sobreescribir window.showToast)
+  if (typeof window.showToast === 'function' && window.showToast !== _showIssuedToast) {
+    window.showToast(message, type || 'success');
   } else {
-    // Fallback
     alert(message);
   }
 }

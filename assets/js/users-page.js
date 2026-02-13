@@ -3,6 +3,12 @@
  * Lógica específica para la página de gestión de clientes (users.html)
  */
 
+// Sanitización XSS
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
 // Estado global
 let currentClientId = null;
 let clientToDelete = null;
@@ -20,8 +26,15 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /**
- * Cargar totales facturados por cliente desde invoices (status = 'issued')
+ * Cargar totales facturados por cliente desde invoices (status = 'issued' AND is_paid = true)
+ * Solo cuenta facturas emitidas Y pagadas. Si una factura se marca como no pagada,
+ * deja de contabilizarse en el total.
+ * 1) Suma por client_id para facturas vinculadas correctamente.
+ * 2) Para facturas antiguas sin client_id, extrae el NIF/CIF del campo
+ *    invoice_data->client->nif y lo resuelve contra clientes.identificador
+ *    después de cargar la lista de clientes (match fiable e inmutable).
  */
+var _pendingUnlinkedInvoices = []; // facturas sin client_id, pendientes de resolver por NIF
 async function loadInvoiceTotals() {
   try {
     if (!window.supabaseClient) return;
@@ -29,23 +42,70 @@ async function loadInvoiceTotals() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    const { data, error } = await supabase
+    _usersInvoiceTotals = {};
+    _pendingUnlinkedInvoices = [];
+
+    // Query 1: facturas CON client_id, emitidas y pagadas
+    const { data: linked, error: err1 } = await supabase
       .from('invoices')
       .select('client_id, total_amount')
       .eq('user_id', user.id)
-      .eq('status', 'issued');
+      .eq('status', 'issued')
+      .eq('is_paid', true)
+      .not('client_id', 'is', null);
 
-    if (error || !data) return;
-
-    _usersInvoiceTotals = {};
-    data.forEach(function(inv) {
-      if (inv.client_id) {
+    if (!err1 && linked) {
+      linked.forEach(function(inv) {
         _usersInvoiceTotals[inv.client_id] = (_usersInvoiceTotals[inv.client_id] || 0) + (parseFloat(inv.total_amount) || 0);
-      }
-    });
+      });
+    }
+
+    // Query 2: facturas SIN client_id (datos antiguos), emitidas y pagadas
+    const { data: unlinked, error: err2 } = await supabase
+      .from('invoices')
+      .select('total_amount, invoice_data')
+      .eq('user_id', user.id)
+      .eq('status', 'issued')
+      .eq('is_paid', true)
+      .is('client_id', null);
+
+    if (!err2 && unlinked) {
+      _pendingUnlinkedInvoices = unlinked;
+    }
   } catch (e) {
     console.error('Error loading invoice totals:', e);
   }
+}
+
+/**
+ * Resolver facturas sin client_id usando el NIF almacenado en invoice_data.
+ * Se llama DESPUÉS de cargar la lista de clientes.
+ * @param {Array} clients - Lista de clientes cargados
+ */
+function resolveUnlinkedInvoiceTotals(clients) {
+  if (!_pendingUnlinkedInvoices || _pendingUnlinkedInvoices.length === 0) return;
+  if (!clients || clients.length === 0) return;
+
+  // Crear mapa de identificador (NIF/CIF) → client.id
+  var nifToClientId = {};
+  clients.forEach(function(c) {
+    if (c.identificador) {
+      nifToClientId[c.identificador.trim().toUpperCase()] = c.id;
+    }
+  });
+
+  _pendingUnlinkedInvoices.forEach(function(inv) {
+    var nif = inv.invoice_data && inv.invoice_data.client && inv.invoice_data.client.nif;
+    if (nif) {
+      var clientId = nifToClientId[nif.trim().toUpperCase()];
+      if (clientId) {
+        _usersInvoiceTotals[clientId] = (_usersInvoiceTotals[clientId] || 0) + (parseFloat(inv.total_amount) || 0);
+      }
+    }
+  });
+
+  // Limpiar para no resolver dos veces
+  _pendingUnlinkedInvoices = [];
 }
 
 /**
@@ -59,6 +119,9 @@ async function loadClients(searchTerm = '') {
     const result = await getClients(searchTerm);
     
     if (result.success) {
+      // Resolver facturas antiguas sin client_id usando NIF/CIF
+      resolveUnlinkedInvoiceTotals(result.data);
+      
       // Añadir total facturado a cada cliente
       result.data.forEach(function(c) {
         c._totalFacturado = _usersInvoiceTotals[c.id] || 0;
@@ -148,23 +211,23 @@ function renderClientsTable(clients) {
       <td class="py-5 pr-6">
         <div class="flex items-center gap-3">
           <div class="flex h-10 w-10 items-center justify-center rounded-full bg-bgray-100 text-sm font-bold text-bgray-700 dark:bg-darkblack-500 dark:text-white">
-            ${initials}
+            ${escapeHtml(initials)}
           </div>
           <div>
-            <p class="text-sm font-semibold text-bgray-900 dark:text-white">${client.nombre_razon_social}</p>
-            <p class="text-xs font-medium text-bgray-600 dark:text-bgray-50">${client.identificador}</p>
+            <p class="text-sm font-semibold text-bgray-900 dark:text-white">${escapeHtml(client.nombre_razon_social)}</p>
+            <p class="text-xs font-medium text-bgray-600 dark:text-bgray-50">${escapeHtml(client.identificador)}</p>
           </div>
         </div>
       </td>
       <td class="px-6 py-5">
         <div class="flex flex-col gap-1">
-          <p class="text-sm font-medium text-bgray-900 dark:text-white">${client.email || '-'}</p>
-          <p class="text-xs font-medium text-bgray-600 dark:text-bgray-50">${client.telefono || '-'}</p>
-          <p class="text-xs font-medium text-bgray-600 dark:text-bgray-50">${formatFullAddress(client)}</p>
+          <p class="text-sm font-medium text-bgray-900 dark:text-white">${escapeHtml(client.email || '-')}</p>
+          <p class="text-xs font-medium text-bgray-600 dark:text-bgray-50">${escapeHtml(client.telefono || '-')}</p>
+          <p class="text-xs font-medium text-bgray-600 dark:text-bgray-50">${escapeHtml(formatFullAddress(client))}</p>
         </div>
       </td>
       <td class="px-6 py-5">
-        <p class="text-sm font-medium text-bgray-900 dark:text-white">${client.dia_facturacion ? 'Día ' + client.dia_facturacion : '-'}</p>
+        <p class="text-sm font-medium text-bgray-900 dark:text-white">${client.dia_facturacion ? 'Día ' + escapeHtml(client.dia_facturacion) : '-'}</p>
         <p class="text-xs font-medium text-bgray-600 dark:text-bgray-50">${client.dia_facturacion ? 'de cada mes' : ''}</p>
       </td>
       <td class="px-6 py-5">
@@ -181,7 +244,7 @@ function renderClientsTable(clients) {
               <path d="M13.125 2.62501C13.7213 2.02872 14.6887 2.02872 15.285 2.62501C15.8813 3.2213 15.8813 4.18872 15.285 4.78501L9 11.07L6 12L6.93 9L13.125 2.62501Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </button>
-          <button onclick="openDeleteModal('${client.id}', '${client.nombre_razon_social.replace(/'/g, "\\'")}' )" class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-bgray-100 transition hover:bg-bgray-200 dark:bg-darkblack-500 hover:dark:bg-darkblack-400" type="button" title="Eliminar">
+          <button onclick="openDeleteModal('${client.id}')" class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-bgray-100 transition hover:bg-bgray-200 dark:bg-darkblack-500 hover:dark:bg-darkblack-400" type="button" title="Eliminar">
             <svg class="stroke-bgray-900 dark:stroke-bgray-50" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M3.75 5.25H14.25" stroke-width="1.5" stroke-linecap="round"/>
               <path d="M7.5 5.25V4.5C7.5 3.67157 8.17157 3 9 3C9.82843 3 10.5 3.67157 10.5 4.5V5.25" stroke-width="1.5" stroke-linecap="round"/>
@@ -427,8 +490,10 @@ async function handleSubmitClient(event) {
   }
 }
 
-function openDeleteModal(clientId, clientName) {
+function openDeleteModal(clientId) {
   clientToDelete = clientId;
+  const client = allClients.find(c => c.id === clientId);
+  const clientName = client ? client.nombre_razon_social : 'Sin nombre';
   const nameElement = document.getElementById('delete-client-name');
   if (nameElement) nameElement.textContent = `Cliente: ${clientName}`;
   const modal = document.getElementById('delete-confirm-modal');

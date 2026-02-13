@@ -1,0 +1,1 @@
+import"./auth-C1W-hfHs.js";/* empty css              *//* empty css            *//* empty css              */await new Promise(o=>setTimeout(o,100));console.log("✅ Módulos de Supabase cargados");window.supabaseReady=!0;

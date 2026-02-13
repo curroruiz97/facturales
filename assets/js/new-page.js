@@ -3,6 +3,12 @@
  * Script para la página de creación/edición de facturas
  */
 
+// Sanitización XSS
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
 let currentDraftId = null;
 let isEditMode = false;
 
@@ -104,6 +110,15 @@ function populateFormWithData(invoice) {
       setValue('client-nif', data.client.nif);
       setValue('client-email', data.client.email);
       setValue('client-address', data.client.address);
+      
+      // Restaurar el client_id seleccionado para que se conserve al guardar/emitir
+      if (invoice.client_id) {
+        if (typeof window.setSelectedClientId === 'function') {
+          window.setSelectedClientId(invoice.client_id);
+        } else if (typeof selectedClientId !== 'undefined') {
+          selectedClientId = invoice.client_id;
+        }
+      }
       setValue('client-postal-code', data.client.postalCode);
     }
     
@@ -195,9 +210,9 @@ function loadPaymentMethods(methods) {
     methods.forEach(method => {
       let additionalInfo = '';
       if (method.type === 'transferencia' && method.iban) {
-        additionalInfo = '<div class="text-xs text-bgray-600 dark:text-bgray-400 mt-1">' + method.iban + '</div>';
+        additionalInfo = '<div class="text-xs text-bgray-600 dark:text-bgray-400 mt-1">' + escapeHtml(method.iban) + '</div>';
       } else if (method.type === 'bizum' && method.phone) {
-        additionalInfo = '<div class="text-xs text-bgray-600 dark:text-bgray-400 mt-1">' + method.phone + '</div>';
+        additionalInfo = '<div class="text-xs text-bgray-600 dark:text-bgray-400 mt-1">' + escapeHtml(method.phone) + '</div>';
       }
       
       const badge = document.createElement('div');
@@ -207,7 +222,7 @@ function loadPaymentMethods(methods) {
       badge.setAttribute('data-phone', method.phone || '');
       badge.innerHTML =
         '<div class="flex-1">' +
-          '<span class="font-semibold text-warning-700 dark:text-warning-300">' + (methodLabels[method.type] || method.type) + '</span>' +
+          '<span class="font-semibold text-warning-700 dark:text-warning-300">' + escapeHtml(methodLabels[method.type] || method.type) + '</span>' +
           additionalInfo +
         '</div>' +
         '<button type="button" onclick="this.parentElement.remove()" class="text-warning-700 hover:text-warning-900 dark:text-warning-300 ml-2">' +
@@ -523,10 +538,16 @@ function collectFormData() {
       totalAmount = parseFloat(totalElement?.textContent?.replace(/[^0-9,.-]/g, '')?.replace(',', '.')) || 0;
     }
     
+    // Obtener el client_id del cliente seleccionado
+    const clientId = (typeof window.getSelectedClientId === 'function')
+      ? window.getSelectedClientId()
+      : (typeof selectedClientId !== 'undefined' ? selectedClientId : null);
+    
     // Preparar objeto de factura en formato Supabase
     const formData = {
       invoice_series: document.getElementById('invoice-series')?.value || 'A',
       invoice_number: invoiceNumber,
+      client_id: clientId,
       client_name: clientName.trim(),
       issue_date: issueDate,
       due_date: document.getElementById('due-date')?.value || null,

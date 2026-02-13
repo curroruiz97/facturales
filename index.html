@@ -1751,6 +1751,12 @@
     <!-- Cargar módulo de clientes para sección Contactos del dashboard -->
     <script type="module" src="./assets/js/clients.js"></script>
     <script>
+      // Sanitización XSS
+      function escapeHtml(str) {
+        if (str == null) return '';
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+      }
+
       // ─── Dashboard Contactos: estado de filtros y paginación ───
       var _allDashboardClients = [];
       var _filteredDashboardClients = [];
@@ -1763,7 +1769,11 @@
       var _dashCurrentPage = 1;
       var _dashPerPage = 10;
 
-      // Cargar totales facturados por cliente
+      // Cargar totales facturados por cliente (solo emitidas Y pagadas)
+      // 1) Suma por client_id para facturas vinculadas correctamente
+      // 2) Para facturas antiguas sin client_id, extrae NIF de invoice_data->client->nif
+      //    y lo resuelve contra clientes.identificador (match fiable e inmutable)
+      var _dashPendingUnlinkedInvoices = [];
       async function loadDashboardInvoiceTotals() {
         try {
           if (!window.supabaseClient) return;
@@ -1771,20 +1781,56 @@
           var userResult = await supabase.auth.getUser();
           if (!userResult.data || !userResult.data.user) return;
           var uid = userResult.data.user.id;
-          var result = await supabase
+
+          _dashboardInvoiceTotals = {};
+          _dashPendingUnlinkedInvoices = [];
+
+          // Query 1: facturas CON client_id, emitidas y pagadas
+          var linked = await supabase
             .from('invoices')
             .select('client_id, total_amount')
             .eq('user_id', uid)
-            .eq('status', 'issued');
-          if (result.data) {
-            _dashboardInvoiceTotals = {};
-            result.data.forEach(function(inv) {
-              if (inv.client_id) {
-                _dashboardInvoiceTotals[inv.client_id] = (_dashboardInvoiceTotals[inv.client_id] || 0) + (parseFloat(inv.total_amount) || 0);
-              }
+            .eq('status', 'issued')
+            .eq('is_paid', true)
+            .not('client_id', 'is', null);
+          if (linked.data) {
+            linked.data.forEach(function(inv) {
+              _dashboardInvoiceTotals[inv.client_id] = (_dashboardInvoiceTotals[inv.client_id] || 0) + (parseFloat(inv.total_amount) || 0);
             });
           }
+
+          // Query 2: facturas SIN client_id (datos antiguos), emitidas y pagadas
+          var unlinked = await supabase
+            .from('invoices')
+            .select('total_amount, invoice_data')
+            .eq('user_id', uid)
+            .eq('status', 'issued')
+            .eq('is_paid', true)
+            .is('client_id', null);
+          if (unlinked.data) {
+            _dashPendingUnlinkedInvoices = unlinked.data;
+          }
         } catch (e) { console.error('Error loading invoice totals:', e); }
+      }
+
+      // Resolver facturas sin client_id usando NIF almacenado en invoice_data
+      function resolveDashUnlinkedInvoices(clients) {
+        if (!_dashPendingUnlinkedInvoices || _dashPendingUnlinkedInvoices.length === 0) return;
+        if (!clients || clients.length === 0) return;
+        var nifToId = {};
+        clients.forEach(function(c) {
+          if (c.identificador) { nifToId[c.identificador.trim().toUpperCase()] = c.id; }
+        });
+        _dashPendingUnlinkedInvoices.forEach(function(inv) {
+          var nif = inv.invoice_data && inv.invoice_data.client && inv.invoice_data.client.nif;
+          if (nif) {
+            var cid = nifToId[nif.trim().toUpperCase()];
+            if (cid) {
+              _dashboardInvoiceTotals[cid] = (_dashboardInvoiceTotals[cid] || 0) + (parseFloat(inv.total_amount) || 0);
+            }
+          }
+        });
+        _dashPendingUnlinkedInvoices = [];
       }
 
       function formatDashEUR(amount) {
@@ -1798,6 +1844,8 @@
           await loadDashboardInvoiceTotals();
           var result = await window.getClients('');
           if (result.success) {
+            // Resolver facturas antiguas sin client_id usando NIF/CIF
+            resolveDashUnlinkedInvoices(result.data || []);
             (result.data || []).forEach(function(c) {
               c._totalFacturado = _dashboardInvoiceTotals[c.id] || 0;
             });
@@ -1978,9 +2026,9 @@
           var row = document.createElement('tr');
           row.className = 'border-b border-bgray-200 dark:border-darkblack-400';
           row.innerHTML =
-            '<td class="py-5 pr-6"><div class="flex items-center gap-3"><div class="flex h-10 w-10 items-center justify-center rounded-full bg-bgray-100 text-sm font-bold text-bgray-700 dark:bg-darkblack-500 dark:text-white">' + initials + '</div><div><p class="text-sm font-semibold text-bgray-900 dark:text-white">' + (client.nombre_razon_social || '') + '</p><p class="text-xs font-medium text-bgray-600 dark:text-bgray-50">' + (client.identificador || '') + '</p></div></div></td>' +
-            '<td class="px-6 py-5"><div class="flex flex-col gap-1"><p class="text-sm font-medium text-bgray-900 dark:text-white">' + (client.email || '-') + '</p><p class="text-xs font-medium text-bgray-600 dark:text-bgray-50">' + (client.telefono || '-') + '</p><p class="text-xs font-medium text-bgray-600 dark:text-bgray-50">' + address + '</p></div></td>' +
-            '<td class="px-6 py-5"><p class="text-sm font-medium text-bgray-900 dark:text-white">' + (client.dia_facturacion ? 'Día ' + client.dia_facturacion : '-') + '</p><p class="text-xs font-medium text-bgray-600 dark:text-bgray-50">' + (client.dia_facturacion ? 'de cada mes' : '') + '</p></td>' +
+            '<td class="py-5 pr-6"><div class="flex items-center gap-3"><div class="flex h-10 w-10 items-center justify-center rounded-full bg-bgray-100 text-sm font-bold text-bgray-700 dark:bg-darkblack-500 dark:text-white">' + escapeHtml(initials) + '</div><div><p class="text-sm font-semibold text-bgray-900 dark:text-white">' + escapeHtml(client.nombre_razon_social || '') + '</p><p class="text-xs font-medium text-bgray-600 dark:text-bgray-50">' + escapeHtml(client.identificador || '') + '</p></div></div></td>' +
+            '<td class="px-6 py-5"><div class="flex flex-col gap-1"><p class="text-sm font-medium text-bgray-900 dark:text-white">' + escapeHtml(client.email || '-') + '</p><p class="text-xs font-medium text-bgray-600 dark:text-bgray-50">' + escapeHtml(client.telefono || '-') + '</p><p class="text-xs font-medium text-bgray-600 dark:text-bgray-50">' + escapeHtml(address) + '</p></div></td>' +
+            '<td class="px-6 py-5"><p class="text-sm font-medium text-bgray-900 dark:text-white">' + (client.dia_facturacion ? 'Día ' + escapeHtml(client.dia_facturacion) : '-') + '</p><p class="text-xs font-medium text-bgray-600 dark:text-bgray-50">' + (client.dia_facturacion ? 'de cada mes' : '') + '</p></td>' +
             '<td class="px-6 py-5">' + estadoBadge + '</td>' +
             '<td class="px-6 py-5"><p class="text-sm font-semibold text-bgray-900 dark:text-white">' + formatDashEUR(totalFact) + '</p></td>' +
             '<td class="py-5 pl-6 text-right"><a href="users.html" class="inline-flex h-9 items-center gap-1.5 rounded-lg bg-bgray-100 px-3 transition hover:bg-bgray-200 dark:bg-darkblack-500 hover:dark:bg-darkblack-400" title="Ver en Contactos"><svg class="stroke-bgray-900 dark:stroke-bgray-50" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 3h6v6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 14L21 3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="text-xs font-medium text-bgray-700 dark:text-bgray-50">Gestionar</span></a></td>';
