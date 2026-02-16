@@ -338,11 +338,13 @@
     <script src="../assets/js/user-header.js" defer></script>
     <script src="../assets/js/toast.js" defer></script>
     <script src="../assets/js/invoices.js" defer></script>
+    <script src="../assets/js/email-sender.js" defer></script>
 
     <!-- Lógica de la página de preview -->
     <script>
       var currentInvoiceData = null;
       var pdfGenerator = null;
+      var cachedPdfBase64 = null;
       var currentInvoiceId = null;
       var isReadOnly = false;
 
@@ -557,7 +559,11 @@
         try {
           pdfGenerator = new InvoicePDFGenerator();
           pdfGenerator.generatePDF(data);
-          document.getElementById('pdf-viewer').src = pdfGenerator.getPDFDataUrl();
+          var dataUrl = pdfGenerator.getPDFDataUrl();
+          document.getElementById('pdf-viewer').src = dataUrl;
+          if (dataUrl && dataUrl.indexOf(',') !== -1) {
+            cachedPdfBase64 = dataUrl.split(',')[1];
+          }
         } catch (error) {
           console.error('Error generando PDF:', error);
         }
@@ -606,10 +612,57 @@
         try {
           var result = await window.emitInvoice(currentInvoiceId);
           if (!result.success) { alert(result.error || 'Error al emitir'); setLoadingAll(false); return; }
-          if (window.showToast) window.showToast('Factura emitida correctamente', 'success');
-          // TODO: si sendEmail === true, aquí se enviará el mail al cliente en el futuro
+
+          // Actualizar onboarding
           try { if (window.getCurrentUser && window.updateStepProgress) { var ur = await window.getCurrentUser(); if (ur.success && ur.user) await window.updateStepProgress(ur.user.id, 4, true); } } catch(e){}
-          setTimeout(function() { window.location.href = 'issued.html'; }, 1500);
+
+          // Enviar email si se solicitó
+          if (sendEmail) {
+            var clientEmail = currentInvoiceData && currentInvoiceData.client ? currentInvoiceData.client.email : null;
+            if (!clientEmail) {
+              if (window.showToast) window.showToast('Factura emitida. No se pudo enviar email: el cliente no tiene email registrado.', 'error');
+            } else {
+              try {
+                // Esperar a que sendDocumentEmail esté disponible
+                for (var j = 0; j < 30 && !window.sendDocumentEmail; j++) await new Promise(function(r){setTimeout(r,100);});
+
+                if (window.sendDocumentEmail && cachedPdfBase64) {
+                  var invoiceNum = currentInvoiceData.invoice ? currentInvoiceData.invoice.number : 'doc';
+                  var pdfFilename = 'factura_' + invoiceNum + '.pdf';
+                  var issuerName = currentInvoiceData.issuer ? (currentInvoiceData.issuer.name || '') : '';
+                  var emailSubject = 'Factura ' + invoiceNum + ' de ' + issuerName;
+
+                  var emailResult = await window.sendDocumentEmail({
+                    documentType: 'invoice',
+                    documentId: currentInvoiceId,
+                    to: clientEmail,
+                    subject: emailSubject,
+                    pdfBase64: cachedPdfBase64,
+                    pdfFilename: pdfFilename
+                  });
+
+                  if (emailResult.success) {
+                    if (emailResult.alreadySent) {
+                      if (window.showToast) window.showToast('Factura emitida. El email ya fue enviado anteriormente.', 'success');
+                    } else {
+                      if (window.showToast) window.showToast('Factura emitida y enviada por email', 'success');
+                    }
+                  } else {
+                    if (window.showToast) window.showToast('Factura emitida. Error al enviar email: ' + (emailResult.error || 'desconocido'), 'error');
+                  }
+                } else {
+                  if (window.showToast) window.showToast('Factura emitida. No se pudo generar el PDF para el email.', 'error');
+                }
+              } catch (emailErr) {
+                console.error('Error al enviar email:', emailErr);
+                if (window.showToast) window.showToast('Factura emitida. Error al enviar email.', 'error');
+              }
+            }
+          } else {
+            if (window.showToast) window.showToast('Factura emitida correctamente', 'success');
+          }
+
+          setTimeout(function() { window.location.href = 'issued.html'; }, 2000);
         } catch (error) { alert(error.message || 'Error'); setLoadingAll(false); }
       }
 

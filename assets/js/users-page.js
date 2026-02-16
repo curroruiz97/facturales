@@ -201,9 +201,9 @@ function renderClientsTable(clients) {
     row.className = 'border-b border-bgray-200 dark:border-darkblack-400';
     
     const initials = getInitials(client.nombre_razon_social);
-    const estadoBadge = client.estado === 'activo' 
-      ? `<button onclick="toggleClientStatus('${client.id}', '${client.estado}')" class="inline-flex items-center rounded-lg bg-success-50 px-3 py-1 text-xs font-semibold text-success-300 dark:bg-darkblack-500 hover:bg-success-100 transition-colors cursor-pointer">Activo</button>`
-      : `<button onclick="toggleClientStatus('${client.id}', '${client.estado}')" class="inline-flex items-center rounded-lg bg-bgray-100 px-3 py-1 text-xs font-semibold text-bgray-700 dark:bg-darkblack-500 dark:text-bgray-50 hover:bg-bgray-200 transition-colors cursor-pointer">Inactivo</button>`;
+    const estadoBadge = client.estado === 'recurrente' 
+      ? `<button onclick="toggleClientStatus('${client.id}', '${client.estado}')" class="inline-flex items-center rounded-lg bg-success-50 px-3 py-1 text-xs font-semibold text-success-300 dark:bg-darkblack-500 hover:bg-success-100 transition-colors cursor-pointer">Recurrente</button>`
+      : `<button onclick="toggleClientStatus('${client.id}', '${client.estado}')" class="inline-flex items-center rounded-lg bg-bgray-100 px-3 py-1 text-xs font-semibold text-bgray-700 dark:bg-darkblack-500 dark:text-bgray-50 hover:bg-bgray-200 transition-colors cursor-pointer">Puntual</button>`;
     
     const totalFacturado = client._totalFacturado || 0;
     
@@ -438,7 +438,7 @@ async function openEditClientModal(clientId) {
     document.getElementById('client-city').value = client.ciudad || '';
     document.getElementById('client-country').value = client.pais || '';
     document.getElementById('client-billing-day').value = client.dia_facturacion || '30';
-    document.getElementById('client-status').value = client.estado === 'activo' ? 'active' : 'inactive';
+    document.getElementById('client-status').value = client.estado === 'recurrente' ? 'recurrente' : 'puntual';
     const modal = document.getElementById('multi-step-modal');
     if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
   } else {
@@ -469,7 +469,7 @@ async function handleSubmitClient(event) {
       ciudad: document.getElementById('client-city').value || null,
       pais: document.getElementById('client-country').value || null,
       dia_facturacion: document.getElementById('client-billing-day').value || null,
-      estado: document.getElementById('client-status').value === 'active' ? 'activo' : 'inactivo'
+      estado: document.getElementById('client-status').value === 'recurrente' ? 'recurrente' : 'puntual'
     };
     let result;
     if (currentClientId) {
@@ -520,10 +520,10 @@ async function confirmDeleteClient() {
 
 async function toggleClientStatus(clientId, currentStatus) {
   try {
-    const newStatus = currentStatus === 'activo' ? 'inactivo' : 'activo';
+    const newStatus = currentStatus === 'recurrente' ? 'puntual' : 'recurrente';
     const result = await updateClient(clientId, { estado: newStatus });
     if (result.success) {
-      showToast(`Cliente ${newStatus === 'activo' ? 'activado' : 'desactivado'} correctamente`, 'success');
+      showToast(`Cliente marcado como ${newStatus}`, 'success');
       loadClients();
     } else {
       showToast(result.error || 'Error al cambiar el estado', 'error');

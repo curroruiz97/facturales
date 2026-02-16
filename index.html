@@ -79,12 +79,12 @@
                               </svg>
                             </span>
                             <span class="text-sm font-medium text-[#22C55E]">
-                              + 0.0%
+                              0.0%
                             </span>
                             <span
                               class="text-sm font-medium text-bgray-700 dark:text-bgray-50"
                             >
-                              desde el mes anterior
+                              / Mes anterior
                             </span>
                           </div>
                         </div>
@@ -140,12 +140,12 @@
                               </svg>
                             </span>
                             <span class="text-sm font-medium text-[#EF4444]">
-                              + 0.0%
+                              0.0%
                             </span>
                             <span
                               class="text-sm font-medium text-bgray-700 dark:text-bgray-50"
                             >
-                              desde el mes anterior
+                              / Mes anterior
                             </span>
                           </div>
                         </div>
@@ -201,12 +201,12 @@
                               </svg>
                             </span>
                             <span class="text-sm font-medium text-[#22C55E]">
-                              + 0.0%
+                              0.0%
                             </span>
                             <span
                               class="text-sm font-medium text-bgray-700 dark:text-bgray-50"
                             >
-                              desde el mes anterior
+                              / Mes anterior
                             </span>
                           </div>
                         </div>
@@ -669,7 +669,7 @@
 
                     <!-- Grid de Acciones Secundarias -->
                     <div class="grid grid-cols-3 gap-3">
-                      <!-- Añadir nuevo contacto -->
+                      <!-- Añadir contacto -->
                       <button
                         onclick="window.location.href='users.html'"
                         class="group flex flex-col items-center justify-center p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-success-300 hover:bg-white dark:bg-darkblack-500 dark:hover:bg-darkblack-400 transition-all duration-300 hover:shadow-md active:scale-95"
@@ -712,7 +712,7 @@
                             />
                           </svg>
                         </div>
-                        <span class="text-xs font-semibold text-bgray-900 dark:text-white text-center leading-tight">Añadir nuevo contacto</span>
+                        <span class="text-xs font-semibold text-bgray-900 dark:text-white text-center leading-tight">Añadir contacto</span>
                       </button>
 
                       <!-- Subir un gasto -->
@@ -759,7 +759,7 @@
                         onclick="window.location.href='invoices/quote.html'"
                         class="group flex flex-col items-center justify-center p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-success-300 hover:bg-white dark:bg-darkblack-500 dark:hover:bg-darkblack-400 transition-all duration-300 hover:shadow-md active:scale-95"
                       >
-                        <div class="flex items-center justify-center w-12 h-12 mb-3 rounded-full bg-purple-50 group-hover:bg-purple-100 transition-colors duration-300">
+                        <div class="flex items-center justify-center w-12 h-12 mb-3 rounded-full transition-colors duration-300" style="background-color: rgba(139,92,246,0.1);" onmouseover="this.style.backgroundColor='rgba(139,92,246,0.25)'" onmouseout="this.style.backgroundColor='rgba(139,92,246,0.1)'">
                           <svg
                             width="24"
                             height="24"
@@ -2101,11 +2101,16 @@
 
         const absVariacion = Math.abs(variacion);
         const esPositivo = invertido ? variacion < 0 : variacion > 0;
-        const signo = variacion >= 0 ? '+' : '-';
         
-        // Actualizar texto
-        percentSpan.textContent = `${signo} ${absVariacion.toFixed(1)}%`;
-        textSpan.textContent = 'desde el mes anterior';
+        // Calcular nombre del mes anterior
+        const now = new Date();
+        const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const nombreMesAnterior = prevMonth.toLocaleString('es-ES', { month: 'long' });
+        const nombreMesCap = nombreMesAnterior.charAt(0).toUpperCase() + nombreMesAnterior.slice(1);
+        
+        // Actualizar texto (sin signo +/-)
+        percentSpan.textContent = `${absVariacion.toFixed(1)}%`;
+        textSpan.textContent = `/ ${nombreMesCap}`;
 
         // Actualizar color según si es positivo o negativo
         if (esPositivo) {

@@ -87,63 +87,41 @@
                     </div>
                     <div class="filter-content w-full">
                       <div class="grid grid-cols-1 gap-4 lg:grid-cols-4">
-                        <!-- Filtro Ubicación (placeholder, no funcional por ahora) -->
+                        <!-- Filtro Categoría -->
                         <div class="w-full">
                           <p
                             class="mb-2 text-base font-bold leading-[24px] text-bgray-900 dark:text-white"
                           >
-                            Ubicación
+                            Categoría
                           </p>
                           <div class="relative h-[56px] w-full">
                             <button
-                              onclick="dateFilterAction('#province-filter')"
+                              onclick="dateFilterAction('#category-filter-dropdown')"
                               type="button"
+                              id="category-filter-btn"
                               class="relative flex h-full w-full items-center justify-between rounded-lg bg-bgray-100 px-4 dark:bg-darkblack-500"
                             >
-                              <span class="text-base text-bgray-500"
-                                >Estado o provincia</span
-                              >
+                              <span id="category-filter-label" class="text-base text-bgray-500">Todas las categorías</span>
                               <span>
-                                <svg
-                                  width="21"
-                                  height="21"
-                                  viewBox="0 0 21 21"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <path
-                                    d="M5.58203 8.3186L10.582 13.3186L15.582 8.3186"
-                                    stroke="#A0AEC0"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
+                                <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M5.58203 8.3186L10.582 13.3186L15.582 8.3186" stroke="#A0AEC0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                               </span>
                             </button>
                             <div
-                              id="province-filter"
+                              id="category-filter-dropdown"
                               class="absolute right-0 top-14 z-10 hidden w-full overflow-hidden rounded-lg bg-white shadow-lg dark:bg-darkblack-500"
                             >
                               <ul>
-                                <li
-                                  onclick="dateFilterAction('#province-filter')"
-                                  class="text-bgray-90 cursor-pointer px-5 py-2 text-sm font-semibold hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
-                                >
-                                  Madrid
-                                </li>
-                                <li
-                                  onclick="dateFilterAction('#province-filter')"
-                                  class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
-                                >
-                                  Barcelona
-                                </li>
-                                <li
-                                  onclick="dateFilterAction('#province-filter')"
-                                  class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
-                                >
-                                  Valencia
-                                </li>
+                                <li onclick="applyCategoryFilter('')" class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600">Todas</li>
+                                <li onclick="applyCategoryFilter('material_oficina')" class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600">Material de oficina</li>
+                                <li onclick="applyCategoryFilter('servicios_profesionales')" class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600">Servicios profesionales</li>
+                                <li onclick="applyCategoryFilter('suministros')" class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600">Suministros</li>
+                                <li onclick="applyCategoryFilter('alquiler')" class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600">Alquiler</li>
+                                <li onclick="applyCategoryFilter('transporte')" class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600">Transporte</li>
+                                <li onclick="applyCategoryFilter('marketing')" class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600">Marketing</li>
+                                <li onclick="applyCategoryFilter('otros')" class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600">Otros</li>
+                                <li onclick="applyCategoryFilter('factura')" class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600">Factura</li>
                               </ul>
                             </div>
                           </div>
@@ -1504,7 +1482,7 @@
 
                     <!-- Grid de Acciones Secundarias -->
                     <div class="grid grid-cols-3 gap-3">
-                      <!-- Añadir nuevo contacto -->
+                      <!-- Añadir contacto -->
                       <button
                         onclick="window.location.href='users.html'"
                         class="group flex flex-col items-center justify-center p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-success-300 hover:bg-white dark:bg-darkblack-500 dark:hover:bg-darkblack-400 transition-all duration-300 hover:shadow-md active:scale-95"
@@ -1547,7 +1525,7 @@
                             />
                           </svg>
                         </div>
-                        <span class="text-xs font-semibold text-bgray-900 dark:text-white text-center leading-tight">Añadir nuevo contacto</span>
+                        <span class="text-xs font-semibold text-bgray-900 dark:text-white text-center leading-tight">Añadir contacto</span>
                       </button>
 
                       <!-- Crear factura (MOVIDO AQUÍ) -->
@@ -1594,7 +1572,7 @@
                         onclick="window.location.href='invoices/quote.html'"
                         class="group flex flex-col items-center justify-center p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-success-300 hover:bg-white dark:bg-darkblack-500 dark:hover:bg-darkblack-400 transition-all duration-300 hover:shadow-md active:scale-95"
                       >
-                        <div class="flex items-center justify-center w-12 h-12 mb-3 rounded-full bg-purple-50 group-hover:bg-purple-100 transition-colors duration-300">
+                        <div class="flex items-center justify-center w-12 h-12 mb-3 rounded-full transition-colors duration-300" style="background-color: rgba(139,92,246,0.1);" onmouseover="this.style.backgroundColor='rgba(139,92,246,0.25)'" onmouseout="this.style.backgroundColor='rgba(139,92,246,0.1)'">
                           <svg
                             width="24"
                             height="24"

@@ -468,6 +468,7 @@ class QuotePDFGenerator {
   downloadPDF(filename) { if (this.doc) this.doc.save(filename || 'presupuesto.pdf'); }
   getPDFBlob() { return this.doc ? this.doc.output('blob') : null; }
   getPDFDataUrl() { return this.doc ? this.doc.output('dataurlstring') : null; }
+  getBase64() { return this.doc ? this.doc.output('base64') : null; }
 }
 
 if (typeof window !== 'undefined') {

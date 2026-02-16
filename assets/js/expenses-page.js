@@ -16,7 +16,8 @@ let currentFilters = {
   maxAmount: null,
   startDate: null,
   endDate: null,
-  tipo: null
+  tipo: null,
+  categoria: null
 };
 
 // Variable para almacenar todas las transacciones cargadas
@@ -569,6 +570,36 @@ function handleTypeFilter(tipo) {
 }
 
 /**
+ * Aplicar filtro de categoría
+ */
+function applyCategoryFilter(categoria) {
+  currentFilters.categoria = categoria || null;
+
+  // Actualizar label del botón
+  var label = document.getElementById('category-filter-label');
+  if (label) {
+    var labels = {
+      '': 'Todas las categorías',
+      'material_oficina': 'Material de oficina',
+      'servicios_profesionales': 'Servicios profesionales',
+      'suministros': 'Suministros',
+      'alquiler': 'Alquiler',
+      'transporte': 'Transporte',
+      'marketing': 'Marketing',
+      'otros': 'Otros',
+      'factura': 'Factura'
+    };
+    label.textContent = labels[categoria] || 'Todas las categorías';
+  }
+
+  // Cerrar dropdown
+  var dd = document.getElementById('category-filter-dropdown');
+  if (dd) dd.classList.add('hidden');
+
+  loadTransactions();
+}
+
+/**
  * Aplicar todos los filtros
  */
 function applyFilters() {
@@ -585,8 +616,13 @@ function clearFilters() {
     maxAmount: null,
     startDate: null,
     endDate: null,
-    tipo: null
+    tipo: null,
+    categoria: null
   };
+  
+  // Reset label de categoría
+  var catLabel = document.getElementById('category-filter-label');
+  if (catLabel) catLabel.textContent = 'Todas las categorías';
   
   // Limpiar inputs
   const searchInput = document.getElementById('transactionSearch');
@@ -854,6 +890,7 @@ window.handleDateFilter = handleDateFilter;
 window.handleTypeFilter = handleTypeFilter;
 window.applyFilters = applyFilters;
 window.clearFilters = clearFilters;
+window.applyCategoryFilter = applyCategoryFilter;
 window.handleContactAutocomplete = handleContactAutocomplete;
 window.selectContact = selectContact;
 window.editTransaction = editTransaction;

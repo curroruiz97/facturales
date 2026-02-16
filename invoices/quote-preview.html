@@ -338,11 +338,13 @@
     <script src="../assets/js/user-header.js" defer></script>
     <script src="../assets/js/toast.js" defer></script>
     <script src="../assets/js/quotes.js" defer></script>
+    <script src="../assets/js/email-sender.js" defer></script>
 
     <!-- Lógica de la página de preview de presupuestos -->
     <script>
       var currentQuoteData = null;
       var pdfGenerator = null;
+      var cachedPdfBase64 = null;
       var currentQuoteId = null;
       var isReadOnly = false;
 
@@ -554,7 +556,11 @@
         try {
           pdfGenerator = new QuotePDFGenerator();
           pdfGenerator.generatePDF(data);
-          document.getElementById('pdf-viewer').src = pdfGenerator.getPDFDataUrl();
+          var dataUrl = pdfGenerator.getPDFDataUrl();
+          document.getElementById('pdf-viewer').src = dataUrl;
+          if (dataUrl && dataUrl.indexOf(',') !== -1) {
+            cachedPdfBase64 = dataUrl.split(',')[1];
+          }
         } catch (error) {
           console.error('Error generando PDF:', error);
         }
@@ -603,9 +609,54 @@
         try {
           var result = await window.emitQuote(currentQuoteId);
           if (!result.success) { alert(result.error || 'Error al emitir'); setLoadingAll(false); return; }
-          if (window.showToast) window.showToast('Presupuesto emitido correctamente', 'success');
-          // TODO: si sendEmail === true, aquí se enviará el mail al cliente en el futuro
-          setTimeout(function() { window.location.href = 'quote-issued.html'; }, 1500);
+
+          // Enviar email si se solicitó
+          if (sendEmail) {
+            var clientEmail = currentQuoteData && currentQuoteData.client ? currentQuoteData.client.email : null;
+            if (!clientEmail) {
+              if (window.showToast) window.showToast('Presupuesto emitido. No se pudo enviar email: el cliente no tiene email registrado.', 'error');
+            } else {
+              try {
+                // Esperar a que sendDocumentEmail esté disponible
+                for (var j = 0; j < 30 && !window.sendDocumentEmail; j++) await new Promise(function(r){setTimeout(r,100);});
+
+                if (window.sendDocumentEmail && cachedPdfBase64) {
+                  var quoteNum = currentQuoteData.quote ? currentQuoteData.quote.number : 'doc';
+                  var pdfFilename = 'presupuesto_' + quoteNum + '.pdf';
+                  var issuerName = currentQuoteData.issuer ? (currentQuoteData.issuer.name || '') : '';
+                  var emailSubject = 'Presupuesto ' + quoteNum + ' de ' + issuerName;
+
+                  var emailResult = await window.sendDocumentEmail({
+                    documentType: 'quote',
+                    documentId: currentQuoteId,
+                    to: clientEmail,
+                    subject: emailSubject,
+                    pdfBase64: cachedPdfBase64,
+                    pdfFilename: pdfFilename
+                  });
+
+                  if (emailResult.success) {
+                    if (emailResult.alreadySent) {
+                      if (window.showToast) window.showToast('Presupuesto emitido. El email ya fue enviado anteriormente.', 'success');
+                    } else {
+                      if (window.showToast) window.showToast('Presupuesto emitido y enviado por email', 'success');
+                    }
+                  } else {
+                    if (window.showToast) window.showToast('Presupuesto emitido. Error al enviar email: ' + (emailResult.error || 'desconocido'), 'error');
+                  }
+                } else {
+                  if (window.showToast) window.showToast('Presupuesto emitido. No se pudo generar el PDF para el email.', 'error');
+                }
+              } catch (emailErr) {
+                console.error('Error al enviar email:', emailErr);
+                if (window.showToast) window.showToast('Presupuesto emitido. Error al enviar email.', 'error');
+              }
+            }
+          } else {
+            if (window.showToast) window.showToast('Presupuesto emitido correctamente', 'success');
+          }
+
+          setTimeout(function() { window.location.href = 'quote-issued.html'; }, 2000);
         } catch (error) { alert(error.message || 'Error'); setLoadingAll(false); }
       }
 

@@ -138,7 +138,8 @@ function createIssuedRow(quote) {
     paymentBadge = `
       <button 
         onclick="togglePaymentStatus('${quote.id}', ${!isPaid})" 
-        class="inline-flex items-center rounded-lg ${isPaid ? 'bg-success-50 text-success-300' : 'bg-error-50 text-error-300'} px-3 py-1 text-xs font-semibold dark:bg-darkblack-500 ${isPaid ? 'hover:bg-success-100' : 'hover:bg-error-100'} transition-colors cursor-pointer"
+        class="inline-flex items-center rounded-lg ${isPaid ? 'bg-success-50 text-success-300 hover:bg-success-100' : 'text-error-300 hover:opacity-80'} px-3 py-1 text-xs font-semibold dark:bg-darkblack-500 transition-colors cursor-pointer"
+        ${isPaid ? '' : 'style="background-color: rgba(221,51,51,0.1);"'}
       >
         ${isPaid ? 'Pagado' : 'No pagado'}
       </button>

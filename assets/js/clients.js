@@ -325,7 +325,6 @@ async function searchClientsAutocomplete(term) {
       .from('clientes')
       .select('id, nombre_razon_social, identificador, email, telefono, direccion, codigo_postal, ciudad, pais')
       .ilike('nombre_razon_social', `%${term.trim()}%`)
-      .eq('estado', 'activo') // Solo clientes activos
       .order('nombre_razon_social', { ascending: true })
       .limit(10); // Máximo 10 resultados
 

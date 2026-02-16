@@ -2286,19 +2286,22 @@
                       >
                         Cambia o consulta tu contraseña.
                       </p>
-                      <form action="" class="mt-6">
+                      <form id="password-change-form" class="mt-6" onsubmit="return false;">
                         <div class="relative mb-6 flex flex-col">
                           <label
-                            for="old"
+                            for="current-password"
                             class="mb-3 block text-sm font-medium text-bgray-500 dark:text-darkblack-300"
                             >Contraseña anterior</label
                           >
                           <input
-                            type="text"
+                            id="current-password"
+                            name="current-password"
+                            type="password"
+                            autocomplete="current-password"
                             class="h-14 w-full rounded-lg border-0 bg-bgray-50 px-4 py-5 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white"
                           />
-                          <button class="absolute right-4 top-12">
-                            <svg
+                          <button type="button" class="absolute right-4 top-12 toggle-password-btn" data-target="current-password">
+                            <svg class="eye-off-icon"
                               width="24"
                               height="24"
                               viewBox="0 0 24 24"
@@ -2327,20 +2330,45 @@
                                 stroke-linejoin="round"
                               />
                             </svg>
+                            <svg class="eye-on-icon hidden"
+                              width="24"
+                              height="24"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M12 5C16 5 19.333 7.333 22 12C19.333 16.667 16 19 12 19C8 19 4.667 16.667 2 12C4.667 7.333 8 5 12 5Z"
+                                stroke="#718096"
+                                stroke-width="1.5"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              />
+                              <path
+                                d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z"
+                                stroke="#718096"
+                                stroke-width="1.5"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              />
+                            </svg>
                           </button>
                         </div>
                         <div class="relative mb-6 flex flex-col">
                           <label
-                            for="old"
+                            for="new-password"
                             class="mb-3 block text-sm font-medium text-bgray-500 dark:text-darkblack-300"
                             >Nueva contraseña</label
                           >
                           <input
-                            type="text"
-                            class="h-14 w-full rounded-lg border-0 bg-bgray-50 px-4 py-5 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500"
+                            id="new-password"
+                            name="new-password"
+                            type="password"
+                            autocomplete="new-password"
+                            class="h-14 w-full rounded-lg border-0 bg-bgray-50 px-4 py-5 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white"
                           />
-                          <button class="absolute right-4 top-12">
-                            <svg
+                          <button type="button" class="absolute right-4 top-12 toggle-password-btn" data-target="new-password">
+                            <svg class="eye-off-icon"
                               width="24"
                               height="24"
                               viewBox="0 0 24 24"
@@ -2363,6 +2391,28 @@
                               />
                               <path
                                 d="M9.363 5.36506C10.2204 5.11978 11.1082 4.9969 12 5.00006C16 5.00006 19.333 7.33306 22 12.0001C21.222 13.3611 20.388 14.5241 19.497 15.4881M17.357 17.3491C15.726 18.4491 13.942 19.0001 12 19.0001C8 19.0001 4.667 16.6671 2 12.0001C3.369 9.60506 4.913 7.82506 6.632 6.65906"
+                                stroke="#718096"
+                                stroke-width="1.5"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              />
+                            </svg>
+                            <svg class="eye-on-icon hidden"
+                              width="24"
+                              height="24"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M12 5C16 5 19.333 7.333 22 12C19.333 16.667 16 19 12 19C8 19 4.667 16.667 2 12C4.667 7.333 8 5 12 5Z"
+                                stroke="#718096"
+                                stroke-width="1.5"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              />
+                              <path
+                                d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z"
                                 stroke="#718096"
                                 stroke-width="1.5"
                                 stroke-linecap="round"
@@ -2375,8 +2425,11 @@
                             >Mínimo 6 caracteres</small
                           >
                         </div>
+                        <p id="password-error-msg" class="hidden mb-3 text-sm text-red-500"></p>
                         <div class="flex justify-end">
                           <button
+                            id="save-password-btn"
+                            type="button"
                             class="rounded-lg bg-success-300 px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-success-400 hover:bg-opacity-100"
                           >
                             Guardar cambios
@@ -2896,6 +2949,7 @@
       await new Promise(resolve => setTimeout(resolve, 100));
     </script>
     <script type="module" src="./assets/js/auth-guard.js"></script>
+    <script src="./assets/js/toast.js"></script>
     <script src="./assets/js/user-header.js"></script>
     <script src="./assets/js/invoice-series-db.js"></script>
 
@@ -3604,6 +3658,147 @@
         initLogoUpload();
         initBrandColorPreview();
       });
+    </script>
+
+    <!-- Cambio de contraseña -->
+    <script>
+      (function() {
+        function waitForSupabase(callback, maxAttempts) {
+          maxAttempts = maxAttempts || 50;
+          var attempts = 0;
+          var interval = setInterval(function() {
+            attempts++;
+            if (window.supabaseClient && window.getCurrentUser && window.signIn && window.updatePassword) {
+              clearInterval(interval);
+              callback();
+            } else if (attempts >= maxAttempts) {
+              clearInterval(interval);
+              console.error('Supabase no se inicializó a tiempo para el módulo de contraseña');
+            }
+          }, 100);
+        }
+
+        waitForSupabase(function() {
+          var currentPasswordInput = document.getElementById('current-password');
+          var newPasswordInput = document.getElementById('new-password');
+          var saveBtn = document.getElementById('save-password-btn');
+          var errorMsg = document.getElementById('password-error-msg');
+
+          if (!currentPasswordInput || !newPasswordInput || !saveBtn) return;
+
+          // Toggle visibilidad de contraseña
+          var toggleBtns = document.querySelectorAll('.toggle-password-btn');
+          toggleBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+              var targetId = btn.getAttribute('data-target');
+              var input = document.getElementById(targetId);
+              if (!input) return;
+
+              var eyeOff = btn.querySelector('.eye-off-icon');
+              var eyeOn = btn.querySelector('.eye-on-icon');
+
+              if (input.type === 'password') {
+                input.type = 'text';
+                if (eyeOff) eyeOff.classList.add('hidden');
+                if (eyeOn) eyeOn.classList.remove('hidden');
+              } else {
+                input.type = 'password';
+                if (eyeOff) eyeOff.classList.remove('hidden');
+                if (eyeOn) eyeOn.classList.add('hidden');
+              }
+            });
+          });
+
+          function showPasswordError(msg) {
+            errorMsg.textContent = msg;
+            errorMsg.classList.remove('hidden');
+          }
+
+          function hidePasswordError() {
+            errorMsg.classList.add('hidden');
+            errorMsg.textContent = '';
+          }
+
+          saveBtn.addEventListener('click', async function() {
+            hidePasswordError();
+
+            var currentPassword = currentPasswordInput.value.trim();
+            var newPassword = newPasswordInput.value.trim();
+
+            if (!currentPassword) {
+              showPasswordError('Introduce tu contraseña actual');
+              currentPasswordInput.focus();
+              return;
+            }
+
+            if (!newPassword) {
+              showPasswordError('Introduce la nueva contraseña');
+              newPasswordInput.focus();
+              return;
+            }
+
+            if (newPassword.length < 6) {
+              showPasswordError('La nueva contraseña debe tener al menos 6 caracteres');
+              newPasswordInput.focus();
+              return;
+            }
+
+            if (currentPassword === newPassword) {
+              showPasswordError('La nueva contraseña debe ser diferente a la actual');
+              newPasswordInput.focus();
+              return;
+            }
+
+            // Deshabilitar botón mientras se procesa
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Verificando...';
+
+            try {
+              // Obtener email del usuario actual
+              var userResult = await window.getCurrentUser();
+              if (!userResult.success || !userResult.user || !userResult.user.email) {
+                showPasswordError('No se pudo obtener la información del usuario. Inicia sesión de nuevo.');
+                return;
+              }
+
+              var email = userResult.user.email;
+
+              // Verificar la contraseña actual intentando iniciar sesión
+              saveBtn.textContent = 'Verificando contraseña...';
+              var verifyResult = await window.signIn(email, currentPassword);
+              if (!verifyResult.success) {
+                showPasswordError('La contraseña actual es incorrecta');
+                currentPasswordInput.focus();
+                return;
+              }
+
+              // Contraseña actual verificada, ahora actualizar
+              saveBtn.textContent = 'Actualizando...';
+              var updateResult = await window.updatePassword(newPassword);
+              if (!updateResult.success) {
+                showPasswordError(updateResult.error || 'Error al actualizar la contraseña');
+                return;
+              }
+
+              // Limpiar formulario
+              currentPasswordInput.value = '';
+              newPasswordInput.value = '';
+              hidePasswordError();
+
+              if (window.showToast) {
+                window.showToast('Contraseña actualizada correctamente', 'success');
+              }
+
+            } catch (err) {
+              console.error('Error al cambiar contraseña:', err);
+              showPasswordError('Error inesperado. Inténtalo de nuevo.');
+            } finally {
+              saveBtn.disabled = false;
+              saveBtn.textContent = 'Guardar cambios';
+            }
+          });
+        });
+      })();
     </script>
   </body>
 </html>
