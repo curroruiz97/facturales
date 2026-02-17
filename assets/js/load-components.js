@@ -11,8 +11,8 @@
 function getBasePath() {
   const path = window.location.pathname;
   
-  // Si estamos en una subcarpeta (invoices, etc.)
-  if (path.includes('/invoices/')) {
+  // Si estamos en una subcarpeta (invoices, billing, etc.)
+  if (path.includes('/invoices/') || path.includes('/billing/')) {
     return '../';
   }
   

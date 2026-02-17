@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Compra cancelada - Facturales</title>
+    <link rel="stylesheet" href="../assets/css/output.css" />
+    <link rel="stylesheet" href="../assets/css/style.css" />
+  </head>
+  <body>
+    <section class="bg-white dark:bg-darkblack-500 min-h-screen flex flex-col">
+      <!-- Header con logo -->
+      <div class="px-5 xl:px-12 pt-10 pb-6">
+        <header class="max-w-[1200px] mx-auto">
+          <a href="../index.html">
+            <img src="../assets/images/logo/logo-color.svg" class="block dark:hidden" alt="Logo" />
+            <img src="../assets/images/logo/logo-white.svg" class="hidden dark:block" alt="Logo" />
+          </a>
+        </header>
+      </div>
+
+      <!-- Contenido centrado -->
+      <div class="flex-1 flex items-center justify-center px-5">
+        <div class="max-w-[480px] w-full">
+          <div class="rounded-lg bg-white dark:bg-darkblack-600 border border-bgray-200 dark:border-darkblack-400 p-8 text-center shadow-sm">
+
+            <!-- Icono de cancelación -->
+            <div class="mx-auto mb-6">
+              <div class="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center mx-auto">
+                <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </div>
+            </div>
+
+            <h1 class="text-bgray-900 dark:text-white text-2xl font-semibold font-poppins mb-3">
+              Compra cancelada
+            </h1>
+            <p class="text-bgray-600 dark:text-bgray-50 text-base font-medium mb-8">
+              No se ha realizado ningún cargo. Puedes volver a intentarlo cuando quieras.
+            </p>
+
+            <!-- Botones -->
+            <div class="space-y-3">
+              <a
+                id="btn-back-plans"
+                href="../subscribe.html"
+                class="py-3.5 flex items-center justify-center text-white font-bold bg-success-300 hover:bg-success-400 transition-all rounded-lg w-full text-base"
+              >
+                Volver a planes
+              </a>
+              <a
+                id="btn-back-home"
+                href="../index.html"
+                class="py-3.5 flex items-center justify-center text-bgray-900 dark:text-white font-bold bg-bgray-100 dark:bg-darkblack-500 hover:bg-bgray-200 dark:hover:bg-darkblack-400 transition-all rounded-lg w-full text-base border border-bgray-200 dark:border-darkblack-400"
+              >
+                Volver al inicio
+              </a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="px-5 py-6 text-center">
+        <p class="text-bgray-600 dark:text-white text-sm">
+          &copy; 2026 Facturales. Todos los derechos reservados.
+        </p>
+      </div>
+    </section>
+
+    <!-- Scripts -->
+    <script>
+      (function () {
+        // TODO: Ruta principal de la app. Ajustar si cambia.
+        var APP_HOME_ROUTE = '../index.html';
+
+        // =============================================
+        // Conservar query param ?plan= si existe
+        // =============================================
+        var params = new URLSearchParams(window.location.search);
+        var plan = (params.get('plan') || '').toLowerCase();
+        var validPlans = ['starter', 'pro', 'business'];
+
+        var btnBackPlans = document.getElementById('btn-back-plans');
+        var btnBackHome  = document.getElementById('btn-back-home');
+
+        if (plan && validPlans.indexOf(plan) !== -1) {
+          btnBackPlans.href = '../subscribe.html?plan=' + plan;
+        }
+
+        btnBackHome.href = APP_HOME_ROUTE;
+      })();
+    </script>
+  </body>
+</html>

@@ -9,7 +9,10 @@ const PUBLIC_PAGES = [
   '/signup.html',
   '/index-2.html',
   '/404.html',
-  '/coming-soon.html'
+  '/coming-soon.html',
+  '/subscribe.html',
+  '/billing/success.html',
+  '/billing/cancel.html'
 ];
 
 /**
