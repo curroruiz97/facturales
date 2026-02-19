@@ -539,11 +539,12 @@
                 console.log('📊 Resultado del registro:', result);
 
                 if (result.success) {
-                  showSuccess('¡Registro exitoso! Completando tu perfil...');
+                  showSuccess('¡Registro exitoso! Revisa tu correo electrónico para verificar tu cuenta.');
                   
-                  // Redirigir después de 2 segundos
+                  sessionStorage.setItem('verify_email_address', email);
+                  
                   setTimeout(() => {
-                    window.location.href = './complete-profile.html';
+                    window.location.href = './verify-email.html';
                   }, 2000);
                 } else {
                   showError(result.error || 'Error al registrar usuario');

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Confirmando email - BankCo</title>
+    <link rel="stylesheet" href="./assets/css/output.css" />
+    <link rel="stylesheet" href="./assets/css/style.css" />
+  </head>
+  <body>
+    <section class="bg-white dark:bg-darkblack-500">
+      <div class="flex flex-col lg:flex-row justify-between min-h-screen">
+        <!-- Left -->
+        <div class="lg:w-1/2 px-5 xl:pl-12 pt-10">
+          <header>
+            <a href="index.html" class="">
+              <img src="assets/images/logo/logo-color.svg" class="block dark:hidden" alt="Logo" />
+              <img src="assets/images/logo/logo-white.svg" class="hidden dark:block" alt="Logo" />
+            </a>
+          </header>
+
+          <div class="max-w-[460px] m-auto pt-24 pb-16">
+            <!-- Loading state -->
+            <div id="state-loading" class="text-center">
+              <div class="mx-auto mb-6 w-20 h-20 rounded-full bg-bgray-100 dark:bg-darkblack-600 flex items-center justify-center">
+                <svg class="animate-spin w-10 h-10 text-success-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              </div>
+              <h2 class="text-bgray-900 dark:text-white text-4xl font-semibold font-poppins mb-2">
+                Verificando tu cuenta
+              </h2>
+              <p class="font-urbanis text-base font-medium text-bgray-600 dark:text-darkblack-300 mt-4">
+                Espera un momento mientras confirmamos tu email...
+              </p>
+            </div>
+
+            <!-- Success state -->
+            <div id="state-success" class="text-center hidden">
+              <div class="mx-auto mb-6 w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                <svg class="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+              <h2 class="text-bgray-900 dark:text-white text-4xl font-semibold font-poppins mb-2">
+                ¡Cuenta verificada!
+              </h2>
+              <p class="font-urbanis text-base font-medium text-bgray-600 dark:text-darkblack-300 mt-4">
+                Tu email ha sido confirmado correctamente. Redirigiendo al inicio de sesión...
+              </p>
+            </div>
+
+            <!-- Error state -->
+            <div id="state-error" class="text-center hidden">
+              <div class="mx-auto mb-6 w-20 h-20 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </div>
+              <h2 class="text-bgray-900 dark:text-white text-4xl font-semibold font-poppins mb-2">
+                Enlace inválido o expirado
+              </h2>
+              <p class="font-urbanis text-base font-medium text-bgray-600 dark:text-darkblack-300 mt-4 mb-6" id="error-detail">
+                El enlace de verificación no es válido o ha expirado. Puedes solicitar uno nuevo.
+              </p>
+              <div id="resend-section">
+                <div class="mb-4">
+                  <input
+                    type="email"
+                    id="resend-email"
+                    class="text-bgray-800 dark:text-white dark:bg-darkblack-500 dark:border-darkblack-400 text-base border border-bgray-300 h-14 w-full focus:border-success-300 focus:ring-0 rounded-lg px-4 py-3.5 placeholder:text-bgray-500 placeholder:text-base"
+                    placeholder="Introduce tu email"
+                  />
+                </div>
+                <div id="resend-error" class="hidden mb-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 rounded-lg text-sm"></div>
+                <div id="resend-success" class="hidden mb-4 p-3 bg-green-100 dark:bg-green-900/30 border border-green-400 dark:border-green-800 text-green-700 dark:text-green-300 rounded-lg text-sm"></div>
+                <button
+                  type="button"
+                  id="resend-button"
+                  class="py-3.5 flex items-center justify-center text-white font-bold bg-success-300 hover:bg-success-400 transition-all rounded-lg w-full mb-4"
+                >
+                  Reenviar email de confirmación
+                </button>
+              </div>
+              <a href="signin.html" class="inline-flex items-center text-success-300 font-semibold text-base hover:underline transition-all">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Ir a iniciar sesión
+              </a>
+            </div>
+
+            <nav class="flex items-center justify-center flex-wrap gap-x-11 pt-24">
+              <a href="#" class="text-sm text-bgray-700 dark:text-bgray-50">Términos y condiciones</a>
+              <a href="#" class="text-sm text-bgray-700 dark:text-bgray-50">Política de privacidad</a>
+              <a href="#" class="text-sm text-bgray-700 dark:text-bgray-50">Ayuda</a>
+              <a href="#" class="text-sm text-bgray-700 dark:text-bgray-50">Español</a>
+            </nav>
+            <p class="text-bgray-600 dark:text-darkblack-300 text-center text-sm mt-6">
+              © 2023 Bankco. Todos los derechos reservados.
+            </p>
+          </div>
+        </div>
+        <!-- Right -->
+        <div class="lg:w-1/2 lg:block hidden bg-[#F6FAFF] dark:bg-darkblack-600 p-20 relative">
+          <ul>
+            <li class="absolute top-10 left-8">
+              <img src="assets/images/shapes/square.svg" alt="" />
+            </li>
+            <li class="absolute right-12 top-14">
+              <img src="assets/images/shapes/vline.svg" alt="" />
+            </li>
+            <li class="absolute bottom-7 left-8">
+              <img src="assets/images/shapes/dotted.svg" alt="" />
+            </li>
+          </ul>
+          <div class="flex items-center justify-center h-full">
+            <div class="text-center max-w-lg px-1.5 m-auto">
+              <h3 class="text-bgray-900 dark:text-white font-semibold font-popins text-4xl mb-4">
+                Rápido, fácil y ágil
+              </h3>
+              <p class="text-bgray-600 dark:text-darkblack-300 text-sm font-medium">
+                BankCo te ayuda a establecer metas de ahorro, obtener ofertas de reembolso,
+                consulta el aviso legal para más detalles y recibir tus pagos hasta
+                dos días antes. Obtén un
+                <span class="text-success-300 font-bold">$20</span> de bono cuando
+                recibas depósitos directos que cumplan los requisitos
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <script src="./assets/js/jquery-3.6.0.min.js"></script>
+    <script src="./assets/js/main.js"></script>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module">
+      import './assets/js/supabaseClient.js';
+      import './assets/js/auth.js';
+
+      await new Promise(resolve => setTimeout(resolve, 100));
+      window.supabaseReady = true;
+    </script>
+
+    <script>
+      (function() {
+        function initConfirmEmail() {
+          const stateLoading = document.getElementById('state-loading');
+          const stateSuccess = document.getElementById('state-success');
+          const stateError = document.getElementById('state-error');
+          const errorDetail = document.getElementById('error-detail');
+          const resendButton = document.getElementById('resend-button');
+          const resendEmail = document.getElementById('resend-email');
+          const resendError = document.getElementById('resend-error');
+          const resendSuccess = document.getElementById('resend-success');
+
+          const storedEmail = sessionStorage.getItem('verify_email_address');
+          if (storedEmail && resendEmail) {
+            resendEmail.value = storedEmail;
+          }
+
+          function showState(state) {
+            stateLoading.classList.add('hidden');
+            stateSuccess.classList.add('hidden');
+            stateError.classList.add('hidden');
+            state.classList.remove('hidden');
+          }
+
+          async function processVerification() {
+            const hash = window.location.hash;
+            const params = new URLSearchParams(window.location.search);
+
+            const hashParams = new URLSearchParams(hash.substring(1));
+            const accessToken = hashParams.get('access_token');
+            const errorCode = hashParams.get('error') || params.get('error');
+            const errorDescription = hashParams.get('error_description') || params.get('error_description');
+            const type = hashParams.get('type') || params.get('type');
+
+            if (errorCode) {
+              showState(stateError);
+              if (errorDescription) {
+                let msg = decodeURIComponent(errorDescription.replace(/\+/g, ' '));
+                if (msg.includes('expired') || msg.includes('expirado')) {
+                  errorDetail.textContent = 'El enlace de verificación ha expirado. Solicita uno nuevo a continuación.';
+                } else {
+                  errorDetail.textContent = msg;
+                }
+              }
+              return;
+            }
+
+            if (accessToken || type === 'signup' || type === 'email') {
+              try {
+                let attempts = 0;
+                while (!window.supabaseClient && attempts < 50) {
+                  await new Promise(resolve => setTimeout(resolve, 100));
+                  attempts++;
+                }
+
+                if (!window.supabaseClient) {
+                  showState(stateError);
+                  errorDetail.textContent = 'Error al conectar con el servicio. Recarga la página.';
+                  return;
+                }
+
+                const { data: { user }, error } = await window.supabaseClient.auth.getUser();
+
+                if (error) {
+                  showState(stateError);
+                  return;
+                }
+
+                if (user && user.email_confirmed_at) {
+                  await window.supabaseClient.auth.signOut();
+                  sessionStorage.removeItem('verify_email_address');
+
+                  showState(stateSuccess);
+                  setTimeout(() => {
+                    window.location.href = './signin.html?verified=true';
+                  }, 2000);
+                  return;
+                }
+
+                if (user && !user.email_confirmed_at) {
+                  showState(stateError);
+                  errorDetail.textContent = 'El email aún no ha sido verificado. Solicita un nuevo enlace.';
+                  if (user.email) resendEmail.value = user.email;
+                  return;
+                }
+
+                showState(stateSuccess);
+                setTimeout(() => {
+                  window.location.href = './signin.html?verified=true';
+                }, 2000);
+
+              } catch (err) {
+                console.error('Error procesando verificación:', err);
+                showState(stateError);
+              }
+              return;
+            }
+
+            showState(stateError);
+            errorDetail.textContent = 'No se encontró información de verificación. Si ya verificaste tu cuenta, inicia sesión.';
+          }
+
+          if (resendButton) {
+            resendButton.addEventListener('click', async function() {
+              const email = resendEmail.value.trim();
+              if (!email) {
+                resendError.textContent = 'Introduce tu email';
+                resendError.classList.remove('hidden');
+                resendSuccess.classList.add('hidden');
+                return;
+              }
+
+              let attempts = 0;
+              while (!window.resendVerificationEmail && attempts < 50) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+                attempts++;
+              }
+
+              if (typeof window.resendVerificationEmail !== 'function') {
+                resendError.textContent = 'Error: Sistema no disponible. Recarga la página.';
+                resendError.classList.remove('hidden');
+                return;
+              }
+
+              resendButton.disabled = true;
+              resendButton.textContent = 'Enviando...';
+
+              try {
+                const result = await window.resendVerificationEmail(email);
+                if (result.success) {
+                  resendSuccess.textContent = 'Email reenviado. Revisa tu bandeja de entrada.';
+                  resendSuccess.classList.remove('hidden');
+                  resendError.classList.add('hidden');
+
+                  sessionStorage.setItem('verify_email_address', email);
+                  setTimeout(() => {
+                    window.location.href = './verify-email.html';
+                  }, 2000);
+                } else {
+                  resendError.textContent = result.error || 'Error al reenviar. Inténtalo de nuevo.';
+                  resendError.classList.remove('hidden');
+                  resendSuccess.classList.add('hidden');
+                  resendButton.disabled = false;
+                  resendButton.textContent = 'Reenviar email de confirmación';
+                }
+              } catch (err) {
+                resendError.textContent = 'Error inesperado: ' + err.message;
+                resendError.classList.remove('hidden');
+                resendButton.disabled = false;
+                resendButton.textContent = 'Reenviar email de confirmación';
+              }
+            });
+          }
+
+          setTimeout(processVerification, 500);
+        }
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', initConfirmEmail);
+        } else {
+          initConfirmEmail();
+        }
+      })();
+    </script>
+  </body>
+</html>

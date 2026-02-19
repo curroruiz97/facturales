@@ -7,6 +7,8 @@
 const PUBLIC_PAGES = [
   '/signin.html',
   '/signup.html',
+  '/verify-email.html',
+  '/confirm-email.html',
   '/index-2.html',
   '/404.html',
   '/coming-soon.html',

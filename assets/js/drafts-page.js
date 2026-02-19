@@ -185,7 +185,7 @@ function createDraftRow(draft) {
  */
 function editDraft(draftId) {
   console.log('✏️ Editando borrador:', draftId);
-  window.location.href = `/invoices/new?draft=${draftId}`;
+  window.location.href = `/invoices/new.html?draft=${draftId}`;
 }
 
 /**

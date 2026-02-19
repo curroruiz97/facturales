@@ -201,9 +201,10 @@ function renderClientsTable(clients) {
     row.className = 'border-b border-bgray-200 dark:border-darkblack-400';
     
     const initials = getInitials(client.nombre_razon_social);
+    const chevronDown = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" class="ml-1 opacity-60"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
     const estadoBadge = client.estado === 'recurrente' 
-      ? `<button onclick="toggleClientStatus('${client.id}', '${client.estado}')" class="inline-flex items-center rounded-lg bg-success-50 px-3 py-1 text-xs font-semibold text-success-300 dark:bg-darkblack-500 hover:bg-success-100 transition-colors cursor-pointer">Recurrente</button>`
-      : `<button onclick="toggleClientStatus('${client.id}', '${client.estado}')" class="inline-flex items-center rounded-lg bg-bgray-100 px-3 py-1 text-xs font-semibold text-bgray-700 dark:bg-darkblack-500 dark:text-bgray-50 hover:bg-bgray-200 transition-colors cursor-pointer">Puntual</button>`;
+      ? `<button onclick="toggleClientStatus('${client.id}', '${client.estado}')" class="inline-flex items-center rounded-lg bg-success-50 px-3 py-1 text-xs font-semibold text-success-300 dark:bg-darkblack-500 hover:bg-success-100 transition-colors cursor-pointer">Recurrente${chevronDown}</button>`
+      : `<button onclick="toggleClientStatus('${client.id}', '${client.estado}')" class="inline-flex items-center rounded-lg bg-bgray-100 px-3 py-1 text-xs font-semibold text-bgray-700 dark:bg-darkblack-500 dark:text-bgray-50 hover:bg-bgray-200 transition-colors cursor-pointer">Puntual${chevronDown}</button>`;
     
     const totalFacturado = client._totalFacturado || 0;
     

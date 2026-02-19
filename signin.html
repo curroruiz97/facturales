@@ -671,6 +671,16 @@
             successMessage.classList.add('hidden');
           }
 
+          // Manejar mensajes de verificación de email desde query params
+          const urlParams = new URLSearchParams(window.location.search);
+          if (urlParams.get('verified') === 'true') {
+            showSuccess('¡Cuenta verificada correctamente! Ya puedes iniciar sesión.');
+            window.history.replaceState({}, document.title, window.location.pathname);
+          } else if (urlParams.get('already_verified') === 'true') {
+            showSuccess('Tu cuenta ya estaba verificada. Puedes iniciar sesión.');
+            window.history.replaceState({}, document.title, window.location.pathname);
+          }
+
           // Funcionalidad de mostrar/ocultar contraseña
           if (toggleSigninPasswordBtn) {
             console.log('✅ Configurando toggle de contraseña');
@@ -748,12 +758,19 @@
                 if (result.success) {
                   showSuccess('¡Inicio de sesión exitoso! Redirigiendo...');
                   
-                  // Redirigir después de 1 segundo
                   setTimeout(() => {
                     window.location.href = './index.html';
                   }, 1000);
                 } else {
-                  showError(result.error || 'Error al iniciar sesión');
+                  if (result.error && result.error.includes('confirmar tu email')) {
+                    sessionStorage.setItem('verify_email_address', email);
+                    showError(result.error);
+                    setTimeout(() => {
+                      window.location.href = './verify-email.html';
+                    }, 2000);
+                  } else {
+                    showError(result.error || 'Error al iniciar sesión');
+                  }
                   signinButton.disabled = false;
                   signinButton.textContent = 'Iniciar sesión';
                 }

@@ -47,16 +47,17 @@ async function createUserProgress(userId) {
 
     // Verificar si el usuario tiene clientes
     const hasClients = await checkUserHasClients(userId);
+    const hasCustomized = await checkUserHasCustomizedInvoice(userId);
 
     const { data, error } = await supabase
       .from('user_progress')
       .insert([
         {
           user_id: userId,
-          step1_business_info: true, // Siempre true (tienen business_info)
+          step1_business_info: true,
           step2_first_client: hasClients,
-          step3_customize_invoice: true, // Siempre true por ahora
-          step4_first_invoice: false // Siempre false por ahora
+          step3_customize_invoice: hasCustomized,
+          step4_first_invoice: false
         }
       ])
       .select()
@@ -152,6 +153,68 @@ async function checkUserHasClients(userId) {
 }
 
 /**
+ * Verificar si el usuario ha personalizado su factura (logo o color distinto de negro)
+ * @param {string} userId - ID del usuario
+ * @returns {Promise<boolean>} True si ha personalizado
+ */
+async function checkUserHasCustomizedInvoice(userId) {
+  try {
+    const supabase = window.supabaseClient;
+    if (!supabase) {
+      return false;
+    }
+
+    const { data, error } = await supabase
+      .from('business_info')
+      .select('brand_color, invoice_image_url')
+      .eq('user_id', userId)
+      .single();
+
+    if (error || !data) {
+      return false;
+    }
+
+    const hasLogo = !!data.invoice_image_url;
+    const hasCustomColor = !!data.brand_color && data.brand_color.toUpperCase() !== '#000000';
+
+    return hasLogo || hasCustomColor;
+  } catch (error) {
+    console.error('Error en checkUserHasCustomizedInvoice:', error);
+    return false;
+  }
+}
+
+/**
+ * Verificar si el usuario ha emitido al menos una factura
+ * @param {string} userId - ID del usuario
+ * @returns {Promise<boolean>} True si tiene facturas emitidas
+ */
+async function checkUserHasIssuedInvoice(userId) {
+  try {
+    const supabase = window.supabaseClient;
+    if (!supabase) {
+      return false;
+    }
+
+    const { count, error } = await supabase
+      .from('invoices')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('status', 'issued');
+
+    if (error) {
+      console.error('Error al verificar facturas emitidas:', error);
+      return false;
+    }
+
+    return count > 0;
+  } catch (error) {
+    console.error('Error en checkUserHasIssuedInvoice:', error);
+    return false;
+  }
+}
+
+/**
  * Calcular porcentaje de progreso completado
  * @param {Object} progressData - Datos de progreso del usuario
  * @returns {Object} Información de progreso { completed, total, percentage }
@@ -218,10 +281,10 @@ function renderOnboardingSteps(progressData, containerId = 'onboarding-steps-con
     {
       number: 3,
       title: 'Personaliza tu factura',
-      description: 'Elige una plantilla para tu factura y personalízala a tu gusto',
+      description: 'Sube tu logo o elige un color de marca para tus facturas',
       completed: progressData?.step3_customize_invoice || false,
       buttonText: 'Personalizar',
-      buttonUrl: 'invoices/new.html'
+      buttonUrl: 'settings.html'
     },
     {
       number: 4,
@@ -332,14 +395,17 @@ function updateProgressCircle(progress) {
     progressCircle.style.strokeDashoffset = dashoffset;
   }
 
-  // Actualizar icono si está completo
   const progressIcon = document.getElementById('onboarding-progress-icon');
-  if (progressIcon && percentage === 100) {
-    progressIcon.innerHTML = `
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M20 6L9 17L4 12" stroke="#ec8228" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    `;
+  if (progressIcon) {
+    if (percentage === 100) {
+      progressIcon.innerHTML = `
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 6L9 17L4 12" stroke="#ec8228" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>`;
+    } else {
+      progressIcon.innerHTML = `
+        <span class="text-sm font-bold" style="color:#ec8228">${completed}/${total}</span>`;
+    }
   }
 }
 
@@ -390,15 +456,36 @@ async function loadOnboardingProgress() {
 
     // SINCRONIZAR paso 2 con la cantidad real de clientes (siempre)
     const hasClients = await checkUserHasClients(userId);
-    const shouldBeCompleted = hasClients; // true si tiene >= 1 cliente
+    const shouldBeCompleted = hasClients;
     
-    // Solo actualizar si el estado actual es diferente al real
     if (progressData.step2_first_client !== shouldBeCompleted) {
       console.log(`🔄 Sincronizando paso 2: ${progressData.step2_first_client} → ${shouldBeCompleted}`);
       const updateResult = await updateStepProgress(userId, 2, shouldBeCompleted);
       if (updateResult.success) {
         progressData = updateResult.data;
         console.log('✅ Paso 2 sincronizado correctamente');
+      }
+    }
+
+    // SINCRONIZAR paso 3 con personalización real de factura
+    const hasCustomized = await checkUserHasCustomizedInvoice(userId);
+    if (progressData.step3_customize_invoice !== hasCustomized) {
+      console.log(`🔄 Sincronizando paso 3: ${progressData.step3_customize_invoice} → ${hasCustomized}`);
+      const updateResult3 = await updateStepProgress(userId, 3, hasCustomized);
+      if (updateResult3.success) {
+        progressData = updateResult3.data;
+        console.log('✅ Paso 3 sincronizado correctamente');
+      }
+    }
+
+    // SINCRONIZAR paso 4 con facturas emitidas reales
+    const hasIssuedInvoice = await checkUserHasIssuedInvoice(userId);
+    if (progressData.step4_first_invoice !== hasIssuedInvoice) {
+      console.log(`🔄 Sincronizando paso 4: ${progressData.step4_first_invoice} → ${hasIssuedInvoice}`);
+      const updateResult4 = await updateStepProgress(userId, 4, hasIssuedInvoice);
+      if (updateResult4.success) {
+        progressData = updateResult4.data;
+        console.log('✅ Paso 4 sincronizado correctamente');
       }
     }
 
@@ -436,6 +523,8 @@ window.getUserProgress = getUserProgress;
 window.createUserProgress = createUserProgress;
 window.updateStepProgress = updateStepProgress;
 window.checkUserHasClients = checkUserHasClients;
+window.checkUserHasCustomizedInvoice = checkUserHasCustomizedInvoice;
+window.checkUserHasIssuedInvoice = checkUserHasIssuedInvoice;
 window.calculateProgress = calculateProgress;
 window.renderOnboardingSteps = renderOnboardingSteps;
 window.loadOnboardingProgress = loadOnboardingProgress;

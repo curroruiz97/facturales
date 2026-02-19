@@ -272,36 +272,36 @@
                         </button>
                         <div
                           id="date-filter-body"
-                          class="absolute right-0 top-[44px] z-10 hidden overflow-hidden rounded-lg bg-white shadow-lg dark:bg-darkblack-500"
+                          class="absolute right-0 top-[44px] z-10 hidden overflow-hidden rounded-lg bg-white shadow-lg dark:bg-darkblack-500 min-w-[180px]"
                         >
                           <ul>
                             <li
                               onclick="setRevenueRange('year'); dateFilterAction('#date-filter-body')"
-                              class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
+                              class="cursor-pointer whitespace-nowrap px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
                             >
                               Año Natural
                             </li>
                             <li
                               onclick="setRevenueRange('q1'); dateFilterAction('#date-filter-body')"
-                              class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
+                              class="cursor-pointer whitespace-nowrap px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
                             >
-                              1º Trimestre
+                              1er Trimestre
                             </li>
                             <li
                               onclick="setRevenueRange('q2'); dateFilterAction('#date-filter-body')"
-                              class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
+                              class="cursor-pointer whitespace-nowrap px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
                             >
                               2º Trimestre
                             </li>
                             <li
                               onclick="setRevenueRange('q3'); dateFilterAction('#date-filter-body')"
-                              class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
+                              class="cursor-pointer whitespace-nowrap px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
                             >
-                              3º Trimestre
+                              3er Trimestre
                             </li>
                             <li
                               onclick="setRevenueRange('q4'); dateFilterAction('#date-filter-body')"
-                              class="cursor-pointer px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
+                              class="cursor-pointer whitespace-nowrap px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
                             >
                               4º Trimestre
                             </li>
@@ -319,13 +319,73 @@
                       <div class="flex items-center justify-between border-b border-bgray-200 dark:border-darkblack-400 px-5 py-3">
                         <h3 class="text-lg font-bold text-bgray-900 dark:text-white">Objetivos</h3>
                         <div class="flex items-center gap-2">
-                          <select id="finance-period-select" onchange="changeFinancePeriod(this.value)" class="rounded-lg border border-bgray-200 bg-bgray-50 pl-3 pr-8 py-1.5 text-sm font-medium text-bgray-700 dark:bg-darkblack-500 dark:border-darkblack-400 dark:text-bgray-300 focus:outline-none focus:border-success-300 min-w-[140px]">
-                            <option value="year" selected>Año completo</option>
-                            <option value="q1">1º Trimestre</option>
-                            <option value="q2">2º Trimestre</option>
-                            <option value="q3">3º Trimestre</option>
-                            <option value="q4">4º Trimestre</option>
-                          </select>
+                          <div class="date-filter relative">
+                            <button
+                              onclick="dateFilterAction('#finance-filter-body')"
+                              type="button"
+                              class="flex items-center space-x-1 overflow-hidden rounded-lg bg-bgray-100 px-3 py-2 dark:bg-darkblack-500 dark:text-white"
+                            >
+                              <span
+                                id="finance-range-label"
+                                class="text-sm font-medium text-bgray-900 dark:text-white"
+                                >Año Natural</span
+                              >
+                              <span>
+                                <svg
+                                  class="stroke-bgray-900 dark:stroke-gray-50"
+                                  width="16"
+                                  height="17"
+                                  viewBox="0 0 16 17"
+                                  fill="none"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <path
+                                    d="M4 6.5L8 10.5L12 6.5"
+                                    stroke-width="1.5"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                  />
+                                </svg>
+                              </span>
+                            </button>
+                            <div
+                              id="finance-filter-body"
+                              class="absolute right-0 top-[44px] z-10 hidden overflow-hidden rounded-lg bg-white shadow-lg dark:bg-darkblack-500 min-w-[180px]"
+                            >
+                              <ul>
+                                <li
+                                  onclick="setFinancePeriod('year'); dateFilterAction('#finance-filter-body')"
+                                  class="cursor-pointer whitespace-nowrap px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
+                                >
+                                  Año Natural
+                                </li>
+                                <li
+                                  onclick="setFinancePeriod('q1'); dateFilterAction('#finance-filter-body')"
+                                  class="cursor-pointer whitespace-nowrap px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
+                                >
+                                  1er Trimestre
+                                </li>
+                                <li
+                                  onclick="setFinancePeriod('q2'); dateFilterAction('#finance-filter-body')"
+                                  class="cursor-pointer whitespace-nowrap px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
+                                >
+                                  2º Trimestre
+                                </li>
+                                <li
+                                  onclick="setFinancePeriod('q3'); dateFilterAction('#finance-filter-body')"
+                                  class="cursor-pointer whitespace-nowrap px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
+                                >
+                                  3er Trimestre
+                                </li>
+                                <li
+                                  onclick="setFinancePeriod('q4'); dateFilterAction('#finance-filter-body')"
+                                  class="cursor-pointer whitespace-nowrap px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
+                                >
+                                  4º Trimestre
+                                </li>
+                              </ul>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div class="p-5 space-y-5">
@@ -840,22 +900,22 @@
                               stroke-width="7"
                               fill="none"
                               stroke-dasharray="201"
-                              stroke-dashoffset="0"
+                              stroke-dashoffset="201"
                               stroke-linecap="round"
                               class="transition-all duration-1000"
                             />
                           </svg>
                           <div id="onboarding-progress-icon" class="absolute inset-0 flex items-center justify-center">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M20 6L9 17L4 12" stroke="#ec8228" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke="#ec8228" stroke-width="2" stroke-linecap="round"/>
                             </svg>
                           </div>
                         </div>
                         <div class="text-left">
                           <h2 id="onboarding-progress-text" class="text-3xl font-bold text-bgray-900 dark:text-white mb-1">
-                            100<span class="text-lg font-medium text-bgray-500">/100</span>
+                            0<span class="text-lg font-medium text-bgray-500">/100</span>
                           </h2>
-                          <p id="onboarding-progress-state" class="text-xs font-bold tracking-wider text-success-300 uppercase">COMPLETADO</p>
+                          <p id="onboarding-progress-state" class="text-xs font-bold tracking-wider text-warning-300 uppercase">EN PROGRESO</p>
                         </div>
                       </div>
                       <!-- Icono de flecha para expandir/colapsar -->
@@ -1276,9 +1336,9 @@
       // Rangos (Año / Trimestres)
       const revenueRanges = {
         year: { label: "Año Natural", from: 0, to: 12 },
-        q1:   { label: "1º Trimestre", from: 0, to: 3  },
+        q1:   { label: "1er Trimestre", from: 0, to: 3  },
         q2:   { label: "2º Trimestre", from: 3, to: 6  },
-        q3:   { label: "3º Trimestre", from: 6, to: 9  },
+        q3:   { label: "3er Trimestre", from: 6, to: 9  },
         q4:   { label: "4º Trimestre", from: 9, to: 12 },
       };
 
@@ -2593,9 +2653,23 @@
       // Cambiar periodo del panel de objetivos
       window.currentFinancePeriod = 'year';
       
-      function changeFinancePeriod(period) {
+      const financePeriodLabels = {
+        year: 'Año Natural',
+        q1: '1er Trimestre',
+        q2: '2º Trimestre',
+        q3: '3er Trimestre',
+        q4: '4º Trimestre'
+      };
+
+      window.setFinancePeriod = function(period) {
         window.currentFinancePeriod = period;
+        const labelEl = document.getElementById('finance-range-label');
+        if (labelEl) labelEl.textContent = financePeriodLabels[period] || financePeriodLabels.year;
         loadFinancePanel();
+      };
+
+      function changeFinancePeriod(period) {
+        window.setFinancePeriod(period);
       }
 
       // Iniciar

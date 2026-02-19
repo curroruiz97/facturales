@@ -338,36 +338,35 @@
                     <div
                       class="flex flex-row items-center space-x-6 md:flex-col md:space-x-0 2xl:flex-row 2xl:space-x-6"
                     >
-                      <div
-                        class="progess-bar mb-0 flex justify-center md:mb-[13px] xl:mb-0"
-                      >
-                        <div class="bonus-per relative">
-                          <div class="bonus-outer">
-                            <div class="bonus-inner">
-                              <div class="number">
-                                <span class="text-sm font-medium text-bgray-900"
-                                  >64%</span
-                                >
-                              </div>
+                    <div
+                      class="progess-bar mb-0 flex justify-center md:mb-[13px] xl:mb-0"
+                    >
+                      <div class="bonus-per relative">
+                        <div class="bonus-outer">
+                          <div class="bonus-inner">
+                            <div class="number">
+                              <span id="settings-profile-percent" class="text-sm font-medium text-bgray-900"
+                                >0%</span
+                              >
                             </div>
                           </div>
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="80px"
-                            height="80px"
-                          >
-                            <circle
-                              style="
-                                stroke-dashoffset: calc(215 - 215 * (64 / 100));
-                              "
-                              cx="40"
-                              cy="40"
-                              r="35"
-                              stroke-linecap="round"
-                            />
-                          </svg>
                         </div>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="80px"
+                          height="80px"
+                        >
+                          <circle
+                            id="settings-profile-circle"
+                            style="stroke-dashoffset: 215;"
+                            cx="40"
+                            cy="40"
+                            r="35"
+                            stroke-linecap="round"
+                          />
+                        </svg>
                       </div>
+                    </div>
                       <div
                         class="flex flex-col items-start md:items-center xl:items-start"
                       >
@@ -644,7 +643,7 @@
                               type="color" 
                               id="brand-color" 
                               name="brand-color"
-                              value="#22C55E"
+                              value="#000000"
                               class="h-14 w-32 cursor-pointer rounded-lg border-2 border-bgray-300 dark:border-darkblack-400"
                             />
                           </div>
@@ -656,7 +655,7 @@
                               type="text" 
                               id="brand-color-hex" 
                               name="brand-color-hex"
-                              value="#22C55E"
+                              value="#000000"
                               pattern="^#[0-9A-Fa-f]{6}$"
                               maxlength="7"
                               placeholder="#000000"
@@ -666,7 +665,7 @@
                         </div>
                         <!-- Preview del color en miniatura de factura -->
                         <div class="mt-3 flex items-center gap-2">
-                          <div id="brand-color-preview" class="h-4 w-4 rounded-full" style="background-color:#22C55E;"></div>
+                          <div id="brand-color-preview" class="h-4 w-4 rounded-full" style="background-color:#000000;"></div>
                           <span class="text-xs text-bgray-400 dark:text-bgray-500">Así se verá en cabeceras y totales de tus facturas</span>
                         </div>
                       </div>
@@ -2945,6 +2944,7 @@
       import './assets/js/auth.js';
       import './assets/js/businessInfo.js';
       import './assets/js/checkBusinessInfo.js';
+      import './assets/js/onboardingProgress.js';
       
       // Esperar un momento para que se inicialice
       await new Promise(resolve => setTimeout(resolve, 100));
@@ -2953,6 +2953,30 @@
     <script src="./assets/js/toast.js"></script>
     <script src="./assets/js/user-header.js"></script>
     <script src="./assets/js/invoice-series-db.js"></script>
+
+    <!-- Sincronizar porcentaje de perfil con onboarding -->
+    <script>
+      (async function loadProfilePercent() {
+        let attempts = 0;
+        while ((!window.getCurrentUser || !window.getUserProgress || !window.supabaseClient) && attempts < 60) {
+          await new Promise(r => setTimeout(r, 100));
+          attempts++;
+        }
+        try {
+          const userResult = await window.getCurrentUser();
+          if (!userResult.success || !userResult.user) return;
+          const progressResult = await window.getUserProgress(userResult.user.id);
+          if (!progressResult.success || !progressResult.data) return;
+          const d = progressResult.data;
+          const steps = [d.step1_business_info, d.step2_first_client, d.step3_customize_invoice, d.step4_first_invoice];
+          const pct = Math.round((steps.filter(Boolean).length / steps.length) * 100);
+          const el = document.getElementById('settings-profile-percent');
+          const circle = document.getElementById('settings-profile-circle');
+          if (el) el.textContent = pct + '%';
+          if (circle) circle.style.strokeDashoffset = 'calc(215 - 215 * (' + pct + ' / 100))';
+        } catch (e) { console.warn('Error cargando progreso perfil:', e); }
+      })();
+    </script>
 
     <!-- Business Info Logic -->
     <script type="module">
@@ -3185,7 +3209,7 @@
               provincia: provincia,
               pais: pais,
               sector: sector,
-              brand_color: brandColor || '#22C55E'
+              brand_color: brandColor || '#000000'
             };
 
             // Si hay imagen de perfil nueva, convertirla a base64
@@ -3224,6 +3248,18 @@
               try {
                 localStorage.setItem('business_info_cache', JSON.stringify(updates));
               } catch (e) {}
+
+              // Marcar paso 3 del onboarding si el usuario personalizó la factura
+              try {
+                const hasCustomColor = updates.brand_color && updates.brand_color.toUpperCase() !== '#000000';
+                const logoPreviewEl = document.getElementById('invoice-logo-preview');
+                const hasLogo = !!updates.invoice_image_url || (logoPreviewEl && !logoPreviewEl.classList.contains('hidden'));
+                if ((hasCustomColor || hasLogo) && typeof window.updateStepProgress === 'function') {
+                  await window.updateStepProgress(currentUser.id, 3, true);
+                }
+              } catch (onboardingErr) {
+                console.warn('No se pudo actualizar onboarding:', onboardingErr);
+              }
               
               setTimeout(() => {
                 hideMessages();

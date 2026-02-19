@@ -35,7 +35,8 @@ async function signUp(email, password, metadata = {}) {
       email: email.trim().toLowerCase(),
       password: password,
       options: {
-        data: metadata
+        data: metadata,
+        emailRedirectTo: `${window.location.origin}/confirm-email.html`
       }
     });
 
@@ -320,6 +321,45 @@ async function updateProfile(updates) {
   }
 }
 
+/**
+ * Reenviar email de verificación
+ * @param {string} email - Email del usuario
+ * @returns {Promise<Object>} Resultado de la operación
+ */
+async function resendVerificationEmail(email) {
+  try {
+    const supabase = getSupabaseForAuth();
+
+    if (!email || !email.trim()) {
+      throw new Error('El email es obligatorio');
+    }
+
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email: email.trim().toLowerCase(),
+      options: {
+        emailRedirectTo: `${window.location.origin}/confirm-email.html`
+      }
+    });
+
+    if (error) {
+      console.error('Error al reenviar email de verificación:', error);
+
+      if (error.message.includes('rate limit') || error.message.includes('too many')) {
+        throw new Error('Has solicitado demasiados emails. Espera unos minutos e inténtalo de nuevo.');
+      }
+
+      throw new Error(error.message || 'Error al reenviar email de verificación');
+    }
+
+    console.log('✅ Email de verificación reenviado a:', email);
+    return { success: true };
+  } catch (error) {
+    console.error('Error en resendVerificationEmail:', error);
+    return { success: false, error: error.message };
+  }
+}
+
 // Exportar funciones globalmente
 window.auth = {
   signUp,
@@ -332,6 +372,7 @@ window.auth = {
   resetPassword,
   updatePassword,
   updateProfile,
+  resendVerificationEmail,
 };
 
 // Exportar también las funciones individuales
@@ -345,5 +386,6 @@ window.onAuthStateChange = onAuthStateChange;
 window.resetPassword = resetPassword;
 window.updatePassword = updatePassword;
 window.updateProfile = updateProfile;
+window.resendVerificationEmail = resendVerificationEmail;
 
 console.log('✅ Auth module loaded successfully');
