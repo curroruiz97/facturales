@@ -224,257 +224,161 @@
           </div>
         </div>
         <!-- Right -->
-        <div class="lg:w-1/2 lg:flex hidden bg-gradient-to-br from-[#F4F6FA] to-[#EAECF2] dark:from-darkblack-600 dark:to-darkblack-500 p-8 xl:p-16 relative flex-col items-center justify-center overflow-hidden">
-          <div class="absolute top-0 right-0 w-80 h-80 bg-[#EC8228] opacity-[0.03] rounded-full -translate-y-1/2 translate-x-1/2"></div>
-          <div class="absolute bottom-0 left-0 w-64 h-64 bg-[#EC8228] opacity-[0.02] rounded-full translate-y-1/3 -translate-x-1/3"></div>
+        <div class="lg:w-1/2 lg:flex hidden bg-gradient-to-br from-[#F4F6FA] to-[#EAECF2] dark:from-darkblack-600 dark:to-darkblack-500 px-8 py-12 xl:px-16 xl:py-16 relative flex-col items-center justify-center overflow-hidden">
 
-          <div id="login-illustration" class="w-full max-w-[440px] mx-auto mb-8 relative z-10">
-            <svg viewBox="0 0 440 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <div id="login-illustration" class="w-full max-w-[260px] mx-auto mb-10 relative z-10">
+            <svg viewBox="0 0 260 220" fill="none" xmlns="http://www.w3.org/2000/svg">
               <defs>
-                <linearGradient id="lid-grad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#C8CCD4"/>
-                  <stop offset="50%" stop-color="#B8BCC4"/>
-                  <stop offset="100%" stop-color="#A8ACB4"/>
-                </linearGradient>
-                <linearGradient id="base-grad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#D0D4DC"/>
-                  <stop offset="100%" stop-color="#BCC0C8"/>
-                </linearGradient>
-                <linearGradient id="screen-bg" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#1E2028"/>
-                  <stop offset="100%" stop-color="#262830"/>
-                </linearGradient>
-                <linearGradient id="skin-grad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#F5D6B8"/>
-                  <stop offset="100%" stop-color="#EDCAA8"/>
-                </linearGradient>
-                <linearGradient id="hair-grad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#4A3728"/>
-                  <stop offset="100%" stop-color="#3A2A1E"/>
-                </linearGradient>
-                <filter id="laptop-shadow" x="-8%" y="-4%" width="116%" height="120%">
-                  <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000" flood-opacity="0.12"/>
-                </filter>
-                <filter id="char-shadow" x="-15%" y="-10%" width="130%" height="130%">
-                  <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#000" flood-opacity="0.08"/>
-                </filter>
-                <clipPath id="screen-clip"><rect x="72" y="108" width="296" height="174" rx="2"/></clipPath>
+                <linearGradient id="g-lid" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#D4D8E0"/><stop offset="100%" stop-color="#B8BCC6"/></linearGradient>
+                <linearGradient id="g-base" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#DADEE6"/><stop offset="100%" stop-color="#C4C8D0"/></linearGradient>
+                <linearGradient id="g-screen" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1C1F26"/><stop offset="100%" stop-color="#24272E"/></linearGradient>
+                <linearGradient id="g-skin" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#F5D6B8"/><stop offset="100%" stop-color="#EBC8A4"/></linearGradient>
+                <filter id="f-shadow"><feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000" flood-opacity="0.10"/></filter>
+                <clipPath id="cp-screen"><rect x="42" y="66" width="176" height="100" rx="1.5"/></clipPath>
               </defs>
 
-              <!-- === CHARACTER (above laptop) === -->
-              <g id="character-group" filter="url(#char-shadow)">
-                <!-- Body/shoulders behind laptop -->
-                <path d="M180 95 Q180 80 195 72 L245 72 Q260 80 260 95 L260 130 L180 130 Z" fill="url(#skin-grad)"/>
-                <!-- Shirt collar -->
-                <path d="M185 95 L195 82 L220 88 L245 82 L255 95" stroke="#E0E4EC" stroke-width="1.5" fill="#E8ECF4"/>
+              <!-- Character -->
+              <g id="character-group">
+                <rect x="121" y="30" width="18" height="16" rx="6" fill="url(#g-skin)"/>
+                <ellipse cx="130" cy="18" rx="26" ry="24" fill="url(#g-skin)"/>
 
-                <!-- Neck -->
-                <rect x="208" y="50" width="24" height="24" rx="8" fill="url(#skin-grad)"/>
-
-                <!-- Head -->
-                <ellipse cx="220" cy="32" rx="38" ry="36" fill="url(#skin-grad)"/>
-
-                <!-- Hair base -->
-                <path d="M182 24 C182 4 198 -12 220 -12 C242 -12 258 4 258 24 C258 24 256 14 248 10 C240 6 232 8 220 8 C208 8 200 6 192 10 C184 14 182 24 182 24Z" fill="url(#hair-grad)"/>
-                <!-- Hair top volume -->
-                <path d="M184 20 C186 10 196 2 220 2 C244 2 254 10 256 20 C256 16 250 8 240 6 C230 4 226 8 220 8 C214 8 210 4 200 6 C190 8 184 16 184 20Z" fill="url(#hair-grad)"/>
-                <!-- Side hair -->
-                <path d="M182 24 C182 28 183 34 184 36 C183 30 183 26 184 22" fill="url(#hair-grad)"/>
-                <path d="M258 24 C258 28 257 34 256 36 C257 30 257 26 256 22" fill="url(#hair-grad)"/>
+                <!-- Hair -->
+                <path d="M104 12C104 -2 114 -10 130 -10C146 -10 156 -2 156 12C156 12 154 4 144 2C136 0 130 2 130 2C130 2 124 0 116 2C106 4 104 12 104 12Z" fill="#3A2C1E"/>
+                <path d="M104 12C105 8 110 2 130 2C150 2 155 8 156 12C155 10 150 5 140 4C132 3 128 5 130 4C125 3 110 3 106 10Z" fill="#3A2C1E"/>
 
                 <!-- Ears -->
-                <ellipse cx="182" cy="34" rx="5.5" ry="8" fill="#EDCAA8"/>
-                <ellipse cx="182" cy="34" rx="3" ry="5" fill="#E4BC98" opacity="0.5"/>
-                <ellipse cx="258" cy="34" rx="5.5" ry="8" fill="#EDCAA8"/>
-                <ellipse cx="258" cy="34" rx="3" ry="5" fill="#E4BC98" opacity="0.5"/>
+                <ellipse cx="104" cy="20" rx="4" ry="5.5" fill="#EBC8A4"/>
+                <ellipse cx="156" cy="20" rx="4" ry="5.5" fill="#EBC8A4"/>
 
                 <!-- Eyebrows -->
-                <path d="M203 16 Q208 12 215 15" stroke="#4A3728" stroke-width="2.2" stroke-linecap="round" fill="none" opacity="0.7"/>
-                <path d="M225 15 Q232 12 237 16" stroke="#4A3728" stroke-width="2.2" stroke-linecap="round" fill="none" opacity="0.7"/>
+                <path d="M118 8 Q122 5 127 7.5" stroke="#3A2C1E" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.6"/>
+                <path d="M133 7.5 Q138 5 142 8" stroke="#3A2C1E" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.6"/>
 
-                <!-- Eyes open -->
+                <!-- Eyes open: simple white + black pupil -->
                 <g id="eyes-open">
-                  <!-- Left eye -->
-                  <ellipse cx="210" cy="30" rx="10" ry="9" fill="white"/>
-                  <ellipse cx="210" cy="30" rx="10" ry="9" stroke="#D4C8BC" stroke-width="0.6" fill="none"/>
-                  <!-- Left iris -->
-                  <circle cx="210" cy="31" r="5.5" fill="#5C4A3A"/>
-                  <circle id="pupil-left" cx="210" cy="31" r="3.2" fill="#1C1610"/>
-                  <circle id="highlight-left" cx="212" cy="28.5" r="2" fill="white" opacity="0.85"/>
-                  <circle cx="208" cy="33" r="0.8" fill="white" opacity="0.3"/>
-                  <!-- Left upper lid line -->
-                  <path d="M200 27 Q210 22 220 27" stroke="#4A3728" stroke-width="1.2" fill="none" opacity="0.3"/>
-
-                  <!-- Right eye -->
-                  <ellipse cx="230" cy="30" rx="10" ry="9" fill="white"/>
-                  <ellipse cx="230" cy="30" rx="10" ry="9" stroke="#D4C8BC" stroke-width="0.6" fill="none"/>
-                  <!-- Right iris -->
-                  <circle cx="230" cy="31" r="5.5" fill="#5C4A3A"/>
-                  <circle id="pupil-right" cx="230" cy="31" r="3.2" fill="#1C1610"/>
-                  <circle id="highlight-right" cx="232" cy="28.5" r="2" fill="white" opacity="0.85"/>
-                  <circle cx="228" cy="33" r="0.8" fill="white" opacity="0.3"/>
-                  <!-- Right upper lid line -->
-                  <path d="M220 27 Q230 22 240 27" stroke="#4A3728" stroke-width="1.2" fill="none" opacity="0.3"/>
+                  <ellipse cx="122" cy="18" rx="7" ry="6.5" fill="white"/>
+                  <ellipse cx="138" cy="18" rx="7" ry="6.5" fill="white"/>
+                  <circle id="pupil-left" cx="122" cy="19" r="3.8" fill="#1A1A1A"/>
+                  <circle id="pupil-right" cx="138" cy="19" r="3.8" fill="#1A1A1A"/>
+                  <circle id="highlight-left" cx="124" cy="17" r="1.3" fill="white" opacity="0.8"/>
+                  <circle id="highlight-right" cx="140" cy="17" r="1.3" fill="white" opacity="0.8"/>
                 </g>
 
-                <!-- Eyes closed with visible lashes -->
+                <!-- Eyes closed: curved line + lashes -->
                 <g id="eyes-closed" style="display:none;">
-                  <!-- Left closed eye -->
-                  <path d="M200 30 Q210 36 220 30" stroke="#4A3728" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-                  <!-- Left lashes -->
-                  <line x1="202" y1="31" x2="200" y2="34" stroke="#4A3728" stroke-width="1.5" stroke-linecap="round"/>
-                  <line x1="206" y1="33" x2="205" y2="36.5" stroke="#4A3728" stroke-width="1.5" stroke-linecap="round"/>
-                  <line x1="210" y1="34" x2="210" y2="37.5" stroke="#4A3728" stroke-width="1.5" stroke-linecap="round"/>
-                  <line x1="214" y1="33" x2="215" y2="36.5" stroke="#4A3728" stroke-width="1.5" stroke-linecap="round"/>
-                  <line x1="218" y1="31" x2="220" y2="34" stroke="#4A3728" stroke-width="1.5" stroke-linecap="round"/>
+                  <path d="M115 18 Q122 23 129 18" stroke="#3A2C1E" stroke-width="2" stroke-linecap="round" fill="none"/>
+                  <line x1="117" y1="19.5" x2="115.5" y2="22" stroke="#3A2C1E" stroke-width="1.3" stroke-linecap="round"/>
+                  <line x1="120" y1="21" x2="119.5" y2="23.5" stroke="#3A2C1E" stroke-width="1.3" stroke-linecap="round"/>
+                  <line x1="124" y1="21.5" x2="124" y2="24" stroke="#3A2C1E" stroke-width="1.3" stroke-linecap="round"/>
+                  <line x1="127" y1="20" x2="128.5" y2="22.5" stroke="#3A2C1E" stroke-width="1.3" stroke-linecap="round"/>
 
-                  <!-- Right closed eye -->
-                  <path d="M220 30 Q230 36 240 30" stroke="#4A3728" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-                  <!-- Right lashes -->
-                  <line x1="222" y1="31" x2="220" y2="34" stroke="#4A3728" stroke-width="1.5" stroke-linecap="round"/>
-                  <line x1="226" y1="33" x2="225" y2="36.5" stroke="#4A3728" stroke-width="1.5" stroke-linecap="round"/>
-                  <line x1="230" y1="34" x2="230" y2="37.5" stroke="#4A3728" stroke-width="1.5" stroke-linecap="round"/>
-                  <line x1="234" y1="33" x2="235" y2="36.5" stroke="#4A3728" stroke-width="1.5" stroke-linecap="round"/>
-                  <line x1="238" y1="31" x2="240" y2="34" stroke="#4A3728" stroke-width="1.5" stroke-linecap="round"/>
+                  <path d="M131 18 Q138 23 145 18" stroke="#3A2C1E" stroke-width="2" stroke-linecap="round" fill="none"/>
+                  <line x1="133" y1="19.5" x2="131.5" y2="22" stroke="#3A2C1E" stroke-width="1.3" stroke-linecap="round"/>
+                  <line x1="136" y1="21" x2="135.5" y2="23.5" stroke="#3A2C1E" stroke-width="1.3" stroke-linecap="round"/>
+                  <line x1="140" y1="21.5" x2="140" y2="24" stroke="#3A2C1E" stroke-width="1.3" stroke-linecap="round"/>
+                  <line x1="143" y1="20" x2="144.5" y2="22.5" stroke="#3A2C1E" stroke-width="1.3" stroke-linecap="round"/>
                 </g>
 
                 <!-- Hands covering eyes -->
                 <g id="hands-cover" style="display:none;">
-                  <path d="M190 22 Q195 18 205 20 L215 24 Q218 28 218 34 Q218 40 210 40 Q200 40 195 36 Q190 32 190 22Z" fill="url(#skin-grad)"/>
-                  <path d="M250 22 Q245 18 235 20 L225 24 Q222 28 222 34 Q222 40 230 40 Q240 40 245 36 Q250 32 250 22Z" fill="url(#skin-grad)"/>
-                  <!-- Finger lines -->
-                  <path d="M196 25 L208 28" stroke="#E0B898" stroke-width="0.6" opacity="0.5"/>
-                  <path d="M195 30 L210 32" stroke="#E0B898" stroke-width="0.6" opacity="0.5"/>
-                  <path d="M244 25 L232 28" stroke="#E0B898" stroke-width="0.6" opacity="0.5"/>
-                  <path d="M245 30 L230 32" stroke="#E0B898" stroke-width="0.6" opacity="0.5"/>
+                  <ellipse cx="122" cy="18" rx="12" ry="9" fill="url(#g-skin)"/>
+                  <ellipse cx="138" cy="18" rx="12" ry="9" fill="url(#g-skin)"/>
+                  <path d="M112 15 L120 17" stroke="#DEAD90" stroke-width="0.5" opacity="0.4"/>
+                  <path d="M111 19 L121 20" stroke="#DEAD90" stroke-width="0.5" opacity="0.4"/>
+                  <path d="M148 15 L140 17" stroke="#DEAD90" stroke-width="0.5" opacity="0.4"/>
+                  <path d="M149 19 L139 20" stroke="#DEAD90" stroke-width="0.5" opacity="0.4"/>
                 </g>
 
                 <!-- Nose -->
-                <path d="M217 42 Q220 46 223 42" stroke="#DEAD90" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-
+                <path d="M128 27 Q130 30 132 27" stroke="#DEAD90" stroke-width="1" fill="none" stroke-linecap="round"/>
                 <!-- Mouth -->
-                <path id="mouth" d="M212 52 Q220 58 228 52" stroke="#C88068" stroke-width="2" fill="none" stroke-linecap="round"/>
-
-                <!-- Subtle blush -->
-                <ellipse cx="198" cy="46" rx="7" ry="3.5" fill="#F0A880" opacity="0.12"/>
-                <ellipse cx="242" cy="46" rx="7" ry="3.5" fill="#F0A880" opacity="0.12"/>
+                <path id="mouth" d="M124 34 Q130 39 136 34" stroke="#C08060" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                <!-- Blush -->
+                <ellipse cx="113" cy="28" rx="5" ry="2.5" fill="#F0A880" opacity="0.1"/>
+                <ellipse cx="147" cy="28" rx="5" ry="2.5" fill="#F0A880" opacity="0.1"/>
               </g>
 
-              <!-- === LAPTOP === -->
-              <g filter="url(#laptop-shadow)">
-                <!-- Lid outer shell (aluminium) -->
-                <rect x="50" y="96" width="340" height="196" rx="10" fill="url(#lid-grad)"/>
-                <!-- Lid inner bezel (black) -->
-                <rect x="58" y="102" width="324" height="184" rx="6" fill="#1A1C22"/>
+              <!-- Laptop -->
+              <g filter="url(#f-shadow)">
+                <!-- Lid (aluminium) -->
+                <rect x="28" y="56" width="204" height="118" rx="7" fill="url(#g-lid)"/>
+                <!-- Black bezel -->
+                <rect x="34" y="61" width="192" height="108" rx="4" fill="#16181E"/>
                 <!-- Screen -->
-                <rect x="72" y="108" width="296" height="174" rx="2" fill="url(#screen-bg)"/>
+                <rect x="42" y="66" width="176" height="100" rx="1.5" fill="url(#g-screen)"/>
 
-                <!-- Screen content: Facturales dashboard mockup -->
-                <g clip-path="url(#screen-clip)">
+                <!-- Screen content -->
+                <g clip-path="url(#cp-screen)">
                   <!-- Sidebar -->
-                  <rect x="72" y="108" width="56" height="174" fill="#1A1C20"/>
-                  <!-- Sidebar logo dot -->
-                  <circle cx="100" cy="122" r="6" fill="#EC8228" opacity="0.8"/>
-                  <text x="100" y="125" text-anchor="middle" fill="white" font-size="7" font-weight="bold" font-family="system-ui">F</text>
-                  <!-- Sidebar menu items -->
-                  <rect x="84" y="140" width="32" height="3" rx="1.5" fill="#3A3E48"/>
-                  <rect x="84" y="150" width="28" height="3" rx="1.5" fill="#3A3E48"/>
-                  <rect x="84" y="160" width="30" height="3" rx="1.5" fill="#EC8228" opacity="0.6"/>
-                  <rect x="84" y="170" width="26" height="3" rx="1.5" fill="#3A3E48"/>
-                  <rect x="84" y="180" width="32" height="3" rx="1.5" fill="#3A3E48"/>
+                  <rect x="42" y="66" width="34" height="100" fill="#181A1F"/>
+                  <circle cx="59" cy="76" r="4" fill="#EC8228" opacity="0.7"/>
+                  <text x="59" y="78.5" text-anchor="middle" fill="white" font-size="5" font-weight="bold" font-family="system-ui">F</text>
+                  <rect x="49" y="86" width="20" height="2" rx="1" fill="#33373F"/>
+                  <rect x="49" y="92" width="18" height="2" rx="1" fill="#EC8228" opacity="0.5"/>
+                  <rect x="49" y="98" width="20" height="2" rx="1" fill="#33373F"/>
+                  <rect x="49" y="104" width="16" height="2" rx="1" fill="#33373F"/>
 
-                  <!-- Main content area -->
-                  <rect x="136" y="114" width="226" height="162" fill="#22252C"/>
+                  <!-- Content -->
+                  <rect x="82" y="70" width="132" height="92" fill="#20232A"/>
+                  <!-- Title bar -->
+                  <rect x="88" y="74" width="50" height="3.5" rx="1.5" fill="#EC8228" opacity="0.4"/>
+                  <!-- Stat cards -->
+                  <rect x="88" y="82" width="38" height="22" rx="3" fill="#282B34"/>
+                  <rect x="92" y="86" width="18" height="2" rx="1" fill="#555" opacity="0.5"/>
+                  <rect x="92" y="92" width="28" height="4" rx="1.5" fill="#22C55E" opacity="0.5"/>
 
-                  <!-- Top bar -->
-                  <rect x="144" y="120" width="80" height="5" rx="2.5" fill="#EC8228" opacity="0.5"/>
-                  <rect x="324" y="120" width="28" height="5" rx="2.5" fill="#3A3E48"/>
+                  <rect x="130" y="82" width="38" height="22" rx="3" fill="#282B34"/>
+                  <rect x="134" y="86" width="18" height="2" rx="1" fill="#555" opacity="0.5"/>
+                  <rect x="134" y="92" width="28" height="4" rx="1.5" fill="#EF4444" opacity="0.4"/>
 
-                  <!-- Stats cards row -->
-                  <rect x="144" y="134" width="66" height="36" rx="4" fill="#2C2F38"/>
-                  <rect x="150" y="140" width="30" height="3" rx="1.5" fill="#6B7080" opacity="0.5"/>
-                  <rect x="150" y="148" width="44" height="6" rx="2" fill="#22C55E" opacity="0.6"/>
-                  <rect x="150" y="160" width="20" height="3" rx="1.5" fill="#22C55E" opacity="0.3"/>
+                  <rect x="172" y="82" width="38" height="22" rx="3" fill="#282B34"/>
+                  <rect x="176" y="86" width="18" height="2" rx="1" fill="#555" opacity="0.5"/>
+                  <rect x="176" y="92" width="28" height="4" rx="1.5" fill="#EC8228" opacity="0.4"/>
 
-                  <rect x="216" y="134" width="66" height="36" rx="4" fill="#2C2F38"/>
-                  <rect x="222" y="140" width="30" height="3" rx="1.5" fill="#6B7080" opacity="0.5"/>
-                  <rect x="222" y="148" width="44" height="6" rx="2" fill="#EF4444" opacity="0.5"/>
-                  <rect x="222" y="160" width="20" height="3" rx="1.5" fill="#EF4444" opacity="0.25"/>
+                  <!-- Chart -->
+                  <rect x="88" y="110" width="80" height="46" rx="3" fill="#282B34"/>
+                  <rect x="94" y="136" width="5" height="14" rx="1.5" fill="#22C55E" opacity="0.5"/>
+                  <rect x="102" y="130" width="5" height="20" rx="1.5" fill="#22C55E" opacity="0.6"/>
+                  <rect x="110" y="138" width="5" height="12" rx="1.5" fill="#EF4444" opacity="0.35"/>
+                  <rect x="118" y="126" width="5" height="24" rx="1.5" fill="#22C55E" opacity="0.65"/>
+                  <rect x="126" y="132" width="5" height="18" rx="1.5" fill="#22C55E" opacity="0.5"/>
+                  <rect x="134" y="140" width="5" height="10" rx="1.5" fill="#EF4444" opacity="0.3"/>
+                  <rect x="142" y="128" width="5" height="22" rx="1.5" fill="#22C55E" opacity="0.55"/>
+                  <rect x="150" y="134" width="5" height="16" rx="1.5" fill="#22C55E" opacity="0.45"/>
+                  <rect x="158" y="124" width="5" height="26" rx="1.5" fill="#22C55E" opacity="0.7"/>
 
-                  <rect x="288" y="134" width="66" height="36" rx="4" fill="#2C2F38"/>
-                  <rect x="294" y="140" width="30" height="3" rx="1.5" fill="#6B7080" opacity="0.5"/>
-                  <rect x="294" y="148" width="44" height="6" rx="2" fill="#EC8228" opacity="0.5"/>
-                  <rect x="294" y="160" width="20" height="3" rx="1.5" fill="#EC8228" opacity="0.25"/>
-
-                  <!-- Chart area -->
-                  <rect x="144" y="178" width="138" height="76" rx="4" fill="#2C2F38"/>
-                  <rect x="152" y="184" width="40" height="4" rx="2" fill="#6B7080" opacity="0.4"/>
-                  <!-- Bar chart -->
-                  <rect x="158" y="224" width="8" height="22" rx="2" fill="#22C55E" opacity="0.5"/>
-                  <rect x="170" y="216" width="8" height="30" rx="2" fill="#22C55E" opacity="0.6"/>
-                  <rect x="182" y="230" width="8" height="16" rx="2" fill="#EF4444" opacity="0.4"/>
-                  <rect x="194" y="210" width="8" height="36" rx="2" fill="#22C55E" opacity="0.7"/>
-                  <rect x="206" y="220" width="8" height="26" rx="2" fill="#22C55E" opacity="0.5"/>
-                  <rect x="218" y="234" width="8" height="12" rx="2" fill="#EF4444" opacity="0.35"/>
-                  <rect x="230" y="226" width="8" height="20" rx="2" fill="#22C55E" opacity="0.45"/>
-                  <rect x="242" y="218" width="8" height="28" rx="2" fill="#22C55E" opacity="0.55"/>
-                  <rect x="254" y="232" width="8" height="14" rx="2" fill="#EF4444" opacity="0.3"/>
-                  <rect x="266" y="214" width="8" height="32" rx="2" fill="#22C55E" opacity="0.65"/>
-
-                  <!-- Recent invoices table -->
-                  <rect x="288" y="178" width="66" height="76" rx="4" fill="#2C2F38"/>
-                  <rect x="294" y="184" width="40" height="4" rx="2" fill="#6B7080" opacity="0.4"/>
-                  <rect x="294" y="196" width="54" height="3" rx="1.5" fill="#4A4E58"/>
-                  <rect x="294" y="204" width="54" height="3" rx="1.5" fill="#4A4E58" opacity="0.7"/>
-                  <rect x="294" y="212" width="54" height="3" rx="1.5" fill="#4A4E58" opacity="0.5"/>
-                  <rect x="294" y="220" width="54" height="3" rx="1.5" fill="#4A4E58" opacity="0.4"/>
-                  <rect x="294" y="228" width="40" height="3" rx="1.5" fill="#4A4E58" opacity="0.3"/>
-                  <!-- Green dots for paid invoices -->
-                  <circle cx="352" cy="197.5" r="2" fill="#22C55E" opacity="0.6"/>
-                  <circle cx="352" cy="205.5" r="2" fill="#22C55E" opacity="0.6"/>
-                  <circle cx="352" cy="213.5" r="2" fill="#EC8228" opacity="0.5"/>
-                  <circle cx="352" cy="221.5" r="2" fill="#22C55E" opacity="0.6"/>
+                  <!-- Table -->
+                  <rect x="172" y="110" width="38" height="46" rx="3" fill="#282B34"/>
+                  <rect x="176" y="118" width="30" height="2" rx="1" fill="#3A3E48"/>
+                  <rect x="176" y="124" width="30" height="2" rx="1" fill="#3A3E48" opacity="0.6"/>
+                  <rect x="176" y="130" width="30" height="2" rx="1" fill="#3A3E48" opacity="0.4"/>
+                  <rect x="176" y="136" width="24" height="2" rx="1" fill="#3A3E48" opacity="0.3"/>
+                  <circle cx="208" cy="119" r="1.5" fill="#22C55E" opacity="0.5"/>
+                  <circle cx="208" cy="125" r="1.5" fill="#22C55E" opacity="0.5"/>
+                  <circle cx="208" cy="131" r="1.5" fill="#EC8228" opacity="0.4"/>
                 </g>
 
-                <!-- Camera -->
-                <circle cx="220" cy="100" r="1.5" fill="#2A2D35"/>
-                <circle cx="220" cy="100" r="0.6" fill="#4A4E58"/>
+                <!-- Camera dot -->
+                <circle cx="130" cy="59.5" r="1.2" fill="#2A2D35"/>
               </g>
 
-              <!-- Laptop base (keyboard area) -->
-              <path d="M38 292 L56 292 L384 292 L402 292 L410 308 Q412 312 408 314 L32 314 Q28 312 30 308 Z" fill="url(#base-grad)"/>
-              <!-- Base edge highlight -->
-              <path d="M56 292 L384 292" stroke="white" stroke-width="0.5" opacity="0.4"/>
+              <!-- Base (wider, elegant trapezoid) -->
+              <path d="M18 174 L34 174 L226 174 L242 174 L254 188 Q256 192 252 192 L8 192 Q4 192 6 188 Z" fill="url(#g-base)"/>
               <!-- Hinge -->
-              <rect x="54" y="290" width="332" height="3" rx="1" fill="#A0A4AC"/>
-              <rect x="54" y="290" width="332" height="1" fill="white" opacity="0.3"/>
-
-              <!-- Keyboard keys grid -->
-              <g opacity="0.25">
-                <rect x="80" y="296" width="14" height="5" rx="1" fill="#8A8E96"/><rect x="97" y="296" width="14" height="5" rx="1" fill="#8A8E96"/>
-                <rect x="114" y="296" width="14" height="5" rx="1" fill="#8A8E96"/><rect x="131" y="296" width="14" height="5" rx="1" fill="#8A8E96"/>
-                <rect x="148" y="296" width="14" height="5" rx="1" fill="#8A8E96"/><rect x="165" y="296" width="14" height="5" rx="1" fill="#8A8E96"/>
-                <rect x="182" y="296" width="14" height="5" rx="1" fill="#8A8E96"/><rect x="199" y="296" width="14" height="5" rx="1" fill="#8A8E96"/>
-                <rect x="216" y="296" width="14" height="5" rx="1" fill="#8A8E96"/><rect x="233" y="296" width="14" height="5" rx="1" fill="#8A8E96"/>
-                <rect x="250" y="296" width="14" height="5" rx="1" fill="#8A8E96"/><rect x="267" y="296" width="14" height="5" rx="1" fill="#8A8E96"/>
-                <rect x="284" y="296" width="14" height="5" rx="1" fill="#8A8E96"/><rect x="301" y="296" width="28" height="5" rx="1" fill="#8A8E96"/>
-                <rect x="86" y="303" width="14" height="5" rx="1" fill="#8A8E96"/><rect x="103" y="303" width="14" height="5" rx="1" fill="#8A8E96"/>
-                <rect x="120" y="303" width="14" height="5" rx="1" fill="#8A8E96"/><rect x="137" y="303" width="14" height="5" rx="1" fill="#8A8E96"/>
-                <rect x="154" y="303" width="14" height="5" rx="1" fill="#8A8E96"/><rect x="171" y="303" width="14" height="5" rx="1" fill="#8A8E96"/>
-                <rect x="188" y="303" width="14" height="5" rx="1" fill="#8A8E96"/><rect x="205" y="303" width="14" height="5" rx="1" fill="#8A8E96"/>
-                <rect x="222" y="303" width="14" height="5" rx="1" fill="#8A8E96"/><rect x="239" y="303" width="14" height="5" rx="1" fill="#8A8E96"/>
-                <rect x="256" y="303" width="14" height="5" rx="1" fill="#8A8E96"/><rect x="273" y="303" width="28" height="5" rx="1" fill="#8A8E96"/>
-              </g>
-              <!-- Trackpad -->
-              <rect x="185" y="310" width="70" height="1" rx="0.5" fill="#9A9EA6" opacity="0.3"/>
+              <rect x="32" y="173" width="196" height="2.5" rx="1" fill="#AEB2BA"/>
+              <rect x="32" y="173" width="196" height="0.8" fill="white" opacity="0.25"/>
+              <!-- Keyboard surface (single elegant rect, no individual keys) -->
+              <rect x="34" y="177" width="192" height="10" rx="2" fill="#C0C4CC" opacity="0.35"/>
+              <!-- Trackpad line -->
+              <rect x="105" y="185" width="50" height="0.8" rx="0.4" fill="#A0A4AC" opacity="0.3"/>
 
               <!-- Ground shadow -->
-              <ellipse cx="220" cy="320" rx="160" ry="6" fill="#000" opacity="0.04"/>
+              <ellipse cx="130" cy="196" rx="110" ry="4" fill="#000" opacity="0.035"/>
 
-              <!-- Arms resting on laptop sides -->
+              <!-- Arms resting -->
               <g id="arms-resting">
-                <path d="M155 290 Q165 270 178 278 Q185 284 186 292" fill="url(#skin-grad)" stroke="#E0B898" stroke-width="0.5"/>
-                <path d="M285 290 Q275 270 262 278 Q255 284 254 292" fill="url(#skin-grad)" stroke="#E0B898" stroke-width="0.5"/>
+                <path d="M78 173 Q88 158 98 164 Q104 168 104 174" fill="url(#g-skin)" stroke="#E0B898" stroke-width="0.4" opacity="0.9"/>
+                <path d="M182 173 Q172 158 162 164 Q156 168 156 174" fill="url(#g-skin)" stroke="#E0B898" stroke-width="0.4" opacity="0.9"/>
               </g>
             </svg>
           </div>
@@ -492,55 +396,46 @@
 
           <script>
           (function() {
-            var lPupil = document.getElementById('pupil-left');
-            var rPupil = document.getElementById('pupil-right');
-            var lHL = document.getElementById('highlight-left');
-            var rHL = document.getElementById('highlight-right');
-            var eyesOpen = document.getElementById('eyes-open');
-            var eyesClosed = document.getElementById('eyes-closed');
-            var handsCover = document.getElementById('hands-cover');
-            var armsRest = document.getElementById('arms-resting');
-            var mouth = document.getElementById('mouth');
-            if (!lPupil || !rPupil) return;
-
-            var maxD = 3.5, mx = 0, my = 0, pwFocus = false;
+            var lP = document.getElementById('pupil-left');
+            var rP = document.getElementById('pupil-right');
+            var lH = document.getElementById('highlight-left');
+            var rH = document.getElementById('highlight-right');
+            var eO = document.getElementById('eyes-open');
+            var eC = document.getElementById('eyes-closed');
+            var hC = document.getElementById('hands-cover');
+            var aR = document.getElementById('arms-resting');
+            var mo = document.getElementById('mouth');
+            if (!lP || !rP) return;
+            var D = 3, mx = 0, my = 0, pw = false;
             document.addEventListener('mousemove', function(e) { mx = e.clientX; my = e.clientY; });
-
-            function setCover(on) {
-              if (on === pwFocus) return;
-              pwFocus = on;
-              eyesOpen.style.display = on ? 'none' : '';
-              eyesClosed.style.display = on ? '' : 'none';
-              handsCover.style.display = on ? '' : 'none';
-              if (armsRest) armsRest.style.display = on ? 'none' : '';
-              if (mouth) mouth.setAttribute('d', on ? 'M215 52 Q220 54 225 52' : 'M212 52 Q220 58 228 52');
+            function cover(on) {
+              if (on === pw) return; pw = on;
+              eO.style.display = on ? 'none' : '';
+              eC.style.display = on ? '' : 'none';
+              hC.style.display = on ? '' : 'none';
+              if (aR) aR.style.display = on ? 'none' : '';
+              if (mo) mo.setAttribute('d', on ? 'M127 34 Q130 35.5 133 34' : 'M124 34 Q130 39 136 34');
             }
-
             function tick() {
-              if (!pwFocus) {
-                var svg = lPupil.closest('svg');
-                if (!svg) { requestAnimationFrame(tick); return; }
-                var r = svg.getBoundingClientRect();
+              if (!pw) {
+                var s = lP.closest('svg'); if (!s) { requestAnimationFrame(tick); return; }
+                var r = s.getBoundingClientRect();
                 var cx = r.left + r.width * 0.5, cy = r.top + r.height * 0.08;
                 var dx = mx - cx, dy = my - cy;
                 var d = Math.sqrt(dx*dx + dy*dy) || 1;
-                var ox = (dx/d) * Math.min(maxD, d*0.012);
-                var oy = (dy/d) * Math.min(maxD, d*0.012);
-                lPupil.setAttribute('cx', 210+ox); lPupil.setAttribute('cy', 31+oy);
-                rPupil.setAttribute('cx', 230+ox); rPupil.setAttribute('cy', 31+oy);
-                if (lHL) { lHL.setAttribute('cx', 212+ox*0.4); lHL.setAttribute('cy', 28.5+oy*0.4); }
-                if (rHL) { rHL.setAttribute('cx', 232+ox*0.4); rHL.setAttribute('cy', 28.5+oy*0.4); }
+                var ox = (dx/d) * Math.min(D, d*0.012);
+                var oy = (dy/d) * Math.min(D, d*0.012);
+                lP.setAttribute('cx', 122+ox); lP.setAttribute('cy', 19+oy);
+                rP.setAttribute('cx', 138+ox); rP.setAttribute('cy', 19+oy);
+                if (lH) { lH.setAttribute('cx', 124+ox*0.3); lH.setAttribute('cy', 17+oy*0.3); }
+                if (rH) { rH.setAttribute('cx', 140+ox*0.3); rH.setAttribute('cy', 17+oy*0.3); }
               }
               requestAnimationFrame(tick);
             }
             tick();
-
             setTimeout(function() {
-              var pw = document.getElementById('password');
-              if (pw) {
-                pw.addEventListener('focus', function() { setCover(true); });
-                pw.addEventListener('blur', function() { setCover(false); });
-              }
+              var p = document.getElementById('password');
+              if (p) { p.addEventListener('focus', function() { cover(true); }); p.addEventListener('blur', function() { cover(false); }); }
             }, 300);
           })();
           </script>
