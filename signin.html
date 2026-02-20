@@ -224,157 +224,268 @@
           </div>
         </div>
         <!-- Right -->
-        <div class="lg:w-1/2 lg:flex hidden bg-gradient-to-br from-[#F0F4FA] to-[#E8EDF5] dark:from-darkblack-600 dark:to-darkblack-500 p-12 xl:p-20 relative flex-col items-center justify-center overflow-hidden">
-          <div class="absolute top-0 right-0 w-72 h-72 bg-[#EC8228] opacity-[0.04] rounded-full -translate-y-1/2 translate-x-1/2"></div>
-          <div class="absolute bottom-0 left-0 w-56 h-56 bg-[#EC8228] opacity-[0.03] rounded-full translate-y-1/3 -translate-x-1/3"></div>
+        <div class="lg:w-1/2 lg:flex hidden bg-gradient-to-br from-[#F4F6FA] to-[#EAECF2] dark:from-darkblack-600 dark:to-darkblack-500 p-8 xl:p-16 relative flex-col items-center justify-center overflow-hidden">
+          <div class="absolute top-0 right-0 w-80 h-80 bg-[#EC8228] opacity-[0.03] rounded-full -translate-y-1/2 translate-x-1/2"></div>
+          <div class="absolute bottom-0 left-0 w-64 h-64 bg-[#EC8228] opacity-[0.02] rounded-full translate-y-1/3 -translate-x-1/3"></div>
 
-          <div id="login-illustration" class="w-full max-w-md mx-auto mb-12 relative z-10">
-            <svg viewBox="0 0 400 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <div id="login-illustration" class="w-full max-w-[440px] mx-auto mb-8 relative z-10">
+            <svg viewBox="0 0 440 380" fill="none" xmlns="http://www.w3.org/2000/svg">
               <defs>
-                <linearGradient id="screen-grad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#1a1d23"/>
-                  <stop offset="100%" stop-color="#2a2d35"/>
+                <linearGradient id="lid-grad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#C8CCD4"/>
+                  <stop offset="50%" stop-color="#B8BCC4"/>
+                  <stop offset="100%" stop-color="#A8ACB4"/>
                 </linearGradient>
-                <linearGradient id="screen-glow" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#EC8228" stop-opacity="0.12"/>
-                  <stop offset="100%" stop-color="#EC8228" stop-opacity="0.04"/>
+                <linearGradient id="base-grad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#D0D4DC"/>
+                  <stop offset="100%" stop-color="#BCC0C8"/>
                 </linearGradient>
-                <filter id="shadow-lg" x="-10%" y="-5%" width="120%" height="130%">
-                  <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000" flood-opacity="0.15"/>
+                <linearGradient id="screen-bg" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#1E2028"/>
+                  <stop offset="100%" stop-color="#262830"/>
+                </linearGradient>
+                <linearGradient id="skin-grad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#F5D6B8"/>
+                  <stop offset="100%" stop-color="#EDCAA8"/>
+                </linearGradient>
+                <linearGradient id="hair-grad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#4A3728"/>
+                  <stop offset="100%" stop-color="#3A2A1E"/>
+                </linearGradient>
+                <filter id="laptop-shadow" x="-8%" y="-4%" width="116%" height="120%">
+                  <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000" flood-opacity="0.12"/>
                 </filter>
-                <filter id="shadow-sm" x="-5%" y="-5%" width="110%" height="120%">
-                  <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity="0.1"/>
+                <filter id="char-shadow" x="-15%" y="-10%" width="130%" height="130%">
+                  <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#000" flood-opacity="0.08"/>
                 </filter>
-                <clipPath id="screen-clip">
-                  <rect x="78" y="86" width="244" height="142" rx="2"/>
-                </clipPath>
+                <clipPath id="screen-clip"><rect x="72" y="108" width="296" height="174" rx="2"/></clipPath>
               </defs>
 
-              <!-- Laptop shadow -->
-              <ellipse cx="200" cy="282" rx="140" ry="8" fill="#000" opacity="0.06"/>
+              <!-- === CHARACTER (above laptop) === -->
+              <g id="character-group" filter="url(#char-shadow)">
+                <!-- Body/shoulders behind laptop -->
+                <path d="M180 95 Q180 80 195 72 L245 72 Q260 80 260 95 L260 130 L180 130 Z" fill="url(#skin-grad)"/>
+                <!-- Shirt collar -->
+                <path d="M185 95 L195 82 L220 88 L245 82 L255 95" stroke="#E0E4EC" stroke-width="1.5" fill="#E8ECF4"/>
 
-              <!-- Laptop lid -->
-              <g filter="url(#shadow-lg)">
-                <rect x="60" y="68" width="280" height="168" rx="10" fill="url(#screen-grad)"/>
-                <rect x="60.5" y="68.5" width="279" height="167" rx="9.5" stroke="white" stroke-opacity="0.06"/>
-              </g>
-
-              <!-- Camera dot -->
-              <circle cx="200" cy="77" r="2" fill="#3a3f4a"/>
-              <circle cx="200" cy="77" r="0.8" fill="#5a6070"/>
-
-              <!-- Screen area -->
-              <rect x="78" y="86" width="244" height="142" rx="2" fill="url(#screen-glow)"/>
-
-              <!-- Screen UI mockup -->
-              <g clip-path="url(#screen-clip)">
-                <rect x="78" y="86" width="244" height="22" fill="#EC8228" opacity="0.08"/>
-                <circle cx="92" cy="97" r="3" fill="#EC8228" opacity="0.3"/>
-                <rect x="100" y="95" width="40" height="4" rx="2" fill="#EC8228" opacity="0.2"/>
-                <rect x="148" y="95" width="30" height="4" rx="2" fill="#EC8228" opacity="0.15"/>
-
-                <rect x="96" y="122" width="100" height="8" rx="4" fill="#EC8228" opacity="0.35"/>
-                <rect x="96" y="138" width="170" height="5" rx="2.5" fill="#EC8228" opacity="0.15"/>
-                <rect x="96" y="149" width="140" height="5" rx="2.5" fill="#EC8228" opacity="0.12"/>
-                <rect x="96" y="160" width="155" height="5" rx="2.5" fill="#EC8228" opacity="0.10"/>
-
-                <rect x="96" y="178" width="72" height="26" rx="8" fill="#EC8228"/>
-                <text x="132" y="195" text-anchor="middle" fill="white" font-size="10" font-weight="600" font-family="system-ui, sans-serif">Enviar</text>
-
-                <rect x="250" y="122" width="54" height="54" rx="6" fill="#EC8228" opacity="0.08"/>
-                <rect x="262" y="134" width="30" height="30" rx="15" fill="#EC8228" opacity="0.15"/>
-              </g>
-
-              <!-- Laptop base -->
-              <path d="M44 236 L60 236 Q60 236 60 236 L340 236 L356 236 L364 252 Q366 256 362 256 L38 256 Q34 256 36 252 Z" fill="#2a2d35"/>
-              <rect x="165" y="240" width="70" height="8" rx="4" fill="#3a3f4a"/>
-              <path d="M36 256 L364 256" stroke="white" stroke-opacity="0.04"/>
-
-              <!-- Hinge detail -->
-              <rect x="58" y="234" width="284" height="4" rx="1" fill="#1a1d23"/>
-
-              <!-- Character - positioned behind laptop, peeking over -->
-              <g id="character-group">
                 <!-- Neck -->
-                <rect x="189" y="42" width="22" height="14" rx="4" fill="#FDDCB5"/>
+                <rect x="208" y="50" width="24" height="24" rx="8" fill="url(#skin-grad)"/>
 
                 <!-- Head -->
-                <ellipse cx="200" cy="30" rx="34" ry="32" fill="#FDDCB5"/>
+                <ellipse cx="220" cy="32" rx="38" ry="36" fill="url(#skin-grad)"/>
 
-                <!-- Hair -->
-                <path d="M166 22C166 6 180 -6 200 -6C220 -6 234 6 234 22C234 22 230 8 200 8C170 8 166 22 166 22Z" fill="#3B2F1E" class="dark:fill-[#4a3d2c]"/>
-                <path d="M166 22C166 20 168 15 172 14C174 20 180 12 186 16C190 8 196 10 200 8C204 10 210 8 214 16C220 12 226 20 228 14C232 15 234 20 234 22" fill="#3B2F1E" class="dark:fill-[#4a3d2c]"/>
+                <!-- Hair base -->
+                <path d="M182 24 C182 4 198 -12 220 -12 C242 -12 258 4 258 24 C258 24 256 14 248 10 C240 6 232 8 220 8 C208 8 200 6 192 10 C184 14 182 24 182 24Z" fill="url(#hair-grad)"/>
+                <!-- Hair top volume -->
+                <path d="M184 20 C186 10 196 2 220 2 C244 2 254 10 256 20 C256 16 250 8 240 6 C230 4 226 8 220 8 C214 8 210 4 200 6 C190 8 184 16 184 20Z" fill="url(#hair-grad)"/>
+                <!-- Side hair -->
+                <path d="M182 24 C182 28 183 34 184 36 C183 30 183 26 184 22" fill="url(#hair-grad)"/>
+                <path d="M258 24 C258 28 257 34 256 36 C257 30 257 26 256 22" fill="url(#hair-grad)"/>
 
                 <!-- Ears -->
-                <ellipse cx="166" cy="32" rx="5" ry="7" fill="#F0C9A0"/>
-                <ellipse cx="234" cy="32" rx="5" ry="7" fill="#F0C9A0"/>
+                <ellipse cx="182" cy="34" rx="5.5" ry="8" fill="#EDCAA8"/>
+                <ellipse cx="182" cy="34" rx="3" ry="5" fill="#E4BC98" opacity="0.5"/>
+                <ellipse cx="258" cy="34" rx="5.5" ry="8" fill="#EDCAA8"/>
+                <ellipse cx="258" cy="34" rx="3" ry="5" fill="#E4BC98" opacity="0.5"/>
 
                 <!-- Eyebrows -->
-                <path id="brow-left" d="M183 18 Q188 14 195 17" stroke="#3B2F1E" stroke-width="2" stroke-linecap="round" fill="none" class="dark:stroke-[#4a3d2c]">
-                  <animate attributeName="d" dur="0.3s" fill="freeze" begin="indefinite"/>
-                </path>
-                <path id="brow-right" d="M205 17 Q212 14 217 18" stroke="#3B2F1E" stroke-width="2" stroke-linecap="round" fill="none" class="dark:stroke-[#4a3d2c]">
-                  <animate attributeName="d" dur="0.3s" fill="freeze" begin="indefinite"/>
-                </path>
+                <path d="M203 16 Q208 12 215 15" stroke="#4A3728" stroke-width="2.2" stroke-linecap="round" fill="none" opacity="0.7"/>
+                <path d="M225 15 Q232 12 237 16" stroke="#4A3728" stroke-width="2.2" stroke-linecap="round" fill="none" opacity="0.7"/>
 
-                <!-- Eye whites -->
+                <!-- Eyes open -->
                 <g id="eyes-open">
-                  <ellipse cx="189" cy="30" rx="9" ry="8" fill="white"/>
-                  <ellipse cx="211" cy="30" rx="9" ry="8" fill="white"/>
-                  <ellipse cx="189" cy="30" rx="9" ry="8" stroke="#E0D5C8" stroke-width="0.5" fill="none"/>
-                  <ellipse cx="211" cy="30" rx="9" ry="8" stroke="#E0D5C8" stroke-width="0.5" fill="none"/>
-                  <!-- Pupils -->
-                  <circle id="pupil-left" cx="189" cy="31" r="4.5" fill="#1D1E24"/>
-                  <circle id="pupil-right" cx="211" cy="31" r="4.5" fill="#1D1E24"/>
-                  <!-- Pupil highlights -->
-                  <circle id="highlight-left" cx="191" cy="29" r="1.5" fill="white" opacity="0.9"/>
-                  <circle id="highlight-right" cx="213" cy="29" r="1.5" fill="white" opacity="0.9"/>
+                  <!-- Left eye -->
+                  <ellipse cx="210" cy="30" rx="10" ry="9" fill="white"/>
+                  <ellipse cx="210" cy="30" rx="10" ry="9" stroke="#D4C8BC" stroke-width="0.6" fill="none"/>
+                  <!-- Left iris -->
+                  <circle cx="210" cy="31" r="5.5" fill="#5C4A3A"/>
+                  <circle id="pupil-left" cx="210" cy="31" r="3.2" fill="#1C1610"/>
+                  <circle id="highlight-left" cx="212" cy="28.5" r="2" fill="white" opacity="0.85"/>
+                  <circle cx="208" cy="33" r="0.8" fill="white" opacity="0.3"/>
+                  <!-- Left upper lid line -->
+                  <path d="M200 27 Q210 22 220 27" stroke="#4A3728" stroke-width="1.2" fill="none" opacity="0.3"/>
+
+                  <!-- Right eye -->
+                  <ellipse cx="230" cy="30" rx="10" ry="9" fill="white"/>
+                  <ellipse cx="230" cy="30" rx="10" ry="9" stroke="#D4C8BC" stroke-width="0.6" fill="none"/>
+                  <!-- Right iris -->
+                  <circle cx="230" cy="31" r="5.5" fill="#5C4A3A"/>
+                  <circle id="pupil-right" cx="230" cy="31" r="3.2" fill="#1C1610"/>
+                  <circle id="highlight-right" cx="232" cy="28.5" r="2" fill="white" opacity="0.85"/>
+                  <circle cx="228" cy="33" r="0.8" fill="white" opacity="0.3"/>
+                  <!-- Right upper lid line -->
+                  <path d="M220 27 Q230 22 240 27" stroke="#4A3728" stroke-width="1.2" fill="none" opacity="0.3"/>
                 </g>
 
-                <!-- Closed eyes (hidden by default) -->
+                <!-- Eyes closed with visible lashes -->
                 <g id="eyes-closed" style="display:none;">
-                  <path d="M180 30 Q189 36 198 30" stroke="#3B2F1E" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-                  <path d="M202 30 Q211 36 220 30" stroke="#3B2F1E" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-                  <path d="M180 31 Q189 26 198 31" stroke="#FDDCB5" stroke-width="2" fill="none"/>
-                  <path d="M202 31 Q211 26 220 31" stroke="#FDDCB5" stroke-width="2" fill="none"/>
+                  <!-- Left closed eye -->
+                  <path d="M200 30 Q210 36 220 30" stroke="#4A3728" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                  <!-- Left lashes -->
+                  <line x1="202" y1="31" x2="200" y2="34" stroke="#4A3728" stroke-width="1.5" stroke-linecap="round"/>
+                  <line x1="206" y1="33" x2="205" y2="36.5" stroke="#4A3728" stroke-width="1.5" stroke-linecap="round"/>
+                  <line x1="210" y1="34" x2="210" y2="37.5" stroke="#4A3728" stroke-width="1.5" stroke-linecap="round"/>
+                  <line x1="214" y1="33" x2="215" y2="36.5" stroke="#4A3728" stroke-width="1.5" stroke-linecap="round"/>
+                  <line x1="218" y1="31" x2="220" y2="34" stroke="#4A3728" stroke-width="1.5" stroke-linecap="round"/>
+
+                  <!-- Right closed eye -->
+                  <path d="M220 30 Q230 36 240 30" stroke="#4A3728" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                  <!-- Right lashes -->
+                  <line x1="222" y1="31" x2="220" y2="34" stroke="#4A3728" stroke-width="1.5" stroke-linecap="round"/>
+                  <line x1="226" y1="33" x2="225" y2="36.5" stroke="#4A3728" stroke-width="1.5" stroke-linecap="round"/>
+                  <line x1="230" y1="34" x2="230" y2="37.5" stroke="#4A3728" stroke-width="1.5" stroke-linecap="round"/>
+                  <line x1="234" y1="33" x2="235" y2="36.5" stroke="#4A3728" stroke-width="1.5" stroke-linecap="round"/>
+                  <line x1="238" y1="31" x2="240" y2="34" stroke="#4A3728" stroke-width="1.5" stroke-linecap="round"/>
                 </g>
 
-                <!-- Hands covering eyes (hidden by default) -->
+                <!-- Hands covering eyes -->
                 <g id="hands-cover" style="display:none;">
-                  <ellipse cx="189" cy="30" rx="14" ry="10" fill="#FDDCB5"/>
-                  <ellipse cx="211" cy="30" rx="14" ry="10" fill="#FDDCB5"/>
-                  <path d="M175 28 Q177 22 182 24" stroke="#F0C9A0" stroke-width="0.8" fill="none"/>
-                  <path d="M180 26 Q182 21 187 23" stroke="#F0C9A0" stroke-width="0.8" fill="none"/>
-                  <path d="M218 24 Q223 22 225 28" stroke="#F0C9A0" stroke-width="0.8" fill="none"/>
-                  <path d="M213 23 Q218 21 220 26" stroke="#F0C9A0" stroke-width="0.8" fill="none"/>
+                  <path d="M190 22 Q195 18 205 20 L215 24 Q218 28 218 34 Q218 40 210 40 Q200 40 195 36 Q190 32 190 22Z" fill="url(#skin-grad)"/>
+                  <path d="M250 22 Q245 18 235 20 L225 24 Q222 28 222 34 Q222 40 230 40 Q240 40 245 36 Q250 32 250 22Z" fill="url(#skin-grad)"/>
+                  <!-- Finger lines -->
+                  <path d="M196 25 L208 28" stroke="#E0B898" stroke-width="0.6" opacity="0.5"/>
+                  <path d="M195 30 L210 32" stroke="#E0B898" stroke-width="0.6" opacity="0.5"/>
+                  <path d="M244 25 L232 28" stroke="#E0B898" stroke-width="0.6" opacity="0.5"/>
+                  <path d="M245 30 L230 32" stroke="#E0B898" stroke-width="0.6" opacity="0.5"/>
                 </g>
 
                 <!-- Nose -->
-                <ellipse cx="200" cy="38" rx="2.5" ry="1.5" fill="#E8B894"/>
+                <path d="M217 42 Q220 46 223 42" stroke="#DEAD90" stroke-width="1.5" fill="none" stroke-linecap="round"/>
 
                 <!-- Mouth -->
-                <path id="mouth" d="M193 44 Q200 50 207 44" stroke="#C47A5A" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <path id="mouth" d="M212 52 Q220 58 228 52" stroke="#C88068" stroke-width="2" fill="none" stroke-linecap="round"/>
 
-                <!-- Blush -->
-                <ellipse cx="179" cy="40" rx="6" ry="3" fill="#FFB366" opacity="0.2"/>
-                <ellipse cx="221" cy="40" rx="6" ry="3" fill="#FFB366" opacity="0.2"/>
+                <!-- Subtle blush -->
+                <ellipse cx="198" cy="46" rx="7" ry="3.5" fill="#F0A880" opacity="0.12"/>
+                <ellipse cx="242" cy="46" rx="7" ry="3.5" fill="#F0A880" opacity="0.12"/>
               </g>
 
-              <!-- Arms resting on laptop (visible when not covering eyes) -->
+              <!-- === LAPTOP === -->
+              <g filter="url(#laptop-shadow)">
+                <!-- Lid outer shell (aluminium) -->
+                <rect x="50" y="96" width="340" height="196" rx="10" fill="url(#lid-grad)"/>
+                <!-- Lid inner bezel (black) -->
+                <rect x="58" y="102" width="324" height="184" rx="6" fill="#1A1C22"/>
+                <!-- Screen -->
+                <rect x="72" y="108" width="296" height="174" rx="2" fill="url(#screen-bg)"/>
+
+                <!-- Screen content: Facturales dashboard mockup -->
+                <g clip-path="url(#screen-clip)">
+                  <!-- Sidebar -->
+                  <rect x="72" y="108" width="56" height="174" fill="#1A1C20"/>
+                  <!-- Sidebar logo dot -->
+                  <circle cx="100" cy="122" r="6" fill="#EC8228" opacity="0.8"/>
+                  <text x="100" y="125" text-anchor="middle" fill="white" font-size="7" font-weight="bold" font-family="system-ui">F</text>
+                  <!-- Sidebar menu items -->
+                  <rect x="84" y="140" width="32" height="3" rx="1.5" fill="#3A3E48"/>
+                  <rect x="84" y="150" width="28" height="3" rx="1.5" fill="#3A3E48"/>
+                  <rect x="84" y="160" width="30" height="3" rx="1.5" fill="#EC8228" opacity="0.6"/>
+                  <rect x="84" y="170" width="26" height="3" rx="1.5" fill="#3A3E48"/>
+                  <rect x="84" y="180" width="32" height="3" rx="1.5" fill="#3A3E48"/>
+
+                  <!-- Main content area -->
+                  <rect x="136" y="114" width="226" height="162" fill="#22252C"/>
+
+                  <!-- Top bar -->
+                  <rect x="144" y="120" width="80" height="5" rx="2.5" fill="#EC8228" opacity="0.5"/>
+                  <rect x="324" y="120" width="28" height="5" rx="2.5" fill="#3A3E48"/>
+
+                  <!-- Stats cards row -->
+                  <rect x="144" y="134" width="66" height="36" rx="4" fill="#2C2F38"/>
+                  <rect x="150" y="140" width="30" height="3" rx="1.5" fill="#6B7080" opacity="0.5"/>
+                  <rect x="150" y="148" width="44" height="6" rx="2" fill="#22C55E" opacity="0.6"/>
+                  <rect x="150" y="160" width="20" height="3" rx="1.5" fill="#22C55E" opacity="0.3"/>
+
+                  <rect x="216" y="134" width="66" height="36" rx="4" fill="#2C2F38"/>
+                  <rect x="222" y="140" width="30" height="3" rx="1.5" fill="#6B7080" opacity="0.5"/>
+                  <rect x="222" y="148" width="44" height="6" rx="2" fill="#EF4444" opacity="0.5"/>
+                  <rect x="222" y="160" width="20" height="3" rx="1.5" fill="#EF4444" opacity="0.25"/>
+
+                  <rect x="288" y="134" width="66" height="36" rx="4" fill="#2C2F38"/>
+                  <rect x="294" y="140" width="30" height="3" rx="1.5" fill="#6B7080" opacity="0.5"/>
+                  <rect x="294" y="148" width="44" height="6" rx="2" fill="#EC8228" opacity="0.5"/>
+                  <rect x="294" y="160" width="20" height="3" rx="1.5" fill="#EC8228" opacity="0.25"/>
+
+                  <!-- Chart area -->
+                  <rect x="144" y="178" width="138" height="76" rx="4" fill="#2C2F38"/>
+                  <rect x="152" y="184" width="40" height="4" rx="2" fill="#6B7080" opacity="0.4"/>
+                  <!-- Bar chart -->
+                  <rect x="158" y="224" width="8" height="22" rx="2" fill="#22C55E" opacity="0.5"/>
+                  <rect x="170" y="216" width="8" height="30" rx="2" fill="#22C55E" opacity="0.6"/>
+                  <rect x="182" y="230" width="8" height="16" rx="2" fill="#EF4444" opacity="0.4"/>
+                  <rect x="194" y="210" width="8" height="36" rx="2" fill="#22C55E" opacity="0.7"/>
+                  <rect x="206" y="220" width="8" height="26" rx="2" fill="#22C55E" opacity="0.5"/>
+                  <rect x="218" y="234" width="8" height="12" rx="2" fill="#EF4444" opacity="0.35"/>
+                  <rect x="230" y="226" width="8" height="20" rx="2" fill="#22C55E" opacity="0.45"/>
+                  <rect x="242" y="218" width="8" height="28" rx="2" fill="#22C55E" opacity="0.55"/>
+                  <rect x="254" y="232" width="8" height="14" rx="2" fill="#EF4444" opacity="0.3"/>
+                  <rect x="266" y="214" width="8" height="32" rx="2" fill="#22C55E" opacity="0.65"/>
+
+                  <!-- Recent invoices table -->
+                  <rect x="288" y="178" width="66" height="76" rx="4" fill="#2C2F38"/>
+                  <rect x="294" y="184" width="40" height="4" rx="2" fill="#6B7080" opacity="0.4"/>
+                  <rect x="294" y="196" width="54" height="3" rx="1.5" fill="#4A4E58"/>
+                  <rect x="294" y="204" width="54" height="3" rx="1.5" fill="#4A4E58" opacity="0.7"/>
+                  <rect x="294" y="212" width="54" height="3" rx="1.5" fill="#4A4E58" opacity="0.5"/>
+                  <rect x="294" y="220" width="54" height="3" rx="1.5" fill="#4A4E58" opacity="0.4"/>
+                  <rect x="294" y="228" width="40" height="3" rx="1.5" fill="#4A4E58" opacity="0.3"/>
+                  <!-- Green dots for paid invoices -->
+                  <circle cx="352" cy="197.5" r="2" fill="#22C55E" opacity="0.6"/>
+                  <circle cx="352" cy="205.5" r="2" fill="#22C55E" opacity="0.6"/>
+                  <circle cx="352" cy="213.5" r="2" fill="#EC8228" opacity="0.5"/>
+                  <circle cx="352" cy="221.5" r="2" fill="#22C55E" opacity="0.6"/>
+                </g>
+
+                <!-- Camera -->
+                <circle cx="220" cy="100" r="1.5" fill="#2A2D35"/>
+                <circle cx="220" cy="100" r="0.6" fill="#4A4E58"/>
+              </g>
+
+              <!-- Laptop base (keyboard area) -->
+              <path d="M38 292 L56 292 L384 292 L402 292 L410 308 Q412 312 408 314 L32 314 Q28 312 30 308 Z" fill="url(#base-grad)"/>
+              <!-- Base edge highlight -->
+              <path d="M56 292 L384 292" stroke="white" stroke-width="0.5" opacity="0.4"/>
+              <!-- Hinge -->
+              <rect x="54" y="290" width="332" height="3" rx="1" fill="#A0A4AC"/>
+              <rect x="54" y="290" width="332" height="1" fill="white" opacity="0.3"/>
+
+              <!-- Keyboard keys grid -->
+              <g opacity="0.25">
+                <rect x="80" y="296" width="14" height="5" rx="1" fill="#8A8E96"/><rect x="97" y="296" width="14" height="5" rx="1" fill="#8A8E96"/>
+                <rect x="114" y="296" width="14" height="5" rx="1" fill="#8A8E96"/><rect x="131" y="296" width="14" height="5" rx="1" fill="#8A8E96"/>
+                <rect x="148" y="296" width="14" height="5" rx="1" fill="#8A8E96"/><rect x="165" y="296" width="14" height="5" rx="1" fill="#8A8E96"/>
+                <rect x="182" y="296" width="14" height="5" rx="1" fill="#8A8E96"/><rect x="199" y="296" width="14" height="5" rx="1" fill="#8A8E96"/>
+                <rect x="216" y="296" width="14" height="5" rx="1" fill="#8A8E96"/><rect x="233" y="296" width="14" height="5" rx="1" fill="#8A8E96"/>
+                <rect x="250" y="296" width="14" height="5" rx="1" fill="#8A8E96"/><rect x="267" y="296" width="14" height="5" rx="1" fill="#8A8E96"/>
+                <rect x="284" y="296" width="14" height="5" rx="1" fill="#8A8E96"/><rect x="301" y="296" width="28" height="5" rx="1" fill="#8A8E96"/>
+                <rect x="86" y="303" width="14" height="5" rx="1" fill="#8A8E96"/><rect x="103" y="303" width="14" height="5" rx="1" fill="#8A8E96"/>
+                <rect x="120" y="303" width="14" height="5" rx="1" fill="#8A8E96"/><rect x="137" y="303" width="14" height="5" rx="1" fill="#8A8E96"/>
+                <rect x="154" y="303" width="14" height="5" rx="1" fill="#8A8E96"/><rect x="171" y="303" width="14" height="5" rx="1" fill="#8A8E96"/>
+                <rect x="188" y="303" width="14" height="5" rx="1" fill="#8A8E96"/><rect x="205" y="303" width="14" height="5" rx="1" fill="#8A8E96"/>
+                <rect x="222" y="303" width="14" height="5" rx="1" fill="#8A8E96"/><rect x="239" y="303" width="14" height="5" rx="1" fill="#8A8E96"/>
+                <rect x="256" y="303" width="14" height="5" rx="1" fill="#8A8E96"/><rect x="273" y="303" width="28" height="5" rx="1" fill="#8A8E96"/>
+              </g>
+              <!-- Trackpad -->
+              <rect x="185" y="310" width="70" height="1" rx="0.5" fill="#9A9EA6" opacity="0.3"/>
+
+              <!-- Ground shadow -->
+              <ellipse cx="220" cy="320" rx="160" ry="6" fill="#000" opacity="0.04"/>
+
+              <!-- Arms resting on laptop sides -->
               <g id="arms-resting">
-                <path d="M140 236 Q155 220 170 230 Q180 236 180 236" fill="#FDDCB5" stroke="#F0C9A0" stroke-width="0.5"/>
-                <path d="M260 236 Q245 220 230 230 Q220 236 220 236" fill="#FDDCB5" stroke="#F0C9A0" stroke-width="0.5"/>
+                <path d="M155 290 Q165 270 178 278 Q185 284 186 292" fill="url(#skin-grad)" stroke="#E0B898" stroke-width="0.5"/>
+                <path d="M285 290 Q275 270 262 278 Q255 284 254 292" fill="url(#skin-grad)" stroke="#E0B898" stroke-width="0.5"/>
               </g>
             </svg>
           </div>
 
           <div class="relative z-10">
-            <div class="text-center max-w-lg px-1.5 m-auto">
-              <h3 class="text-bgray-900 dark:text-white font-semibold font-popins text-4xl mb-4">
+            <div class="text-center max-w-lg px-4 m-auto">
+              <h3 class="text-bgray-900 dark:text-white font-semibold font-popins text-3xl xl:text-4xl mb-4">
                 Facturaci&oacute;n simple y r&aacute;pida
               </h3>
               <p class="text-bgray-600 dark:text-bgray-50 text-sm font-medium leading-relaxed">
-                Facturales te ayuda a crear facturas, gestionar presupuestos y llevar el control de tus ingresos y gastos de forma sencilla.
+                Crea facturas, gestiona presupuestos y controla tus finanzas en un solo lugar.
               </p>
             </div>
           </div>
@@ -383,77 +494,54 @@
           (function() {
             var lPupil = document.getElementById('pupil-left');
             var rPupil = document.getElementById('pupil-right');
-            var lHighlight = document.getElementById('highlight-left');
-            var rHighlight = document.getElementById('highlight-right');
+            var lHL = document.getElementById('highlight-left');
+            var rHL = document.getElementById('highlight-right');
             var eyesOpen = document.getElementById('eyes-open');
             var eyesClosed = document.getElementById('eyes-closed');
             var handsCover = document.getElementById('hands-cover');
-            var armsResting = document.getElementById('arms-resting');
+            var armsRest = document.getElementById('arms-resting');
             var mouth = document.getElementById('mouth');
-
             if (!lPupil || !rPupil) return;
 
-            var maxD = 4;
-            var mx = 0, my = 0;
-            var isPasswordFocus = false;
-            var coverAnim = null;
-
+            var maxD = 3.5, mx = 0, my = 0, pwFocus = false;
             document.addEventListener('mousemove', function(e) { mx = e.clientX; my = e.clientY; });
 
-            function setCoverState(covered) {
-              if (covered === isPasswordFocus) return;
-              isPasswordFocus = covered;
-
-              if (covered) {
-                eyesOpen.style.display = 'none';
-                eyesClosed.style.display = '';
-                handsCover.style.display = '';
-                if (armsResting) armsResting.style.display = 'none';
-                if (mouth) mouth.setAttribute('d', 'M195 44 Q200 46 205 44');
-              } else {
-                eyesOpen.style.display = '';
-                eyesClosed.style.display = 'none';
-                handsCover.style.display = 'none';
-                if (armsResting) armsResting.style.display = '';
-                if (mouth) mouth.setAttribute('d', 'M193 44 Q200 50 207 44');
-              }
+            function setCover(on) {
+              if (on === pwFocus) return;
+              pwFocus = on;
+              eyesOpen.style.display = on ? 'none' : '';
+              eyesClosed.style.display = on ? '' : 'none';
+              handsCover.style.display = on ? '' : 'none';
+              if (armsRest) armsRest.style.display = on ? 'none' : '';
+              if (mouth) mouth.setAttribute('d', on ? 'M215 52 Q220 54 225 52' : 'M212 52 Q220 58 228 52');
             }
 
             function tick() {
-              if (!isPasswordFocus) {
+              if (!pwFocus) {
                 var svg = lPupil.closest('svg');
-                if (svg) {
-                  var rect = svg.getBoundingClientRect();
-                  var cx = rect.left + rect.width * 0.5;
-                  var cy = rect.top + rect.height * 0.1;
-                  var dx = mx - cx;
-                  var dy = my - cy;
-                  var dist = Math.sqrt(dx * dx + dy * dy) || 1;
-                  var ox = (dx / dist) * Math.min(maxD, dist * 0.015);
-                  var oy = (dy / dist) * Math.min(maxD, dist * 0.015);
-                  lPupil.setAttribute('cx', 189 + ox);
-                  lPupil.setAttribute('cy', 31 + oy);
-                  rPupil.setAttribute('cx', 211 + ox);
-                  rPupil.setAttribute('cy', 31 + oy);
-                  if (lHighlight && rHighlight) {
-                    lHighlight.setAttribute('cx', 191 + ox * 0.5);
-                    lHighlight.setAttribute('cy', 29 + oy * 0.5);
-                    rHighlight.setAttribute('cx', 213 + ox * 0.5);
-                    rHighlight.setAttribute('cy', 29 + oy * 0.5);
-                  }
-                }
+                if (!svg) { requestAnimationFrame(tick); return; }
+                var r = svg.getBoundingClientRect();
+                var cx = r.left + r.width * 0.5, cy = r.top + r.height * 0.08;
+                var dx = mx - cx, dy = my - cy;
+                var d = Math.sqrt(dx*dx + dy*dy) || 1;
+                var ox = (dx/d) * Math.min(maxD, d*0.012);
+                var oy = (dy/d) * Math.min(maxD, d*0.012);
+                lPupil.setAttribute('cx', 210+ox); lPupil.setAttribute('cy', 31+oy);
+                rPupil.setAttribute('cx', 230+ox); rPupil.setAttribute('cy', 31+oy);
+                if (lHL) { lHL.setAttribute('cx', 212+ox*0.4); lHL.setAttribute('cy', 28.5+oy*0.4); }
+                if (rHL) { rHL.setAttribute('cx', 232+ox*0.4); rHL.setAttribute('cy', 28.5+oy*0.4); }
               }
               requestAnimationFrame(tick);
             }
             tick();
 
             setTimeout(function() {
-              var passField = document.getElementById('password');
-              if (passField) {
-                passField.addEventListener('focus', function() { setCoverState(true); });
-                passField.addEventListener('blur', function() { setCoverState(false); });
+              var pw = document.getElementById('password');
+              if (pw) {
+                pw.addEventListener('focus', function() { setCover(true); });
+                pw.addEventListener('blur', function() { setCover(false); });
               }
-            }, 500);
+            }, 300);
           })();
           </script>
         </div>
