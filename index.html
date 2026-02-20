@@ -220,13 +220,13 @@
                 <!-- revenue, flow -->
                 <div class="mb-[24px] w-full xl:flex xl:space-x-[24px]">
                   <div
-                    class="flex w-full flex-col rounded-lg bg-white px-[24px] py-3 dark:bg-darkblack-600 xl:w-66"
+                    class="mb-6 xl:mb-0 flex w-full flex-col rounded-lg bg-white px-[24px] py-3 dark:bg-darkblack-600 xl:w-66 overflow-hidden"
                   >
                     <div
-                      class="mb-2 flex items-center justify-between border-b border-bgray-300 pb-2 dark:border-darkblack-400"
+                      class="mb-2 flex flex-wrap items-center justify-between gap-2 border-b border-bgray-300 pb-2 dark:border-darkblack-400"
                     >
                       <h3
-                        class="text-xl font-bold text-bgray-900 dark:text-white sm:text-2xl"
+                        class="text-lg font-bold text-bgray-900 dark:text-white sm:text-2xl"
                       >
                         Mi Evolución
                       </h3>
@@ -309,14 +309,14 @@
                         </div>
                       </div>
                     </div>
-                    <div class="w-full relative h-[300px] xl:h-auto xl:flex-1 xl:min-h-[300px]">
+                    <div class="w-full relative h-[280px] flex-shrink-0 xl:h-auto xl:flex-1 xl:min-h-[300px]">
                       <canvas id="revenueFlow" class="absolute inset-0 w-full h-full"></canvas>
                     </div>
                   </div>
                   <!-- Panel: Objetivos e Ingresos/Gastos reales -->
-                  <div class="mt-6 xl:mt-0 flex-1">
+                  <div class="xl:mt-0 w-full xl:w-auto xl:flex-1">
                     <div class="rounded-lg bg-white dark:bg-darkblack-600 h-full">
-                      <div class="flex items-center justify-between border-b border-bgray-200 dark:border-darkblack-400 px-5 py-3">
+                      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-bgray-200 dark:border-darkblack-400 px-5 py-3">
                         <h3 class="text-lg font-bold text-bgray-900 dark:text-white">Objetivos</h3>
                         <div class="flex items-center gap-2">
                           <div class="date-filter relative">
@@ -396,7 +396,7 @@
                             <button type="button" onclick="editRevenueGoal()" class="text-[10px] font-medium text-success-300 hover:text-success-400 transition">Editar</button>
                           </div>
                           <div class="flex items-end gap-2 mb-2">
-                            <span id="finance-revenue" class="text-2xl font-bold text-bgray-900 dark:text-white" style="font-variant-numeric:tabular-nums;">0,00 €</span>
+                            <span id="finance-revenue" class="text-xl sm:text-2xl font-bold text-bgray-900 dark:text-white" style="font-variant-numeric:tabular-nums;">0,00 €</span>
                             <span class="text-xs text-bgray-500 dark:text-bgray-400 mb-1">de <span id="finance-goal" class="font-semibold text-bgray-700 dark:text-bgray-200">0 €</span></span>
                           </div>
                           <!-- Barra de progreso -->
@@ -672,7 +672,7 @@
                 class="order-1 2xl:order-2 flex w-full flex-col space-x-0 lg:flex-row lg:space-x-6 2xl:w-[400px] 2xl:flex-col 2xl:space-x-0"
               >
                 <div
-                  class="mb-6 w-full rounded-lg bg-white px-[42px] py-8 dark:border dark:border-darkblack-400 dark:bg-darkblack-600 lg:mb-0 lg:w-1/2 2xl:mb-6 2xl:w-full"
+                  class="mb-6 w-full rounded-lg bg-white px-5 sm:px-[42px] py-8 dark:border dark:border-darkblack-400 dark:bg-darkblack-600 lg:mb-0 lg:w-1/2 2xl:mb-6 2xl:w-full"
                 >
                   <!-- Sección: Menú de Acciones Rápidas -->
                   <div class="w-full">
@@ -683,7 +683,7 @@
                     <!-- Botón Crear Factura - Grande y Destacado -->
                     <button
                       onclick="window.location.href='invoices/new.html'"
-                      class="group w-full mb-5 bg-success-300 hover:bg-success-400 rounded-xl py-5 px-6 flex items-center justify-center gap-3 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
+                      class="group w-full mb-4 sm:mb-5 bg-success-300 hover:bg-success-400 rounded-xl py-4 sm:py-5 px-4 sm:px-6 flex items-center justify-center gap-3 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
                     >
                       <div class="flex items-center justify-center">
                         <svg
@@ -728,13 +728,13 @@
                     </button>
 
                     <!-- Grid de Acciones Secundarias -->
-                    <div class="grid grid-cols-3 gap-3">
+                    <div class="grid grid-cols-3 gap-2 sm:gap-3">
                       <!-- Añadir contacto -->
                       <button
                         onclick="window.location.href='users.html'"
-                        class="group flex flex-col items-center justify-center p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-success-300 hover:bg-white dark:bg-darkblack-500 dark:hover:bg-darkblack-400 transition-all duration-300 hover:shadow-md active:scale-95"
+                        class="group flex flex-col items-center justify-center p-2 sm:p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-success-300 hover:bg-white dark:bg-darkblack-500 dark:hover:bg-darkblack-400 transition-all duration-300 hover:shadow-md active:scale-95"
                       >
-                        <div class="flex items-center justify-center w-12 h-12 mb-3 rounded-full bg-blue-50 group-hover:bg-blue-100 transition-colors duration-300">
+                        <div class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 mb-2 sm:mb-3 rounded-full bg-blue-50 group-hover:bg-blue-100 transition-colors duration-300">
                           <svg
                             width="24"
                             height="24"
@@ -772,15 +772,15 @@
                             />
                           </svg>
                         </div>
-                        <span class="text-xs font-semibold text-bgray-900 dark:text-white text-center leading-tight">Añadir contacto</span>
+                        <span class="text-[10px] sm:text-xs font-semibold text-bgray-900 dark:text-white text-center leading-tight">Añadir contacto</span>
                       </button>
 
                       <!-- Añadir gasto -->
                       <button
                         onclick="window.location.href='expenses.html'"
-                        class="group flex flex-col items-center justify-center p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-success-300 hover:bg-white dark:bg-darkblack-500 dark:hover:bg-darkblack-400 transition-all duration-300 hover:shadow-md active:scale-95"
+                        class="group flex flex-col items-center justify-center p-2 sm:p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-success-300 hover:bg-white dark:bg-darkblack-500 dark:hover:bg-darkblack-400 transition-all duration-300 hover:shadow-md active:scale-95"
                       >
-                        <div class="flex items-center justify-center w-12 h-12 mb-3 rounded-full bg-green-50 group-hover:bg-green-100 transition-colors duration-300">
+                        <div class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 mb-2 sm:mb-3 rounded-full bg-green-50 group-hover:bg-green-100 transition-colors duration-300">
                           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <rect x="3" y="6" width="18" height="13" rx="2" stroke="#10B981" stroke-width="2"/>
                             <path d="M3 10H21" stroke="#10B981" stroke-width="2"/>
@@ -789,15 +789,15 @@
                             <path d="M19 15V19M17 17H21" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
                           </svg>
                         </div>
-                        <span class="text-xs font-semibold text-bgray-900 dark:text-white text-center leading-tight">A&ntilde;adir gasto</span>
+                        <span class="text-[10px] sm:text-xs font-semibold text-bgray-900 dark:text-white text-center leading-tight">A&ntilde;adir gasto</span>
                       </button>
 
                       <!-- Crear un presupuesto -->
                       <button
                         onclick="window.location.href='invoices/quote.html'"
-                        class="group flex flex-col items-center justify-center p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-success-300 hover:bg-white dark:bg-darkblack-500 dark:hover:bg-darkblack-400 transition-all duration-300 hover:shadow-md active:scale-95"
+                        class="group flex flex-col items-center justify-center p-2 sm:p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-success-300 hover:bg-white dark:bg-darkblack-500 dark:hover:bg-darkblack-400 transition-all duration-300 hover:shadow-md active:scale-95"
                       >
-                        <div class="flex items-center justify-center w-12 h-12 mb-3 rounded-full transition-colors duration-300" style="background-color: rgba(139,92,246,0.1);" onmouseover="this.style.backgroundColor='rgba(139,92,246,0.25)'" onmouseout="this.style.backgroundColor='rgba(139,92,246,0.1)'">
+                        <div class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 mb-2 sm:mb-3 rounded-full transition-colors duration-300" style="background-color: rgba(139,92,246,0.1);" onmouseover="this.style.backgroundColor='rgba(139,92,246,0.25)'" onmouseout="this.style.backgroundColor='rgba(139,92,246,0.1)'">
                           <svg
                             width="24"
                             height="24"
@@ -842,7 +842,7 @@
                             />
                           </svg>
                         </div>
-                        <span class="text-xs font-semibold text-bgray-900 dark:text-white text-center leading-tight">Crear un presupuesto</span>
+                        <span class="text-[10px] sm:text-xs font-semibold text-bgray-900 dark:text-white text-center leading-tight">Crear presupuesto</span>
                       </button>
                     </div>
                   </div>
