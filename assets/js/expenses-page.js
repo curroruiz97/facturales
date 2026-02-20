@@ -591,8 +591,7 @@ function updatePagination(totalTransactions) {
  * Toggle dropdown de resultados por página
  */
 function toggleExpensesPerPageDropdown() {
-  const dd = document.getElementById('result-filter');
-  if (dd) dd.classList.toggle('hidden');
+  toggleFilterDropdown('result-filter');
 }
 
 /**
@@ -636,9 +635,10 @@ function showTransactionActions(transactionId) {
  * Manejar búsqueda de transacciones
  */
 function handleSearchTransactions() {
-  const searchInput = document.getElementById('transactionSearch');
+  var searchInput = document.getElementById('transactionSearch');
   if (searchInput) {
     currentFilters.search = searchInput.value.trim();
+    updateActiveFilterCount();
     loadTransactions();
   }
 }
@@ -667,6 +667,16 @@ function handleDateFilter(startDate, endDate) {
  */
 function handleTypeFilter(tipo) {
   currentFilters.tipo = tipo;
+
+  var label = document.getElementById('type-filter-label');
+  if (label) {
+    if (tipo === 'ingreso') label.textContent = 'Ingreso';
+    else if (tipo === 'gasto') label.textContent = 'Gasto';
+    else label.textContent = 'Tipo de transacci\u00f3n';
+  }
+
+  closeAllFilterDropdowns();
+  updateActiveFilterCount();
   loadTransactions();
 }
 
@@ -676,11 +686,10 @@ function handleTypeFilter(tipo) {
 function applyCategoryFilter(categoria) {
   currentFilters.categoria = categoria || null;
 
-  // Actualizar label del botón
   var label = document.getElementById('category-filter-label');
   if (label) {
     var labels = {
-      '': 'Todas las categorías',
+      '': 'Todas las categor\u00edas',
       'material_oficina': 'Material de oficina',
       'servicios_profesionales': 'Servicios profesionales',
       'suministros': 'Suministros',
@@ -690,13 +699,11 @@ function applyCategoryFilter(categoria) {
       'otros': 'Otros',
       'factura': 'Factura'
     };
-    label.textContent = labels[categoria] || 'Todas las categorías';
+    label.textContent = labels[categoria] || 'Todas las categor\u00edas';
   }
 
-  // Cerrar dropdown
-  var dd = document.getElementById('category-filter-dropdown');
-  if (dd) dd.classList.add('hidden');
-
+  closeAllFilterDropdowns();
+  updateActiveFilterCount();
   loadTransactions();
 }
 
@@ -707,9 +714,32 @@ function applyFilters() {
   loadTransactions();
 }
 
-/**
- * Limpiar todos los filtros
- */
+var ALL_FILTER_DROPDOWNS = [
+  'category-filter-dropdown',
+  'price-filter',
+  'date-filter',
+  'trans-filter-tb',
+  'result-filter'
+];
+
+function closeAllFilterDropdowns(except) {
+  ALL_FILTER_DROPDOWNS.forEach(function(id) {
+    if (id === except) return;
+    var el = document.getElementById(id);
+    if (el) el.classList.add('hidden');
+  });
+}
+
+function toggleFilterDropdown(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  var willOpen = el.classList.contains('hidden');
+  closeAllFilterDropdowns();
+  if (willOpen) {
+    el.classList.remove('hidden');
+  }
+}
+
 function clearFilters() {
   currentFilters = {
     search: '',
@@ -720,26 +750,70 @@ function clearFilters() {
     tipo: null,
     categoria: null
   };
-  
-  // Reset label de categoría
+
   var catLabel = document.getElementById('category-filter-label');
-  if (catLabel) catLabel.textContent = 'Todas las categorías';
-  
-  // Limpiar inputs
-  const searchInput = document.getElementById('transactionSearch');
+  if (catLabel) catLabel.textContent = 'Todas las categor\u00edas';
+
+  var typeLabel = document.getElementById('type-filter-label');
+  if (typeLabel) typeLabel.textContent = 'Tipo de transacci\u00f3n';
+
+  var priceDisplay = document.getElementById('priceRangeDisplay');
+  if (priceDisplay) priceDisplay.textContent = 'Seleccionar rango';
+  var priceMin = document.getElementById('priceMin');
+  if (priceMin) priceMin.value = '1';
+  var priceMax = document.getElementById('priceMax');
+  if (priceMax) priceMax.value = '10998';
+  var priceSlider = document.getElementById('priceSlider');
+  if (priceSlider) priceSlider.value = '10998';
+
+  var dateDisplay = document.getElementById('dateRangeDisplay');
+  if (dateDisplay) dateDisplay.textContent = 'Seleccionar fechas';
+  var dateFrom = document.getElementById('dateFrom');
+  if (dateFrom) dateFrom.value = '';
+  var dateTo = document.getElementById('dateTo');
+  if (dateTo) dateTo.value = '';
+
+  var searchInput = document.getElementById('transactionSearch');
   if (searchInput) searchInput.value = '';
-  
+
+  closeAllFilterDropdowns();
+  updateActiveFilterCount();
   loadTransactions();
 }
 
-/**
- * Toggle filtro de precio (mostrar/ocultar)
- */
-function togglePriceFilter() {
-  const priceFilter = document.getElementById('price-filter');
-  if (priceFilter) {
-    priceFilter.classList.toggle('hidden');
+function getActiveFilterCount() {
+  var count = 0;
+  if (currentFilters.search) count++;
+  if (currentFilters.minAmount != null || currentFilters.maxAmount != null) count++;
+  if (currentFilters.startDate || currentFilters.endDate) count++;
+  if (currentFilters.tipo) count++;
+  if (currentFilters.categoria) count++;
+  return count;
+}
+
+function updateActiveFilterCount() {
+  var badge = document.getElementById('active-filter-badge');
+  var clearBtn = document.getElementById('clear-filters-btn');
+  var count = getActiveFilterCount();
+  if (badge) {
+    if (count > 0) {
+      badge.textContent = count;
+      badge.classList.remove('hidden');
+    } else {
+      badge.classList.add('hidden');
+    }
   }
+  if (clearBtn) {
+    if (count > 0) {
+      clearBtn.classList.remove('hidden');
+    } else {
+      clearBtn.classList.add('hidden');
+    }
+  }
+}
+
+function togglePriceFilter() {
+  toggleFilterDropdown('price-filter');
 }
 
 /**
@@ -774,59 +848,56 @@ function updatePriceFromSlider() {
  * Aplicar filtro de precio
  */
 function applyPriceFilter() {
-  const priceMin = document.getElementById('priceMin');
-  const priceMax = document.getElementById('priceMax');
-  
+  var priceMin = document.getElementById('priceMin');
+  var priceMax = document.getElementById('priceMax');
+
   if (priceMin && priceMax) {
     handleAmountFilter(
       parseFloat(priceMin.value) || 0,
       parseFloat(priceMax.value) || 10998
     );
   }
-  
-  // Cerrar el filtro
-  togglePriceFilter();
+
+  closeAllFilterDropdowns();
+  updateActiveFilterCount();
 }
 
 /**
  * Toggle filtro de fecha (mostrar/ocultar)
  */
 function toggleDateFilter() {
-  const dateFilter = document.getElementById('date-filter');
-  if (dateFilter) {
-    dateFilter.classList.toggle('hidden');
-  }
+  toggleFilterDropdown('date-filter');
 }
 
 /**
  * Aplicar filtro de fecha
  */
 function applyDateFilter() {
-  const dateFrom = document.getElementById('dateFrom');
-  const dateTo = document.getElementById('dateTo');
-  const display = document.getElementById('dateRangeDisplay');
-  
+  var dateFrom = document.getElementById('dateFrom');
+  var dateTo = document.getElementById('dateTo');
+  var display = document.getElementById('dateRangeDisplay');
+
   if (dateFrom && dateTo) {
-    const from = dateFrom.value;
-    const to = dateTo.value;
-    
+    var from = dateFrom.value;
+    var to = dateTo.value;
+
     if (from || to) {
       handleDateFilter(from, to);
-      
+
       if (display) {
         if (from && to) {
-          display.textContent = `${from} - ${to}`;
+          display.textContent = from + ' - ' + to;
         } else if (from) {
-          display.textContent = `Desde ${from}`;
+          display.textContent = 'Desde ' + from;
         } else if (to) {
-          display.textContent = `Hasta ${to}`;
+          display.textContent = 'Hasta ' + to;
         }
       }
     }
   }
-  
-  // Cerrar el filtro
-  toggleDateFilter();
+
+  closeAllFilterDropdowns();
+  updateActiveFilterCount();
 }
 
 /**
@@ -991,6 +1062,9 @@ window.handleDateFilter = handleDateFilter;
 window.handleTypeFilter = handleTypeFilter;
 window.applyFilters = applyFilters;
 window.clearFilters = clearFilters;
+window.closeAllFilterDropdowns = closeAllFilterDropdowns;
+window.toggleFilterDropdown = toggleFilterDropdown;
+window.updateActiveFilterCount = updateActiveFilterCount;
 window.applyCategoryFilter = applyCategoryFilter;
 window.handleContactAutocomplete = handleContactAutocomplete;
 window.selectContact = selectContact;
@@ -1028,13 +1102,21 @@ document.addEventListener('DOMContentLoaded', () => {
     loadTransactions();
   }, 500);
   
-  // Ocultar autocompletado al hacer click fuera
-  document.addEventListener('click', (e) => {
-    const contactInput = document.getElementById('expense-contact');
-    const resultsDiv = document.getElementById('contact-autocomplete-results');
-    
+  document.addEventListener('click', function(e) {
+    // Cerrar autocompletado de contactos
+    var contactInput = document.getElementById('expense-contact');
+    var resultsDiv = document.getElementById('contact-autocomplete-results');
     if (contactInput && resultsDiv && !contactInput.contains(e.target) && !resultsDiv.contains(e.target)) {
       resultsDiv.classList.add('hidden');
+    }
+
+    // Cerrar dropdowns de filtros al hacer click fuera
+    var filterArea = document.querySelector('.filter-content');
+    var paginationArea = document.querySelector('.pagination-content');
+    var isInsideFilter = filterArea && filterArea.contains(e.target);
+    var isInsidePagination = paginationArea && paginationArea.contains(e.target);
+    if (!isInsideFilter && !isInsidePagination) {
+      closeAllFilterDropdowns();
     }
   });
 });
