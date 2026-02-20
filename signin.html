@@ -224,77 +224,236 @@
           </div>
         </div>
         <!-- Right -->
-        <div class="lg:w-1/2 lg:flex hidden bg-[#F6FAFF] dark:bg-darkblack-600 p-20 relative flex-col items-center justify-center">
-          <div id="login-illustration" class="w-full max-w-sm mx-auto mb-10">
-            <svg viewBox="0 0 300 280" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <!-- Laptop body -->
-              <rect x="50" y="60" width="200" height="140" rx="12" fill="#1D1E24" class="dark:fill-darkblack-400"/>
-              <!-- Screen -->
-              <rect x="62" y="72" width="176" height="108" rx="4" fill="#EC8228" opacity="0.15"/>
-              <!-- Screen content lines -->
-              <rect x="80" y="90" width="80" height="6" rx="3" fill="#EC8228" opacity="0.5"/>
-              <rect x="80" y="104" width="120" height="4" rx="2" fill="#EC8228" opacity="0.3"/>
-              <rect x="80" y="114" width="100" height="4" rx="2" fill="#EC8228" opacity="0.3"/>
-              <rect x="80" y="130" width="60" height="20" rx="6" fill="#EC8228"/>
-              <text x="110" y="144" text-anchor="middle" fill="white" font-size="9" font-weight="bold">Enviar</text>
-              <!-- Keyboard base -->
-              <path d="M30 200 L50 200 L50 200 L250 200 L270 200 L280 220 L20 220 Z" fill="#2A313C" class="dark:fill-darkblack-300"/>
-              <!-- Touchpad -->
-              <rect x="125" y="204" width="50" height="10" rx="3" fill="#3A3F4A"/>
-              <!-- Character body -->
-              <ellipse cx="150" cy="36" rx="28" ry="28" fill="#FFEDD5"/>
-              <!-- Hair -->
-              <path d="M122 28C122 14 134 4 150 4C166 4 178 14 178 28C178 28 176 18 150 18C124 18 122 28 122 28Z" fill="#1D1E24" class="dark:fill-bgray-600"/>
-              <!-- Left eye white -->
-              <ellipse cx="139" cy="34" rx="8" ry="7" fill="white"/>
-              <!-- Right eye white -->
-              <ellipse cx="161" cy="34" rx="8" ry="7" fill="white"/>
-              <!-- Left pupil -->
-              <circle id="pupil-left" cx="139" cy="35" r="3.5" fill="#1D1E24"/>
-              <!-- Right pupil -->
-              <circle id="pupil-right" cx="161" cy="35" r="3.5" fill="#1D1E24"/>
-              <!-- Smile -->
-              <path d="M142 46 Q150 52 158 46" stroke="#C47A5A" stroke-width="2" fill="none" stroke-linecap="round"/>
-              <!-- Blush -->
-              <ellipse cx="132" cy="42" rx="5" ry="3" fill="#FBBF24" opacity="0.25"/>
-              <ellipse cx="168" cy="42" rx="5" ry="3" fill="#FBBF24" opacity="0.25"/>
+        <div class="lg:w-1/2 lg:flex hidden bg-gradient-to-br from-[#F0F4FA] to-[#E8EDF5] dark:from-darkblack-600 dark:to-darkblack-500 p-12 xl:p-20 relative flex-col items-center justify-center overflow-hidden">
+          <div class="absolute top-0 right-0 w-72 h-72 bg-[#EC8228] opacity-[0.04] rounded-full -translate-y-1/2 translate-x-1/2"></div>
+          <div class="absolute bottom-0 left-0 w-56 h-56 bg-[#EC8228] opacity-[0.03] rounded-full translate-y-1/3 -translate-x-1/3"></div>
+
+          <div id="login-illustration" class="w-full max-w-md mx-auto mb-12 relative z-10">
+            <svg viewBox="0 0 400 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="screen-grad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#1a1d23"/>
+                  <stop offset="100%" stop-color="#2a2d35"/>
+                </linearGradient>
+                <linearGradient id="screen-glow" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#EC8228" stop-opacity="0.12"/>
+                  <stop offset="100%" stop-color="#EC8228" stop-opacity="0.04"/>
+                </linearGradient>
+                <filter id="shadow-lg" x="-10%" y="-5%" width="120%" height="130%">
+                  <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000" flood-opacity="0.15"/>
+                </filter>
+                <filter id="shadow-sm" x="-5%" y="-5%" width="110%" height="120%">
+                  <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity="0.1"/>
+                </filter>
+                <clipPath id="screen-clip">
+                  <rect x="78" y="86" width="244" height="142" rx="2"/>
+                </clipPath>
+              </defs>
+
+              <!-- Laptop shadow -->
+              <ellipse cx="200" cy="282" rx="140" ry="8" fill="#000" opacity="0.06"/>
+
+              <!-- Laptop lid -->
+              <g filter="url(#shadow-lg)">
+                <rect x="60" y="68" width="280" height="168" rx="10" fill="url(#screen-grad)"/>
+                <rect x="60.5" y="68.5" width="279" height="167" rx="9.5" stroke="white" stroke-opacity="0.06"/>
+              </g>
+
+              <!-- Camera dot -->
+              <circle cx="200" cy="77" r="2" fill="#3a3f4a"/>
+              <circle cx="200" cy="77" r="0.8" fill="#5a6070"/>
+
+              <!-- Screen area -->
+              <rect x="78" y="86" width="244" height="142" rx="2" fill="url(#screen-glow)"/>
+
+              <!-- Screen UI mockup -->
+              <g clip-path="url(#screen-clip)">
+                <rect x="78" y="86" width="244" height="22" fill="#EC8228" opacity="0.08"/>
+                <circle cx="92" cy="97" r="3" fill="#EC8228" opacity="0.3"/>
+                <rect x="100" y="95" width="40" height="4" rx="2" fill="#EC8228" opacity="0.2"/>
+                <rect x="148" y="95" width="30" height="4" rx="2" fill="#EC8228" opacity="0.15"/>
+
+                <rect x="96" y="122" width="100" height="8" rx="4" fill="#EC8228" opacity="0.35"/>
+                <rect x="96" y="138" width="170" height="5" rx="2.5" fill="#EC8228" opacity="0.15"/>
+                <rect x="96" y="149" width="140" height="5" rx="2.5" fill="#EC8228" opacity="0.12"/>
+                <rect x="96" y="160" width="155" height="5" rx="2.5" fill="#EC8228" opacity="0.10"/>
+
+                <rect x="96" y="178" width="72" height="26" rx="8" fill="#EC8228"/>
+                <text x="132" y="195" text-anchor="middle" fill="white" font-size="10" font-weight="600" font-family="system-ui, sans-serif">Enviar</text>
+
+                <rect x="250" y="122" width="54" height="54" rx="6" fill="#EC8228" opacity="0.08"/>
+                <rect x="262" y="134" width="30" height="30" rx="15" fill="#EC8228" opacity="0.15"/>
+              </g>
+
+              <!-- Laptop base -->
+              <path d="M44 236 L60 236 Q60 236 60 236 L340 236 L356 236 L364 252 Q366 256 362 256 L38 256 Q34 256 36 252 Z" fill="#2a2d35"/>
+              <rect x="165" y="240" width="70" height="8" rx="4" fill="#3a3f4a"/>
+              <path d="M36 256 L364 256" stroke="white" stroke-opacity="0.04"/>
+
+              <!-- Hinge detail -->
+              <rect x="58" y="234" width="284" height="4" rx="1" fill="#1a1d23"/>
+
+              <!-- Character - positioned behind laptop, peeking over -->
+              <g id="character-group">
+                <!-- Neck -->
+                <rect x="189" y="42" width="22" height="14" rx="4" fill="#FDDCB5"/>
+
+                <!-- Head -->
+                <ellipse cx="200" cy="30" rx="34" ry="32" fill="#FDDCB5"/>
+
+                <!-- Hair -->
+                <path d="M166 22C166 6 180 -6 200 -6C220 -6 234 6 234 22C234 22 230 8 200 8C170 8 166 22 166 22Z" fill="#3B2F1E" class="dark:fill-[#4a3d2c]"/>
+                <path d="M166 22C166 20 168 15 172 14C174 20 180 12 186 16C190 8 196 10 200 8C204 10 210 8 214 16C220 12 226 20 228 14C232 15 234 20 234 22" fill="#3B2F1E" class="dark:fill-[#4a3d2c]"/>
+
+                <!-- Ears -->
+                <ellipse cx="166" cy="32" rx="5" ry="7" fill="#F0C9A0"/>
+                <ellipse cx="234" cy="32" rx="5" ry="7" fill="#F0C9A0"/>
+
+                <!-- Eyebrows -->
+                <path id="brow-left" d="M183 18 Q188 14 195 17" stroke="#3B2F1E" stroke-width="2" stroke-linecap="round" fill="none" class="dark:stroke-[#4a3d2c]">
+                  <animate attributeName="d" dur="0.3s" fill="freeze" begin="indefinite"/>
+                </path>
+                <path id="brow-right" d="M205 17 Q212 14 217 18" stroke="#3B2F1E" stroke-width="2" stroke-linecap="round" fill="none" class="dark:stroke-[#4a3d2c]">
+                  <animate attributeName="d" dur="0.3s" fill="freeze" begin="indefinite"/>
+                </path>
+
+                <!-- Eye whites -->
+                <g id="eyes-open">
+                  <ellipse cx="189" cy="30" rx="9" ry="8" fill="white"/>
+                  <ellipse cx="211" cy="30" rx="9" ry="8" fill="white"/>
+                  <ellipse cx="189" cy="30" rx="9" ry="8" stroke="#E0D5C8" stroke-width="0.5" fill="none"/>
+                  <ellipse cx="211" cy="30" rx="9" ry="8" stroke="#E0D5C8" stroke-width="0.5" fill="none"/>
+                  <!-- Pupils -->
+                  <circle id="pupil-left" cx="189" cy="31" r="4.5" fill="#1D1E24"/>
+                  <circle id="pupil-right" cx="211" cy="31" r="4.5" fill="#1D1E24"/>
+                  <!-- Pupil highlights -->
+                  <circle id="highlight-left" cx="191" cy="29" r="1.5" fill="white" opacity="0.9"/>
+                  <circle id="highlight-right" cx="213" cy="29" r="1.5" fill="white" opacity="0.9"/>
+                </g>
+
+                <!-- Closed eyes (hidden by default) -->
+                <g id="eyes-closed" style="display:none;">
+                  <path d="M180 30 Q189 36 198 30" stroke="#3B2F1E" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                  <path d="M202 30 Q211 36 220 30" stroke="#3B2F1E" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                  <path d="M180 31 Q189 26 198 31" stroke="#FDDCB5" stroke-width="2" fill="none"/>
+                  <path d="M202 31 Q211 26 220 31" stroke="#FDDCB5" stroke-width="2" fill="none"/>
+                </g>
+
+                <!-- Hands covering eyes (hidden by default) -->
+                <g id="hands-cover" style="display:none;">
+                  <ellipse cx="189" cy="30" rx="14" ry="10" fill="#FDDCB5"/>
+                  <ellipse cx="211" cy="30" rx="14" ry="10" fill="#FDDCB5"/>
+                  <path d="M175 28 Q177 22 182 24" stroke="#F0C9A0" stroke-width="0.8" fill="none"/>
+                  <path d="M180 26 Q182 21 187 23" stroke="#F0C9A0" stroke-width="0.8" fill="none"/>
+                  <path d="M218 24 Q223 22 225 28" stroke="#F0C9A0" stroke-width="0.8" fill="none"/>
+                  <path d="M213 23 Q218 21 220 26" stroke="#F0C9A0" stroke-width="0.8" fill="none"/>
+                </g>
+
+                <!-- Nose -->
+                <ellipse cx="200" cy="38" rx="2.5" ry="1.5" fill="#E8B894"/>
+
+                <!-- Mouth -->
+                <path id="mouth" d="M193 44 Q200 50 207 44" stroke="#C47A5A" stroke-width="2" fill="none" stroke-linecap="round"/>
+
+                <!-- Blush -->
+                <ellipse cx="179" cy="40" rx="6" ry="3" fill="#FFB366" opacity="0.2"/>
+                <ellipse cx="221" cy="40" rx="6" ry="3" fill="#FFB366" opacity="0.2"/>
+              </g>
+
+              <!-- Arms resting on laptop (visible when not covering eyes) -->
+              <g id="arms-resting">
+                <path d="M140 236 Q155 220 170 230 Q180 236 180 236" fill="#FDDCB5" stroke="#F0C9A0" stroke-width="0.5"/>
+                <path d="M260 236 Q245 220 230 230 Q220 236 220 236" fill="#FDDCB5" stroke="#F0C9A0" stroke-width="0.5"/>
+              </g>
             </svg>
           </div>
-          <div>
+
+          <div class="relative z-10">
             <div class="text-center max-w-lg px-1.5 m-auto">
               <h3 class="text-bgray-900 dark:text-white font-semibold font-popins text-4xl mb-4">
                 Facturaci&oacute;n simple y r&aacute;pida
               </h3>
-              <p class="text-bgray-600 dark:text-bgray-50 text-sm font-medium">
+              <p class="text-bgray-600 dark:text-bgray-50 text-sm font-medium leading-relaxed">
                 Facturales te ayuda a crear facturas, gestionar presupuestos y llevar el control de tus ingresos y gastos de forma sencilla.
               </p>
             </div>
           </div>
+
           <script>
           (function() {
             var lPupil = document.getElementById('pupil-left');
             var rPupil = document.getElementById('pupil-right');
+            var lHighlight = document.getElementById('highlight-left');
+            var rHighlight = document.getElementById('highlight-right');
+            var eyesOpen = document.getElementById('eyes-open');
+            var eyesClosed = document.getElementById('eyes-closed');
+            var handsCover = document.getElementById('hands-cover');
+            var armsResting = document.getElementById('arms-resting');
+            var mouth = document.getElementById('mouth');
+
             if (!lPupil || !rPupil) return;
-            var maxD = 3;
-            var raf = null;
+
+            var maxD = 4;
             var mx = 0, my = 0;
+            var isPasswordFocus = false;
+            var coverAnim = null;
+
             document.addEventListener('mousemove', function(e) { mx = e.clientX; my = e.clientY; });
+
+            function setCoverState(covered) {
+              if (covered === isPasswordFocus) return;
+              isPasswordFocus = covered;
+
+              if (covered) {
+                eyesOpen.style.display = 'none';
+                eyesClosed.style.display = '';
+                handsCover.style.display = '';
+                if (armsResting) armsResting.style.display = 'none';
+                if (mouth) mouth.setAttribute('d', 'M195 44 Q200 46 205 44');
+              } else {
+                eyesOpen.style.display = '';
+                eyesClosed.style.display = 'none';
+                handsCover.style.display = 'none';
+                if (armsResting) armsResting.style.display = '';
+                if (mouth) mouth.setAttribute('d', 'M193 44 Q200 50 207 44');
+              }
+            }
+
             function tick() {
-              var rect = lPupil.closest('svg').getBoundingClientRect();
-              var cx = rect.left + rect.width / 2;
-              var cy = rect.top + rect.height * 0.13;
-              var dx = mx - cx;
-              var dy = my - cy;
-              var dist = Math.sqrt(dx * dx + dy * dy) || 1;
-              var ox = (dx / dist) * Math.min(maxD, dist * 0.02);
-              var oy = (dy / dist) * Math.min(maxD, dist * 0.02);
-              lPupil.setAttribute('cx', 139 + ox);
-              lPupil.setAttribute('cy', 35 + oy);
-              rPupil.setAttribute('cx', 161 + ox);
-              rPupil.setAttribute('cy', 35 + oy);
-              raf = requestAnimationFrame(tick);
+              if (!isPasswordFocus) {
+                var svg = lPupil.closest('svg');
+                if (svg) {
+                  var rect = svg.getBoundingClientRect();
+                  var cx = rect.left + rect.width * 0.5;
+                  var cy = rect.top + rect.height * 0.1;
+                  var dx = mx - cx;
+                  var dy = my - cy;
+                  var dist = Math.sqrt(dx * dx + dy * dy) || 1;
+                  var ox = (dx / dist) * Math.min(maxD, dist * 0.015);
+                  var oy = (dy / dist) * Math.min(maxD, dist * 0.015);
+                  lPupil.setAttribute('cx', 189 + ox);
+                  lPupil.setAttribute('cy', 31 + oy);
+                  rPupil.setAttribute('cx', 211 + ox);
+                  rPupil.setAttribute('cy', 31 + oy);
+                  if (lHighlight && rHighlight) {
+                    lHighlight.setAttribute('cx', 191 + ox * 0.5);
+                    lHighlight.setAttribute('cy', 29 + oy * 0.5);
+                    rHighlight.setAttribute('cx', 213 + ox * 0.5);
+                    rHighlight.setAttribute('cy', 29 + oy * 0.5);
+                  }
+                }
+              }
+              requestAnimationFrame(tick);
             }
             tick();
+
+            setTimeout(function() {
+              var passField = document.getElementById('password');
+              if (passField) {
+                passField.addEventListener('focus', function() { setCoverState(true); });
+                passField.addEventListener('blur', function() { setCoverState(false); });
+              }
+            }, 500);
           })();
           </script>
         </div>
