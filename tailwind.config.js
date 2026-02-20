@@ -35,7 +35,7 @@ module.exports = {
           700: "#151515",
         },
 
-        // ✅ BANKCO usa "success" como color de marca en toda la UI.
+        // ✅ FACTURALES usa "success" como color de marca en toda la UI.
         // Lo remapeamos a NARANJA (#ec8228).
         success: {
           50: "#FFF7ED",

@@ -27,8 +27,8 @@
             class="w-full px-6 pb-6 pt-[100px] sm:pt-[156px] xl:px-12 xl:pb-12"
           >
             <!-- write your code here-->
-            <div class="2xl:flex 2xl:space-x-[48px]">
-              <section class="mb-6 2xl:mb-0 2xl:flex-1">
+            <div class="flex flex-col 2xl:flex-row 2xl:space-x-[48px]">
+              <section class="order-2 2xl:order-1 mb-6 2xl:mb-0 2xl:flex-1">
                 <!-- total widget-->
                 <div class="mb-[24px] w-full">
                   <div class="grid grid-cols-1 gap-[24px] lg:grid-cols-3">
@@ -291,30 +291,30 @@
                               onclick="setRevenueRange('q2'); dateFilterAction('#date-filter-body')"
                               class="cursor-pointer whitespace-nowrap px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
                             >
-                              2º Trimestre
+                              2<sup>o</sup> Trimestre
                             </li>
                             <li
                               onclick="setRevenueRange('q3'); dateFilterAction('#date-filter-body')"
                               class="cursor-pointer whitespace-nowrap px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
                             >
-                              3er Trimestre
+                              3<sup>er</sup> Trimestre
                             </li>
                             <li
                               onclick="setRevenueRange('q4'); dateFilterAction('#date-filter-body')"
                               class="cursor-pointer whitespace-nowrap px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
                             >
-                              4º Trimestre
+                              4<sup>o</sup> Trimestre
                             </li>
                           </ul>
                         </div>
                       </div>
                     </div>
-                    <div class="w-full flex-1 relative min-h-[300px]">
+                    <div class="w-full relative h-[300px] xl:h-auto xl:flex-1 xl:min-h-[300px]">
                       <canvas id="revenueFlow" class="absolute inset-0 w-full h-full"></canvas>
                     </div>
                   </div>
                   <!-- Panel: Objetivos e Ingresos/Gastos reales -->
-                  <div class="hidden flex-1 xl:block">
+                  <div class="mt-6 xl:mt-0 flex-1">
                     <div class="rounded-lg bg-white dark:bg-darkblack-600 h-full">
                       <div class="flex items-center justify-between border-b border-bgray-200 dark:border-darkblack-400 px-5 py-3">
                         <h3 class="text-lg font-bold text-bgray-900 dark:text-white">Objetivos</h3>
@@ -369,19 +369,19 @@
                                   onclick="setFinancePeriod('q2'); dateFilterAction('#finance-filter-body')"
                                   class="cursor-pointer whitespace-nowrap px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
                                 >
-                                  2º Trimestre
+                                  2<sup>o</sup> Trimestre
                                 </li>
                                 <li
                                   onclick="setFinancePeriod('q3'); dateFilterAction('#finance-filter-body')"
                                   class="cursor-pointer whitespace-nowrap px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
                                 >
-                                  3er Trimestre
+                                  3<sup>er</sup> Trimestre
                                 </li>
                                 <li
                                   onclick="setFinancePeriod('q4'); dateFilterAction('#finance-filter-body')"
                                   class="cursor-pointer whitespace-nowrap px-5 py-2 text-sm font-semibold text-bgray-900 hover:bg-bgray-100 dark:text-white hover:dark:bg-darkblack-600"
                                 >
-                                  4º Trimestre
+                                  4<sup>o</sup> Trimestre
                                 </li>
                               </ul>
                             </div>
@@ -669,7 +669,7 @@
                 </div>
               </section>
               <section
-                class="flex w-full flex-col space-x-0 lg:flex-row lg:space-x-6 2xl:w-[400px] 2xl:flex-col 2xl:space-x-0"
+                class="order-1 2xl:order-2 flex w-full flex-col space-x-0 lg:flex-row lg:space-x-6 2xl:w-[400px] 2xl:flex-col 2xl:space-x-0"
               >
                 <div
                   class="mb-6 w-full rounded-lg bg-white px-[42px] py-8 dark:border dark:border-darkblack-400 dark:bg-darkblack-600 lg:mb-0 lg:w-1/2 2xl:mb-6 2xl:w-full"
@@ -775,43 +775,21 @@
                         <span class="text-xs font-semibold text-bgray-900 dark:text-white text-center leading-tight">Añadir contacto</span>
                       </button>
 
-                      <!-- Subir un gasto -->
+                      <!-- Añadir gasto -->
                       <button
                         onclick="window.location.href='expenses.html'"
                         class="group flex flex-col items-center justify-center p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-success-300 hover:bg-white dark:bg-darkblack-500 dark:hover:bg-darkblack-400 transition-all duration-300 hover:shadow-md active:scale-95"
                       >
                         <div class="flex items-center justify-center w-12 h-12 mb-3 rounded-full bg-green-50 group-hover:bg-green-100 transition-colors duration-300">
-                          <svg
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15"
-                              stroke="#10B981"
-                              stroke-width="2"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                            <path
-                              d="M17 8L12 3L7 8"
-                              stroke="#10B981"
-                              stroke-width="2"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                            <path
-                              d="M12 3V15"
-                              stroke="#10B981"
-                              stroke-width="2"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="3" y="6" width="18" height="13" rx="2" stroke="#10B981" stroke-width="2"/>
+                            <path d="M3 10H21" stroke="#10B981" stroke-width="2"/>
+                            <path d="M7 15H13" stroke="#10B981" stroke-width="2" stroke-linecap="round"/>
+                            <circle cx="19" cy="17" r="4" fill="#10B981"/>
+                            <path d="M19 15V19M17 17H21" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
                           </svg>
                         </div>
-                        <span class="text-xs font-semibold text-bgray-900 dark:text-white text-center leading-tight">Subir un gasto</span>
+                        <span class="text-xs font-semibold text-bgray-900 dark:text-white text-center leading-tight">A&ntilde;adir gasto</span>
                       </button>
 
                       <!-- Crear un presupuesto -->
@@ -1336,10 +1314,10 @@
       // Rangos (Año / Trimestres)
       const revenueRanges = {
         year: { label: "Año Natural", from: 0, to: 12 },
-        q1:   { label: "1er Trimestre", from: 0, to: 3  },
-        q2:   { label: "2º Trimestre", from: 3, to: 6  },
-        q3:   { label: "3er Trimestre", from: 6, to: 9  },
-        q4:   { label: "4º Trimestre", from: 9, to: 12 },
+        q1:   { label: "1<sup>er</sup> Trimestre", from: 0, to: 3  },
+        q2:   { label: "2<sup>o</sup> Trimestre", from: 3, to: 6  },
+        q3:   { label: "3<sup>er</sup> Trimestre", from: 6, to: 9  },
+        q4:   { label: "4<sup>o</sup> Trimestre", from: 9, to: 12 },
       };
 
       function buildRevenueDataSets(from, to) {
@@ -1465,7 +1443,7 @@
 
         // Texto del botón
         const labelEl = document.getElementById("revenue-range-label");
-        if (labelEl) labelEl.textContent = r.label;
+        if (labelEl) labelEl.innerHTML = r.label;
 
         // Labels del eje X
         revenueFlow.data.labels = monthFull.slice(r.from, r.to);
@@ -2655,16 +2633,16 @@
       
       const financePeriodLabels = {
         year: 'Año Natural',
-        q1: '1er Trimestre',
-        q2: '2º Trimestre',
-        q3: '3er Trimestre',
-        q4: '4º Trimestre'
+        q1: '1<sup>er</sup> Trimestre',
+        q2: '2<sup>o</sup> Trimestre',
+        q3: '3<sup>er</sup> Trimestre',
+        q4: '4<sup>o</sup> Trimestre'
       };
 
       window.setFinancePeriod = function(period) {
         window.currentFinancePeriod = period;
         const labelEl = document.getElementById('finance-range-label');
-        if (labelEl) labelEl.textContent = financePeriodLabels[period] || financePeriodLabels.year;
+        if (labelEl) labelEl.innerHTML = financePeriodLabels[period] || financePeriodLabels.year;
         loadFinancePanel();
       };
 

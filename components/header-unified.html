@@ -35,6 +35,7 @@
     <!--              page-title-->
     <div>
       <h3
+        id="page-title"
         class="text-xl font-bold text-bgray-900 dark:text-bgray-50 lg:text-3xl lg:leading-[36.4px]"
       >
         Panel de control
@@ -43,63 +44,16 @@
     <!--              search-bar-->
     <div class="searchbar-wrapper">
       <div
-        class="px flex h-[56px] w-[300px] items-center justify-between rounded-lg border border-transparent bg-bgray-50 px-4 focus-within:border-success-300 dark:bg-darkblack-500 lg:w-[400px]"
+        class="px flex h-[56px] w-[300px] items-center rounded-lg border border-transparent bg-bgray-50 px-4 focus-within:border-success-300 dark:bg-darkblack-500 lg:w-[400px]"
       >
-        <div class="flex w-full items-center space-x-3.5">
-          <span>
-            <svg
-              class="stroke-bgray-900 dark:stroke-bgray-50"
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <circle
-                cx="9.78639"
-                cy="9.78602"
-                r="8.23951"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M15.5176 15.9447L18.7479 19.1667"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </span>
-          <label for="search" class="w-full">
-            <input
-              type="text"
-              id="search"
-              placeholder="Buscar..."
-              class="search-input w-full border-none bg-bgray-50 bg-none px-0 text-sm tracking-wide text-bgray-600 placeholder:text-sm placeholder:font-semibold focus:outline-none focus:ring-0 dark:bg-darkblack-500 dark:placeholder:text-bgray-500"
-            />
-          </label>
-        </div>
-        <div class="flex items-center space-x-[6px]">
-          <span>
-            <svg
-              class="stroke-bgray-900 dark:stroke-gray-300"
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M5.975 12.3875C5.975 12.8548 5.83644 13.3115 5.57685 13.7C5.31725 14.0885 4.94828 14.3914 4.51659 14.5702C4.0849 14.749 3.60988 14.7958 3.1516 14.7046C2.69332 14.6134 2.27236 14.3884 1.94196 14.058C1.61156 13.7276 1.38655 13.3067 1.2954 12.8484C1.20424 12.3901 1.25102 11.9151 1.42984 11.4834C1.60865 11.0517 1.91146 10.6827 2.29997 10.4232C2.68848 10.1636 3.14524 10.025 3.6125 10.025H12.3875C12.8548 10.025 13.3115 10.1636 13.7 10.4232C14.0885 10.6827 14.3914 11.0517 14.5702 11.4834C14.749 11.9151 14.7958 12.3901 14.7046 12.8484C14.6134 13.3067 14.3884 13.7276 14.058 14.058C13.7276 14.3884 13.3067 14.6134 12.8484 14.7046C12.3901 14.7958 11.9151 14.749 11.4834 14.5702C11.0517 14.3914 10.6827 14.0885 10.4232 13.7C10.1636 13.3115 10.025 12.8548 10.025 12.3875V3.6125C10.025 3.14524 10.1636 2.68848 10.4232 2.29997C10.6827 1.91146 11.0517 1.60865 11.4834 1.42984C11.9151 1.25102 12.3901 1.20424 12.8484 1.2954C13.3067 1.38655 13.7276 1.61156 14.058 1.94196C14.3884 2.27236 14.6134 2.69332 14.7046 3.1516C14.7958 3.60988 14.749 4.0849 14.5702 4.51659C14.3914 4.94828 14.0885 5.31725 13.7 5.57685C13.3115 5.83644 12.8548 5.975 12.3875 5.975H3.6125C3.14524 5.975 2.68848 5.83644 2.29997 5.57685C1.91146 5.31725 1.60865 4.94828 1.42984 4.51659C1.25102 4.0849 1.20424 3.60988 1.2954 3.1516C1.38655 2.69332 1.61156 2.27236 1.94196 1.94196C2.27236 1.61156 2.69332 1.38655 3.1516 1.2954C3.60988 1.20424 4.0849 1.25102 4.51659 1.42984C4.94828 1.60865 5.31725 1.91146 5.57685 2.29997C5.83644 2.68848 5.975 3.14524 5.975 3.6125V12.3875Z"
-                stroke-width="1.5"
-              />
-            </svg>
-          </span>
-          <span class="text-base text-bgray-900 dark:text-bgray-300"
-            >K</span
-          >
-        </div>
+        <label for="search" class="w-full">
+          <input
+            type="text"
+            id="search"
+            placeholder="Buscar..."
+            class="search-input w-full border-none bg-bgray-50 bg-none px-0 text-sm tracking-wide text-bgray-600 placeholder:text-sm placeholder:font-semibold focus:outline-none focus:ring-0 dark:bg-darkblack-500 dark:text-white dark:placeholder:text-bgray-500"
+          />
+        </label>
       </div>
     </div>
     <!--  quick access-->
@@ -375,7 +329,7 @@
                   </a>
                 </li>
                 <li class="w-full">
-                  <a href="/messages.html">
+                  <a href="/support-ticket.html">
                     <div
                       class="flex items-center space-x-[18px] rounded-lg p-[14px] text-bgray-600 hover:bg-bgray-100 hover:text-bgray-900 dark:text-bgray-300 dark:hover:bg-darkblack-500"
                     >
@@ -390,16 +344,17 @@
                             xmlns="http://www.w3.org/2000/svg"
                           >
                             <path
-                              d="M2 12V7C2 4.79086 3.79086 3 6 3H18C20.2091 3 22 4.79086 22 7V17C22 19.2091 20.2091 21 18 21H8M6 8L9.7812 10.5208C11.1248 11.4165 12.8752 11.4165 14.2188 10.5208L18 8M2 15H8M2 18H8"
+                              d="M12 6V10M12 14V14.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z"
                               stroke-width="1.5"
                               stroke-linecap="round"
+                              stroke-linejoin="round"
                             />
                           </svg>
                         </span>
                       </div>
                       <div class="flex-1">
                         <span class="text-sm font-semibold"
-                          >Bandeja de entrada</span
+                          >Soporte</span
                         >
                       </div>
                     </div>
@@ -442,66 +397,70 @@
             <div>
               <ul>
                 <li class="w-full">
-                  <div
-                    class="flex items-center space-x-[18px] rounded-lg p-[14px] text-bgray-600 dark:text-bgray-300"
-                  >
-                    <div class="w-[20px]">
-                      <span>
-                        <svg
-                          class="stroke-bgray-900 dark:stroke-gray-300"
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
+                  <a href="/settings.html">
+                    <div
+                      class="flex items-center space-x-[18px] rounded-lg p-[14px] text-bgray-600 hover:bg-bgray-100 hover:text-bgray-900 dark:text-bgray-300 dark:hover:bg-darkblack-500"
+                    >
+                      <div class="w-[20px]">
+                        <span>
+                          <svg
+                            class="stroke-bgray-900 dark:stroke-gray-300"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M20.8333 9.83337C21.0101 10.9003 21.0101 11.9916 20.8333 13.0586M3.16675 9.83337C2.98993 10.9003 2.98993 11.9916 3.16675 13.0586"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                            />
+                            <path
+                              d="M14.9217 4.33341C13.9664 4.11437 12.985 4.00098 12 4.00098C7.58169 4.00098 4 7.58267 4 12.001C4 16.4193 7.58169 20.001 12 20.001C16.4183 20.001 20 16.4193 20 12.001C20 11.0159 19.8866 10.0346 19.6676 9.07928"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                            />
+                          </svg>
+                        </span>
+                      </div>
+                      <div class="flex-1">
+                        <span class="text-sm font-semibold"
+                          >Configuración</span
                         >
-                          <path
-                            d="M20.8333 9.83337C21.0101 10.9003 21.0101 11.9916 20.8333 13.0586M3.16675 9.83337C2.98993 10.9003 2.98993 11.9916 3.16675 13.0586"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                          />
-                          <path
-                            d="M14.9217 4.33341C13.9664 4.11437 12.985 4.00098 12 4.00098C7.58169 4.00098 4 7.58267 4 12.001C4 16.4193 7.58169 20.001 12 20.001C16.4183 20.001 20 16.4193 20 12.001C20 11.0159 19.8866 10.0346 19.6676 9.07928"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                          />
-                        </svg>
-                      </span>
+                      </div>
                     </div>
-                    <div class="flex-1">
-                      <span class="text-sm font-semibold"
-                        >Configuraciones</span
-                      >
-                    </div>
-                  </div>
+                  </a>
                 </li>
                 <li class="w-full">
-                  <div
-                    class="flex items-center space-x-[18px] rounded-lg p-[14px] text-bgray-600 dark:text-bgray-300"
-                  >
-                    <div class="w-[20px]">
-                      <span>
-                        <svg
-                          class="stroke-bgray-900 dark:stroke-gray-300"
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M12 6V10M12 14V14.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                        </svg>
-                      </span>
+                  <a href="/users.html">
+                    <div
+                      class="flex items-center space-x-[18px] rounded-lg p-[14px] text-bgray-600 hover:bg-bgray-100 hover:text-bgray-900 dark:text-bgray-300 dark:hover:bg-darkblack-500"
+                    >
+                      <div class="w-[20px]">
+                        <span>
+                          <svg
+                            class="stroke-bgray-900 dark:stroke-gray-300"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M12 6V10M12 14V14.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                          </svg>
+                        </span>
+                      </div>
+                      <div class="flex-1">
+                        <span class="text-sm font-semibold">Contactos</span>
+                      </div>
                     </div>
-                    <div class="flex-1">
-                      <span class="text-sm font-semibold">Usuarios</span>
-                    </div>
-                  </div>
+                  </a>
                 </li>
               </ul>
             </div>
@@ -661,7 +620,7 @@
                   </a>
                 </li>
                 <li class="w-full">
-                  <a href="/messages.html">
+                  <a href="/support-ticket.html">
                     <div
                       class="flex items-center space-x-[18px] rounded-lg p-[14px] text-bgray-600 hover:bg-bgray-100 hover:text-bgray-900 dark:text-bgray-300 dark:hover:bg-darkblack-500"
                     >
@@ -676,16 +635,17 @@
                             xmlns="http://www.w3.org/2000/svg"
                           >
                             <path
-                              d="M2 12V7C2 4.79086 3.79086 3 6 3H18C20.2091 3 22 4.79086 22 7V17C22 19.2091 20.2091 21 18 21H8M6 8L9.7812 10.5208C11.1248 11.4165 12.8752 11.4165 14.2188 10.5208L18 8M2 15H8M2 18H8"
+                              d="M12 6V10M12 14V14.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z"
                               stroke-width="1.5"
                               stroke-linecap="round"
+                              stroke-linejoin="round"
                             />
                           </svg>
                         </span>
                       </div>
                       <div class="flex-1">
                         <span class="text-sm font-semibold"
-                          >Bandeja de entrada</span
+                          >Soporte</span
                         >
                       </div>
                     </div>

@@ -7,7 +7,7 @@
       content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
     />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Configuración - BankCo</title>
+    <title>Configuración - Facturales</title>
     <link rel="stylesheet" href="./assets/css/font-awesome-all.min.css" />
     <link rel="stylesheet" href="./assets/css/slick.css" />
     <link rel="stylesheet" href="./assets/css/aos.css" />
@@ -382,6 +382,7 @@
                       </div>
                     </div>
                     <button
+                      onclick="window.location.href='support-ticket.html?subject=Verificaci%C3%B3n+de+identidad'"
                       class="mt-4 w-full rounded-lg bg-success-300 py-3 text-xs font-bold text-white transition-all hover:bg-success-400"
                     >
                       Verificar identidad
@@ -414,7 +415,8 @@
                               <input
                                 type="text"
                                 id="nombre-fiscal"
-                                class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white"
+                                disabled
+                                class="h-14 rounded-lg border-0 bg-bgray-200 dark:bg-darkblack-400 p-4 text-bgray-600 dark:text-bgray-300 cursor-not-allowed"
                                 name="nombre-fiscal"
                               />
                             </div>
@@ -601,7 +603,13 @@
                           class="hidden"
                         />
                         <div class="relative m-auto h-40 w-40 text-center">
-                          <img id="profile-image-preview" src="assets/images/avatar/profile.png" alt="" class="w-full h-full object-cover rounded-lg" />
+                          <img id="profile-image-preview" alt="" class="w-full h-full object-cover rounded-lg hidden" />
+                          <div id="profile-image-placeholder" class="w-full h-full rounded-lg bg-bgray-100 dark:bg-darkblack-500 flex items-center justify-center">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <circle cx="12" cy="8" r="4" stroke="#A0AEC0" stroke-width="1.5"/>
+                              <path d="M5 20C5 16.134 8.13401 13 12 13C15.866 13 19 16.134 19 20" stroke="#A0AEC0" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                          </div>
                           <button type="button" id="profile-image-button" class="absolute bottom-1 right-4">
                             <svg
                               width="29"
@@ -1476,7 +1484,7 @@
                             >
                             <span
                               class="text-left text-base font-medium text-bgray-700 dark:text-bgray-50"
-                              >BankCo.</span
+                              >Facturales.</span
                             >
                           </li>
                           <li class="flex justify-between">
@@ -3065,6 +3073,9 @@
           const reader = new FileReader();
           reader.onload = (e) => {
             profileImagePreview.src = e.target.result;
+            profileImagePreview.classList.remove('hidden');
+            const placeholder = document.getElementById('profile-image-placeholder');
+            if (placeholder) placeholder.classList.add('hidden');
           };
           reader.readAsDataURL(file);
           
@@ -3106,6 +3117,9 @@
             // Cargar imagen de perfil si existe
             if (data.profile_image_url) {
               profileImagePreview.src = data.profile_image_url;
+              profileImagePreview.classList.remove('hidden');
+              const placeholder = document.getElementById('profile-image-placeholder');
+              if (placeholder) placeholder.classList.add('hidden');
             }
 
             // Cargar logo de factura desde Supabase y sincronizar con localStorage
@@ -3138,7 +3152,6 @@
           e.preventDefault();
           hideMessages();
 
-          const nombreFiscal = document.getElementById('nombre-fiscal').value.trim();
           const telefono = document.getElementById('telefono').value.trim();
           const direccionFacturacion = document.getElementById('direccion-facturacion').value.trim();
           const ciudad = document.getElementById('ciudad').value.trim();
@@ -3147,12 +3160,6 @@
           const pais = document.getElementById('pais').value.trim();
           const sector = document.getElementById('sector').value;
           const brandColor = brandColorHexInput.value.trim();
-
-          // ========== VALIDACIONES OBLIGATORIAS ==========
-          if (!nombreFiscal) {
-            showError('El nombre fiscal es obligatorio');
-            return;
-          }
 
           if (!telefono) {
             showError('El teléfono es obligatorio');
@@ -3201,7 +3208,6 @@
 
           try {
             const updates = {
-              nombre_fiscal: nombreFiscal,
               telefono: telefono,
               direccion_facturacion: direccionFacturacion,
               ciudad: ciudad,

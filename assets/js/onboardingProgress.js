@@ -330,7 +330,7 @@ function createStepHTML(step, isLast) {
     : 'bg-white border-2 border-bgray-300 shadow-sm';
 
   const actionHtml = completed
-    ? `<span class="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-info-600 bg-info-50 border border-info-200 dark:bg-info-900/20 dark:text-info-400 dark:border-info-800 rounded-lg">
+    ? `<span class="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-info-600 bg-info-50 border border-info-200 dark:bg-info-900/20 dark:text-white dark:border-info-800 rounded-lg">
          Completado
        </span>`
     : `<button onclick="location.href='${buttonUrl}'" class="inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-warning-300 hover:bg-warning-400 rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md">

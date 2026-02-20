@@ -7,7 +7,7 @@
       content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
     />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>BankCo - Transacciones</title>
+    <title>Facturales - Transacciones</title>
     <link rel="stylesheet" href="./assets/css/slick.css" />
     <link rel="stylesheet" href="./assets/css/aos.css" />
     <link rel="stylesheet" href="./assets/css/flatpickr.min.css" />
@@ -27,13 +27,13 @@
             class="w-full px-6 pb-6 pt-[100px] sm:pt-[156px] xl:px-[48px] xl:pb-[48px]"
           >
             <!-- write your code here-->
-            <div class="2xl:flex 2xl:space-x-[48px]">
-              <section class="mb-6 2xl:mb-0 2xl:flex-1">
+            <div class="flex flex-col 2xl:flex-row 2xl:space-x-[48px]">
+              <section class="order-2 2xl:order-1 mb-6 2xl:mb-0 2xl:flex-1">
                 <!--list table-->
                 <div
                   class="w-full rounded-lg bg-white px-[24px] py-[20px] dark:bg-darkblack-600"
                 >
-                  <!-- Título de la sección Transacciones -->
+                  <!-- TÃ­tulo de la secciÃ³n Transacciones -->
                   <div class="mb-6 flex items-center justify-between">
                     <h3 class="text-2xl font-bold text-bgray-900 dark:text-white">
                       Transacciones
@@ -77,7 +77,7 @@
                             <input
                               type="text"
                               id="transactionSearch"
-                              placeholder="Buscar por contacto o concepto..."
+                              placeholder="Buscar..."
                               class="search-input w-full border-none bg-bgray-100 px-0 text-sm tracking-wide text-bgray-600 placeholder:text-sm placeholder:font-medium placeholder:text-bgray-500 focus:outline-none focus:ring-0 dark:bg-darkblack-500 dark:text-white"
                               oninput="handleSearchTransactions()"
                             />
@@ -87,12 +87,12 @@
                     </div>
                     <div class="filter-content w-full">
                       <div class="grid grid-cols-1 gap-4 lg:grid-cols-4">
-                        <!-- Filtro Categoría -->
+                        <!-- Filtro CategorÃ­a -->
                         <div class="w-full">
                           <p
                             class="mb-2 text-base font-bold leading-[24px] text-bgray-900 dark:text-white"
                           >
-                            Categoría
+                            CategorÃ­a
                           </p>
                           <div class="relative h-[56px] w-full">
                             <button
@@ -101,7 +101,7 @@
                               id="category-filter-btn"
                               class="relative flex h-full w-full items-center justify-between rounded-lg bg-bgray-100 px-4 dark:bg-darkblack-500"
                             >
-                              <span id="category-filter-label" class="text-base text-bgray-500">Todas las categorías</span>
+                              <span id="category-filter-label" class="text-base text-bgray-500">Todas las categorÃ­as</span>
                               <span>
                                 <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
                                   <path d="M5.58203 8.3186L10.582 13.3186L15.582 8.3186" stroke="#A0AEC0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -171,7 +171,7 @@
                               <div class="mb-6 grid grid-cols-2 gap-4">
                                 <div>
                                   <label class="mb-2 block text-sm font-medium text-bgray-600 dark:text-bgray-400">
-                                    Desde (€)
+                                    Desde (â‚¬)
                                   </label>
                                   <input
                                     type="number"
@@ -184,7 +184,7 @@
                                 </div>
                                 <div>
                                   <label class="mb-2 block text-sm font-medium text-bgray-600 dark:text-bgray-400">
-                                    Hasta (€)
+                                    Hasta (â‚¬)
                                   </label>
                                   <input
                                     type="number"
@@ -220,7 +220,7 @@
                           </div>
                         </div>
                         
-                        <!-- Filtro Fecha de transacciones (sin pestaña Flexible) -->
+                        <!-- Filtro Fecha de transacciones (sin pestaÃ±a Flexible) -->
                         <div class="w-full">
                           <p
                             class="mb-2 text-base font-bold leading-[24px] text-bgray-900 dark:text-white"
@@ -276,7 +276,7 @@
                               id="date-filter"
                               class="absolute right-0 top-[64px] z-20 hidden w-full overflow-hidden rounded-lg bg-white shadow-xl dark:bg-darkblack-500 lg:w-[400px]"
                             >
-                              <!-- Solo contenido de Fecha (sin pestañas) -->
+                              <!-- Solo contenido de Fecha (sin pestaÃ±as) -->
                               <div class="p-6">
                                 <h4 class="mb-4 text-lg font-bold text-bgray-900 dark:text-white">
                                   Fecha
@@ -312,12 +312,12 @@
                           </div>
                         </div>
                         
-                        <!-- Filtro Tipo de transacción -->
+                        <!-- Filtro Tipo de transacciÃ³n -->
                         <div class="w-full">
                           <p
                             class="mb-2 text-base font-bold leading-[24px] text-bgray-900 dark:text-white"
                           >
-                            Tipo de transacción
+                            Tipo de transacciÃ³n
                           </p>
                           <div class="relative h-[56px] w-full">
                             <button
@@ -326,7 +326,7 @@
                               class="relative flex h-full w-full items-center justify-between rounded-lg bg-bgray-100 px-4 dark:bg-darkblack-500"
                             >
                               <span class="text-base text-bgray-500"
-                                >Tipo de transacción</span
+                                >Tipo de transacciÃ³n</span
                               >
                               <span>
                                 <svg
@@ -377,1036 +377,53 @@
                     </div>
                     <div class="table-content w-full overflow-x-auto">
                       <table class="w-full">
-                        <tr
-                          class="border-b border-bgray-300 dark:border-darkblack-400"
-                        >
+                        <tr class="border-b border-bgray-300 dark:border-darkblack-400">
                           <td class="">
                             <label class="text-center">
                               <input
+                                id="select-all-transactions"
                                 type="checkbox"
                                 class="h-5 w-5 cursor-pointer rounded-full border border-bgray-400 text-success-300 focus:outline-none focus:ring-0 dark:border-darkblack-400 dark:bg-darkblack-600"
                               />
                             </label>
                           </td>
-                          <td
-                            class="inline-block w-[250px] px-6 py-5 lg:w-auto xl:px-0"
-                          >
-                            <div class="flex w-full items-center space-x-2.5">
-                              <span
-                                class="text-base font-medium text-bgray-600 dark:text-bgray-50"
-                              >
-                                Contacto</span
-                              >
-                              <span>
-                                <svg
-                                  width="14"
-                                  height="15"
-                                  viewBox="0 0 14 15"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <path
-                                    d="M10.332 1.31567V13.3157"
-                                    stroke="#718096"
-                                    stroke-width="1.5"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                  <path
-                                    d="M5.66602 11.3157L3.66602 13.3157L1.66602 11.3157"
-                                    stroke="#718096"
-                                    stroke-width="1.5"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                  <path
-                                    d="M3.66602 13.3157V1.31567"
-                                    stroke="#718096"
-                                    stroke-width="1.5"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                  <path
-                                    d="M12.332 3.31567L10.332 1.31567L8.33203 3.31567"
-                                    stroke="#718096"
-                                    stroke-width="1.5"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                </svg>
-                              </span>
-                            </div>
+                          <td class="inline-block w-[250px] px-6 py-5 lg:w-auto xl:px-0">
+                            <button type="button" onclick="window.sortTransactions('contacto')" class="flex w-full items-center space-x-2 cursor-pointer group">
+                              <span class="text-base font-medium text-bgray-600 dark:text-bgray-50">Contacto</span>
+                              <svg class="sort-icon" width="10" height="12" viewBox="0 0 10 12" fill="none"><path d="M5 0L9 4H1L5 0Z" class="sort-asc" fill="#CBD5E0"/><path d="M5 12L1 8H9L5 12Z" class="sort-desc" fill="#CBD5E0"/></svg>
+                            </button>
                           </td>
                           <td class="px-6 py-5 xl:px-0">
-                            <div class="flex w-full items-center space-x-2.5">
-                              <span
-                                class="text-base font-medium text-bgray-600 dark:text-bgray-50"
-                                >Concepto</span
-                              >
-                              <span>
-                                <svg
-                                  width="14"
-                                  height="15"
-                                  viewBox="0 0 14 15"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <path
-                                    d="M10.332 1.31567V13.3157"
-                                    stroke="#718096"
-                                    stroke-width="1.5"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                  <path
-                                    d="M5.66602 11.3157L3.66602 13.3157L1.66602 11.3157"
-                                    stroke="#718096"
-                                    stroke-width="1.5"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                  <path
-                                    d="M3.66602 13.3157V1.31567"
-                                    stroke="#718096"
-                                    stroke-width="1.5"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                  <path
-                                    d="M12.332 3.31567L10.332 1.31567L8.33203 3.31567"
-                                    stroke="#718096"
-                                    stroke-width="1.5"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                </svg>
-                              </span>
-                            </div>
+                            <button type="button" onclick="window.sortTransactions('concepto')" class="flex w-full items-center space-x-2 cursor-pointer group">
+                              <span class="text-base font-medium text-bgray-600 dark:text-bgray-50">Concepto</span>
+                              <svg class="sort-icon" width="10" height="12" viewBox="0 0 10 12" fill="none"><path d="M5 0L9 4H1L5 0Z" class="sort-asc" fill="#CBD5E0"/><path d="M5 12L1 8H9L5 12Z" class="sort-desc" fill="#CBD5E0"/></svg>
+                            </button>
                           </td>
                           <td class="px-6 py-5 xl:px-0">
-                            <div class="flex items-center space-x-2.5">
-                              <span
-                                class="text-base font-medium text-bgray-600 dark:text-gray-50"
-                              >
-                                Categoría</span
-                              >
-                              <span>
-                                <svg
-                                  width="14"
-                                  height="15"
-                                  viewBox="0 0 14 15"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <path
-                                    d="M10.332 1.31567V13.3157"
-                                    stroke="#718096"
-                                    stroke-width="1.5"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                  <path
-                                    d="M5.66602 11.3157L3.66602 13.3157L1.66602 11.3157"
-                                    stroke="#718096"
-                                    stroke-width="1.5"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                  <path
-                                    d="M3.66602 13.3157V1.31567"
-                                    stroke="#718096"
-                                    stroke-width="1.5"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                  <path
-                                    d="M12.332 3.31567L10.332 1.31567L8.33203 3.31567"
-                                    stroke="#718096"
-                                    stroke-width="1.5"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                </svg>
-                              </span>
-                            </div>
+                            <button type="button" onclick="window.sortTransactions('categoria')" class="flex items-center space-x-2 cursor-pointer group">
+                              <span class="text-base font-medium text-bgray-600 dark:text-bgray-50">Categor&iacute;a</span>
+                              <svg class="sort-icon" width="10" height="12" viewBox="0 0 10 12" fill="none"><path d="M5 0L9 4H1L5 0Z" class="sort-asc" fill="#CBD5E0"/><path d="M5 12L1 8H9L5 12Z" class="sort-desc" fill="#CBD5E0"/></svg>
+                            </button>
                           </td>
                           <td class="w-[165px] px-6 py-5 xl:px-0">
-                            <div class="flex w-full items-center space-x-2.5">
-                              <span
-                                class="text-base font-medium text-bgray-600 dark:text-bgray-50"
-                                >Importe</span
-                              >
-                              <span>
-                                <svg
-                                  width="14"
-                                  height="15"
-                                  viewBox="0 0 14 15"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <path
-                                    d="M10.332 1.31567V13.3157"
-                                    stroke="#718096"
-                                    stroke-width="1.5"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                  <path
-                                    d="M5.66602 11.3157L3.66602 13.3157L1.66602 11.3157"
-                                    stroke="#718096"
-                                    stroke-width="1.5"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                  <path
-                                    d="M3.66602 13.3157V1.31567"
-                                    stroke="#718096"
-                                    stroke-width="1.5"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                  <path
-                                    d="M12.332 3.31567L10.332 1.31567L8.33203 3.31567"
-                                    stroke="#718096"
-                                    stroke-width="1.5"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                </svg>
-                              </span>
-                            </div>
+                            <button type="button" onclick="window.sortTransactions('importe')" class="flex w-full items-center space-x-2 cursor-pointer group">
+                              <span class="text-base font-medium text-bgray-600 dark:text-bgray-50">Importe</span>
+                              <svg class="sort-icon" width="10" height="12" viewBox="0 0 10 12" fill="none"><path d="M5 0L9 4H1L5 0Z" class="sort-asc" fill="#CBD5E0"/><path d="M5 12L1 8H9L5 12Z" class="sort-desc" fill="#CBD5E0"/></svg>
+                            </button>
                           </td>
                           <td class="px-6 py-5 xl:px-0">
-                            <div class="flex items-center space-x-2.5">
-                              <span
-                                class="text-base font-medium text-bgray-600 dark:text-bgray-50"
-                              >
-                                Fecha</span
-                              >
-                              <span>
-                                <svg
-                                  width="14"
-                                  height="15"
-                                  viewBox="0 0 14 15"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <path
-                                    d="M10.332 1.31567V13.3157"
-                                    stroke="#718096"
-                                    stroke-width="1.5"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                  <path
-                                    d="M5.66602 11.3157L3.66602 13.3157L1.66602 11.3157"
-                                    stroke="#718096"
-                                    stroke-width="1.5"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                  <path
-                                    d="M3.66602 13.3157V1.31567"
-                                    stroke="#718096"
-                                    stroke-width="1.5"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                  <path
-                                    d="M12.332 3.31567L10.332 1.31567L8.33203 3.31567"
-                                    stroke="#718096"
-                                    stroke-width="1.5"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                </svg>
-                              </span>
-                            </div>
+                            <button type="button" onclick="window.sortTransactions('fecha')" class="flex items-center space-x-2 cursor-pointer group">
+                              <span class="text-base font-medium text-bgray-600 dark:text-bgray-50">Fecha</span>
+                              <svg class="sort-icon" width="10" height="12" viewBox="0 0 10 12" fill="none"><path d="M5 0L9 4H1L5 0Z" class="sort-asc" fill="#CBD5E0"/><path d="M5 12L1 8H9L5 12Z" class="sort-desc" fill="#CBD5E0"/></svg>
+                            </button>
                           </td>
                           <td class="px-6 py-5 xl:px-0">
-                            <div class="flex items-center space-x-2.5">
-                              <span
-                                class="text-base font-medium text-bgray-600 dark:text-bgray-50"
-                              >
-                                Tipo</span
-                              >
-                            </div>
+                            <button type="button" onclick="window.sortTransactions('tipo')" class="flex items-center space-x-2 cursor-pointer group">
+                              <span class="text-base font-medium text-bgray-600 dark:text-bgray-50">Tipo</span>
+                              <svg class="sort-icon" width="10" height="12" viewBox="0 0 10 12" fill="none"><path d="M5 0L9 4H1L5 0Z" class="sort-asc" fill="#CBD5E0"/><path d="M5 12L1 8H9L5 12Z" class="sort-desc" fill="#CBD5E0"/></svg>
+                            </button>
                           </td>
                           <td class="px-6 py-5 xl:px-0"></td>
-                        </tr>
-                        <tr
-                          class="border-b border-bgray-300 dark:border-darkblack-400"
-                        >
-                          <td class="">
-                            <label class="text-center">
-                              <input
-                                type="checkbox"
-                                class="h-5 w-5 cursor-pointer rounded-full border border-bgray-400 text-success-300 focus:outline-none focus:ring-0 dark:border-darkblack-400 dark:bg-darkblack-600"
-                              />
-                            </label>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <div class="flex w-full items-center space-x-2.5">
-                              <div
-                                class="h-10 w-10 overflow-hidden rounded-full"
-                              >
-                                <img
-                                  src="./assets/images/avatar/user-40x40.png"
-                                  alt="avatar"
-                                  class="h-full w-full object-cover"
-                                />
-                              </div>
-                              <p
-                                class="text-base font-semibold text-bgray-900 dark:text-white"
-                              >
-                                Devon Lane
-                              </p>
-                            </div>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <p
-                              class="text-base font-medium text-bgray-900 dark:text-bgray-50"
-                            >
-                              devon@mail.com
-                            </p>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <p
-                              class="text-base font-medium text-bgray-900 dark:text-bgray-50"
-                            >
-                              Philadelphia, USA
-                            </p>
-                          </td>
-                          <td class="w-[165px] px-6 py-5 xl:px-0">
-                            <p
-                              class="text-base font-semibold text-bgray-900 dark:text-white"
-                            >
-                              $101.00
-                            </p>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <div class="flex justify-center">
-                              <button type="button">
-                                <svg
-                                  width="18"
-                                  height="4"
-                                  viewBox="0 0 18 4"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <path
-                                    d="M8 2.00024C8 2.55253 8.44772 3.00024 9 3.00024C9.55228 3.00024 10 2.55253 10 2.00024C10 1.44796 9.55228 1.00024 9 1.00024C8.44772 1.00024 8 1.44796 8 2.00024Z"
-                                    stroke="#A0AEC0"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                  <path
-                                    d="M1 2.00024C1 2.55253 1.44772 3.00024 2 3.00024C2.55228 3.00024 3 2.55253 3 2.00024C3 1.44796 2.55228 1.00024 2 1.00024C1.44772 1.00024 1 1.44796 1 2.00024Z"
-                                    stroke="#A0AEC0"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                  <path
-                                    d="M15 2.00024C15 2.55253 15.4477 3.00024 16 3.00024C16.5523 3.00024 17 2.55253 17 2.00024C17 1.44796 16.5523 1.00024 16 1.00024C15.4477 1.00024 15 1.44796 15 2.00024Z"
-                                    stroke="#A0AEC0"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                </svg>
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr
-                          class="border-b border-bgray-300 dark:border-darkblack-400"
-                        >
-                          <td class="">
-                            <label class="text-center">
-                              <input
-                                type="checkbox"
-                                class="h-5 w-5 cursor-pointer rounded-full border border-bgray-400 text-success-300 focus:outline-none focus:ring-0 dark:border-darkblack-400 dark:bg-darkblack-600"
-                              />
-                            </label>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <div class="flex w-full items-center space-x-2.5">
-                              <div
-                                class="h-10 w-10 overflow-hidden rounded-full"
-                              >
-                                <img
-                                  src="./assets/images/avatar/user-40x40-1.png"
-                                  alt="avatar"
-                                  class="h-full w-full object-cover"
-                                />
-                              </div>
-                              <p
-                                class="text-base font-semibold text-bgray-900 dark:text-white"
-                              >
-                                Bessie Cooper
-                              </p>
-                            </div>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <p
-                              class="text-base font-medium text-bgray-900 dark:text-bgray-50"
-                            >
-                              devon@mail.com
-                            </p>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <p
-                              class="text-base font-medium text-bgray-900 dark:text-bgray-50"
-                            >
-                              Philadelphia, USA
-                            </p>
-                          </td>
-                          <td class="w-[165px] px-6 py-5 xl:px-0">
-                            <p
-                              class="text-base font-semibold text-bgray-900 dark:text-white"
-                            >
-                              $101.00
-                            </p>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <div class="flex justify-center">
-                              <button type="button">
-                                <svg
-                                  width="18"
-                                  height="4"
-                                  viewBox="0 0 18 4"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <path
-                                    d="M8 2.00024C8 2.55253 8.44772 3.00024 9 3.00024C9.55228 3.00024 10 2.55253 10 2.00024C10 1.44796 9.55228 1.00024 9 1.00024C8.44772 1.00024 8 1.44796 8 2.00024Z"
-                                    stroke="#A0AEC0"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                  <path
-                                    d="M1 2.00024C1 2.55253 1.44772 3.00024 2 3.00024C2.55228 3.00024 3 2.55253 3 2.00024C3 1.44796 2.55228 1.00024 2 1.00024C1.44772 1.00024 1 1.44796 1 2.00024Z"
-                                    stroke="#A0AEC0"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                  <path
-                                    d="M15 2.00024C15 2.55253 15.4477 3.00024 16 3.00024C16.5523 3.00024 17 2.55253 17 2.00024C17 1.44796 16.5523 1.00024 16 1.00024C15.4477 1.00024 15 1.44796 15 2.00024Z"
-                                    stroke="#A0AEC0"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                </svg>
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr
-                          class="border-b border-bgray-300 dark:border-darkblack-400"
-                        >
-                          <td class="">
-                            <label class="text-center">
-                              <input
-                                type="checkbox"
-                                class="h-5 w-5 cursor-pointer rounded-full border border-bgray-400 text-success-300 focus:outline-none focus:ring-0 dark:border-darkblack-400 dark:bg-darkblack-600"
-                              />
-                            </label>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <div class="flex w-full items-center space-x-2.5">
-                              <div
-                                class="h-10 w-10 overflow-hidden rounded-full"
-                              >
-                                <img
-                                  src="./assets/images/avatar/user-40x40-3.png"
-                                  alt="avatar"
-                                  class="h-full w-full object-cover"
-                                />
-                              </div>
-                              <p
-                                class="text-base font-semibold text-bgray-900 dark:text-white"
-                              >
-                                Ralph Edwards
-                              </p>
-                            </div>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <p
-                              class="text-base font-medium text-bgray-900 dark:text-bgray-50"
-                            >
-                              weaver@example.com
-                            </p>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <p
-                              class="text-base font-medium text-bgray-900 dark:text-bgray-50"
-                            >
-                              Philadelphia, USA
-                            </p>
-                          </td>
-                          <td class="w-[165px] px-6 py-5 xl:px-0">
-                            <p
-                              class="text-base font-semibold text-bgray-900 dark:text-white"
-                            >
-                              $101.00
-                            </p>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <div class="flex justify-center">
-                              <button type="button">
-                                <svg
-                                  width="18"
-                                  height="4"
-                                  viewBox="0 0 18 4"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <path
-                                    d="M8 2.00024C8 2.55253 8.44772 3.00024 9 3.00024C9.55228 3.00024 10 2.55253 10 2.00024C10 1.44796 9.55228 1.00024 9 1.00024C8.44772 1.00024 8 1.44796 8 2.00024Z"
-                                    stroke="#A0AEC0"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                  <path
-                                    d="M1 2.00024C1 2.55253 1.44772 3.00024 2 3.00024C2.55228 3.00024 3 2.55253 3 2.00024C3 1.44796 2.55228 1.00024 2 1.00024C1.44772 1.00024 1 1.44796 1 2.00024Z"
-                                    stroke="#A0AEC0"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                  <path
-                                    d="M15 2.00024C15 2.55253 15.4477 3.00024 16 3.00024C16.5523 3.00024 17 2.55253 17 2.00024C17 1.44796 16.5523 1.00024 16 1.00024C15.4477 1.00024 15 1.44796 15 2.00024Z"
-                                    stroke="#A0AEC0"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                </svg>
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr
-                          class="border-b border-bgray-300 dark:border-darkblack-400"
-                        >
-                          <td class="">
-                            <label class="text-center">
-                              <input
-                                type="checkbox"
-                                class="h-5 w-5 cursor-pointer rounded-full border border-bgray-400 text-success-300 focus:outline-none focus:ring-0 dark:border-darkblack-400 dark:bg-darkblack-600"
-                              />
-                            </label>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <div class="flex w-full items-center space-x-2.5">
-                              <div
-                                class="h-10 w-10 overflow-hidden rounded-full"
-                              >
-                                <img
-                                  src="./assets/images/avatar/user-40x40-4.png"
-                                  alt="avatar"
-                                  class="h-full w-full object-cover"
-                                />
-                              </div>
-                              <p
-                                class="text-base font-semibold text-bgray-900 dark:text-white"
-                              >
-                                Arlene McCoy
-                              </p>
-                            </div>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <p
-                              class="text-base font-medium text-bgray-900 dark:text-bgray-50"
-                            >
-                              lawson@example.com
-                            </p>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <p
-                              class="text-base font-medium text-bgray-900 dark:text-bgray-50"
-                            >
-                              Philadelphia, USA
-                            </p>
-                          </td>
-                          <td class="w-[165px] px-6 py-5 xl:px-0">
-                            <p
-                              class="text-base font-semibold text-bgray-900 dark:text-white"
-                            >
-                              $101.00
-                            </p>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <div class="flex justify-center">
-                              <button type="button">
-                                <svg
-                                  width="18"
-                                  height="4"
-                                  viewBox="0 0 18 4"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <path
-                                    d="M8 2.00024C8 2.55253 8.44772 3.00024 9 3.00024C9.55228 3.00024 10 2.55253 10 2.00024C10 1.44796 9.55228 1.00024 9 1.00024C8.44772 1.00024 8 1.44796 8 2.00024Z"
-                                    stroke="#A0AEC0"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                  <path
-                                    d="M1 2.00024C1 2.55253 1.44772 3.00024 2 3.00024C2.55228 3.00024 3 2.55253 3 2.00024C3 1.44796 2.55228 1.00024 2 1.00024C1.44772 1.00024 1 1.44796 1 2.00024Z"
-                                    stroke="#A0AEC0"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                  <path
-                                    d="M15 2.00024C15 2.55253 15.4477 3.00024 16 3.00024C16.5523 3.00024 17 2.55253 17 2.00024C17 1.44796 16.5523 1.00024 16 1.00024C15.4477 1.00024 15 1.44796 15 2.00024Z"
-                                    stroke="#A0AEC0"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                </svg>
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr
-                          class="border-b border-bgray-300 dark:border-darkblack-400"
-                        >
-                          <td class="">
-                            <label class="text-center">
-                              <input
-                                type="checkbox"
-                                class="h-5 w-5 cursor-pointer rounded-full border border-bgray-400 text-success-300 focus:outline-none focus:ring-0 dark:border-darkblack-400 dark:bg-darkblack-600"
-                              />
-                            </label>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <div class="flex w-full items-center space-x-2.5">
-                              <div
-                                class="h-10 w-10 overflow-hidden rounded-full"
-                              >
-                                <img
-                                  src="./assets/images/avatar/user-40x40-1.png"
-                                  alt="avatar"
-                                  class="h-full w-full object-cover"
-                                />
-                              </div>
-                              <p
-                                class="text-base font-semibold text-bgray-900 dark:text-white"
-                              >
-                                Bessie Cooper
-                              </p>
-                            </div>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <p
-                              class="text-base font-medium text-bgray-900 dark:text-bgray-50"
-                            >
-                              devon@mail.com
-                            </p>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <p
-                              class="text-base font-medium text-bgray-900 dark:text-bgray-50"
-                            >
-                              Philadelphia, USA
-                            </p>
-                          </td>
-                          <td class="w-[165px] px-6 py-5 xl:px-0">
-                            <p
-                              class="text-base font-semibold text-bgray-900 dark:text-white"
-                            >
-                              $101.00
-                            </p>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <div class="flex justify-center">
-                              <button type="button">
-                                <svg
-                                  width="18"
-                                  height="4"
-                                  viewBox="0 0 18 4"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <path
-                                    d="M8 2.00024C8 2.55253 8.44772 3.00024 9 3.00024C9.55228 3.00024 10 2.55253 10 2.00024C10 1.44796 9.55228 1.00024 9 1.00024C8.44772 1.00024 8 1.44796 8 2.00024Z"
-                                    stroke="#A0AEC0"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                  <path
-                                    d="M1 2.00024C1 2.55253 1.44772 3.00024 2 3.00024C2.55228 3.00024 3 2.55253 3 2.00024C3 1.44796 2.55228 1.00024 2 1.00024C1.44772 1.00024 1 1.44796 1 2.00024Z"
-                                    stroke="#A0AEC0"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                  <path
-                                    d="M15 2.00024C15 2.55253 15.4477 3.00024 16 3.00024C16.5523 3.00024 17 2.55253 17 2.00024C17 1.44796 16.5523 1.00024 16 1.00024C15.4477 1.00024 15 1.44796 15 2.00024Z"
-                                    stroke="#A0AEC0"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                </svg>
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr
-                          class="border-b border-bgray-300 dark:border-darkblack-400"
-                        >
-                          <td class="">
-                            <label class="text-center">
-                              <input
-                                type="checkbox"
-                                class="h-5 w-5 cursor-pointer rounded-full border border-bgray-400 text-success-300 focus:outline-none focus:ring-0 dark:border-darkblack-400 dark:bg-darkblack-600"
-                              />
-                            </label>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <div class="flex w-full items-center space-x-2.5">
-                              <div
-                                class="h-10 w-10 overflow-hidden rounded-full"
-                              >
-                                <img
-                                  src="./assets/images/avatar/user-40x40-2.png"
-                                  alt="avatar"
-                                  class="h-full w-full object-cover"
-                                />
-                              </div>
-                              <p
-                                class="text-base font-semibold text-bgray-900 dark:text-white"
-                              >
-                                Dianne Russell
-                              </p>
-                            </div>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <p
-                              class="text-base font-medium text-bgray-900 dark:text-bgray-50"
-                            >
-                              devon@mail.com
-                            </p>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <p
-                              class="text-base font-medium text-bgray-900 dark:text-bgray-50"
-                            >
-                              Philadelphia, USA
-                            </p>
-                          </td>
-                          <td class="w-[165px] px-6 py-5 xl:px-0">
-                            <p
-                              class="text-base font-semibold text-bgray-900 dark:text-white"
-                            >
-                              $101.00
-                            </p>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <div class="flex justify-center">
-                              <button type="button">
-                                <svg
-                                  width="18"
-                                  height="4"
-                                  viewBox="0 0 18 4"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <path
-                                    d="M8 2.00024C8 2.55253 8.44772 3.00024 9 3.00024C9.55228 3.00024 10 2.55253 10 2.00024C10 1.44796 9.55228 1.00024 9 1.00024C8.44772 1.00024 8 1.44796 8 2.00024Z"
-                                    stroke="#A0AEC0"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                  <path
-                                    d="M1 2.00024C1 2.55253 1.44772 3.00024 2 3.00024C2.55228 3.00024 3 2.55253 3 2.00024C3 1.44796 2.55228 1.00024 2 1.00024C1.44772 1.00024 1 1.44796 1 2.00024Z"
-                                    stroke="#A0AEC0"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                  <path
-                                    d="M15 2.00024C15 2.55253 15.4477 3.00024 16 3.00024C16.5523 3.00024 17 2.55253 17 2.00024C17 1.44796 16.5523 1.00024 16 1.00024C15.4477 1.00024 15 1.44796 15 2.00024Z"
-                                    stroke="#A0AEC0"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                </svg>
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr
-                          class="border-b border-bgray-300 dark:border-darkblack-400"
-                        >
-                          <td class="">
-                            <label class="text-center">
-                              <input
-                                type="checkbox"
-                                class="h-5 w-5 cursor-pointer rounded-full border border-bgray-400 text-success-300 focus:outline-none focus:ring-0 dark:border-darkblack-400 dark:bg-darkblack-600"
-                              />
-                            </label>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <div class="flex w-full items-center space-x-2.5">
-                              <div
-                                class="h-10 w-10 overflow-hidden rounded-full"
-                              >
-                                <img
-                                  src="./assets/images/avatar/user-40x40.png"
-                                  alt="avatar"
-                                  class="h-full w-full object-cover"
-                                />
-                              </div>
-                              <p
-                                class="text-base font-semibold text-bgray-900 dark:text-white"
-                              >
-                                Devon Lane
-                              </p>
-                            </div>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <p
-                              class="text-base font-medium text-bgray-900 dark:text-bgray-50"
-                            >
-                              devon@mail.com
-                            </p>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <p
-                              class="text-base font-medium text-bgray-900 dark:text-bgray-50"
-                            >
-                              Philadelphia, USA
-                            </p>
-                          </td>
-                          <td class="w-[165px] px-6 py-5 xl:px-0">
-                            <p
-                              class="text-base font-semibold text-bgray-900 dark:text-white"
-                            >
-                              $101.00
-                            </p>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <div class="flex justify-center">
-                              <button type="button">
-                                <svg
-                                  width="18"
-                                  height="4"
-                                  viewBox="0 0 18 4"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <path
-                                    d="M8 2.00024C8 2.55253 8.44772 3.00024 9 3.00024C9.55228 3.00024 10 2.55253 10 2.00024C10 1.44796 9.55228 1.00024 9 1.00024C8.44772 1.00024 8 1.44796 8 2.00024Z"
-                                    stroke="#A0AEC0"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                  <path
-                                    d="M1 2.00024C1 2.55253 1.44772 3.00024 2 3.00024C2.55228 3.00024 3 2.55253 3 2.00024C3 1.44796 2.55228 1.00024 2 1.00024C1.44772 1.00024 1 1.44796 1 2.00024Z"
-                                    stroke="#A0AEC0"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                  <path
-                                    d="M15 2.00024C15 2.55253 15.4477 3.00024 16 3.00024C16.5523 3.00024 17 2.55253 17 2.00024C17 1.44796 16.5523 1.00024 16 1.00024C15.4477 1.00024 15 1.44796 15 2.00024Z"
-                                    stroke="#A0AEC0"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                </svg>
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr
-                          class="border-b border-bgray-300 dark:border-darkblack-400"
-                        >
-                          <td class="">
-                            <label class="text-center">
-                              <input
-                                type="checkbox"
-                                class="h-5 w-5 cursor-pointer rounded-full border border-bgray-400 text-success-300 focus:outline-none focus:ring-0 dark:border-darkblack-400 dark:bg-darkblack-600"
-                              />
-                            </label>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <div class="flex w-full items-center space-x-2.5">
-                              <div
-                                class="h-10 w-10 overflow-hidden rounded-full"
-                              >
-                                <img
-                                  src="./assets/images/avatar/user-40x40-1.png"
-                                  alt="avatar"
-                                  class="h-full w-full object-cover"
-                                />
-                              </div>
-                              <p
-                                class="text-base font-semibold text-bgray-900 dark:text-white"
-                              >
-                                Bessie Cooper
-                              </p>
-                            </div>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <p
-                              class="text-base font-medium text-bgray-900 dark:text-bgray-50"
-                            >
-                              devon@mail.com
-                            </p>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <p
-                              class="text-base font-medium text-bgray-900 dark:text-bgray-50"
-                            >
-                              Philadelphia, USA
-                            </p>
-                          </td>
-                          <td class="w-[165px] px-6 py-5 xl:px-0">
-                            <p
-                              class="text-base font-semibold text-bgray-900 dark:text-white"
-                            >
-                              $101.00
-                            </p>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <div class="flex justify-center">
-                              <button type="button">
-                                <svg
-                                  width="18"
-                                  height="4"
-                                  viewBox="0 0 18 4"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <path
-                                    d="M8 2.00024C8 2.55253 8.44772 3.00024 9 3.00024C9.55228 3.00024 10 2.55253 10 2.00024C10 1.44796 9.55228 1.00024 9 1.00024C8.44772 1.00024 8 1.44796 8 2.00024Z"
-                                    stroke="#A0AEC0"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                  <path
-                                    d="M1 2.00024C1 2.55253 1.44772 3.00024 2 3.00024C2.55228 3.00024 3 2.55253 3 2.00024C3 1.44796 2.55228 1.00024 2 1.00024C1.44772 1.00024 1 1.44796 1 2.00024Z"
-                                    stroke="#A0AEC0"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                  <path
-                                    d="M15 2.00024C15 2.55253 15.4477 3.00024 16 3.00024C16.5523 3.00024 17 2.55253 17 2.00024C17 1.44796 16.5523 1.00024 16 1.00024C15.4477 1.00024 15 1.44796 15 2.00024Z"
-                                    stroke="#A0AEC0"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                </svg>
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr
-                          class="border-b border-bgray-300 dark:border-darkblack-400"
-                        >
-                          <td class="">
-                            <label class="text-center">
-                              <input
-                                type="checkbox"
-                                class="h-5 w-5 cursor-pointer rounded-full border border-bgray-400 text-success-300 focus:outline-none focus:ring-0 dark:border-darkblack-400 dark:bg-darkblack-600"
-                              />
-                            </label>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <div class="flex w-full items-center space-x-2.5">
-                              <div
-                                class="h-10 w-10 overflow-hidden rounded-full"
-                              >
-                                <img
-                                  src="./assets/images/avatar/user-40x40-6.png"
-                                  alt="avatar"
-                                  class="h-full w-full object-cover"
-                                />
-                              </div>
-                              <p
-                                class="text-base font-semibold text-bgray-900 dark:text-white"
-                              >
-                                Leslie Alexander
-                              </p>
-                            </div>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <p
-                              class="text-base font-medium text-bgray-900 dark:text-bgray-50"
-                            >
-                              felicia.reid@example.com
-                            </p>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <p
-                              class="text-base font-medium text-bgray-900 dark:text-bgray-50"
-                            >
-                              Manhattan, USA
-                            </p>
-                          </td>
-                          <td class="w-[165px] px-6 py-5 xl:px-0">
-                            <p
-                              class="text-base font-semibold text-bgray-900 dark:text-white"
-                            >
-                              $59.00
-                            </p>
-                          </td>
-                          <td class="px-6 py-5 xl:px-0">
-                            <div class="flex justify-center">
-                              <button type="button">
-                                <svg
-                                  width="18"
-                                  height="4"
-                                  viewBox="0 0 18 4"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <path
-                                    d="M8 2.00024C8 2.55253 8.44772 3.00024 9 3.00024C9.55228 3.00024 10 2.55253 10 2.00024C10 1.44796 9.55228 1.00024 9 1.00024C8.44772 1.00024 8 1.44796 8 2.00024Z"
-                                    stroke="#A0AEC0"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                  <path
-                                    d="M1 2.00024C1 2.55253 1.44772 3.00024 2 3.00024C2.55228 3.00024 3 2.55253 3 2.00024C3 1.44796 2.55228 1.00024 2 1.00024C1.44772 1.00024 1 1.44796 1 2.00024Z"
-                                    stroke="#A0AEC0"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                  <path
-                                    d="M15 2.00024C15 2.55253 15.4477 3.00024 16 3.00024C16.5523 3.00024 17 2.55253 17 2.00024C17 1.44796 16.5523 1.00024 16 1.00024C15.4477 1.00024 15 1.44796 15 2.00024Z"
-                                    stroke="#A0AEC0"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                </svg>
-                              </button>
-                            </div>
-                          </td>
                         </tr>
                       </table>
                     </div>
@@ -1429,7 +446,7 @@
                           </div>
                         </div>
                         <div class="flex items-center space-x-5 sm:space-x-[35px]" id="expenses-page-buttons">
-                          <!-- Los botones de paginación se generan dinámicamente -->
+                          <!-- Los botones de paginaciÃ³n se generan dinÃ¡micamente -->
                         </div>
                       </div>
                     </div>
@@ -1437,18 +454,18 @@
                 </div>
               </section>
               <section
-                class="w-full 2xl:w-[400px]"
+                class="order-1 2xl:order-2 w-full 2xl:w-[400px]"
               >
                 <div
                   class="mb-6 w-full rounded-lg bg-white px-[42px] py-8 dark:border dark:border-darkblack-400 dark:bg-darkblack-600"
                 >
-                  <!-- Sección: Menú de Acciones Rápidas -->
+                  <!-- SecciÃ³n: MenÃº de Acciones RÃ¡pidas -->
                   <div class="w-full">
                     <h3 class="mb-6 text-lg font-extrabold tracking-wide text-bgray-900 dark:text-white uppercase">
-                      ¿QUÉ DESEAS HACER?
+                      Â¿QUÃ‰ DESEAS HACER?
                     </h3>
                     
-                    <!-- Botón AÑADIR GASTO - Grande y Destacado EN NARANJA -->
+                    <!-- BotÃ³n AÃ‘ADIR GASTO - Grande y Destacado EN NARANJA -->
                     <button
                       onclick="openAddExpenseModal()"
                       class="group w-full mb-5 bg-success-300 hover:bg-success-400 rounded-xl py-5 px-6 flex items-center justify-center gap-3 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
@@ -1477,12 +494,12 @@
                           fill="none"
                         />
                       </svg>
-                      <span class="text-lg font-bold text-white">Añadir gasto</span>
+                      <span class="text-lg font-bold text-white">AÃ±adir gasto</span>
                     </button>
 
                     <!-- Grid de Acciones Secundarias -->
                     <div class="grid grid-cols-3 gap-3">
-                      <!-- Añadir contacto -->
+                      <!-- AÃ±adir contacto -->
                       <button
                         onclick="window.location.href='users.html'"
                         class="group flex flex-col items-center justify-center p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-success-300 hover:bg-white dark:bg-darkblack-500 dark:hover:bg-darkblack-400 transition-all duration-300 hover:shadow-md active:scale-95"
@@ -1525,10 +542,10 @@
                             />
                           </svg>
                         </div>
-                        <span class="text-xs font-semibold text-bgray-900 dark:text-white text-center leading-tight">Añadir contacto</span>
+                        <span class="text-xs font-semibold text-bgray-900 dark:text-white text-center leading-tight">AÃ±adir contacto</span>
                       </button>
 
-                      <!-- Crear factura (MOVIDO AQUÍ) -->
+                      <!-- Crear factura (MOVIDO AQUÃ) -->
                       <button
                         onclick="window.location.href='invoices/new.html'"
                         class="group flex flex-col items-center justify-center p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-success-300 hover:bg-white dark:bg-darkblack-500 dark:hover:bg-darkblack-400 transition-all duration-300 hover:shadow-md active:scale-95"
@@ -1611,7 +628,7 @@
                 <div
                   class="w-full flex-col rounded-lg bg-white dark:border dark:border-darkblack-400 dark:bg-darkblack-600"
                 >
-                  <!-- Sección: 4 Primeros Pasos -->
+                  <!-- SecciÃ³n: 4 Primeros Pasos -->
                   <div class="w-full p-8">
                     <!-- Header con progreso circular - Siempre visible -->
                     <button
@@ -1620,7 +637,7 @@
                     >
                       <div class="flex items-center gap-5">
                         <div class="relative flex-shrink-0">
-                          <!-- Círculo de progreso - Blanco con tick naranja -->
+                          <!-- CÃ­rculo de progreso - Blanco con tick naranja -->
                           <svg class="transform -rotate-90" width="72" height="72">
                             <circle
                               cx="36"
@@ -1669,14 +686,14 @@
                       </svg>
                     </button>
 
-                    <!-- Descripción -->
+                    <!-- DescripciÃ³n -->
                     <p class="text-sm text-bgray-600 dark:text-bgray-400 mb-6">
                       Descubre todo lo que puedes hacer en Facturales
                     </p>
 
                     <!-- Lista de Pasos - Colapsable -->
                     <div id="primerosPasosContent" class="space-y-0 overflow-hidden transition-all duration-500">
-                      <!-- Contenedor dinámico para los pasos -->
+                      <!-- Contenedor dinÃ¡mico para los pasos -->
                       <div id="onboarding-steps-container"></div>
                     </div>
                   </div>
@@ -1689,7 +706,7 @@
       </div>
     </div>
 
-    <!-- Modal: Añadir Gasto -->
+    <!-- Modal: AÃ±adir Gasto -->
     <div id="add-expense-modal" class="modal fixed inset-0 z-50 hidden flex items-center justify-center overflow-y-auto bg-black/50 backdrop-blur-sm transition-opacity duration-200" role="dialog" aria-labelledby="expense-modal-title" aria-modal="true">
       <!-- Overlay -->
       <div class="modal-overlay absolute inset-0" onclick="closeExpenseModal()"></div>
@@ -1700,7 +717,7 @@
           <!-- Header -->
           <div class="flex items-center justify-between border-b border-bgray-200 dark:border-darkblack-400 px-6 py-4">
             <h3 id="expense-modal-title" class="text-xl font-bold text-bgray-900 dark:text-white">
-              Añadir Transacción
+              AÃ±adir TransacciÃ³n
             </h3>
             <button 
               type="button" 
@@ -1740,7 +757,7 @@
                       <input type="hidden" id="expense-contact-id" />
                       <!-- Dropdown de resultados del autocompletado -->
                       <div id="contact-autocomplete-results" class="absolute top-full left-0 right-0 mt-1 hidden max-h-48 overflow-y-auto rounded-lg bg-white dark:bg-darkblack-500 shadow-xl border border-bgray-200 dark:border-darkblack-400 z-50">
-                        <!-- Los resultados se insertarán aquí dinámicamente -->
+                        <!-- Los resultados se insertarÃ¡n aquÃ­ dinÃ¡micamente -->
                       </div>
                     </div>
                   </div>
@@ -1759,10 +776,10 @@
                       />
                   </div>
                   
-                  <!-- Categoría -->
+                  <!-- CategorÃ­a -->
                   <div>
                     <label for="expense-category" class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
-                      Categoría <span class="text-red-500">*</span>
+                      CategorÃ­a <span class="text-red-500">*</span>
                     </label>
                     <select
                       id="expense-category"
@@ -1779,7 +796,7 @@
                     </select>
                   </div>
                   
-                  <!-- Tipo de Transacción -->
+                  <!-- Tipo de TransacciÃ³n -->
                   <div>
                     <label class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
                       Tipo <span class="text-red-500">*</span>
@@ -1827,7 +844,7 @@
                         class="w-full h-12 rounded-lg border border-bgray-300 dark:border-darkblack-400 bg-white dark:bg-darkblack-500 px-4 py-3 text-sm text-bgray-900 dark:text-white placeholder:text-bgray-500 focus:border-success-300 focus:ring-2 focus:ring-success-300/20 transition-all"
                         placeholder="0,00"
                       />
-                      <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-bgray-500">€</span>
+                      <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-bgray-500">â‚¬</span>
                     </div>
                   </div>
                   
@@ -1844,7 +861,7 @@
                       />
                   </div>
                   
-                  <!-- Observaciones (opcional, máximo 150 caracteres) -->
+                  <!-- Observaciones (opcional, mÃ¡ximo 150 caracteres) -->
                   <div>
                     <label for="expense-notes" class="mb-2 flex items-center justify-between text-sm font-semibold text-bgray-900 dark:text-white">
                       <span>Observaciones</span>
@@ -1855,7 +872,7 @@
                       rows="3"
                       maxlength="150"
                       class="w-full rounded-lg border border-bgray-300 dark:border-darkblack-400 bg-white dark:bg-darkblack-500 px-4 py-3 text-sm text-bgray-900 dark:text-white placeholder:text-bgray-500 focus:border-success-300 focus:ring-2 focus:ring-success-300/20 transition-all resize-none"
-                      placeholder="Notas adicionales (máx. 150 caracteres)..."
+                      placeholder="Notas adicionales (mÃ¡x. 150 caracteres)..."
                       oninput="document.getElementById('notes-counter').textContent = this.value.length + '/150'"
                     ></textarea>
                   </div>
@@ -1876,7 +893,7 @@
                   id="expense-save-btn"
                   class="rounded-lg bg-success-300 px-6 py-2.5 text-sm font-semibold text-white hover:bg-success-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Guardar Transacción
+                  Guardar TransacciÃ³n
                 </button>
               </div>
             </form>
@@ -1885,7 +902,7 @@
       </div>
     </div>
 
-    <!-- Modal: Confirmación de Eliminación -->
+    <!-- Modal: ConfirmaciÃ³n de EliminaciÃ³n -->
     <div id="delete-confirm-modal" class="modal fixed inset-0 z-50 hidden items-center justify-center overflow-y-auto bg-black/50 backdrop-blur-sm transition-opacity duration-200" role="dialog" aria-labelledby="delete-modal-title" aria-modal="true">
       <!-- Overlay -->
       <div class="modal-overlay absolute inset-0" onclick="closeDeleteTransactionModal()"></div>
@@ -1893,20 +910,20 @@
       <!-- Contenido del Modal -->
       <div class="modal-content relative z-10 mx-4 w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl dark:bg-darkblack-600">
         <div class="flex flex-col items-center text-center">
-          <!-- Título -->
+          <!-- TÃ­tulo -->
           <h3 id="delete-modal-title" class="text-xl font-bold text-bgray-900 dark:text-white mb-2">
-            ¿Eliminar transacción?
+            Â¿Eliminar transacciÃ³n?
           </h3>
           
-          <!-- Descripción -->
+          <!-- DescripciÃ³n -->
           <p class="text-sm text-bgray-600 dark:text-bgray-300 mb-4">
-            Esta acción no se puede deshacer. La transacción será eliminada permanentemente.
+            Esta acciÃ³n no se puede deshacer. La transacciÃ³n serÃ¡ eliminada permanentemente.
           </p>
           
-          <!-- Nombre de la transacción -->
+          <!-- Nombre de la transacciÃ³n -->
           <div class="w-full mb-6 p-3 rounded-lg bg-red-50 dark:bg-red-900/20">
             <p id="delete-transaction-name" class="text-sm font-medium text-red-600 dark:text-red-400">
-              Transacción: Concepto de ejemplo
+              TransacciÃ³n: Concepto de ejemplo
             </p>
           </div>
           
@@ -1987,7 +1004,7 @@
     </script>
 
     <script>
-      // Función para expandir/colapsar la sección de Primeros Pasos
+      // FunciÃ³n para expandir/colapsar la secciÃ³n de Primeros Pasos
       function togglePrimerosPasos() {
         const content = document.getElementById('primerosPasosContent');
         const arrow = document.getElementById('arrowPrimerosPasos');
@@ -2022,10 +1039,10 @@
     <script src="./assets/js/load-components.js"></script>
     <script src="./assets/js/main.js"></script>
     
-    <!-- Supabase y Autenticación -->
+    <!-- Supabase y AutenticaciÃ³n -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script type="module">
-      // Importar módulos
+      // Importar mÃ³dulos
       import './assets/js/supabaseClient.js';
       import './assets/js/auth.js';
       import './assets/js/businessInfo.js';

@@ -30,6 +30,10 @@ let _lastAutocompleteResults = [];
 let currentPage = 1;
 let resultsPerPage = 10;
 
+// Variables para sorting
+let currentSortColumn = null;
+let currentSortDir = 'asc';
+
 /**
  * Abrir modal de añadir gasto/transacción
  */
@@ -274,6 +278,98 @@ async function loadTransactions() {
 }
 
 /**
+ * Sorting de transacciones por columna
+ */
+window.sortTransactions = function(column) {
+  if (currentSortColumn === column) {
+    currentSortDir = currentSortDir === 'asc' ? 'desc' : 'asc';
+  } else {
+    currentSortColumn = column;
+    currentSortDir = 'asc';
+  }
+
+  allTransactions.sort(function(a, b) {
+    var valA, valB;
+    switch (column) {
+      case 'contacto':
+        valA = (a.clientes && a.clientes.nombre_razon_social || '').toLowerCase();
+        valB = (b.clientes && b.clientes.nombre_razon_social || '').toLowerCase();
+        break;
+      case 'concepto':
+        valA = (a.concepto || '').toLowerCase();
+        valB = (b.concepto || '').toLowerCase();
+        break;
+      case 'categoria':
+        valA = (a.categoria || '').toLowerCase();
+        valB = (b.categoria || '').toLowerCase();
+        break;
+      case 'importe':
+        valA = parseFloat(a.importe) || 0;
+        valB = parseFloat(b.importe) || 0;
+        break;
+      case 'fecha':
+        valA = a.fecha || '';
+        valB = b.fecha || '';
+        break;
+      case 'tipo':
+        valA = (a.tipo || '').toLowerCase();
+        valB = (b.tipo || '').toLowerCase();
+        break;
+      default:
+        return 0;
+    }
+    if (valA < valB) return currentSortDir === 'asc' ? -1 : 1;
+    if (valA > valB) return currentSortDir === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  // Actualizar indicadores visuales en las cabeceras
+  document.querySelectorAll('.sort-icon').forEach(function(icon) {
+    icon.querySelectorAll('.sort-asc, .sort-desc').forEach(function(p) { p.setAttribute('fill', '#CBD5E0'); });
+  });
+  var headerBtn = document.querySelector('[onclick="window.sortTransactions(\'' + column + '\')"]');
+  if (headerBtn) {
+    var icon = headerBtn.querySelector('.sort-icon');
+    if (icon) {
+      var activePath = icon.querySelector(currentSortDir === 'asc' ? '.sort-asc' : '.sort-desc');
+      if (activePath) activePath.setAttribute('fill', '#EC8228');
+    }
+  }
+
+  currentPage = 1;
+  renderTransactions(allTransactions);
+};
+
+/**
+ * Inicializar checkbox "seleccionar todo"
+ */
+function initSelectAll() {
+  var selectAllCb = document.getElementById('select-all-transactions');
+  if (!selectAllCb) return;
+
+  selectAllCb.addEventListener('change', function() {
+    var checked = selectAllCb.checked;
+    document.querySelectorAll('.table-content table tr td:first-child input[type="checkbox"]').forEach(function(cb) {
+      if (cb !== selectAllCb) cb.checked = checked;
+    });
+  });
+
+  // Delegación de eventos para checkboxes individuales
+  var tableEl = document.querySelector('.table-content table');
+  if (tableEl) {
+    tableEl.addEventListener('change', function(e) {
+      if (e.target === selectAllCb) return;
+      if (e.target.type !== 'checkbox') return;
+      var allCbs = tableEl.querySelectorAll('tr td:first-child input[type="checkbox"]:not(#select-all-transactions)');
+      var checkedCount = 0;
+      allCbs.forEach(function(cb) { if (cb.checked) checkedCount++; });
+      selectAllCb.checked = checkedCount === allCbs.length && allCbs.length > 0;
+      selectAllCb.indeterminate = checkedCount > 0 && checkedCount < allCbs.length;
+    });
+  }
+}
+
+/**
  * Renderizar transacciones en la tabla
  */
 function renderTransactions(transactions) {
@@ -319,7 +415,7 @@ function renderTransactions(transactions) {
     const initials = transaction.clientes ? window.getInitials(clientName) : 'SC';
     
     // Color del importe según el tipo
-    const amountColor = transaction.tipo === 'gasto' ? 'text-red-500' : 'text-green-500';
+    const amountColor = transaction.tipo === 'gasto' ? 'text-red-500 dark:text-red-400' : 'text-green-500 dark:text-green-400';
     
     // Badge de tipo
     const tipoBadgeColor = transaction.tipo === 'gasto' 
@@ -412,6 +508,10 @@ function renderTransactions(transactions) {
   
   // Actualizar controles de paginación
   updatePagination(transactions.length);
+
+  // Resetear "seleccionar todo"
+  var selectAllCb = document.getElementById('select-all-transactions');
+  if (selectAllCb) { selectAllCb.checked = false; selectAllCb.indeterminate = false; }
 }
 
 /**
@@ -542,6 +642,7 @@ function handleSearchTransactions() {
     loadTransactions();
   }
 }
+window.handleSearchTransactions = handleSearchTransactions;
 
 /**
  * Manejar filtro de rango de importe
@@ -912,9 +1013,18 @@ window.toggleExpensesPerPageDropdown = toggleExpensesPerPageDropdown;
 // Cargar transacciones al iniciar la página
 document.addEventListener('DOMContentLoaded', () => {
   console.log('✅ Expenses page loaded');
+  initSelectAll();
   
   // Cargar transacciones iniciales
   setTimeout(() => {
+    // Si hay parámetro ?search= en la URL, prellenar el buscador
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchParam = urlParams.get('search');
+    if (searchParam) {
+      const searchInput = document.getElementById('transactionSearch');
+      if (searchInput) searchInput.value = searchParam;
+      currentFilters.search = searchParam;
+    }
     loadTransactions();
   }, 500);
   

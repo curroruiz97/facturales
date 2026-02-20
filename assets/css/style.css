@@ -3,6 +3,9 @@
 html {
   background: #fafafa;
 }
+html.dark {
+  background: #23262B;
+}
 body {
   font-family: "Urbanist", sans-serif;
 }
@@ -546,7 +549,8 @@ button.fc-button.fc-button-primary.fc-prev-button {
   .item-ico
   svg
   .path-2 {
-  fill: #FFEDD5;
+  fill: #FFFFFF;
+  stroke: #FFFFFF;
 }
 .sidebar-wrapper .sidebar-body .nav-wrapper ul li.item .sub-menu {
   display: none;
@@ -625,7 +629,8 @@ li.item:hover
 .item-ico
 svg
 .path-2 {
-  fill: #ec8228;
+  fill: #FFFFFF;
+  stroke: #FFFFFF;
 }
 @media (max-width: 1536px) {
 }
@@ -894,7 +899,7 @@ svg
 }
 /* =========================================================
    FACTURALDIGITAL - FORZAR ACENTOS EN NARANJA (#ec8228)
-   (porque Bankco trae muchos SVG/CSS hardcodeados en verde)
+   (porque Facturales trae muchos SVG/CSS hardcodeados en verde)
    ========================================================= */
 :root{
   --fd-brand: #ec8228;
@@ -914,6 +919,7 @@ svg
 /* Iconos del sidebar (segunda capa) por defecto en naranja */
 :is(.sidebar-wrapper, .sidebar-wrapper-collapse) .item-ico svg .path-2{
   fill: var(--fd-brand) !important;
+  stroke: var(--fd-brand) !important;
 }
 
 /* Hover sidebar (por si algún selector del template te “rebota”) */
@@ -943,6 +949,38 @@ svg
   .item-ico
   svg
   .path-2{
-  fill: var(--fd-brand-soft) !important;
+  fill: #FFFFFF !important;
+  stroke: #FFFFFF !important;
 }
+
+/* Sort icon hover */
+.sort-icon { transition: opacity 0.15s; opacity: 0.6; }
+button:hover .sort-icon { opacity: 1; }
+
+/* ===== Clases Tailwind faltantes (output.css no regenerado) ===== */
+
+/* Info (azul) – badge "Completado" del onboarding */
+.text-info-600 { color: #2563eb; }
+.bg-info-50 { background-color: #eff6ff; }
+.border-info-200 { border-color: #bfdbfe; }
+.dark .dark\:bg-info-900\/20 { background-color: rgba(30, 58, 138, 0.2); }
+.dark .dark\:text-info-400 { color: #60a5fa; }
+.dark .dark\:border-info-800 { border-color: #1e40af; }
+
+/* Warning – resumen de factura / presupuesto */
+.text-warning-500 { color: #eab308; }
+.text-warning-700 { color: #a16207; }
+.text-warning-800 { color: #854d0e; }
+.bg-warning-100\/60 { background-color: rgba(253, 224, 71, 0.6); }
+.dark .dark\:text-warning-200 { color: #fde047; }
+.dark .dark\:bg-warning-900\/30 { background-color: rgba(113, 63, 18, 0.3); }
+
+/* Green – importes de ingresos */
+.text-green-500 { color: #22c55e; }
+.text-green-600 { color: #16a34a; }
+.dark .dark\:text-green-400 { color: #4ade80; }
+
+/* Green badge – tipo ingreso en transacciones */
+.bg-green-100 { background-color: #dcfce7; }
+.dark .dark\:bg-green-900\/20 { background-color: rgba(20, 83, 45, 0.2); }
 

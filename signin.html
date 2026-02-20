@@ -7,7 +7,7 @@
       content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
     />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Iniciar sesión - BankCo</title>
+    <title>Iniciar sesión - Facturales</title>
     <link rel="stylesheet" href="./assets/css/slick.css" />
     <link rel="stylesheet" href="./assets/css/aos.css" />
     <link rel="stylesheet" href="./assets/css/output.css" />
@@ -29,7 +29,7 @@
               <h2
                 class="text-bgray-900 dark:text-white text-4xl font-semibold font-poppins mb-2"
               >
-                Inicia sesión en Bankco.
+                Inicia sesión en Facturales.
               </h2>
               <p class="font-urbanis text-base font-medium text-bgray-600 dark:text-bgray-50">
                 Envía, gasta y ahorra de forma inteligente
@@ -219,46 +219,84 @@
               <a href="#" class="text-sm text-bgray-700 dark:text-white">Español</a>
             </nav>
             <p class="text-bgray-600 dark:text-white text-center text-sm mt-6">
-              © 2023 Bankco. Todos los derechos reservados.
+              © 2023 Facturales. Todos los derechos reservados.
             </p>
           </div>
         </div>
         <!-- Right -->
-        <div class="lg:w-1/2 lg:block hidden bg-[#F6FAFF] dark:bg-darkblack-600 p-20 relative">
-          <ul>
-            <li class="absolute top-10 left-8">
-              <img src="assets/images/shapes/square.svg" alt="" />
-            </li>
-            <li class="absolute right-12 top-14">
-              <img src="assets/images/shapes/vline.svg" alt="" />
-            </li>
-            <li class="absolute bottom-7 left-8">
-              <img src="assets/images/shapes/dotted.svg" alt="" />
-            </li>
-          </ul>
-          <div class="">
-            <img
-              src="assets/images/illustration/signin.svg
-            "
-              alt=""
-            />
+        <div class="lg:w-1/2 lg:flex hidden bg-[#F6FAFF] dark:bg-darkblack-600 p-20 relative flex-col items-center justify-center">
+          <div id="login-illustration" class="w-full max-w-sm mx-auto mb-10">
+            <svg viewBox="0 0 300 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Laptop body -->
+              <rect x="50" y="60" width="200" height="140" rx="12" fill="#1D1E24" class="dark:fill-darkblack-400"/>
+              <!-- Screen -->
+              <rect x="62" y="72" width="176" height="108" rx="4" fill="#EC8228" opacity="0.15"/>
+              <!-- Screen content lines -->
+              <rect x="80" y="90" width="80" height="6" rx="3" fill="#EC8228" opacity="0.5"/>
+              <rect x="80" y="104" width="120" height="4" rx="2" fill="#EC8228" opacity="0.3"/>
+              <rect x="80" y="114" width="100" height="4" rx="2" fill="#EC8228" opacity="0.3"/>
+              <rect x="80" y="130" width="60" height="20" rx="6" fill="#EC8228"/>
+              <text x="110" y="144" text-anchor="middle" fill="white" font-size="9" font-weight="bold">Enviar</text>
+              <!-- Keyboard base -->
+              <path d="M30 200 L50 200 L50 200 L250 200 L270 200 L280 220 L20 220 Z" fill="#2A313C" class="dark:fill-darkblack-300"/>
+              <!-- Touchpad -->
+              <rect x="125" y="204" width="50" height="10" rx="3" fill="#3A3F4A"/>
+              <!-- Character body -->
+              <ellipse cx="150" cy="36" rx="28" ry="28" fill="#FFEDD5"/>
+              <!-- Hair -->
+              <path d="M122 28C122 14 134 4 150 4C166 4 178 14 178 28C178 28 176 18 150 18C124 18 122 28 122 28Z" fill="#1D1E24" class="dark:fill-bgray-600"/>
+              <!-- Left eye white -->
+              <ellipse cx="139" cy="34" rx="8" ry="7" fill="white"/>
+              <!-- Right eye white -->
+              <ellipse cx="161" cy="34" rx="8" ry="7" fill="white"/>
+              <!-- Left pupil -->
+              <circle id="pupil-left" cx="139" cy="35" r="3.5" fill="#1D1E24"/>
+              <!-- Right pupil -->
+              <circle id="pupil-right" cx="161" cy="35" r="3.5" fill="#1D1E24"/>
+              <!-- Smile -->
+              <path d="M142 46 Q150 52 158 46" stroke="#C47A5A" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <!-- Blush -->
+              <ellipse cx="132" cy="42" rx="5" ry="3" fill="#FBBF24" opacity="0.25"/>
+              <ellipse cx="168" cy="42" rx="5" ry="3" fill="#FBBF24" opacity="0.25"/>
+            </svg>
           </div>
           <div>
             <div class="text-center max-w-lg px-1.5 m-auto">
-              <h3
-                class="text-bgray-900 dark:text-white font-semibold font-popins text-4xl mb-4"
-              >
-                Rápido, fácil y ágil
+              <h3 class="text-bgray-900 dark:text-white font-semibold font-popins text-4xl mb-4">
+                Facturaci&oacute;n simple y r&aacute;pida
               </h3>
               <p class="text-bgray-600 dark:text-bgray-50 text-sm font-medium">
-                BankCo te ayuda a establecer metas de ahorro, obtener ofertas de reembolso,
-                consulta el aviso legal para más detalles y recibir tus pagos hasta
-                dos días antes. Obtén un
-                <span class="text-success-300 font-bold">$20</span> de bono cuando
-                recibas depósitos directos que cumplan los requisitos
+                Facturales te ayuda a crear facturas, gestionar presupuestos y llevar el control de tus ingresos y gastos de forma sencilla.
               </p>
             </div>
           </div>
+          <script>
+          (function() {
+            var lPupil = document.getElementById('pupil-left');
+            var rPupil = document.getElementById('pupil-right');
+            if (!lPupil || !rPupil) return;
+            var maxD = 3;
+            var raf = null;
+            var mx = 0, my = 0;
+            document.addEventListener('mousemove', function(e) { mx = e.clientX; my = e.clientY; });
+            function tick() {
+              var rect = lPupil.closest('svg').getBoundingClientRect();
+              var cx = rect.left + rect.width / 2;
+              var cy = rect.top + rect.height * 0.13;
+              var dx = mx - cx;
+              var dy = my - cy;
+              var dist = Math.sqrt(dx * dx + dy * dy) || 1;
+              var ox = (dx / dist) * Math.min(maxD, dist * 0.02);
+              var oy = (dy / dist) * Math.min(maxD, dist * 0.02);
+              lPupil.setAttribute('cx', 139 + ox);
+              lPupil.setAttribute('cy', 35 + oy);
+              rPupil.setAttribute('cx', 161 + ox);
+              rPupil.setAttribute('cy', 35 + oy);
+              raf = requestAnimationFrame(tick);
+            }
+            tick();
+          })();
+          </script>
         </div>
       </div>
     </section>
