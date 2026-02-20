@@ -226,76 +226,84 @@
         <!-- Right -->
         <div class="lg:w-1/2 lg:flex hidden bg-gradient-to-br from-[#F4F6FA] to-[#EAECF2] dark:from-darkblack-600 dark:to-darkblack-500 px-8 py-12 xl:px-16 xl:py-16 relative flex-col items-center justify-center overflow-hidden">
 
-          <div id="login-illustration" class="w-full max-w-[260px] mx-auto mb-10 relative z-10">
-            <svg viewBox="0 0 260 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <div id="login-illustration" class="w-full max-w-[200px] mx-auto mb-10 relative z-10">
+            <svg viewBox="0 -35 260 260" fill="none" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <linearGradient id="g-lid" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#D4D8E0"/><stop offset="100%" stop-color="#B8BCC6"/></linearGradient>
                 <linearGradient id="g-base" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#DADEE6"/><stop offset="100%" stop-color="#C4C8D0"/></linearGradient>
                 <linearGradient id="g-screen" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1C1F26"/><stop offset="100%" stop-color="#24272E"/></linearGradient>
                 <linearGradient id="g-skin" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#F5D6B8"/><stop offset="100%" stop-color="#EBC8A4"/></linearGradient>
-                <filter id="f-shadow"><feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000" flood-opacity="0.10"/></filter>
+                <filter id="f-shadow"><feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#000" flood-opacity="0.08"/></filter>
                 <clipPath id="cp-screen"><rect x="42" y="66" width="176" height="100" rx="1.5"/></clipPath>
               </defs>
 
               <!-- Character -->
               <g id="character-group">
-                <rect x="121" y="30" width="18" height="16" rx="6" fill="url(#g-skin)"/>
-                <ellipse cx="130" cy="18" rx="26" ry="24" fill="url(#g-skin)"/>
+                <!-- Neck -->
+                <rect x="122" y="32" width="16" height="14" rx="5" fill="url(#g-skin)"/>
+                <!-- Head -->
+                <ellipse cx="130" cy="16" rx="25" ry="23" fill="url(#g-skin)"/>
 
-                <!-- Hair -->
-                <path d="M104 12C104 -2 114 -10 130 -10C146 -10 156 -2 156 12C156 12 154 4 144 2C136 0 130 2 130 2C130 2 124 0 116 2C106 4 104 12 104 12Z" fill="#3A2C1E"/>
-                <path d="M104 12C105 8 110 2 130 2C150 2 155 8 156 12C155 10 150 5 140 4C132 3 128 5 130 4C125 3 110 3 106 10Z" fill="#3A2C1E"/>
+                <!-- Curly hair -->
+                <g fill="#3A2C1E">
+                  <circle cx="108" cy="-2" r="8"/>
+                  <circle cx="120" cy="-8" r="9"/>
+                  <circle cx="134" cy="-10" r="9"/>
+                  <circle cx="148" cy="-6" r="8"/>
+                  <circle cx="156" cy="2" r="7"/>
+                  <circle cx="103" cy="8" r="7"/>
+                  <circle cx="100" cy="18" r="6"/>
+                  <circle cx="158" cy="12" r="6.5"/>
+                  <circle cx="157" cy="22" r="5.5"/>
+                  <circle cx="102" cy="26" r="5"/>
+                  <ellipse cx="130" cy="-4" rx="26" ry="14"/>
+                </g>
 
                 <!-- Ears -->
-                <ellipse cx="104" cy="20" rx="4" ry="5.5" fill="#EBC8A4"/>
-                <ellipse cx="156" cy="20" rx="4" ry="5.5" fill="#EBC8A4"/>
+                <ellipse cx="105" cy="18" rx="4" ry="5" fill="#EBC8A4"/>
+                <ellipse cx="155" cy="18" rx="4" ry="5" fill="#EBC8A4"/>
 
                 <!-- Eyebrows -->
-                <path d="M118 8 Q122 5 127 7.5" stroke="#3A2C1E" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.6"/>
-                <path d="M133 7.5 Q138 5 142 8" stroke="#3A2C1E" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.6"/>
+                <path d="M117 6 Q122 3 127 5.5" stroke="#3A2C1E" stroke-width="1.6" stroke-linecap="round" fill="none" opacity="0.55"/>
+                <path d="M133 5.5 Q138 3 143 6" stroke="#3A2C1E" stroke-width="1.6" stroke-linecap="round" fill="none" opacity="0.55"/>
 
-                <!-- Eyes open: simple white + black pupil -->
+                <!-- Eyes open -->
                 <g id="eyes-open">
-                  <ellipse cx="122" cy="18" rx="7" ry="6.5" fill="white"/>
-                  <ellipse cx="138" cy="18" rx="7" ry="6.5" fill="white"/>
-                  <circle id="pupil-left" cx="122" cy="19" r="3.8" fill="#1A1A1A"/>
-                  <circle id="pupil-right" cx="138" cy="19" r="3.8" fill="#1A1A1A"/>
-                  <circle id="highlight-left" cx="124" cy="17" r="1.3" fill="white" opacity="0.8"/>
-                  <circle id="highlight-right" cx="140" cy="17" r="1.3" fill="white" opacity="0.8"/>
+                  <ellipse cx="122" cy="16" rx="6.5" ry="6" fill="white"/>
+                  <ellipse cx="138" cy="16" rx="6.5" ry="6" fill="white"/>
+                  <circle id="pupil-left" cx="122" cy="17" r="3.5" fill="#1A1A1A"/>
+                  <circle id="pupil-right" cx="138" cy="17" r="3.5" fill="#1A1A1A"/>
+                  <circle id="highlight-left" cx="124" cy="15" r="1.2" fill="white" opacity="0.85"/>
+                  <circle id="highlight-right" cx="140" cy="15" r="1.2" fill="white" opacity="0.85"/>
                 </g>
 
-                <!-- Eyes closed: curved line + lashes -->
+                <!-- Eyes closed -->
                 <g id="eyes-closed" style="display:none;">
-                  <path d="M115 18 Q122 23 129 18" stroke="#3A2C1E" stroke-width="2" stroke-linecap="round" fill="none"/>
-                  <line x1="117" y1="19.5" x2="115.5" y2="22" stroke="#3A2C1E" stroke-width="1.3" stroke-linecap="round"/>
-                  <line x1="120" y1="21" x2="119.5" y2="23.5" stroke="#3A2C1E" stroke-width="1.3" stroke-linecap="round"/>
-                  <line x1="124" y1="21.5" x2="124" y2="24" stroke="#3A2C1E" stroke-width="1.3" stroke-linecap="round"/>
-                  <line x1="127" y1="20" x2="128.5" y2="22.5" stroke="#3A2C1E" stroke-width="1.3" stroke-linecap="round"/>
-
-                  <path d="M131 18 Q138 23 145 18" stroke="#3A2C1E" stroke-width="2" stroke-linecap="round" fill="none"/>
-                  <line x1="133" y1="19.5" x2="131.5" y2="22" stroke="#3A2C1E" stroke-width="1.3" stroke-linecap="round"/>
-                  <line x1="136" y1="21" x2="135.5" y2="23.5" stroke="#3A2C1E" stroke-width="1.3" stroke-linecap="round"/>
-                  <line x1="140" y1="21.5" x2="140" y2="24" stroke="#3A2C1E" stroke-width="1.3" stroke-linecap="round"/>
-                  <line x1="143" y1="20" x2="144.5" y2="22.5" stroke="#3A2C1E" stroke-width="1.3" stroke-linecap="round"/>
+                  <path d="M115.5 16 Q122 21 128.5 16" stroke="#3A2C1E" stroke-width="2" stroke-linecap="round" fill="none"/>
+                  <line x1="117" y1="17.5" x2="115.5" y2="20" stroke="#3A2C1E" stroke-width="1.2" stroke-linecap="round"/>
+                  <line x1="120.5" y1="19" x2="120" y2="21.5" stroke="#3A2C1E" stroke-width="1.2" stroke-linecap="round"/>
+                  <line x1="124" y1="19.5" x2="124" y2="22" stroke="#3A2C1E" stroke-width="1.2" stroke-linecap="round"/>
+                  <line x1="127" y1="18" x2="128.5" y2="20.5" stroke="#3A2C1E" stroke-width="1.2" stroke-linecap="round"/>
+                  <path d="M131.5 16 Q138 21 144.5 16" stroke="#3A2C1E" stroke-width="2" stroke-linecap="round" fill="none"/>
+                  <line x1="133" y1="17.5" x2="131.5" y2="20" stroke="#3A2C1E" stroke-width="1.2" stroke-linecap="round"/>
+                  <line x1="136.5" y1="19" x2="136" y2="21.5" stroke="#3A2C1E" stroke-width="1.2" stroke-linecap="round"/>
+                  <line x1="140" y1="19.5" x2="140" y2="22" stroke="#3A2C1E" stroke-width="1.2" stroke-linecap="round"/>
+                  <line x1="143" y1="18" x2="144.5" y2="20.5" stroke="#3A2C1E" stroke-width="1.2" stroke-linecap="round"/>
                 </g>
 
-                <!-- Hands covering eyes -->
+                <!-- Hands covering eyes (password focus) -->
                 <g id="hands-cover" style="display:none;">
-                  <ellipse cx="122" cy="18" rx="12" ry="9" fill="url(#g-skin)"/>
-                  <ellipse cx="138" cy="18" rx="12" ry="9" fill="url(#g-skin)"/>
-                  <path d="M112 15 L120 17" stroke="#DEAD90" stroke-width="0.5" opacity="0.4"/>
-                  <path d="M111 19 L121 20" stroke="#DEAD90" stroke-width="0.5" opacity="0.4"/>
-                  <path d="M148 15 L140 17" stroke="#DEAD90" stroke-width="0.5" opacity="0.4"/>
-                  <path d="M149 19 L139 20" stroke="#DEAD90" stroke-width="0.5" opacity="0.4"/>
+                  <ellipse cx="122" cy="16" rx="11" ry="8" fill="url(#g-skin)"/>
+                  <ellipse cx="138" cy="16" rx="11" ry="8" fill="url(#g-skin)"/>
                 </g>
 
                 <!-- Nose -->
-                <path d="M128 27 Q130 30 132 27" stroke="#DEAD90" stroke-width="1" fill="none" stroke-linecap="round"/>
+                <path d="M128 25 Q130 28 132 25" stroke="#DEAD90" stroke-width="1" fill="none" stroke-linecap="round"/>
                 <!-- Mouth -->
-                <path id="mouth" d="M124 34 Q130 39 136 34" stroke="#C08060" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                <path id="mouth" d="M124 32 Q130 37 136 32" stroke="#C08060" stroke-width="1.5" fill="none" stroke-linecap="round"/>
                 <!-- Blush -->
-                <ellipse cx="113" cy="28" rx="5" ry="2.5" fill="#F0A880" opacity="0.1"/>
-                <ellipse cx="147" cy="28" rx="5" ry="2.5" fill="#F0A880" opacity="0.1"/>
+                <ellipse cx="113" cy="26" rx="4.5" ry="2" fill="#F0A880" opacity="0.1"/>
+                <ellipse cx="147" cy="26" rx="4.5" ry="2" fill="#F0A880" opacity="0.1"/>
               </g>
 
               <!-- Laptop -->
@@ -309,7 +317,6 @@
 
                 <!-- Screen content -->
                 <g clip-path="url(#cp-screen)">
-                  <!-- Sidebar -->
                   <rect x="42" y="66" width="34" height="100" fill="#181A1F"/>
                   <circle cx="59" cy="76" r="4" fill="#EC8228" opacity="0.7"/>
                   <text x="59" y="78.5" text-anchor="middle" fill="white" font-size="5" font-weight="bold" font-family="system-ui">F</text>
@@ -317,25 +324,17 @@
                   <rect x="49" y="92" width="18" height="2" rx="1" fill="#EC8228" opacity="0.5"/>
                   <rect x="49" y="98" width="20" height="2" rx="1" fill="#33373F"/>
                   <rect x="49" y="104" width="16" height="2" rx="1" fill="#33373F"/>
-
-                  <!-- Content -->
                   <rect x="82" y="70" width="132" height="92" fill="#20232A"/>
-                  <!-- Title bar -->
                   <rect x="88" y="74" width="50" height="3.5" rx="1.5" fill="#EC8228" opacity="0.4"/>
-                  <!-- Stat cards -->
                   <rect x="88" y="82" width="38" height="22" rx="3" fill="#282B34"/>
                   <rect x="92" y="86" width="18" height="2" rx="1" fill="#555" opacity="0.5"/>
                   <rect x="92" y="92" width="28" height="4" rx="1.5" fill="#22C55E" opacity="0.5"/>
-
                   <rect x="130" y="82" width="38" height="22" rx="3" fill="#282B34"/>
                   <rect x="134" y="86" width="18" height="2" rx="1" fill="#555" opacity="0.5"/>
                   <rect x="134" y="92" width="28" height="4" rx="1.5" fill="#EF4444" opacity="0.4"/>
-
                   <rect x="172" y="82" width="38" height="22" rx="3" fill="#282B34"/>
                   <rect x="176" y="86" width="18" height="2" rx="1" fill="#555" opacity="0.5"/>
                   <rect x="176" y="92" width="28" height="4" rx="1.5" fill="#EC8228" opacity="0.4"/>
-
-                  <!-- Chart -->
                   <rect x="88" y="110" width="80" height="46" rx="3" fill="#282B34"/>
                   <rect x="94" y="136" width="5" height="14" rx="1.5" fill="#22C55E" opacity="0.5"/>
                   <rect x="102" y="130" width="5" height="20" rx="1.5" fill="#22C55E" opacity="0.6"/>
@@ -346,8 +345,6 @@
                   <rect x="142" y="128" width="5" height="22" rx="1.5" fill="#22C55E" opacity="0.55"/>
                   <rect x="150" y="134" width="5" height="16" rx="1.5" fill="#22C55E" opacity="0.45"/>
                   <rect x="158" y="124" width="5" height="26" rx="1.5" fill="#22C55E" opacity="0.7"/>
-
-                  <!-- Table -->
                   <rect x="172" y="110" width="38" height="46" rx="3" fill="#282B34"/>
                   <rect x="176" y="118" width="30" height="2" rx="1" fill="#3A3E48"/>
                   <rect x="176" y="124" width="30" height="2" rx="1" fill="#3A3E48" opacity="0.6"/>
@@ -362,24 +359,24 @@
                 <circle cx="130" cy="59.5" r="1.2" fill="#2A2D35"/>
               </g>
 
-              <!-- Base (wider, elegant trapezoid) -->
-              <path d="M18 174 L34 174 L226 174 L242 174 L254 188 Q256 192 252 192 L8 192 Q4 192 6 188 Z" fill="url(#g-base)"/>
               <!-- Hinge -->
-              <rect x="32" y="173" width="196" height="2.5" rx="1" fill="#AEB2BA"/>
-              <rect x="32" y="173" width="196" height="0.8" fill="white" opacity="0.25"/>
-              <!-- Keyboard surface (single elegant rect, no individual keys) -->
-              <rect x="34" y="177" width="192" height="10" rx="2" fill="#C0C4CC" opacity="0.35"/>
-              <!-- Trackpad line -->
-              <rect x="105" y="185" width="50" height="0.8" rx="0.4" fill="#A0A4AC" opacity="0.3"/>
+              <rect x="36" y="173" width="188" height="2.5" rx="1" fill="#AEB2BA"/>
+              <rect x="36" y="173" width="188" height="0.8" fill="white" opacity="0.2"/>
+
+              <!-- Base (same width as lid, clean rectangle) -->
+              <rect x="32" y="175" width="196" height="16" rx="3" fill="url(#g-base)"/>
+              <!-- Subtle keyboard grid -->
+              <g opacity="0.18">
+                <rect x="44" y="178" width="172" height="4" rx="1.5" fill="#9A9EA6"/>
+                <rect x="44" y="183.5" width="172" height="4" rx="1.5" fill="#9A9EA6"/>
+              </g>
+              <!-- Trackpad -->
+              <rect x="108" y="189" width="44" height="0.8" rx="0.4" fill="#9A9EA6" opacity="0.25"/>
+              <!-- Front edge -->
+              <rect x="32" y="190" width="196" height="1.2" rx="0.6" fill="#B0B4BC"/>
 
               <!-- Ground shadow -->
-              <ellipse cx="130" cy="196" rx="110" ry="4" fill="#000" opacity="0.035"/>
-
-              <!-- Arms resting -->
-              <g id="arms-resting">
-                <path d="M78 173 Q88 158 98 164 Q104 168 104 174" fill="url(#g-skin)" stroke="#E0B898" stroke-width="0.4" opacity="0.9"/>
-                <path d="M182 173 Q172 158 162 164 Q156 168 156 174" fill="url(#g-skin)" stroke="#E0B898" stroke-width="0.4" opacity="0.9"/>
-              </g>
+              <ellipse cx="130" cy="196" rx="100" ry="3.5" fill="#000" opacity="0.03"/>
             </svg>
           </div>
 
@@ -403,7 +400,6 @@
             var eO = document.getElementById('eyes-open');
             var eC = document.getElementById('eyes-closed');
             var hC = document.getElementById('hands-cover');
-            var aR = document.getElementById('arms-resting');
             var mo = document.getElementById('mouth');
             if (!lP || !rP) return;
             var D = 3, mx = 0, my = 0, pw = false;
@@ -413,22 +409,21 @@
               eO.style.display = on ? 'none' : '';
               eC.style.display = on ? '' : 'none';
               hC.style.display = on ? '' : 'none';
-              if (aR) aR.style.display = on ? 'none' : '';
-              if (mo) mo.setAttribute('d', on ? 'M127 34 Q130 35.5 133 34' : 'M124 34 Q130 39 136 34');
+              if (mo) mo.setAttribute('d', on ? 'M127 32 Q130 33.5 133 32' : 'M124 32 Q130 37 136 32');
             }
             function tick() {
               if (!pw) {
                 var s = lP.closest('svg'); if (!s) { requestAnimationFrame(tick); return; }
                 var r = s.getBoundingClientRect();
-                var cx = r.left + r.width * 0.5, cy = r.top + r.height * 0.08;
+                var cx = r.left + r.width * 0.5, cy = r.top + r.height * 0.12;
                 var dx = mx - cx, dy = my - cy;
                 var d = Math.sqrt(dx*dx + dy*dy) || 1;
                 var ox = (dx/d) * Math.min(D, d*0.012);
                 var oy = (dy/d) * Math.min(D, d*0.012);
-                lP.setAttribute('cx', 122+ox); lP.setAttribute('cy', 19+oy);
-                rP.setAttribute('cx', 138+ox); rP.setAttribute('cy', 19+oy);
-                if (lH) { lH.setAttribute('cx', 124+ox*0.3); lH.setAttribute('cy', 17+oy*0.3); }
-                if (rH) { rH.setAttribute('cx', 140+ox*0.3); rH.setAttribute('cy', 17+oy*0.3); }
+                lP.setAttribute('cx', 122+ox); lP.setAttribute('cy', 17+oy);
+                rP.setAttribute('cx', 138+ox); rP.setAttribute('cy', 17+oy);
+                if (lH) { lH.setAttribute('cx', 124+ox*0.3); lH.setAttribute('cy', 15+oy*0.3); }
+                if (rH) { rH.setAttribute('cx', 140+ox*0.3); rH.setAttribute('cy', 15+oy*0.3); }
               }
               requestAnimationFrame(tick);
             }
