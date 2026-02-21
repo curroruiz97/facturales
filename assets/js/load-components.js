@@ -144,6 +144,8 @@ function updatePageTitle() {
     '/invoices/quote-drafts': 'Borradores de presupuestos',
     '/invoices/quote-issued.html': 'Presupuestos emitidos',
     '/invoices/quote-issued': 'Presupuestos emitidos',
+    '/scan-ocr.html': 'Scan OCR',
+    '/scan-ocr': 'Scan OCR',
   };
 
   const title = pageTitles[path] || pageTitles[path.replace('.html', '')] || 'Panel de control';

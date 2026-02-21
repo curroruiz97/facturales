@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Elige tu plan - Facturales</title>
+    <link rel="stylesheet" crossorigin href="/assets/style-C65zA0qN.css">
+  </head>
+  <body>
+    <section class="bg-white dark:bg-darkblack-500 min-h-screen">
+      <!-- Header con logo -->
+      <div class="px-5 xl:px-12 pt-10 pb-6">
+        <header class="flex items-center justify-between max-w-[1200px] mx-auto">
+          <a href="index.html">
+            <img src="/assets/logo-color-CM4tjj3O.svg" class="block dark:hidden" alt="Logo" />
+            <img src="/assets/logo-white-Ddz4_PB5.svg" class="hidden dark:block" alt="Logo" />
+          </a>
+          <div class="flex items-center gap-4">
+            <a
+              href="signin.html"
+              class="text-sm font-semibold text-bgray-700 dark:text-bgray-50 hover:text-success-300 transition-all"
+            >
+              Iniciar sesión
+            </a>
+            <a
+              href="signup.html"
+              class="text-sm font-semibold text-white bg-success-300 hover:bg-success-400 transition-all rounded-lg px-4 py-2"
+            >
+              Registrarse
+            </a>
+          </div>
+        </header>
+      </div>
+
+      <!-- Contenido principal -->
+      <div class="max-w-[1200px] mx-auto px-5 xl:px-12 pb-16">
+        <!-- Título -->
+        <div class="text-center mb-10">
+          <h1 class="text-bgray-900 dark:text-white text-4xl font-semibold font-poppins mb-3">
+            Elige tu plan
+          </h1>
+          <p class="font-urbanist text-base font-medium text-bgray-600 dark:text-bgray-50">
+            14 días de prueba gratis (solo una vez por usuario)
+          </p>
+        </div>
+
+        <!-- Error message -->
+        <div
+          id="subscribe-error"
+          class="hidden mb-6 max-w-[800px] mx-auto p-4 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 rounded-lg text-sm text-center"
+        ></div>
+
+        <!-- Grid de planes -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 max-w-[1000px] mx-auto">
+
+          <!-- Plan Starter -->
+          <div
+            id="card-starter"
+            class="plan-card relative rounded-lg bg-white dark:bg-darkblack-600 p-6 border-2 border-bgray-200 dark:border-darkblack-400 cursor-pointer transition-all hover:shadow-lg"
+            data-plan="starter"
+          >
+            <div class="mb-4">
+              <span class="inline-block text-xs font-bold uppercase tracking-wider text-success-300 bg-success-300/10 rounded-full px-3 py-1">
+                Starter
+              </span>
+            </div>
+            <div class="mb-4">
+              <span class="text-3xl font-bold text-bgray-900 dark:text-white">9€</span>
+              <span class="text-base text-bgray-600 dark:text-bgray-50">/mes</span>
+            </div>
+            <p class="text-sm text-bgray-600 dark:text-bgray-50 mb-6">
+              Ideal para autónomos que empiezan a facturar.
+            </p>
+            <ul class="space-y-3 mb-6">
+              <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
+                <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Hasta 50 facturas/mes
+              </li>
+              <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
+                <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Hasta 20 clientes
+              </li>
+              <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
+                <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Presupuestos ilimitados
+              </li>
+              <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
+                <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Envío de facturas por email
+              </li>
+            </ul>
+            <button
+              class="plan-select-btn w-full py-3 rounded-lg text-sm font-semibold border-2 border-success-300 text-success-300 hover:bg-success-300 hover:text-white transition-all"
+              data-plan="starter"
+            >
+              Seleccionar
+            </button>
+            <!-- Checkmark para plan seleccionado -->
+            <div class="plan-check hidden absolute top-4 right-4">
+              <div class="w-6 h-6 rounded-full bg-success-300 flex items-center justify-center">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Plan Pro -->
+          <div
+            id="card-pro"
+            class="plan-card relative rounded-lg bg-white dark:bg-darkblack-600 p-6 border-2 border-bgray-200 dark:border-darkblack-400 cursor-pointer transition-all hover:shadow-lg"
+            data-plan="pro"
+          >
+            <!-- Badge popular -->
+            <div class="absolute -top-3 left-1/2 -translate-x-1/2">
+              <span class="text-xs font-bold uppercase tracking-wider text-white bg-success-300 rounded-full px-3 py-1">
+                Popular
+              </span>
+            </div>
+            <div class="mb-4 mt-2">
+              <span class="inline-block text-xs font-bold uppercase tracking-wider text-success-300 bg-success-300/10 rounded-full px-3 py-1">
+                Pro
+              </span>
+            </div>
+            <div class="mb-4">
+              <span class="text-3xl font-bold text-bgray-900 dark:text-white">19€</span>
+              <span class="text-base text-bgray-600 dark:text-bgray-50">/mes</span>
+            </div>
+            <p class="text-sm text-bgray-600 dark:text-bgray-50 mb-6">
+              Para profesionales que necesitan más potencia.
+            </p>
+            <ul class="space-y-3 mb-6">
+              <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
+                <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Facturas ilimitadas
+              </li>
+              <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
+                <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Clientes ilimitados
+              </li>
+              <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
+                <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Presupuestos ilimitados
+              </li>
+              <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
+                <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Envío de facturas por email
+              </li>
+              <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
+                <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Panel de analíticas avanzado
+              </li>
+              <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
+                <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Soporte prioritario
+              </li>
+            </ul>
+            <button
+              class="plan-select-btn w-full py-3 rounded-lg text-sm font-semibold border-2 border-success-300 text-success-300 hover:bg-success-300 hover:text-white transition-all"
+              data-plan="pro"
+            >
+              Seleccionar
+            </button>
+            <div class="plan-check hidden absolute top-4 right-4">
+              <div class="w-6 h-6 rounded-full bg-success-300 flex items-center justify-center">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Plan Business -->
+          <div
+            id="card-business"
+            class="plan-card relative rounded-lg bg-white dark:bg-darkblack-600 p-6 border-2 border-bgray-200 dark:border-darkblack-400 cursor-pointer transition-all hover:shadow-lg"
+            data-plan="business"
+          >
+            <div class="mb-4">
+              <span class="inline-block text-xs font-bold uppercase tracking-wider text-success-300 bg-success-300/10 rounded-full px-3 py-1">
+                Business
+              </span>
+            </div>
+            <div class="mb-4">
+              <span class="text-3xl font-bold text-bgray-900 dark:text-white">39€</span>
+              <span class="text-base text-bgray-600 dark:text-bgray-50">/mes</span>
+            </div>
+            <p class="text-sm text-bgray-600 dark:text-bgray-50 mb-6">
+              Para empresas con alto volumen de facturación.
+            </p>
+            <ul class="space-y-3 mb-6">
+              <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
+                <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Todo lo de Pro incluido
+              </li>
+              <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
+                <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Multi-serie de facturación
+              </li>
+              <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
+                <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Exportación contable masiva
+              </li>
+              <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
+                <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Integraciones avanzadas
+              </li>
+              <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
+                <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Soporte dedicado 24/7
+              </li>
+            </ul>
+            <button
+              class="plan-select-btn w-full py-3 rounded-lg text-sm font-semibold border-2 border-success-300 text-success-300 hover:bg-success-300 hover:text-white transition-all"
+              data-plan="business"
+            >
+              Seleccionar
+            </button>
+            <div class="plan-check hidden absolute top-4 right-4">
+              <div class="w-6 h-6 rounded-full bg-success-300 flex items-center justify-center">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CTA Principal -->
+        <div class="max-w-[400px] mx-auto">
+          <button
+            id="btn-continue"
+            class="py-3.5 flex items-center justify-center text-white font-bold bg-success-300 hover:bg-success-400 transition-all rounded-lg w-full text-base"
+          >
+            <span id="btn-continue-text">Continuar con Starter</span>
+            <!-- Spinner (oculto por defecto) -->
+            <svg
+              id="btn-continue-spinner"
+              class="hidden animate-spin ml-2 h-5 w-5 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </button>
+          <p class="text-center text-xs text-bgray-500 dark:text-bgray-50 mt-3">
+            Puedes cancelar en cualquier momento. Sin compromisos.
+          </p>
+        </div>
+
+        <!-- Links secundarios -->
+        <div class="text-center mt-8">
+          <p class="text-bgray-600 dark:text-bgray-50 text-sm">
+            <a href="signin.html" class="font-semibold text-success-300 hover:underline">Iniciar sesión</a>
+            <span class="mx-2">·</span>
+            <a href="signup.html" class="font-semibold text-success-300 hover:underline">Crear cuenta</a>
+          </p>
+        </div>
+
+        <!-- Footer -->
+        <nav class="flex items-center justify-center flex-wrap gap-x-11 pt-12">
+          <a href="#" class="text-sm text-bgray-700 dark:text-white">Términos y condiciones</a>
+          <a href="#" class="text-sm text-bgray-700 dark:text-white">Política de privacidad</a>
+          <a href="#" class="text-sm text-bgray-700 dark:text-white">Ayuda</a>
+        </nav>
+        <p class="text-bgray-600 dark:text-white text-center text-sm mt-6">
+          &copy; 2026 Facturales. Todos los derechos reservados.
+        </p>
+      </div>
+    </section>
+
+    <!-- Scripts -->
+    <script>
+      (function () {
+        // =============================================
+        // Configuración de planes
+        // =============================================
+        var PLANS = {
+          starter: { name: 'Starter', price: '9€/mes' },
+          pro:     { name: 'Pro',     price: '19€/mes' },
+          business:{ name: 'Business',price: '39€/mes' }
+        };
+
+        var VALID_PLANS = Object.keys(PLANS);
+
+        // TODO: Ruta principal de la app. Ajustar si cambia.
+        var APP_HOME_ROUTE = '/index.html';
+
+        // =============================================
+        // Estado
+        // =============================================
+        var selectedPlan = 'starter';
+        var isLoading = false;
+
+        // =============================================
+        // Elementos del DOM
+        // =============================================
+        var btnContinue     = document.getElementById('btn-continue');
+        var btnContinueText = document.getElementById('btn-continue-text');
+        var btnSpinner      = document.getElementById('btn-continue-spinner');
+        var errorContainer  = document.getElementById('subscribe-error');
+        var planCards       = document.querySelectorAll('.plan-card');
+
+        // =============================================
+        // Leer query param ?plan=
+        // =============================================
+        function getQueryPlan() {
+          var params = new URLSearchParams(window.location.search);
+          var plan = (params.get('plan') || '').toLowerCase();
+          if (VALID_PLANS.indexOf(plan) === -1) return 'starter';
+          return plan;
+        }
+
+        // =============================================
+        // Actualizar UI según plan seleccionado
+        // =============================================
+        function selectPlan(plan) {
+          if (VALID_PLANS.indexOf(plan) === -1) plan = 'starter';
+          selectedPlan = plan;
+
+          planCards.forEach(function (card) {
+            var cardPlan = card.getAttribute('data-plan');
+            var check = card.querySelector('.plan-check');
+            var btn = card.querySelector('.plan-select-btn');
+
+            if (cardPlan === plan) {
+              card.classList.remove('border-bgray-200', 'dark:border-darkblack-400');
+              card.classList.add('border-success-300', 'shadow-lg');
+              if (check) check.classList.remove('hidden');
+              if (btn) {
+                btn.classList.add('bg-success-300', 'text-white');
+                btn.classList.remove('text-success-300');
+                btn.textContent = 'Seleccionado';
+              }
+            } else {
+              card.classList.add('border-bgray-200', 'dark:border-darkblack-400');
+              card.classList.remove('border-success-300', 'shadow-lg');
+              if (check) check.classList.add('hidden');
+              if (btn) {
+                btn.classList.remove('bg-success-300', 'text-white');
+                btn.classList.add('text-success-300');
+                btn.textContent = 'Seleccionar';
+              }
+            }
+          });
+
+          btnContinueText.textContent = 'Continuar con ' + PLANS[plan].name;
+          hideError();
+        }
+
+        // =============================================
+        // Mostrar / ocultar error
+        // =============================================
+        function showError(msg) {
+          errorContainer.textContent = msg;
+          errorContainer.classList.remove('hidden');
+        }
+
+        function hideError() {
+          errorContainer.textContent = '';
+          errorContainer.classList.add('hidden');
+        }
+
+        // =============================================
+        // Acción de continuar (SIMULADA)
+        // =============================================
+        function handleContinue() {
+          if (isLoading) return;
+          isLoading = true;
+          hideError();
+
+          btnContinue.disabled = true;
+          btnContinueText.textContent = 'Procesando...';
+          btnSpinner.classList.remove('hidden');
+
+          // TODO: Aquí se llamará al backend create-checkout-session
+          // con el priceId correspondiente al plan seleccionado y se
+          // redirigirá a Stripe Checkout (session.url).
+          // Ejemplo futuro:
+          //   const res = await fetch('/functions/v1/create-checkout-session', {
+          //     method: 'POST',
+          //     headers: { 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json' },
+          //     body: JSON.stringify({ priceId: STRIPE_PRICES[selectedPlan] })
+          //   });
+          //   const { url } = await res.json();
+          //   window.location.href = url;
+
+          var delay = 800 + Math.random() * 400;
+          setTimeout(function () {
+            isLoading = false;
+            btnContinue.disabled = false;
+            btnSpinner.classList.add('hidden');
+            window.location.href = '/billing/success.html?plan=' + selectedPlan;
+          }, delay);
+        }
+
+        // =============================================
+        // Event listeners
+        // =============================================
+        planCards.forEach(function (card) {
+          card.addEventListener('click', function () {
+            if (isLoading) return;
+            selectPlan(card.getAttribute('data-plan'));
+          });
+        });
+
+        document.querySelectorAll('.plan-select-btn').forEach(function (btn) {
+          btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            if (isLoading) return;
+            selectPlan(btn.getAttribute('data-plan'));
+          });
+        });
+
+        btnContinue.addEventListener('click', handleContinue);
+
+        // =============================================
+        // Inicialización
+        // =============================================
+        var initialPlan = getQueryPlan();
+        selectPlan(initialPlan);
+      })();
+    </script>
+  </body>
+</html>

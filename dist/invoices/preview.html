@@ -7,7 +7,7 @@
       content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
     />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Vista previa de factura</title>
+    <title>Vista previa de factura</title>
     <style>
       #pdf-viewer {
         width: 100%;
@@ -27,12 +27,12 @@
         }
       }
     </style>
-    <script type="module" crossorigin src="/assets/auth-C1W-hfHs.js"></script>
+    <script type="module" crossorigin src="/assets/auth-D0V1IyeF.js"></script>
     <script type="module" crossorigin src="/assets/businessInfo-DUlvmxyV.js"></script>
     <script type="module" crossorigin src="/assets/checkBusinessInfo-Bh87YG2v.js"></script>
-    <script type="module" crossorigin src="/assets/auth-guard-t0CGVzNF.js"></script>
+    <script type="module" crossorigin src="/assets/auth-guard-C6jxfgRt.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/slick-CbWFAYwR.css">
-    <link rel="stylesheet" crossorigin href="/assets/style-BoAMvr2Z.css">
+    <link rel="stylesheet" crossorigin href="/assets/style-C65zA0qN.css">
   </head>
   <body>
     <div class="layout-wrapper active w-full">
@@ -160,10 +160,10 @@
                     style="border: 1px solid #fbbf24; box-shadow: 0 0 0 1px rgba(251,191,36,0.15), 0 4px 20px rgba(251,191,36,0.08);"
                   >
                     <div class="flex items-center gap-2 mb-4">
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-warning-500">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-warning-500 dark:text-white">
                         <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
-                      <h3 class="text-lg font-bold text-warning-700 dark:text-warning-300">Resumen</h3>
+                      <h3 class="text-lg font-bold text-warning-700 dark:text-white">Resumen</h3>
                     </div>
                     <div class="space-y-2.5 text-sm">
                       <!-- Subtotal -->
@@ -214,8 +214,8 @@
 
                       <!-- Total a pagar -->
                       <div class="flex justify-between items-center rounded-lg bg-warning-100/60 dark:bg-warning-900/30 px-3 py-2.5">
-                        <span class="text-lg font-bold text-warning-800 dark:text-warning-200">Total a pagar</span>
-                        <span id="summary-total-to-pay" class="text-lg font-bold text-warning-800 dark:text-warning-200 tabular-nums">0,00 €</span>
+                        <span class="text-lg font-bold text-warning-800 dark:text-white">Total a pagar</span>
+                        <span id="summary-total-to-pay" class="text-lg font-bold text-warning-800 dark:text-white tabular-nums">0,00 €</span>
                       </div>
 
                       <!-- Nota de cálculo automático -->
@@ -279,6 +279,45 @@
       </div>
     </div>
 
+    <!-- Modal: Confirmación de Emisión -->
+    <div id="emit-confirm-modal" class="fixed inset-0 z-[9999] hidden flex items-center justify-center overflow-y-auto bg-black/60 backdrop-blur-sm">
+      <div class="relative mx-auto w-full max-w-md rounded-lg border-2 border-success-300 bg-white p-6 shadow-xl dark:bg-darkblack-600">
+        <div class="mb-5">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-success-50 dark:bg-darkblack-500">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="text-success-300"><path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <h3 class="text-xl font-bold text-bgray-900 dark:text-white">Emitir factura</h3>
+          </div>
+          <p class="text-sm text-bgray-600 dark:text-bgray-50">
+            La factura se emitirá de forma definitiva y no podrá ser modificada. ¿Deseas enviar una copia al cliente por correo electrónico?
+          </p>
+        </div>
+        <div class="flex flex-col gap-2">
+          <button
+            onclick="confirmEmitInvoice(true)"
+            class="w-full rounded-lg bg-success-300 hover:bg-success-400 px-4 py-3 text-sm font-semibold text-white transition shadow-sm flex items-center justify-center gap-2"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Emitir y enviar por email
+          </button>
+          <button
+            onclick="confirmEmitInvoice(false)"
+            class="w-full rounded-lg border border-success-300 px-4 py-3 text-sm font-semibold text-success-300 transition hover:bg-success-50 flex items-center justify-center gap-2"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 13L9 17L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Emitir sin enviar email
+          </button>
+          <button
+            onclick="closeEmitModal()"
+            class="w-full rounded-lg border border-bgray-300 px-4 py-3 text-sm font-semibold text-bgray-900 transition hover:bg-bgray-100 dark:border-darkblack-400 dark:text-white dark:hover:bg-darkblack-500"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Librerías base -->
     <script src="../assets/js/jquery-3.6.0.min.js"></script>
     <script src="../assets/js/slick.min.js"></script>
@@ -291,15 +330,17 @@
     <script src="../assets/js/invoice-data-handler.js"></script>
 
     <!-- Supabase + Auth + Módulos -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../assets/js/user-header.js" defer></script>
     <script src="../assets/js/toast.js" defer></script>
     <script src="../assets/js/invoices.js" defer></script>
+    <script src="../assets/js/email-sender.js" defer></script>
 
     <!-- Lógica de la página de preview -->
     <script>
       var currentInvoiceData = null;
       var pdfGenerator = null;
+      var cachedPdfBase64 = null;
       var currentInvoiceId = null;
       var isReadOnly = false;
 
@@ -514,7 +555,11 @@
         try {
           pdfGenerator = new InvoicePDFGenerator();
           pdfGenerator.generatePDF(data);
-          document.getElementById('pdf-viewer').src = pdfGenerator.getPDFDataUrl();
+          var dataUrl = pdfGenerator.getPDFDataUrl();
+          document.getElementById('pdf-viewer').src = dataUrl;
+          if (dataUrl && dataUrl.indexOf(',') !== -1) {
+            cachedPdfBase64 = dataUrl.split(',')[1];
+          }
         } catch (error) {
           console.error('Error generando PDF:', error);
         }
@@ -537,17 +582,83 @@
         });
       }
 
-      async function handleEmitInvoice() {
+      function handleEmitInvoice() {
         if (!currentInvoiceId) { alert('No hay borrador para emitir.'); return; }
+        // Abrir modal de confirmación en lugar de emitir directamente
+        var modal = document.getElementById('emit-confirm-modal');
+        if (modal) {
+          modal.classList.remove('hidden');
+          modal.classList.add('flex');
+        }
+      }
+
+      function closeEmitModal() {
+        var modal = document.getElementById('emit-confirm-modal');
+        if (modal) {
+          modal.classList.add('hidden');
+          modal.classList.remove('flex');
+        }
+      }
+
+      async function confirmEmitInvoice(sendEmail) {
+        closeEmitModal();
         for (var i = 0; i < 50 && !window.emitInvoice; i++) await new Promise(function(r){setTimeout(r,100);});
         if (!window.emitInvoice) { alert('El sistema aún está cargando.'); return; }
         setLoadingAll(true);
         try {
           var result = await window.emitInvoice(currentInvoiceId);
           if (!result.success) { alert(result.error || 'Error al emitir'); setLoadingAll(false); return; }
-          if (window.showToast) window.showToast('Factura emitida correctamente', 'success');
+
+          // Actualizar onboarding
           try { if (window.getCurrentUser && window.updateStepProgress) { var ur = await window.getCurrentUser(); if (ur.success && ur.user) await window.updateStepProgress(ur.user.id, 4, true); } } catch(e){}
-          setTimeout(function() { window.location.href = 'issued.html'; }, 1500);
+
+          // Enviar email si se solicitó
+          if (sendEmail) {
+            var clientEmail = currentInvoiceData && currentInvoiceData.client ? currentInvoiceData.client.email : null;
+            if (!clientEmail) {
+              if (window.showToast) window.showToast('Factura emitida. No se pudo enviar email: el cliente no tiene email registrado.', 'error');
+            } else {
+              try {
+                // Esperar a que sendDocumentEmail esté disponible
+                for (var j = 0; j < 30 && !window.sendDocumentEmail; j++) await new Promise(function(r){setTimeout(r,100);});
+
+                if (window.sendDocumentEmail && cachedPdfBase64) {
+                  var invoiceNum = currentInvoiceData.invoice ? currentInvoiceData.invoice.number : 'doc';
+                  var pdfFilename = 'factura_' + invoiceNum + '.pdf';
+                  var issuerName = currentInvoiceData.issuer ? (currentInvoiceData.issuer.name || '') : '';
+                  var emailSubject = 'Factura ' + invoiceNum + ' de ' + issuerName;
+
+                  var emailResult = await window.sendDocumentEmail({
+                    documentType: 'invoice',
+                    documentId: currentInvoiceId,
+                    to: clientEmail,
+                    subject: emailSubject,
+                    pdfBase64: cachedPdfBase64,
+                    pdfFilename: pdfFilename
+                  });
+
+                  if (emailResult.success) {
+                    if (emailResult.alreadySent) {
+                      if (window.showToast) window.showToast('Factura emitida. El email ya fue enviado anteriormente.', 'success');
+                    } else {
+                      if (window.showToast) window.showToast('Factura emitida y enviada por email', 'success');
+                    }
+                  } else {
+                    if (window.showToast) window.showToast('Factura emitida. Error al enviar email: ' + (emailResult.error || 'desconocido'), 'error');
+                  }
+                } else {
+                  if (window.showToast) window.showToast('Factura emitida. No se pudo generar el PDF para el email.', 'error');
+                }
+              } catch (emailErr) {
+                console.error('Error al enviar email:', emailErr);
+                if (window.showToast) window.showToast('Factura emitida. Error al enviar email.', 'error');
+              }
+            }
+          } else {
+            if (window.showToast) window.showToast('Factura emitida correctamente', 'success');
+          }
+
+          setTimeout(function() { window.location.href = 'issued.html'; }, 2000);
         } catch (error) { alert(error.message || 'Error'); setLoadingAll(false); }
       }
 
