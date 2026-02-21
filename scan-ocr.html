@@ -9,30 +9,6 @@
     <link rel="stylesheet" href="./assets/css/aos.css" />
     <link rel="stylesheet" href="./assets/css/output.css" />
     <link rel="stylesheet" href="./assets/css/style.css" />
-    <style>
-      .ocr-step{display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:12px;border:1px solid transparent;transition:all .3s}
-      .ocr-step.active{background:rgba(34,197,94,.06);border-color:rgba(34,197,94,.2)}
-      .ocr-step.done{opacity:.55}
-      .ocr-step-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0;border:2px solid #e5e7eb;color:#9ca3af;transition:all .3s}
-      .ocr-step.active .ocr-step-num{background:#22c55e;border-color:#22c55e;color:#fff}
-      .ocr-step.done .ocr-step-num{background:#22c55e;border-color:#22c55e;color:#fff}
-      .dark .ocr-step.active{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.25)}
-      .dark .ocr-step-num{border-color:#374151;color:#6b7280}
-      .ocr-dropzone{position:relative;border:2px dashed #d1d5db;border-radius:16px;padding:48px 24px;text-align:center;transition:all .25s;cursor:pointer}
-      .ocr-dropzone:hover,.ocr-dropzone.drag-over{border-color:#22c55e;background:rgba(34,197,94,.03)}
-      .ocr-dropzone.has-file{border-style:solid;border-color:#22c55e;background:rgba(34,197,94,.04)}
-      .dark .ocr-dropzone{border-color:#374151;background:rgba(255,255,255,.02)}
-      .dark .ocr-dropzone:hover,.dark .ocr-dropzone.drag-over{border-color:#22c55e;background:rgba(34,197,94,.06)}
-      .ocr-progress-bar{height:4px;border-radius:4px;background:#e5e7eb;overflow:hidden;transition:opacity .3s}
-      .ocr-progress-bar .fill{height:100%;background:linear-gradient(90deg,#22c55e,#16a34a);border-radius:4px;animation:ocr-scan 2.5s ease-in-out infinite}
-      .dark .ocr-progress-bar{background:#374151}
-      @keyframes ocr-scan{0%{width:0}50%{width:80%}100%{width:100%}}
-      .ocr-field-group label{display:block;font-size:12px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;margin-bottom:6px}
-      .ocr-field-group input,.ocr-field-group select{height:44px;width:100%;border-radius:10px;border:1px solid #e5e7eb;padding:0 14px;font-size:14px;transition:border-color .2s}
-      .ocr-field-group input:focus,.ocr-field-group select:focus{outline:none;border-color:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.1)}
-      .dark .ocr-field-group input,.dark .ocr-field-group select{background:#1e2028;border-color:#374151;color:#f3f4f6}
-      .dark .ocr-field-group label{color:#9ca3af}
-    </style>
   </head>
   <body>
     <div class="layout-wrapper active w-full">
@@ -41,83 +17,74 @@
         <div class="body-wrapper flex-1 overflow-x-hidden dark:bg-darkblack-500">
           <div id="header-container"></div>
           <main class="w-full px-6 pb-6 pt-[100px] sm:pt-[156px] xl:px-[48px] xl:pb-[48px]">
-            <div class="mx-auto max-w-[960px]">
+            <div class="mx-auto" style="max-width:900px">
 
-              <!-- Steps indicator -->
-              <div class="mb-6 grid grid-cols-3 gap-2">
-                <div id="step-1" class="ocr-step active">
-                  <span class="ocr-step-num">1</span>
-                  <div><p class="text-sm font-semibold text-bgray-900 dark:text-white">Subir documento</p><p class="text-xs text-bgray-500 dark:text-bgray-400">Factura, ticket o recibo</p></div>
+              <!-- Steps -->
+              <div class="mb-6 grid grid-cols-3 gap-3">
+                <div id="step-1" class="flex items-center gap-3 rounded-lg bg-white p-4 dark:bg-darkblack-600" style="border:1px solid rgba(34,197,94,.35)">
+                  <span class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-success-300 text-xs font-bold text-white">1</span>
+                  <div><p class="text-sm font-semibold text-bgray-900 dark:text-white">Subir documento</p><p class="hidden text-xs text-bgray-500 dark:text-bgray-400 sm:block">Factura, ticket o recibo</p></div>
                 </div>
-                <div id="step-2" class="ocr-step">
-                  <span class="ocr-step-num">2</span>
-                  <div><p class="text-sm font-semibold text-bgray-900 dark:text-white">Revisar datos</p><p class="text-xs text-bgray-500 dark:text-bgray-400">Verifica la informaci&oacute;n</p></div>
+                <div id="step-2" class="flex items-center gap-3 rounded-lg bg-white p-4 dark:bg-darkblack-600" style="border:1px solid #e5e7eb">
+                  <span class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold" style="background:#f3f4f6;color:#9ca3af">2</span>
+                  <div><p class="text-sm font-semibold text-bgray-900 dark:text-white">Revisar datos</p><p class="hidden text-xs text-bgray-500 dark:text-bgray-400 sm:block">Verifica la informaci&oacute;n</p></div>
                 </div>
-                <div id="step-3" class="ocr-step">
-                  <span class="ocr-step-num">3</span>
-                  <div><p class="text-sm font-semibold text-bgray-900 dark:text-white">Guardar gasto</p><p class="text-xs text-bgray-500 dark:text-bgray-400">Se a&ntilde;ade a transacciones</p></div>
+                <div id="step-3" class="flex items-center gap-3 rounded-lg bg-white p-4 dark:bg-darkblack-600" style="border:1px solid #e5e7eb">
+                  <span class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold" style="background:#f3f4f6;color:#9ca3af">3</span>
+                  <div><p class="text-sm font-semibold text-bgray-900 dark:text-white">Guardar gasto</p><p class="hidden text-xs text-bgray-500 dark:text-bgray-400 sm:block">Se a&ntilde;ade a transacciones</p></div>
                 </div>
               </div>
 
               <!-- PANEL 1: Upload -->
-              <div id="panel-upload" class="rounded-2xl bg-white p-8 shadow-sm dark:bg-darkblack-600">
-                <div class="ocr-dropzone" id="ocr-upload-zone">
+              <div id="panel-upload" class="rounded-lg bg-white p-6 dark:bg-darkblack-600" style="border:1px solid #e5e7eb">
+                <div id="ocr-upload-zone" class="relative rounded-lg p-12 text-center" style="border:2px dashed #d1d5db;background:rgba(249,250,251,.5);cursor:pointer;transition:border-color .2s">
                   <input id="ocr-file-input" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" class="absolute inset-0 z-10 cursor-pointer opacity-0" />
                   <div id="ocr-drop-empty">
-                    <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-success-50 dark:bg-success-300/10">
-                      <svg class="h-7 w-7 text-success-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/></svg>
+                    <div class="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full" style="background:rgba(34,197,94,.08)">
+                      <svg class="h-6 w-6" style="color:#22c55e" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/></svg>
                     </div>
                     <p class="text-base font-semibold text-bgray-900 dark:text-white">Arrastra tu factura o ticket aqu&iacute;</p>
                     <p class="mt-1 text-sm text-bgray-500 dark:text-bgray-400">o haz clic para seleccionar &middot; JPG, PNG, WEBP, PDF &middot; M&aacute;x. 10 MB</p>
                   </div>
                   <div id="ocr-drop-file" class="hidden">
-                    <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-success-50 dark:bg-success-300/10">
-                      <svg class="h-6 w-6 text-success-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+                    <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full" style="background:rgba(34,197,94,.08)">
+                      <svg class="h-5 w-5" style="color:#22c55e" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
                     </div>
                     <p id="ocr-file-name" class="text-base font-semibold text-bgray-900 dark:text-white"></p>
                     <p id="ocr-file-size" class="mt-1 text-sm text-bgray-500 dark:text-bgray-400"></p>
-                    <button id="ocr-remove-file" type="button" class="mt-3 inline-flex items-center gap-1 text-xs font-medium text-error-300 hover:underline">
-                      <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
-                      Eliminar
-                    </button>
+                    <button id="ocr-remove-file" type="button" class="mt-2 text-xs font-medium text-error-300 hover:underline">Eliminar archivo</button>
                   </div>
                 </div>
-
-                <!-- Scan button + progress -->
-                <div class="mt-5">
-                  <button id="ocr-scan-btn" disabled class="w-full rounded-xl bg-success-300 py-3.5 text-sm font-bold text-white transition-all hover:bg-success-400 disabled:cursor-not-allowed disabled:opacity-40">
-                    <span id="ocr-scan-text">Escanear documento</span>
-                  </button>
-                  <div id="ocr-progress" class="ocr-progress-bar mt-3 hidden" style="opacity:1"><div class="fill"></div></div>
-                  <p id="ocr-status-msg" class="mt-2 hidden text-center text-sm text-bgray-500 dark:text-bgray-400"></p>
+                <button id="ocr-scan-btn" disabled class="mt-4 w-full rounded-lg bg-success-300 py-3 text-sm font-bold text-white transition-all hover:bg-success-400 disabled:cursor-not-allowed disabled:opacity-40">
+                  <span id="ocr-scan-text">Escanear documento</span>
+                </button>
+                <div id="ocr-progress" class="mt-3 hidden overflow-hidden rounded-full" style="height:4px;background:#e5e7eb">
+                  <div style="height:100%;width:0;background:linear-gradient(90deg,#22c55e,#16a34a);border-radius:4px;animation:ocrbar 2.5s ease-in-out infinite"></div>
                 </div>
+                <p id="ocr-status-msg" class="mt-2 hidden text-center text-sm text-bgray-500 dark:text-bgray-400"></p>
               </div>
 
-              <!-- PANEL 2: Results (hidden) -->
-              <div id="panel-results" class="mt-6 hidden rounded-2xl bg-white p-8 shadow-sm dark:bg-darkblack-600">
-                <!-- Confidence alert -->
-                <div id="ocr-low-confidence" class="mb-5 hidden rounded-xl border border-warning-200 bg-warning-50/60 px-5 py-3.5 dark:border-warning-300/15 dark:bg-warning-300/5">
-                  <div class="flex items-center gap-2.5">
-                    <svg class="h-5 w-5 flex-shrink-0 text-warning-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/></svg>
-                    <span id="ocr-conf-text" class="text-sm font-medium text-warning-600 dark:text-warning-300"></span>
+              <!-- PANEL 2: Results -->
+              <div id="panel-results" class="mt-5 hidden rounded-lg bg-white p-6 dark:bg-darkblack-600" style="border:1px solid #e5e7eb">
+                <div id="ocr-low-confidence" class="mb-4 hidden rounded-lg p-3" style="background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2)">
+                  <div class="flex items-center gap-2">
+                    <svg class="h-4 w-4 flex-shrink-0" style="color:#f59e0b" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/></svg>
+                    <span id="ocr-conf-text" class="text-sm font-medium" style="color:#b45309"></span>
                   </div>
                 </div>
-
-                <div class="mb-5 flex items-center justify-between">
+                <div class="mb-4 flex items-center justify-between">
                   <h4 class="text-lg font-bold text-bgray-900 dark:text-white">Datos extra&iacute;dos</h4>
-                  <span id="ocr-confidence-badge" class="inline-flex items-center rounded-full px-3 py-1 text-xs font-bold"></span>
+                  <span id="ocr-confidence-badge" class="rounded-full px-3 py-1 text-xs font-bold"></span>
                 </div>
-
-                <div class="grid gap-x-5 gap-y-4 sm:grid-cols-2">
-                  <div class="ocr-field-group"><label class="text-bgray-500">Proveedor / Concepto</label><input id="ocr-vendor" type="text" placeholder="Nombre del proveedor" /></div>
-                  <div class="ocr-field-group"><label class="text-bgray-500">N&ordm; Factura</label><input id="ocr-invoice-num" type="text" placeholder="Opcional" /></div>
-                  <div class="ocr-field-group"><label class="text-bgray-500">Importe total (&euro;)</label><input id="ocr-total" type="number" step="0.01" min="0" placeholder="0.00" /></div>
-                  <div class="ocr-field-group"><label class="text-bgray-500">Fecha</label><input id="ocr-date" type="date" /></div>
-                  <div class="ocr-field-group"><label class="text-bgray-500">Base imponible (&euro;)</label><input id="ocr-subtotal" type="number" step="0.01" placeholder="Opcional" /></div>
-                  <div class="ocr-field-group"><label class="text-bgray-500">IVA / Impuestos (&euro;)</label><input id="ocr-tax" type="number" step="0.01" placeholder="Opcional" /></div>
-                  <div class="ocr-field-group sm:col-span-2">
-                    <label class="text-bgray-500">Categor&iacute;a</label>
-                    <select id="ocr-category">
+                <div class="grid gap-4 sm:grid-cols-2">
+                  <div><label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-bgray-500 dark:text-bgray-400">Proveedor / Concepto</label><input id="ocr-vendor" type="text" placeholder="Nombre del proveedor" class="h-[44px] w-full rounded-lg border border-bgray-200 bg-white px-3 text-sm text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-400 dark:bg-darkblack-500 dark:text-white" /></div>
+                  <div><label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-bgray-500 dark:text-bgray-400">N&ordm; Factura</label><input id="ocr-invoice-num" type="text" placeholder="Opcional" class="h-[44px] w-full rounded-lg border border-bgray-200 bg-white px-3 text-sm text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-400 dark:bg-darkblack-500 dark:text-white" /></div>
+                  <div><label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-bgray-500 dark:text-bgray-400">Importe total (&euro;)</label><input id="ocr-total" type="number" step="0.01" min="0" placeholder="0.00" class="h-[44px] w-full rounded-lg border border-bgray-200 bg-white px-3 text-sm text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-400 dark:bg-darkblack-500 dark:text-white" /></div>
+                  <div><label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-bgray-500 dark:text-bgray-400">Fecha</label><input id="ocr-date" type="date" class="h-[44px] w-full rounded-lg border border-bgray-200 bg-white px-3 text-sm text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-400 dark:bg-darkblack-500 dark:text-white" /></div>
+                  <div><label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-bgray-500 dark:text-bgray-400">Base imponible (&euro;)</label><input id="ocr-subtotal" type="number" step="0.01" placeholder="Opcional" class="h-[44px] w-full rounded-lg border border-bgray-200 bg-white px-3 text-sm text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-400 dark:bg-darkblack-500 dark:text-white" /></div>
+                  <div><label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-bgray-500 dark:text-bgray-400">IVA / Impuestos (&euro;)</label><input id="ocr-tax" type="number" step="0.01" placeholder="Opcional" class="h-[44px] w-full rounded-lg border border-bgray-200 bg-white px-3 text-sm text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-400 dark:bg-darkblack-500 dark:text-white" /></div>
+                  <div class="sm:col-span-2"><label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-bgray-500 dark:text-bgray-400">Categor&iacute;a</label>
+                    <select id="ocr-category" class="h-[44px] w-full rounded-lg border border-bgray-200 bg-white px-3 text-sm text-bgray-900 focus:border-success-300 focus:outline-none dark:border-darkblack-400 dark:bg-darkblack-500 dark:text-white">
                       <option value="otros">Otros</option>
                       <option value="material_oficina">Material de oficina</option>
                       <option value="servicios_profesionales">Servicios profesionales</option>
@@ -128,34 +95,31 @@
                     </select>
                   </div>
                 </div>
-
-                <div class="mt-6 flex flex-wrap items-center gap-3">
-                  <button id="ocr-save-btn" class="inline-flex items-center gap-2 rounded-xl bg-success-300 px-7 py-3 text-sm font-bold text-white transition-all hover:bg-success-400">
+                <div class="mt-5 flex flex-wrap gap-3">
+                  <button id="ocr-save-btn" class="inline-flex items-center gap-2 rounded-lg bg-success-300 px-6 py-3 text-sm font-bold text-white hover:bg-success-400">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
                     Guardar como gasto
                   </button>
-                  <button id="ocr-reset-btn" class="inline-flex items-center gap-2 rounded-xl border border-bgray-200 px-7 py-3 text-sm font-semibold text-bgray-600 transition-all hover:bg-bgray-50 dark:border-darkblack-400 dark:text-bgray-300 dark:hover:bg-darkblack-400">
-                    Escanear otro
-                  </button>
+                  <button id="ocr-reset-btn" class="rounded-lg border border-bgray-200 px-6 py-3 text-sm font-semibold text-bgray-600 hover:bg-bgray-50 dark:border-darkblack-400 dark:text-bgray-300 dark:hover:bg-darkblack-400">Escanear otro</button>
                 </div>
               </div>
 
-              <!-- PANEL 3: Success (hidden) -->
-              <div id="panel-success" class="mt-6 hidden rounded-2xl bg-white p-8 text-center shadow-sm dark:bg-darkblack-600">
-                <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-success-50 dark:bg-success-300/10">
-                  <svg class="h-8 w-8 text-success-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+              <!-- PANEL 3: Success -->
+              <div id="panel-success" class="mt-5 hidden rounded-lg bg-white p-8 text-center dark:bg-darkblack-600" style="border:1px solid #e5e7eb">
+                <div class="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full" style="background:rgba(34,197,94,.1)">
+                  <svg class="h-7 w-7" style="color:#22c55e" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
                 </div>
                 <h4 class="text-lg font-bold text-bgray-900 dark:text-white">Gasto registrado</h4>
-                <p class="mt-1 text-sm text-bgray-500 dark:text-bgray-400">La transacci&oacute;n se ha guardado correctamente y aparece en tu listado de transacciones.</p>
-                <div class="mt-5 flex justify-center gap-3">
-                  <button id="ocr-scan-another" class="rounded-xl bg-success-300 px-6 py-3 text-sm font-bold text-white hover:bg-success-400">Escanear otro</button>
-                  <a href="/expenses.html" class="inline-flex items-center rounded-xl border border-bgray-200 px-6 py-3 text-sm font-semibold text-bgray-600 hover:bg-bgray-50 dark:border-darkblack-400 dark:text-bgray-300 dark:hover:bg-darkblack-400">Ver transacciones</a>
+                <p class="mt-1 text-sm text-bgray-500 dark:text-bgray-400">La transacci&oacute;n se ha guardado y aparece en tu listado de transacciones.</p>
+                <div class="mt-4 flex justify-center gap-3">
+                  <button id="ocr-scan-another" class="rounded-lg bg-success-300 px-5 py-2.5 text-sm font-bold text-white hover:bg-success-400">Escanear otro</button>
+                  <a href="/expenses.html" class="rounded-lg border border-bgray-200 px-5 py-2.5 text-sm font-semibold text-bgray-600 hover:bg-bgray-50 dark:border-darkblack-400 dark:text-bgray-300">Ver transacciones</a>
                 </div>
               </div>
 
               <!-- History -->
-              <div class="mt-8 rounded-2xl bg-white p-8 shadow-sm dark:bg-darkblack-600">
-                <h4 class="mb-4 text-base font-bold text-bgray-900 dark:text-white">&Uacute;ltimos escaneos</h4>
+              <div class="mt-6 rounded-lg bg-white p-6 dark:bg-darkblack-600" style="border:1px solid #e5e7eb">
+                <h4 class="mb-3 text-base font-bold text-bgray-900 dark:text-white">&Uacute;ltimos escaneos</h4>
                 <div id="ocr-history" class="space-y-2">
                   <p class="text-sm text-bgray-400 dark:text-bgray-300">Cargando historial...</p>
                 </div>
@@ -166,6 +130,15 @@
         </div>
       </div>
     </div>
+
+    <style>
+      @keyframes ocrbar{0%{width:0}50%{width:80%}100%{width:100%}}
+      .dark #ocr-upload-zone{border-color:#374151 !important;background:rgba(255,255,255,.02) !important}
+      .dark [style*="border:1px solid #e5e7eb"]{border-color:#374151 !important}
+      .dark [style*="background:#f3f4f6"]{background:#374151 !important}
+      .dark #ocr-low-confidence{background:rgba(251,191,36,.05) !important;border-color:rgba(251,191,36,.15) !important}
+      .dark #ocr-conf-text{color:#fbbf24 !important}
+    </style>
 
     <script src="./assets/js/jquery-3.6.0.min.js"></script>
     <script src="./assets/js/aos.js"></script>
