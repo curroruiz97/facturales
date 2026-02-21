@@ -140,9 +140,11 @@
         console.error("Edge Function error detail:", detail, fnErr);
         throw new Error(detail);
       }
-      if (data && data.error) throw new Error(data.error);
-
-      const body = data;
+      let body = data;
+      if (typeof body === "string") {
+        try { body = JSON.parse(body); } catch (_) {}
+      }
+      if (body && body.error) throw new Error(body.error);
 
       ocrData = body;
       showResults(body);
@@ -245,7 +247,7 @@
         throw new Error("createTransaction no disponible");
 
       const result = await window.createTransaction(txData);
-      if (result.error) throw new Error(result.error.message || "Error al guardar");
+      if (!result.success) throw new Error(result.error || "Error al guardar");
 
       window.showToast &&
         window.showToast("Gasto guardado correctamente", "success");
