@@ -147,6 +147,11 @@
     $("ocr-date").value = "";
     $("ocr-category").value = "otros";
 
+    var conceptoAuto = "";
+    if (d.vendorName) conceptoAuto = "Gasto " + d.vendorName;
+    else conceptoAuto = "Gasto escaneado";
+    $("ocr-concepto").value = conceptoAuto;
+
     if (!veryLow && d.invoiceDate) {
       const dt = new Date(d.invoiceDate);
       if (!isNaN(dt)) $("ocr-date").value = dt.toISOString().split("T")[0];
@@ -175,24 +180,24 @@
   }
 
   async function saveExpense() {
+    const concepto = $("ocr-concepto").value.trim();
     const vendor = $("ocr-vendor").value.trim();
     const invoiceNum = $("ocr-invoice-num").value.trim();
     const total = parseFloat($("ocr-total").value);
     const date = $("ocr-date").value;
     const category = $("ocr-category").value;
 
+    if (!concepto) { toast("El concepto es obligatorio", "error"); return; }
     if (!total || total <= 0) { toast("Importe obligatorio y mayor que 0", "error"); return; }
     if (!date) { toast("La fecha es obligatoria", "error"); return; }
 
-    let concepto = vendor || "Gasto escaneado";
-    if (invoiceNum) concepto += " (" + invoiceNum + ")";
-
+    const obsParts = [];
+    if (vendor) obsParts.push("Prov: " + vendor);
+    if (invoiceNum) obsParts.push("Fact: " + invoiceNum);
     const sub = $("ocr-subtotal").value;
     const tax = $("ocr-tax").value;
-    const obsParts = [];
     if (sub) obsParts.push("Base: " + parseFloat(sub).toFixed(2) + " €");
     if (tax) obsParts.push("IVA: " + parseFloat(tax).toFixed(2) + " €");
-    if (ocrData && ocrData.confidence != null) obsParts.push("OCR: " + Math.round(ocrData.confidence * 100) + "%");
     let observaciones = obsParts.join(" | ");
     if (observaciones.length > 150) observaciones = observaciones.substring(0, 150);
 
