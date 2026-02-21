@@ -389,11 +389,11 @@
                         </div>
                       </div>
                       <div class="p-5 space-y-5">
-                        <!-- Objetivo ANUAL -->
+                        <!-- Objetivo del periodo seleccionado -->
                         <div>
                           <div class="flex items-center justify-between mb-2">
-                            <span class="text-xs font-semibold text-bgray-600 dark:text-bgray-300 uppercase tracking-wider">Objetivo anual</span>
-                            <button type="button" onclick="openGoalModal('year')" class="text-[10px] font-medium text-success-300 hover:text-success-400 transition">Editar</button>
+                            <span id="finance-goal-label" class="text-xs font-semibold text-bgray-600 dark:text-bgray-300 uppercase tracking-wider">Objetivo de ingresos</span>
+                            <button type="button" id="finance-edit-goal-btn" onclick="openGoalModal(window.currentFinancePeriod || 'year')" class="text-[10px] font-medium text-success-300 hover:text-success-400 transition">Editar</button>
                           </div>
                           <div class="flex items-end gap-2 mb-2">
                             <span id="finance-revenue" class="text-xl sm:text-2xl font-bold text-bgray-900 dark:text-white" style="font-variant-numeric:tabular-nums;">0,00 €</span>
@@ -405,72 +405,6 @@
                           <div class="flex items-center justify-between mt-1.5">
                             <span id="finance-progress-pct" class="text-xs font-bold text-success-300">0%</span>
                             <span id="finance-goal-remaining" class="text-[10px] text-bgray-400 dark:text-bgray-500">Faltan 0 €</span>
-                          </div>
-                        </div>
-
-                        <!-- Divider -->
-                        <div class="border-t border-bgray-100 dark:border-darkblack-400"></div>
-
-                        <!-- Objetivos TRIMESTRALES -->
-                        <div>
-                          <p class="text-xs font-semibold text-bgray-600 dark:text-bgray-300 uppercase tracking-wider mb-3">Objetivos trimestrales</p>
-                          <div class="grid grid-cols-2 gap-3">
-                            <div class="rounded-lg border border-bgray-100 dark:border-darkblack-400 p-3">
-                              <div class="flex items-center justify-between mb-1.5">
-                                <span class="text-[11px] font-bold text-bgray-700 dark:text-bgray-200">1<sup>er</sup> Trim.</span>
-                                <button type="button" onclick="openGoalModal('q1')" class="text-[10px] text-success-300 hover:text-success-400 font-medium">Editar</button>
-                              </div>
-                              <div class="relative h-1.5 w-full rounded-full bg-bgray-200 dark:bg-darkblack-400 overflow-hidden mb-1">
-                                <div id="q1-bar" class="absolute left-0 top-0 h-full rounded-full bg-blue-500 transition-all duration-700" style="width:0%"></div>
-                              </div>
-                              <div class="flex items-center justify-between">
-                                <span id="q1-revenue" class="text-[10px] font-bold text-bgray-900 dark:text-white">0 €</span>
-                                <span id="q1-pct" class="text-[10px] font-bold text-blue-500">0%</span>
-                              </div>
-                              <p class="text-[9px] text-bgray-400 mt-0.5">Meta: <span id="q1-goal" class="font-semibold">0 €</span></p>
-                            </div>
-                            <div class="rounded-lg border border-bgray-100 dark:border-darkblack-400 p-3">
-                              <div class="flex items-center justify-between mb-1.5">
-                                <span class="text-[11px] font-bold text-bgray-700 dark:text-bgray-200">2&ordm; Trim.</span>
-                                <button type="button" onclick="openGoalModal('q2')" class="text-[10px] text-success-300 hover:text-success-400 font-medium">Editar</button>
-                              </div>
-                              <div class="relative h-1.5 w-full rounded-full bg-bgray-200 dark:bg-darkblack-400 overflow-hidden mb-1">
-                                <div id="q2-bar" class="absolute left-0 top-0 h-full rounded-full bg-purple-500 transition-all duration-700" style="width:0%"></div>
-                              </div>
-                              <div class="flex items-center justify-between">
-                                <span id="q2-revenue" class="text-[10px] font-bold text-bgray-900 dark:text-white">0 €</span>
-                                <span id="q2-pct" class="text-[10px] font-bold text-purple-500">0%</span>
-                              </div>
-                              <p class="text-[9px] text-bgray-400 mt-0.5">Meta: <span id="q2-goal" class="font-semibold">0 €</span></p>
-                            </div>
-                            <div class="rounded-lg border border-bgray-100 dark:border-darkblack-400 p-3">
-                              <div class="flex items-center justify-between mb-1.5">
-                                <span class="text-[11px] font-bold text-bgray-700 dark:text-bgray-200">3<sup>er</sup> Trim.</span>
-                                <button type="button" onclick="openGoalModal('q3')" class="text-[10px] text-success-300 hover:text-success-400 font-medium">Editar</button>
-                              </div>
-                              <div class="relative h-1.5 w-full rounded-full bg-bgray-200 dark:bg-darkblack-400 overflow-hidden mb-1">
-                                <div id="q3-bar" class="absolute left-0 top-0 h-full rounded-full bg-amber-500 transition-all duration-700" style="width:0%"></div>
-                              </div>
-                              <div class="flex items-center justify-between">
-                                <span id="q3-revenue" class="text-[10px] font-bold text-bgray-900 dark:text-white">0 €</span>
-                                <span id="q3-pct" class="text-[10px] font-bold text-amber-500">0%</span>
-                              </div>
-                              <p class="text-[9px] text-bgray-400 mt-0.5">Meta: <span id="q3-goal" class="font-semibold">0 €</span></p>
-                            </div>
-                            <div class="rounded-lg border border-bgray-100 dark:border-darkblack-400 p-3">
-                              <div class="flex items-center justify-between mb-1.5">
-                                <span class="text-[11px] font-bold text-bgray-700 dark:text-bgray-200">4&ordm; Trim.</span>
-                                <button type="button" onclick="openGoalModal('q4')" class="text-[10px] text-success-300 hover:text-success-400 font-medium">Editar</button>
-                              </div>
-                              <div class="relative h-1.5 w-full rounded-full bg-bgray-200 dark:bg-darkblack-400 overflow-hidden mb-1">
-                                <div id="q4-bar" class="absolute left-0 top-0 h-full rounded-full bg-rose-500 transition-all duration-700" style="width:0%"></div>
-                              </div>
-                              <div class="flex items-center justify-between">
-                                <span id="q4-revenue" class="text-[10px] font-bold text-bgray-900 dark:text-white">0 €</span>
-                                <span id="q4-pct" class="text-[10px] font-bold text-rose-500">0%</span>
-                              </div>
-                              <p class="text-[9px] text-bgray-400 mt-0.5">Meta: <span id="q4-goal" class="font-semibold">0 €</span></p>
-                            </div>
                           </div>
                         </div>
 
@@ -2551,39 +2485,41 @@
           window._goals = { year: goalFull, q1: goalQ.q1, q2: goalQ.q2, q3: goalQ.q3, q4: goalQ.q4 };
           window._currentIncomeGoal = goalFull;
 
-          // --- Update ANNUAL section ---
+          // --- Update objective for selected period ---
           var period = window.currentFinancePeriod || 'year';
           var pr = ranges[period] || ranges.year;
+
           var periodRevenue = calcRevenue(pr.start, pr.end);
-          var periodExpenses = calcExpenses(pr.start, pr.end);
-          var annualGoal = goalFull;
-          var progressPct = annualGoal > 0 ? Math.min(100, Math.round((yearRevenue / annualGoal) * 100)) : 0;
-          var remaining = Math.max(0, annualGoal - yearRevenue);
+          var periodGoal;
+          if (period === 'year') {
+            periodGoal = goalFull;
+          } else {
+            periodGoal = goalQ[period] != null ? goalQ[period] : Math.round(goalFull / 4);
+          }
+
+          var progressPct = periodGoal > 0 ? Math.min(100, Math.round((periodRevenue / periodGoal) * 100)) : 0;
+          var remaining = Math.max(0, periodGoal - periodRevenue);
+
+          var goalLabelTexts = {
+            year: 'Objetivo anual',
+            q1: 'Objetivo 1er trimestre',
+            q2: 'Objetivo 2\u00BA trimestre',
+            q3: 'Objetivo 3er trimestre',
+            q4: 'Objetivo 4\u00BA trimestre'
+          };
 
           var el = function(id) { return document.getElementById(id); };
-          if (el('finance-revenue')) el('finance-revenue').textContent = fmtEUR2(yearRevenue);
-          if (el('finance-goal')) el('finance-goal').textContent = annualGoal > 0 ? fmtEUR(annualGoal) : '0 \u20AC';
+          if (el('finance-goal-label')) el('finance-goal-label').textContent = goalLabelTexts[period] || 'Objetivo de ingresos';
+          if (el('finance-revenue')) el('finance-revenue').textContent = fmtEUR2(periodRevenue);
+          if (el('finance-goal')) el('finance-goal').textContent = periodGoal > 0 ? fmtEUR(periodGoal) : '0 \u20AC';
           if (el('finance-progress-bar')) el('finance-progress-bar').style.width = progressPct + '%';
           if (el('finance-progress-pct')) el('finance-progress-pct').textContent = progressPct + '%';
           if (el('finance-goal-remaining')) {
-            el('finance-goal-remaining').textContent = annualGoal > 0 ? (remaining > 0 ? ('Faltan ' + fmtEUR(remaining)) : '\u00A1Objetivo alcanzado!') : 'Define un objetivo';
+            el('finance-goal-remaining').textContent = periodGoal > 0 ? (remaining > 0 ? ('Faltan ' + fmtEUR(remaining)) : '\u00A1Objetivo alcanzado!') : 'Define un objetivo';
           }
 
-          // --- Update QUARTERLY sections ---
-          ['q1', 'q2', 'q3', 'q4'].forEach(function(q) {
-            var r = ranges[q];
-            var rev = calcRevenue(r.start, r.end);
-            var qGoal = goalQ[q] != null ? goalQ[q] : Math.round(goalFull / 4);
-            var pct = qGoal > 0 ? Math.min(100, Math.round((rev / qGoal) * 100)) : 0;
-
-            if (el(q + '-revenue')) el(q + '-revenue').textContent = fmtEUR(rev);
-            if (el(q + '-goal')) el(q + '-goal').textContent = qGoal > 0 ? fmtEUR(qGoal) : '0 \u20AC';
-            if (el(q + '-bar')) el(q + '-bar').style.width = pct + '%';
-            if (el(q + '-pct')) el(q + '-pct').textContent = pct + '%';
-          });
-
-          // --- Ingresos / Gastos / Beneficio (siempre seg\u00FAn filtro de periodo) ---
-          var dispRevenue = calcRevenue(pr.start, pr.end);
+          // --- Ingresos / Gastos / Beneficio ---
+          var dispRevenue = periodRevenue;
           var dispExpenses = calcExpenses(pr.start, pr.end);
           var profit = dispRevenue - dispExpenses;
 
