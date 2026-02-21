@@ -226,137 +226,223 @@
         <!-- Divider -->
         <div class="hidden lg:block w-px self-stretch" style="background:#F5D9B8;"></div>
         <!-- Right -->
-        <div class="lg:w-1/2 lg:flex hidden bg-gradient-to-br from-[#F4F6FA] to-[#EAECF2] dark:from-darkblack-600 dark:to-darkblack-500 px-8 py-12 xl:px-16 xl:py-16 relative flex-col items-center justify-center overflow-hidden">
+        <div class="lg:w-1/2 lg:flex hidden bg-gradient-to-br from-[#F4F6FA] to-[#EAECF2] dark:from-darkblack-600 dark:to-darkblack-500 relative flex-col items-center justify-center overflow-hidden" style="padding:20px 16px;">
 
-          <div id="login-illustration" class="mx-auto mb-6 relative z-10" style="width:260px;">
-            <svg viewBox="0 -28 260 244" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <linearGradient id="g-lid" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#D4D8E0"/><stop offset="100%" stop-color="#B8BCC6"/></linearGradient>
-                <linearGradient id="g-base" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#DADEE6"/><stop offset="100%" stop-color="#C4C8D0"/></linearGradient>
-                <linearGradient id="g-screen" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1C1F26"/><stop offset="100%" stop-color="#24272E"/></linearGradient>
-                <linearGradient id="g-robot" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#F0F2F6"/><stop offset="40%" stop-color="#E4E8EE"/><stop offset="100%" stop-color="#CED2DA"/></linearGradient>
-                <linearGradient id="g-visor" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1A2430"/><stop offset="100%" stop-color="#263040"/></linearGradient>
-                <linearGradient id="g-body" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#F0F2F6"/><stop offset="100%" stop-color="#D8DCE4"/></linearGradient>
-                <radialGradient id="g-eye" cx="50%" cy="40%" r="60%"><stop offset="0%" stop-color="#80F4FF"/><stop offset="50%" stop-color="#50DDE8"/><stop offset="100%" stop-color="#30B8C8"/></radialGradient>
-                <filter id="f-glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur in="SourceGraphic" stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-                <filter id="f-shadow"><feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#000" flood-opacity="0.08"/></filter>
-                <clipPath id="cp-screen"><rect x="42" y="66" width="176" height="100" rx="1.5"/></clipPath>
-              </defs>
+          <style>
+          .lm *{box-sizing:border-box;user-select:none;pointer-events:none}
+          .lm{--bg:#0b0f14;--bg2:#0d121a;--s:rgba(255,255,255,.10);--s2:rgba(255,255,255,.16);--t:rgba(255,255,255,.92);--m:rgba(255,255,255,.55);--g:#31d17b;--r:#ff4d5f;--bl:#4aa3ff;--am:#fbb053;width:100%;max-width:580px;display:grid;gap:6px;justify-items:center;filter:drop-shadow(0 18px 50px rgba(0,0,0,.45));position:relative;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--t);font-size:clamp(7px,1.1vw,13px)}
+          .lm-robot{position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:2;width:clamp(60px,14%,100px)}
+          .lm-sf{width:100%;aspect-ratio:16/10;border-radius:clamp(12px,2vw,28px);padding:clamp(5px,1vw,14px);background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02));border:1px solid var(--s2);position:relative;z-index:1}
+          .lm-sc{height:100%;border-radius:clamp(8px,1.5vw,18px);overflow:hidden;background:linear-gradient(180deg,var(--bg2),var(--bg));border:1px solid rgba(255,255,255,.10);display:flex;flex-direction:column}
+          .lm-tb{height:clamp(24px,8%,66px);display:flex;align-items:center;gap:clamp(4px,.8vw,14px);padding:0 clamp(4px,1vw,16px);border-bottom:1px solid rgba(255,255,255,.08);background:linear-gradient(180deg,rgba(255,255,255,.04),transparent);flex-shrink:0}
+          .lm-brand{display:flex;align-items:center;gap:clamp(3px,.5vw,10px);min-width:0;flex-shrink:0}
+          .lm-logo{width:clamp(6px,1.2vw,16px);height:clamp(6px,1.2vw,16px);border-radius:clamp(2px,.4vw,5px);background:linear-gradient(135deg,rgba(251,176,83,1),rgba(251,176,83,.35));flex-shrink:0}
+          .lm-bn{font-weight:700;color:rgba(251,176,83,.95);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.85em}
+          .lm-hl{font-weight:800;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:1.2em;flex-shrink:0}
+          .lm-sr{flex:1;height:clamp(14px,3.5vw,40px);border-radius:clamp(4px,.8vw,12px);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);min-width:0}
+          .lm-acts{display:flex;gap:clamp(3px,.5vw,10px);flex-shrink:0}
+          .lm-ic{width:clamp(14px,3.5vw,40px);height:clamp(14px,3.5vw,40px);border-radius:clamp(4px,.8vw,12px);border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.03)}
+          .lm-ly{flex:1;display:flex;overflow:hidden;min-height:0}
+          .lm-sb{width:clamp(60px,26%,240px);border-right:1px solid rgba(255,255,255,.08);background:linear-gradient(180deg,rgba(255,255,255,.02),transparent);padding:clamp(4px,.6vw,14px);display:flex;flex-direction:column;gap:clamp(2px,.4vw,6px);overflow:hidden}
+          .lm-st{font-size:.7em;color:var(--m);padding:clamp(2px,.3vw,8px) clamp(3px,.5vw,10px)}
+          .lm-ni{display:flex;align-items:center;gap:clamp(3px,.5vw,10px);padding:clamp(3px,.5vw,10px);border-radius:clamp(4px,.8vw,12px);color:rgba(255,255,255,.80);border:1px solid transparent;font-size:.82em}
+          .lm-ni.act{background:rgba(251,176,83,.12);border-color:rgba(251,176,83,.18)}
+          .lm-dot{width:clamp(4px,.8vw,12px);height:clamp(4px,.8vw,12px);border-radius:clamp(1px,.2vw,4px);flex-shrink:0}
+          .lm-sub{padding:clamp(2px,.3vw,6px) clamp(2px,.3vw,6px) clamp(2px,.3vw,6px) clamp(10px,2.5vw,32px);display:flex;flex-direction:column;gap:2px;font-size:.75em;color:rgba(255,255,255,.6)}
+          .lm-subi{padding:clamp(2px,.4vw,8px) clamp(3px,.5vw,10px);border-radius:clamp(3px,.6vw,10px)}
+          .lm-dv{height:1px;background:rgba(255,255,255,.08);margin:clamp(2px,.4vw,8px) 0}
+          .lm-mn{flex:1;padding:clamp(4px,.7vw,14px);overflow:hidden;display:flex;flex-direction:column;gap:clamp(4px,.6vw,12px)}
+          .lm-cds{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(3px,.5vw,12px)}
+          .lm-cd{border-radius:clamp(5px,.9vw,14px);background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.10);padding:clamp(4px,.7vw,14px);overflow:hidden}
+          .lm-ch{display:flex;align-items:center;gap:clamp(3px,.5vw,10px);margin-bottom:clamp(2px,.3vw,8px)}
+          .lm-bg{width:clamp(10px,2vw,26px);height:clamp(10px,2vw,26px);border-radius:clamp(3px,.6vw,10px);display:grid;place-items:center;font-weight:900;font-size:.7em;flex-shrink:0}
+          .lm-bg-g{background:rgba(49,209,123,.16);color:rgba(49,209,123,.95);border:1px solid rgba(49,209,123,.24)}
+          .lm-bg-r{background:rgba(255,77,95,.14);color:rgba(255,77,95,.95);border:1px solid rgba(255,77,95,.22)}
+          .lm-bg-b{background:rgba(74,163,255,.16);color:rgba(74,163,255,.95);border:1px solid rgba(74,163,255,.22)}
+          .lm-ct{font-weight:650;color:rgba(255,255,255,.82);font-size:.82em}
+          .lm-cv{font-weight:850;letter-spacing:-.02em;white-space:nowrap;font-size:1.4em}
+          .lm-mr{display:flex;align-items:center;gap:clamp(2px,.4vw,8px)}
+          .lm-spk{flex:1;min-width:0;height:clamp(12px,2.5vw,36px)}
+          .lm-spk path{fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:160;stroke-dashoffset:160;animation:lmDraw 3.2s ease-in-out infinite}
+          .lm-spk .sl{stroke-width:2.3}.lm-spk .sg{stroke-width:6;opacity:.2;filter:blur(2px)}
+          .lm-spk .sg--g,.lm-spk .sl--g{stroke:var(--g)}.lm-spk .sg--r,.lm-spk .sl--r{stroke:var(--r);animation-delay:-.6s}.lm-spk .sg--b,.lm-spk .sl--b{stroke:var(--bl);animation-delay:-1.2s}
+          .lm-cm{font-size:.7em;color:var(--m);margin-top:2px}
+          .lm-tu{color:rgba(49,209,123,.95);font-weight:700}.lm-td{color:rgba(255,77,95,.95);font-weight:700}
+          .lm-gr{flex:1;display:grid;grid-template-columns:1.6fr .9fr;gap:clamp(3px,.5vw,12px);min-height:0;overflow:hidden}
+          .lm-pn{border-radius:clamp(5px,.9vw,14px);background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.015));border:1px solid rgba(255,255,255,.10);padding:clamp(4px,.7vw,14px);overflow:hidden;display:flex;flex-direction:column}
+          .lm-ph{display:flex;align-items:center;justify-content:space-between;gap:4px;margin-bottom:clamp(3px,.5vw,12px);flex-wrap:wrap}
+          .lm-pt{font-weight:800;letter-spacing:-.01em;font-size:1em}
+          .lm-lg{display:flex;align-items:center;gap:clamp(3px,.5vw,10px);color:rgba(255,255,255,.70);font-size:.72em;flex-wrap:wrap;justify-content:flex-end}
+          .lm-ld{width:clamp(4px,.6vw,8px);height:clamp(4px,.6vw,8px);border-radius:50%;display:inline-block}
+          .lm-ld-g{background:var(--g)}.lm-ld-r{background:var(--r)}
+          .lm-pill{border-radius:999px;padding:clamp(2px,.4vw,8px) clamp(3px,.5vw,10px);border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.03);color:rgba(255,255,255,.78);font-size:.72em;white-space:nowrap}
+          .lm-chart{flex:1;border-radius:clamp(5px,.9vw,14px);background:linear-gradient(180deg,rgba(0,0,0,.22),rgba(0,0,0,.06));border:1px solid rgba(255,255,255,.08);position:relative;overflow:hidden;min-height:clamp(60px,12vw,260px)}
+          .lm-cgrid{position:absolute;inset:0;background:linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px) 0 0/100% clamp(14px,3.5vw,42px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px) 0 0/clamp(20px,5vw,64px) 100%;opacity:.55}
+          .lm-csvg{position:absolute;inset:0;width:100%;height:100%;padding:clamp(4px,.7vw,14px)}
+          .lm-csvg path{fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1200;stroke-dashoffset:1200;animation:lmDrawM 4.4s ease-in-out infinite}
+          .lm-csvg .cl{stroke-width:2.6}.lm-csvg .cg{stroke-width:8;opacity:.18;filter:blur(2px)}
+          .lm-csvg .cl-g,.lm-csvg .cg-g{stroke:var(--g)}.lm-csvg .cl-r,.lm-csvg .cg-r{stroke:var(--r);animation-delay:-1.1s}
+          .lm-scan{position:absolute;inset:0;background:linear-gradient(90deg,transparent 0%,rgba(74,163,255,.10) 45%,rgba(74,163,255,.18) 50%,rgba(74,163,255,.10) 55%,transparent 100%);transform:translateX(-120%);animation:lmScan 3.8s ease-in-out infinite;mix-blend-mode:screen;opacity:.55}
+          .lm-ax{display:grid;grid-template-columns:repeat(12,1fr);gap:2px;color:rgba(255,255,255,.45);font-size:.62em;padding:clamp(2px,.3vw,6px);margin-top:clamp(2px,.3vw,8px)}
+          .lm-goal{padding:clamp(3px,.5vw,12px);border-radius:clamp(5px,.9vw,14px);background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.08)}
+          .lm-gl{font-size:.6em;letter-spacing:.10em;color:var(--m)}
+          .lm-gv{font-weight:900;white-space:nowrap;font-size:1.1em}.lm-gs{font-size:.65em;color:var(--m)}
+          .lm-prog{margin-top:clamp(2px,.3vw,10px);height:clamp(4px,.7vw,10px);border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);overflow:hidden}
+          .lm-progb{height:100%;width:var(--p,30%);border-radius:inherit;background:linear-gradient(90deg,rgba(251,176,83,.9),rgba(251,176,83,.35));animation:lmGrow 3.4s ease-in-out infinite}
+          .lm-gf{margin-top:clamp(2px,.3vw,6px);display:flex;justify-content:space-between;font-size:.65em}
+          .lm-gp{color:rgba(251,176,83,.95);font-weight:800}.lm-gre{color:var(--m)}
+          .lm-mi{margin-top:clamp(3px,.5vw,12px);display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(2px,.4vw,10px)}
+          .lm-mii{border-radius:clamp(5px,.9vw,14px);padding:clamp(3px,.5vw,10px);border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02)}
+          .lm-mico{width:clamp(12px,2.5vw,34px);height:clamp(12px,2.5vw,34px);border-radius:clamp(4px,.7vw,12px);display:grid;place-items:center;font-weight:900;margin-bottom:clamp(2px,.3vw,8px);font-size:.8em}
+          .lm-mig .lm-mico{background:rgba(49,209,123,.14);color:rgba(49,209,123,.95)}
+          .lm-mir .lm-mico{background:rgba(255,77,95,.12);color:rgba(255,77,95,.95)}
+          .lm-mib .lm-mico{background:rgba(74,163,255,.14);color:rgba(74,163,255,.95)}
+          .lm-min{font-weight:900;white-space:nowrap;font-size:.8em}.lm-mit{color:var(--m);font-size:.7em}
+          .lm-sts{margin-top:clamp(3px,.5vw,12px);border-radius:clamp(5px,.9vw,14px);border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02);overflow:hidden}
+          .lm-str{display:flex;justify-content:space-between;padding:clamp(3px,.5vw,10px) clamp(4px,.6vw,12px);border-top:1px solid rgba(255,255,255,.06);color:rgba(255,255,255,.70);font-size:.72em}
+          .lm-str:first-child{border-top:0}.lm-str b{color:rgba(255,255,255,.92)}
+          .lm-base{width:108%;position:relative;height:clamp(30px,5vw,60px)}
+          .lm-bsh{position:absolute;left:10%;right:10%;top:0;height:100%;background:radial-gradient(closest-side,rgba(0,0,0,.3),transparent 70%);filter:blur(8px);opacity:.5}
+          .lm-bt{position:absolute;left:4%;right:4%;top:clamp(4px,.8vw,16px);height:clamp(16px,3vw,50px);border-radius:0 0 clamp(8px,1.5vw,22px) clamp(8px,1.5vw,22px);background:linear-gradient(180deg,rgba(220,220,220,.85),rgba(170,170,170,.55));border:1px solid rgba(0,0,0,.10)}
+          .lm-hn{position:absolute;left:50%;transform:translateX(-50%);top:clamp(2px,.4vw,8px);width:42%;height:clamp(3px,.6vw,8px);border-radius:0 0 clamp(3px,.5vw,10px) clamp(3px,.5vw,10px);background:rgba(0,0,0,.16);opacity:.5}
+          @keyframes lmDraw{0%{stroke-dashoffset:160;opacity:.55}45%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:0;opacity:.85}}
+          @keyframes lmDrawM{0%{stroke-dashoffset:1200;opacity:.55}40%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:0;opacity:.92}}
+          @keyframes lmScan{0%{transform:translateX(-120%);opacity:.25}40%{opacity:.55}100%{transform:translateX(120%);opacity:.25}}
+          @keyframes lmGrow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.15)}}
+          @media(prefers-reduced-motion:reduce){.lm *{animation:none!important}}
+          </style>
 
-              <!-- Robot -->
-              <g id="character-group">
-                <!-- Antenna stem + ball -->
-                <line x1="130" y1="-6" x2="130" y2="-17" stroke="#B8BCC6" stroke-width="2" stroke-linecap="round"/>
-                <circle cx="130" cy="-19.5" r="4" fill="#D0D4DC"/>
-                <circle cx="130" cy="-19.5" r="2.5" fill="#E4E8F0"/>
-                <circle cx="129" cy="-20.5" r="1" fill="white" opacity="0.5"/>
+          <!-- Robot SVG (peeks above laptop) -->
+          <svg id="robot-svg" class="lm-robot" viewBox="0 0 200 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="rg-body" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#F0F2F6"/><stop offset="100%" stop-color="#CED2DA"/></linearGradient>
+              <linearGradient id="rg-visor" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1A2430"/><stop offset="100%" stop-color="#263040"/></linearGradient>
+              <radialGradient id="rg-eye" cx="50%" cy="40%" r="60%"><stop offset="0%" stop-color="#80F4FF"/><stop offset="50%" stop-color="#50DDE8"/><stop offset="100%" stop-color="#30B8C8"/></radialGradient>
+              <filter id="rg-glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur in="SourceGraphic" stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            </defs>
+            <!-- Antenna -->
+            <line x1="100" y1="18" x2="100" y2="4" stroke="#B8BCC6" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="100" cy="3" r="5" fill="#D0D4DC"/><circle cx="100" cy="3" r="3" fill="#E4E8F0"/><circle cx="99" cy="2" r="1.2" fill="white" opacity="0.5"/>
+            <!-- Head -->
+            <rect x="48" y="18" width="104" height="72" rx="34" fill="url(#rg-body)" stroke="#C4C8D2" stroke-width="0.8"/>
+            <rect x="54" y="22" width="92" height="24" rx="16" fill="white" opacity="0.15"/>
+            <!-- Visor -->
+            <rect x="56" y="28" width="88" height="52" rx="24" fill="url(#rg-visor)" stroke="#141A22" stroke-width="0.5"/>
+            <!-- Ear pieces -->
+            <rect x="36" y="42" width="14" height="28" rx="6" fill="#D0D4DE" stroke="#C0C4CC" stroke-width="0.5"/>
+            <rect x="39" y="46" width="8" height="12" rx="4" fill="white" opacity="0.1"/>
+            <rect x="150" y="42" width="14" height="28" rx="6" fill="#D0D4DE" stroke="#C0C4CC" stroke-width="0.5"/>
+            <rect x="153" y="46" width="8" height="12" rx="4" fill="white" opacity="0.1"/>
+            <!-- Eyes open -->
+            <g id="eyes-open">
+              <ellipse id="eye-left" cx="82" cy="48" rx="12" ry="8" fill="url(#rg-eye)" filter="url(#rg-glow)" opacity="0.9"/>
+              <ellipse id="eye-right" cx="118" cy="48" rx="12" ry="8" fill="url(#rg-eye)" filter="url(#rg-glow)" opacity="0.9"/>
+              <ellipse id="pupil-left" cx="82" cy="47" rx="5" ry="3.5" fill="white" opacity="0.35"/>
+              <ellipse id="pupil-right" cx="118" cy="47" rx="5" ry="3.5" fill="white" opacity="0.35"/>
+            </g>
+            <!-- Eyes closed -->
+            <g id="eyes-closed" style="display:none;">
+              <path d="M70 50 Q82 38 94 50" stroke="#50DDE8" stroke-width="3.5" stroke-linecap="round" fill="none" filter="url(#rg-glow)"/>
+              <path d="M106 50 Q118 38 130 50" stroke="#50DDE8" stroke-width="3.5" stroke-linecap="round" fill="none" filter="url(#rg-glow)"/>
+            </g>
+            <!-- Mouth -->
+            <path id="mouth" d="M88 68 Q100 76 112 68" stroke="#50DDE8" stroke-width="2.5" stroke-linecap="round" fill="none" filter="url(#rg-glow)" opacity="0.55"/>
+            <!-- Neck -->
+            <rect x="90" y="90" width="20" height="16" rx="6" fill="#D0D4DC"/>
+            <!-- Body (clipped at bottom) -->
+            <ellipse cx="100" cy="118" rx="40" ry="22" fill="url(#rg-body)" stroke="#C4C8D2" stroke-width="0.5"/>
+            <ellipse cx="100" cy="110" rx="22" ry="8" fill="white" opacity="0.1"/>
+          </svg>
 
-                <!-- Head -->
-                <rect x="96" y="-6" width="68" height="48" rx="22" fill="url(#g-robot)" stroke="#C4C8D2" stroke-width="0.5"/>
-                <rect x="101" y="-3" width="58" height="16" rx="11" fill="white" opacity="0.18"/>
-
-                <!-- Visor -->
-                <rect x="102" y="0" width="56" height="34" rx="15" fill="url(#g-visor)" stroke="#141A22" stroke-width="0.3"/>
-                <rect x="106" y="2" width="48" height="8" rx="6" fill="white" opacity="0.025"/>
-
-                <!-- Ear pieces -->
-                <rect x="87" y="8" rx="4" width="9" height="18" fill="#D0D4DE" stroke="#C0C4CC" stroke-width="0.3"/>
-                <rect x="89" y="10" rx="3" width="5" height="8" fill="white" opacity="0.12"/>
-                <rect x="164" y="8" rx="4" width="9" height="18" fill="#D0D4DE" stroke="#C0C4CC" stroke-width="0.3"/>
-                <rect x="166" y="10" rx="3" width="5" height="8" fill="white" opacity="0.12"/>
-
-                <!-- Eyes open -->
-                <g id="eyes-open">
-                  <ellipse id="eye-left" cx="118" cy="13" rx="8" ry="5.5" fill="url(#g-eye)" filter="url(#f-glow)" opacity="0.9"/>
-                  <ellipse id="eye-right" cx="142" cy="13" rx="8" ry="5.5" fill="url(#g-eye)" filter="url(#f-glow)" opacity="0.9"/>
-                  <ellipse id="pupil-left" cx="118" cy="12" rx="3.5" ry="2.5" fill="white" opacity="0.35"/>
-                  <ellipse id="pupil-right" cx="142" cy="12" rx="3.5" ry="2.5" fill="white" opacity="0.35"/>
-                </g>
-
-                <!-- Eyes closed -->
-                <g id="eyes-closed" style="display:none;">
-                  <path d="M110 15 Q118 8 126 15" stroke="#50DDE8" stroke-width="2.5" stroke-linecap="round" fill="none" filter="url(#f-glow)"/>
-                  <path d="M134 15 Q142 8 150 15" stroke="#50DDE8" stroke-width="2.5" stroke-linecap="round" fill="none" filter="url(#f-glow)"/>
-                </g>
-
-                <!-- Mouth -->
-                <path id="mouth" d="M123 26 Q130 31 137 26" stroke="#50DDE8" stroke-width="1.8" stroke-linecap="round" fill="none" filter="url(#f-glow)" opacity="0.55"/>
-
-                <!-- Neck -->
-                <rect x="124" y="42" width="12" height="10" rx="4" fill="#D0D4DC"/>
-
-                <!-- Body -->
-                <ellipse cx="130" cy="58" rx="26" ry="14" fill="url(#g-body)" stroke="#C4C8D2" stroke-width="0.3"/>
-                <ellipse cx="130" cy="53" rx="14" ry="5" fill="white" opacity="0.12"/>
-                <path d="M110 59 Q130 64 150 59" stroke="#BCC0C8" stroke-width="0.6" fill="none"/>
-              </g>
-
-              <!-- Laptop -->
-              <g filter="url(#f-shadow)">
-                <rect x="28" y="56" width="204" height="118" rx="7" fill="url(#g-lid)"/>
-                <rect x="34" y="61" width="192" height="108" rx="4" fill="#16181E"/>
-                <rect x="42" y="66" width="176" height="100" rx="1.5" fill="url(#g-screen)"/>
-                <g clip-path="url(#cp-screen)">
-                  <rect x="42" y="66" width="34" height="100" fill="#181A1F"/>
-                  <image x="50" y="71" width="18" height="12" href="./assets/images/logo/favicon.png" preserveAspectRatio="xMidYMid meet"/>
-                  <rect x="49" y="88" width="20" height="2" rx="1" fill="#33373F"/>
-                  <rect x="49" y="94" width="18" height="2" rx="1" fill="#EC8228" opacity="0.5"/>
-                  <rect x="49" y="100" width="20" height="2" rx="1" fill="#33373F"/>
-                  <rect x="49" y="106" width="16" height="2" rx="1" fill="#33373F"/>
-                  <rect x="82" y="70" width="132" height="92" fill="#20232A"/>
-                  <rect x="88" y="74" width="50" height="3.5" rx="1.5" fill="#EC8228" opacity="0.4"/>
-                  <rect x="88" y="82" width="38" height="22" rx="3" fill="#282B34"/>
-                  <rect x="92" y="86" width="18" height="2" rx="1" fill="#555" opacity="0.5"/>
-                  <rect x="92" y="92" width="28" height="4" rx="1.5" fill="#22C55E" opacity="0.5"/>
-                  <rect x="130" y="82" width="38" height="22" rx="3" fill="#282B34"/>
-                  <rect x="134" y="86" width="18" height="2" rx="1" fill="#555" opacity="0.5"/>
-                  <rect x="134" y="92" width="28" height="4" rx="1.5" fill="#EF4444" opacity="0.4"/>
-                  <rect x="172" y="82" width="38" height="22" rx="3" fill="#282B34"/>
-                  <rect x="176" y="86" width="18" height="2" rx="1" fill="#555" opacity="0.5"/>
-                  <rect x="176" y="92" width="28" height="4" rx="1.5" fill="#EC8228" opacity="0.4"/>
-                  <rect x="88" y="110" width="80" height="46" rx="3" fill="#282B34"/>
-                  <rect x="94" y="136" width="5" height="14" rx="1.5" fill="#22C55E" opacity="0.5"/>
-                  <rect x="102" y="130" width="5" height="20" rx="1.5" fill="#22C55E" opacity="0.6"/>
-                  <rect x="110" y="138" width="5" height="12" rx="1.5" fill="#EF4444" opacity="0.35"/>
-                  <rect x="118" y="126" width="5" height="24" rx="1.5" fill="#22C55E" opacity="0.65"/>
-                  <rect x="126" y="132" width="5" height="18" rx="1.5" fill="#22C55E" opacity="0.5"/>
-                  <rect x="134" y="140" width="5" height="10" rx="1.5" fill="#EF4444" opacity="0.3"/>
-                  <rect x="142" y="128" width="5" height="22" rx="1.5" fill="#22C55E" opacity="0.55"/>
-                  <rect x="150" y="134" width="5" height="16" rx="1.5" fill="#22C55E" opacity="0.45"/>
-                  <rect x="158" y="124" width="5" height="26" rx="1.5" fill="#22C55E" opacity="0.7"/>
-                  <rect x="172" y="110" width="38" height="46" rx="3" fill="#282B34"/>
-                  <rect x="176" y="118" width="30" height="2" rx="1" fill="#3A3E48"/>
-                  <rect x="176" y="124" width="30" height="2" rx="1" fill="#3A3E48" opacity="0.6"/>
-                  <rect x="176" y="130" width="30" height="2" rx="1" fill="#3A3E48" opacity="0.4"/>
-                  <rect x="176" y="136" width="24" height="2" rx="1" fill="#3A3E48" opacity="0.3"/>
-                  <circle cx="208" cy="119" r="1.5" fill="#22C55E" opacity="0.5"/>
-                  <circle cx="208" cy="125" r="1.5" fill="#22C55E" opacity="0.5"/>
-                  <circle cx="208" cy="131" r="1.5" fill="#EC8228" opacity="0.4"/>
-                </g>
-                <circle cx="130" cy="59.5" r="1.2" fill="#2A2D35"/>
-              </g>
-
-              <!-- Hinge -->
-              <rect x="36" y="173" width="188" height="2.5" rx="1" fill="#AEB2BA"/>
-              <rect x="36" y="173" width="188" height="0.8" fill="white" opacity="0.2"/>
-              <!-- Base -->
-              <rect x="32" y="175" width="196" height="16" rx="3" fill="url(#g-base)"/>
-              <g opacity="0.18">
-                <rect x="44" y="178" width="172" height="4" rx="1.5" fill="#9A9EA6"/>
-                <rect x="44" y="183.5" width="172" height="4" rx="1.5" fill="#9A9EA6"/>
-              </g>
-              <rect x="108" y="189" width="44" height="0.8" rx="0.4" fill="#9A9EA6" opacity="0.25"/>
-              <rect x="32" y="190" width="196" height="1.2" rx="0.6" fill="#B0B4BC"/>
-              <ellipse cx="130" cy="196" rx="100" ry="3.5" fill="#000" opacity="0.03"/>
-            </svg>
+          <!-- Laptop Mockup -->
+          <div class="lm" style="margin-top:clamp(25px,6%,50px);">
+            <div class="lm-sf">
+              <div class="lm-sc">
+                <div class="lm-tb">
+                  <div class="lm-brand"><span class="lm-logo"></span><span class="lm-bn">FACTURALES</span></div>
+                  <div class="lm-hl">Panel de control</div>
+                  <div class="lm-sr"></div>
+                  <div class="lm-acts"><span class="lm-ic"></span><span class="lm-ic"></span><span class="lm-ic"></span><span class="lm-ic"></span></div>
+                </div>
+                <div class="lm-ly">
+                  <aside class="lm-sb">
+                    <div class="lm-st">Men&uacute;</div>
+                    <div class="lm-ni act"><span class="lm-dot" style="background:rgba(251,176,83,.35)"></span>Panel de control</div>
+                    <div class="lm-ni"><span class="lm-dot" style="background:rgba(251,176,83,.35)"></span>Facturas</div>
+                    <div class="lm-sub"><div class="lm-subi">Emitir factura</div><div class="lm-subi">Borradores</div><div class="lm-subi">Facturas emitidas</div></div>
+                    <div class="lm-ni"><span class="lm-dot" style="background:rgba(74,163,255,.30)"></span>Presupuestos</div>
+                    <div class="lm-ni"><span class="lm-dot" style="background:rgba(255,255,255,.20)"></span>Transacciones</div>
+                    <div class="lm-ni"><span class="lm-dot" style="background:rgba(49,209,123,.28)"></span>Integraciones</div>
+                    <div class="lm-ni"><span class="lm-dot" style="background:rgba(255,77,95,.25)"></span>Contactos</div>
+                    <div class="lm-dv"></div>
+                    <div class="lm-st">Ayuda</div>
+                    <div class="lm-ni"><span class="lm-dot" style="background:rgba(255,255,255,.20)"></span>Soporte</div>
+                    <div class="lm-ni"><span class="lm-dot" style="background:rgba(255,255,255,.20)"></span>Configuraci&oacute;n</div>
+                  </aside>
+                  <div class="lm-mn">
+                    <div class="lm-cds">
+                      <div class="lm-cd">
+                        <div class="lm-ch"><span class="lm-bg lm-bg-g">$</span><span class="lm-ct">Ingresos Totales</span></div>
+                        <div class="lm-mr"><span class="lm-cv">14.409&nbsp;&euro;</span><svg class="lm-spk" viewBox="0 0 120 36"><path class="sl sl--g" d="M2,28 L16,26 L28,30 L40,18 L54,22 L66,10 L78,16 L90,8 L106,14 L118,6"/><path class="sg sg--g" d="M2,28 L16,26 L28,30 L40,18 L54,22 L66,10 L78,16 L90,8 L106,14 L118,6"/></svg></div>
+                        <div class="lm-cm"><span class="lm-tu">&#9650; 100%</span> <span style="color:var(--m)">/ Ene</span></div>
+                      </div>
+                      <div class="lm-cd">
+                        <div class="lm-ch"><span class="lm-bg lm-bg-r">$</span><span class="lm-ct">Gastos Totales</span></div>
+                        <div class="lm-mr"><span class="lm-cv">4.000&nbsp;&euro;</span><svg class="lm-spk" viewBox="0 0 120 36"><path class="sl sl--r" d="M2,10 L16,18 L28,14 L40,22 L54,16 L66,26 L78,20 L90,28 L106,24 L118,30"/><path class="sg sg--r" d="M2,10 L16,18 L28,14 L40,22 L54,16 L66,26 L78,20 L90,28 L106,24 L118,30"/></svg></div>
+                        <div class="lm-cm"><span class="lm-td">&#9660; 100%</span> <span style="color:var(--m)">/ Ene</span></div>
+                      </div>
+                      <div class="lm-cd">
+                        <div class="lm-ch"><span class="lm-bg lm-bg-b">$</span><span class="lm-ct">Balance</span></div>
+                        <div class="lm-mr"><span class="lm-cv">10.409&nbsp;&euro;</span><svg class="lm-spk" viewBox="0 0 120 36"><path class="sl sl--b" d="M2,26 L16,22 L28,24 L40,20 L54,18 L66,16 L78,18 L90,14 L106,12 L118,10"/><path class="sg sg--b" d="M2,26 L16,22 L28,24 L40,20 L54,18 L66,16 L78,18 L90,14 L106,12 L118,10"/></svg></div>
+                        <div class="lm-cm"><span class="lm-tu">&#9650; 100%</span> <span style="color:var(--m)">/ Ene</span></div>
+                      </div>
+                    </div>
+                    <div class="lm-gr">
+                      <div class="lm-pn" style="display:flex;flex-direction:column;">
+                        <div class="lm-ph">
+                          <span class="lm-pt">Mi Evoluci&oacute;n</span>
+                          <div class="lm-lg"><span class="lm-ld lm-ld-g"></span>Ingresos <span class="lm-ld lm-ld-r"></span>Gastos <span class="lm-pill">A&ntilde;o Natural</span></div>
+                        </div>
+                        <div class="lm-chart">
+                          <div class="lm-cgrid"></div>
+                          <svg class="lm-csvg" viewBox="0 0 640 240"><path class="cl cl-g" d="M20,210 C90,190 130,80 190,120 C250,160 300,95 350,105 C410,117 450,60 510,90 C570,120 600,70 620,50"/><path class="cl cl-r" d="M20,210 C90,200 130,160 190,170 C250,180 300,140 350,150 C410,160 450,130 510,140 C570,150 600,120 620,110"/><path class="cg cg-g" d="M20,210 C90,190 130,80 190,120 C250,160 300,95 350,105 C410,117 450,60 510,90 C570,120 600,70 620,50"/><path class="cg cg-r" d="M20,210 C90,200 130,160 190,170 C250,180 300,140 350,150 C410,160 450,130 510,140 C570,150 600,120 620,110"/></svg>
+                          <div class="lm-scan"></div>
+                        </div>
+                        <div class="lm-ax"><span>Ene</span><span>Feb</span><span>Mar</span><span>Abr</span><span>May</span><span>Jun</span><span>Jul</span><span>Ago</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dic</span></div>
+                      </div>
+                      <div class="lm-pn">
+                        <div class="lm-ph"><span class="lm-pt">Objetivos</span><span class="lm-pill">A&ntilde;o Natural</span></div>
+                        <div class="lm-goal">
+                          <div class="lm-gl">OBJETIVO DE INGRESOS</div>
+                          <div style="display:flex;align-items:baseline;gap:6px;margin-top:4px"><span class="lm-gv">14.409&nbsp;&euro;</span><span class="lm-gs">de 50.000&nbsp;&euro;</span></div>
+                          <div class="lm-prog"><div class="lm-progb" style="--p:29%"></div></div>
+                          <div class="lm-gf"><span class="lm-gp">29%</span><span class="lm-gre">Faltan 35.591&nbsp;&euro;</span></div>
+                        </div>
+                        <div class="lm-mi">
+                          <div class="lm-mii lm-mig"><div class="lm-mico">&uarr;</div><div class="lm-min">14.409&nbsp;&euro;</div><div class="lm-mit">Ingresos</div></div>
+                          <div class="lm-mii lm-mir"><div class="lm-mico">&darr;</div><div class="lm-min">4.000&nbsp;&euro;</div><div class="lm-mit">Gastos</div></div>
+                          <div class="lm-mii lm-mib"><div class="lm-mico">&asymp;</div><div class="lm-min">10.409&nbsp;&euro;</div><div class="lm-mit">Beneficio</div></div>
+                        </div>
+                        <div class="lm-sts">
+                          <div class="lm-str"><span>Facturas emitidas</span><b>8</b></div>
+                          <div class="lm-str"><span>Pendientes de cobro</span><b>1</b></div>
+                          <div class="lm-str"><span>Presupuestos activos</span><b>3</b></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="lm-base"><div class="lm-bsh"></div><div class="lm-bt"></div><div class="lm-hn"></div></div>
           </div>
 
-          <div class="relative z-10">
+          <div class="relative z-10" style="margin-top:12px;">
             <div class="text-center max-w-lg px-4 m-auto">
-              <h3 class="text-bgray-900 dark:text-white font-semibold font-popins text-3xl xl:text-4xl mb-4">
+              <h3 class="text-bgray-900 dark:text-white font-semibold font-popins text-2xl xl:text-3xl mb-2">
                 Facturaci&oacute;n simple y r&aacute;pida
               </h3>
-              <p class="text-bgray-600 dark:text-bgray-50 text-sm font-medium leading-relaxed">
+              <p class="text-bgray-600 dark:text-bgray-50 text-xs font-medium leading-relaxed">
                 Crea facturas, gestiona presupuestos y controla tus finanzas en un solo lugar.
               </p>
             </div>
@@ -372,30 +458,30 @@
             var eC = document.getElementById('eyes-closed');
             var mo = document.getElementById('mouth');
             if (!eL || !eR) return;
-            var D = 3.5, mx = 0, my = 0, pw = false;
+            var D = 5, mx = 0, my = 0, pw = false;
             document.addEventListener('mousemove', function(e) { mx = e.clientX; my = e.clientY; });
             function cover(on) {
               if (on === pw) return; pw = on;
               eO.style.display = on ? 'none' : '';
               eC.style.display = on ? '' : 'none';
               if (mo) {
-                mo.setAttribute('d', on ? 'M121 26 Q130 32 139 26' : 'M123 26 Q130 31 137 26');
-                mo.setAttribute('opacity', on ? '0.75' : '0.55');
+                mo.setAttribute('d', on ? 'M85 68 Q100 76 115 68' : 'M88 68 Q100 76 112 68');
+                mo.setAttribute('opacity', on ? '0.8' : '0.55');
               }
             }
             function tick() {
               if (!pw) {
-                var s = eL.closest('svg'); if (!s) { requestAnimationFrame(tick); return; }
+                var s = document.getElementById('robot-svg'); if (!s) { requestAnimationFrame(tick); return; }
                 var r = s.getBoundingClientRect();
-                var cx = r.left + r.width * 0.5, cy = r.top + r.height * 0.15;
+                var cx = r.left + r.width * 0.5, cy = r.top + r.height * 0.35;
                 var dx = mx - cx, dy = my - cy;
                 var dist = Math.sqrt(dx*dx + dy*dy) || 1;
-                var f = Math.min(D, dist * 0.018);
-                var ox = (dx/dist) * f, oy = (dy/dist) * f * 0.6;
-                eL.setAttribute('cx', 118+ox); eL.setAttribute('cy', 13+oy);
-                eR.setAttribute('cx', 142+ox); eR.setAttribute('cy', 13+oy);
-                if (pL) { pL.setAttribute('cx', 118+ox*0.4); pL.setAttribute('cy', 12+oy*0.4); }
-                if (pR) { pR.setAttribute('cx', 142+ox*0.4); pR.setAttribute('cy', 12+oy*0.4); }
+                var f = Math.min(D, dist * 0.02);
+                var ox = (dx/dist) * f, oy = (dy/dist) * f * 0.55;
+                eL.setAttribute('cx', 82+ox); eL.setAttribute('cy', 48+oy);
+                eR.setAttribute('cx', 118+ox); eR.setAttribute('cy', 48+oy);
+                if (pL) { pL.setAttribute('cx', 82+ox*0.4); pL.setAttribute('cy', 47+oy*0.4); }
+                if (pR) { pR.setAttribute('cx', 118+ox*0.4); pR.setAttribute('cy', 47+oy*0.4); }
               }
               requestAnimationFrame(tick);
             }
