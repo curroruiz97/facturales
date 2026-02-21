@@ -683,48 +683,22 @@
                     <!-- Botón Crear Factura - Grande y Destacado -->
                     <button
                       onclick="window.location.href='invoices/new.html'"
-                      class="group w-full mb-4 sm:mb-5 bg-success-300 hover:bg-success-400 rounded-xl py-4 sm:py-5 px-4 sm:px-6 flex items-center justify-center gap-3 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
+                      class="group relative w-full mb-4 sm:mb-5 overflow-hidden rounded-2xl py-4 sm:py-5 px-5 sm:px-7 flex items-center gap-4 transition-all duration-300 hover:shadow-xl hover:shadow-success-300/25 active:scale-[0.98]"
+                      style="background:linear-gradient(135deg,#22c55e 0%,#16a34a 100%)"
                     >
-                      <div class="flex items-center justify-center">
-                        <svg
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                          class="transition-transform group-hover:scale-110"
-                        >
-                          <path
-                            d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z"
-                            stroke="white"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                          <path
-                            d="M14 2V8H20"
-                            stroke="white"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                          <path
-                            d="M12 18V12"
-                            stroke="white"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                          <path
-                            d="M9 15H15"
-                            stroke="white"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
+                      <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style="background:linear-gradient(135deg,#16a34a 0%,#15803d 100%)"></div>
+                      <div class="relative flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl" style="background:rgba(255,255,255,.18);backdrop-filter:blur(4px)">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" class="transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M14 2v6h6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M12 18v-6M9 15h6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                       </div>
-                      <span class="text-lg font-bold text-white">Crear factura</span>
+                      <div class="relative flex-1 text-left">
+                        <span class="block text-base sm:text-lg font-bold text-white leading-tight">Crear factura</span>
+                        <span class="block text-[11px] font-medium leading-tight" style="color:rgba(255,255,255,.7)">Nueva factura profesional</span>
+                      </div>
+                      <svg class="relative h-5 w-5 text-white/60 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6"/></svg>
                     </button>
 
                     <!-- Grid de Acciones Secundarias -->

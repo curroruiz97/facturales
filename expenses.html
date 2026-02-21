@@ -479,21 +479,27 @@
                       &iquest;QU&Eacute; DESEAS HACER?
                     </h3>
                     
-                    <!-- Bot&oacute;n A&Ntilde;ADIR GASTO - Grande y Destacado EN NARANJA -->
+                    <!-- Bot&oacute;n A&Ntilde;ADIR GASTO - Grande y Destacado -->
                     <button
                       onclick="openAddExpenseModal()"
-                      class="group w-full mb-4 sm:mb-5 bg-success-300 hover:bg-success-400 rounded-xl py-4 sm:py-5 px-4 sm:px-6 flex items-center justify-center gap-3 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
+                      class="group relative w-full mb-4 sm:mb-5 overflow-hidden rounded-2xl py-4 sm:py-5 px-5 sm:px-7 flex items-center gap-4 transition-all duration-300 hover:shadow-xl active:scale-[0.98]"
+                      style="background:linear-gradient(135deg,#f59e0b 0%,#ea580c 100%);--tw-shadow-color:rgba(245,158,11,.25)"
                     >
-                      <div class="flex items-center justify-center">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="transition-transform group-hover:scale-110">
+                      <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style="background:linear-gradient(135deg,#ea580c 0%,#dc2626 100%)"></div>
+                      <div class="relative flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl" style="background:rgba(255,255,255,.18);backdrop-filter:blur(4px)">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" class="transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
                           <rect x="3" y="6" width="18" height="13" rx="2" stroke="white" stroke-width="2"/>
-                          <path d="M3 10H21" stroke="white" stroke-width="2"/>
-                          <path d="M7 15H13" stroke="white" stroke-width="2" stroke-linecap="round"/>
-                          <circle cx="19" cy="17" r="4" fill="white" fill-opacity="0.3"/>
-                          <path d="M19 15V19M17 17H21" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+                          <path d="M3 10h18" stroke="white" stroke-width="2"/>
+                          <path d="M7 15h6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                          <circle cx="19" cy="17" r="4" fill="rgba(255,255,255,.25)"/>
+                          <path d="M19 15v4M17 17h4" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
                         </svg>
                       </div>
-                      <span class="text-lg font-bold text-white">A&ntilde;adir gasto</span>
+                      <div class="relative flex-1 text-left">
+                        <span class="block text-base sm:text-lg font-bold text-white leading-tight">A&ntilde;adir gasto</span>
+                        <span class="block text-[11px] font-medium leading-tight" style="color:rgba(255,255,255,.7)">Registrar nueva transacci&oacute;n</span>
+                      </div>
+                      <svg class="relative h-5 w-5 text-white/60 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6"/></svg>
                     </button>
 
                     <!-- Grid de Acciones Secundarias -->
