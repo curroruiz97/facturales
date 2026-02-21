@@ -389,23 +389,88 @@
                         </div>
                       </div>
                       <div class="p-5 space-y-5">
-                        <!-- Objetivo de ingresos -->
+                        <!-- Objetivo ANUAL -->
                         <div>
                           <div class="flex items-center justify-between mb-2">
-                            <span class="text-xs font-semibold text-bgray-600 dark:text-bgray-300 uppercase tracking-wider">Objetivo de ingresos</span>
-                            <button type="button" onclick="editRevenueGoal()" class="text-[10px] font-medium text-success-300 hover:text-success-400 transition">Editar</button>
+                            <span class="text-xs font-semibold text-bgray-600 dark:text-bgray-300 uppercase tracking-wider">Objetivo anual</span>
+                            <button type="button" onclick="openGoalModal('year')" class="text-[10px] font-medium text-success-300 hover:text-success-400 transition">Editar</button>
                           </div>
                           <div class="flex items-end gap-2 mb-2">
                             <span id="finance-revenue" class="text-xl sm:text-2xl font-bold text-bgray-900 dark:text-white" style="font-variant-numeric:tabular-nums;">0,00 €</span>
                             <span class="text-xs text-bgray-500 dark:text-bgray-400 mb-1">de <span id="finance-goal" class="font-semibold text-bgray-700 dark:text-bgray-200">0 €</span></span>
                           </div>
-                          <!-- Barra de progreso -->
                           <div class="relative h-2.5 w-full rounded-full bg-bgray-200 dark:bg-darkblack-400 overflow-hidden">
                             <div id="finance-progress-bar" class="absolute left-0 top-0 h-full rounded-full bg-success-300 transition-all duration-700" style="width:0%"></div>
                           </div>
                           <div class="flex items-center justify-between mt-1.5">
                             <span id="finance-progress-pct" class="text-xs font-bold text-success-300">0%</span>
                             <span id="finance-goal-remaining" class="text-[10px] text-bgray-400 dark:text-bgray-500">Faltan 0 €</span>
+                          </div>
+                        </div>
+
+                        <!-- Divider -->
+                        <div class="border-t border-bgray-100 dark:border-darkblack-400"></div>
+
+                        <!-- Objetivos TRIMESTRALES -->
+                        <div>
+                          <p class="text-xs font-semibold text-bgray-600 dark:text-bgray-300 uppercase tracking-wider mb-3">Objetivos trimestrales</p>
+                          <div class="grid grid-cols-2 gap-3">
+                            <div class="rounded-lg border border-bgray-100 dark:border-darkblack-400 p-3">
+                              <div class="flex items-center justify-between mb-1.5">
+                                <span class="text-[11px] font-bold text-bgray-700 dark:text-bgray-200">1<sup>er</sup> Trim.</span>
+                                <button type="button" onclick="openGoalModal('q1')" class="text-[10px] text-success-300 hover:text-success-400 font-medium">Editar</button>
+                              </div>
+                              <div class="relative h-1.5 w-full rounded-full bg-bgray-200 dark:bg-darkblack-400 overflow-hidden mb-1">
+                                <div id="q1-bar" class="absolute left-0 top-0 h-full rounded-full bg-blue-500 transition-all duration-700" style="width:0%"></div>
+                              </div>
+                              <div class="flex items-center justify-between">
+                                <span id="q1-revenue" class="text-[10px] font-bold text-bgray-900 dark:text-white">0 €</span>
+                                <span id="q1-pct" class="text-[10px] font-bold text-blue-500">0%</span>
+                              </div>
+                              <p class="text-[9px] text-bgray-400 mt-0.5">Meta: <span id="q1-goal" class="font-semibold">0 €</span></p>
+                            </div>
+                            <div class="rounded-lg border border-bgray-100 dark:border-darkblack-400 p-3">
+                              <div class="flex items-center justify-between mb-1.5">
+                                <span class="text-[11px] font-bold text-bgray-700 dark:text-bgray-200">2&ordm; Trim.</span>
+                                <button type="button" onclick="openGoalModal('q2')" class="text-[10px] text-success-300 hover:text-success-400 font-medium">Editar</button>
+                              </div>
+                              <div class="relative h-1.5 w-full rounded-full bg-bgray-200 dark:bg-darkblack-400 overflow-hidden mb-1">
+                                <div id="q2-bar" class="absolute left-0 top-0 h-full rounded-full bg-purple-500 transition-all duration-700" style="width:0%"></div>
+                              </div>
+                              <div class="flex items-center justify-between">
+                                <span id="q2-revenue" class="text-[10px] font-bold text-bgray-900 dark:text-white">0 €</span>
+                                <span id="q2-pct" class="text-[10px] font-bold text-purple-500">0%</span>
+                              </div>
+                              <p class="text-[9px] text-bgray-400 mt-0.5">Meta: <span id="q2-goal" class="font-semibold">0 €</span></p>
+                            </div>
+                            <div class="rounded-lg border border-bgray-100 dark:border-darkblack-400 p-3">
+                              <div class="flex items-center justify-between mb-1.5">
+                                <span class="text-[11px] font-bold text-bgray-700 dark:text-bgray-200">3<sup>er</sup> Trim.</span>
+                                <button type="button" onclick="openGoalModal('q3')" class="text-[10px] text-success-300 hover:text-success-400 font-medium">Editar</button>
+                              </div>
+                              <div class="relative h-1.5 w-full rounded-full bg-bgray-200 dark:bg-darkblack-400 overflow-hidden mb-1">
+                                <div id="q3-bar" class="absolute left-0 top-0 h-full rounded-full bg-amber-500 transition-all duration-700" style="width:0%"></div>
+                              </div>
+                              <div class="flex items-center justify-between">
+                                <span id="q3-revenue" class="text-[10px] font-bold text-bgray-900 dark:text-white">0 €</span>
+                                <span id="q3-pct" class="text-[10px] font-bold text-amber-500">0%</span>
+                              </div>
+                              <p class="text-[9px] text-bgray-400 mt-0.5">Meta: <span id="q3-goal" class="font-semibold">0 €</span></p>
+                            </div>
+                            <div class="rounded-lg border border-bgray-100 dark:border-darkblack-400 p-3">
+                              <div class="flex items-center justify-between mb-1.5">
+                                <span class="text-[11px] font-bold text-bgray-700 dark:text-bgray-200">4&ordm; Trim.</span>
+                                <button type="button" onclick="openGoalModal('q4')" class="text-[10px] text-success-300 hover:text-success-400 font-medium">Editar</button>
+                              </div>
+                              <div class="relative h-1.5 w-full rounded-full bg-bgray-200 dark:bg-darkblack-400 overflow-hidden mb-1">
+                                <div id="q4-bar" class="absolute left-0 top-0 h-full rounded-full bg-rose-500 transition-all duration-700" style="width:0%"></div>
+                              </div>
+                              <div class="flex items-center justify-between">
+                                <span id="q4-revenue" class="text-[10px] font-bold text-bgray-900 dark:text-white">0 €</span>
+                                <span id="q4-pct" class="text-[10px] font-bold text-rose-500">0%</span>
+                              </div>
+                              <p class="text-[9px] text-bgray-400 mt-0.5">Meta: <span id="q4-goal" class="font-semibold">0 €</span></p>
+                            </div>
                           </div>
                         </div>
 
@@ -752,14 +817,14 @@
                       <!-- Añadir gasto -->
                       <button
                         onclick="window.location.href='expenses.html'"
-                        class="group flex flex-col items-center justify-center p-2 sm:p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-success-300 hover:bg-white dark:bg-darkblack-500 dark:hover:bg-darkblack-400 transition-all duration-300 hover:shadow-md active:scale-95"
+                        class="group flex flex-col items-center justify-center p-2 sm:p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-red-400 hover:bg-white dark:bg-darkblack-500 dark:hover:bg-darkblack-400 transition-all duration-300 hover:shadow-md active:scale-95"
                       >
-                        <div class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 mb-2 sm:mb-3 rounded-full bg-green-50 group-hover:bg-green-100 transition-colors duration-300">
+                        <div class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 mb-2 sm:mb-3 rounded-full bg-red-50 group-hover:bg-red-100 transition-colors duration-300">
                           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="3" y="6" width="18" height="13" rx="2" stroke="#10B981" stroke-width="2"/>
-                            <path d="M3 10H21" stroke="#10B981" stroke-width="2"/>
-                            <path d="M7 15H13" stroke="#10B981" stroke-width="2" stroke-linecap="round"/>
-                            <circle cx="19" cy="17" r="4" fill="#10B981"/>
+                            <rect x="3" y="6" width="18" height="13" rx="2" stroke="#EF4444" stroke-width="2"/>
+                            <path d="M3 10H21" stroke="#EF4444" stroke-width="2"/>
+                            <path d="M7 15H13" stroke="#EF4444" stroke-width="2" stroke-linecap="round"/>
+                            <circle cx="19" cy="17" r="4" fill="#EF4444"/>
                             <path d="M19 15V19M17 17H21" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
                           </svg>
                         </div>
@@ -2267,66 +2332,24 @@
       }
     </script>
 
-    <!-- Modal: Editar Objetivo de Ingresos -->
-    <div id="income-goal-modal" class="modal fixed inset-0 z-50 hidden flex items-center justify-center overflow-y-auto bg-black/50 backdrop-blur-sm transition-opacity duration-200" role="dialog" aria-labelledby="income-goal-modal-title" aria-modal="true">
-      <!-- Overlay -->
-      <div class="modal-overlay absolute inset-0" onclick="closeIncomeGoalModal()"></div>
-      
-      <!-- Modal Content -->
+    <!-- Modal gen&eacute;rico: Editar Objetivo -->
+    <div id="goal-modal" class="modal fixed inset-0 z-50 hidden flex items-center justify-center overflow-y-auto bg-black/50 backdrop-blur-sm transition-opacity duration-200" role="dialog" aria-modal="true">
+      <div class="modal-overlay absolute inset-0" onclick="closeGoalModal()"></div>
       <div class="modal-content relative w-full max-w-sm mx-4 transform transition-all duration-200">
         <div class="relative rounded-2xl bg-white dark:bg-darkblack-600 shadow-2xl border-2 border-warning-300">
-          <!-- Header -->
           <div class="flex items-center justify-between border-b border-bgray-200 dark:border-darkblack-400 px-6 py-4">
-            <h3 id="income-goal-modal-title" class="text-lg font-bold text-bgray-900 dark:text-white">
-              Objetivo de Ingresos
-            </h3>
-            <button 
-              type="button" 
-              onclick="closeIncomeGoalModal()"
-              class="rounded-lg p-2 text-bgray-500 hover:bg-bgray-100 dark:hover:bg-darkblack-500 transition-colors"
-              aria-label="Cerrar modal"
-            >
-              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-              </svg>
+            <h3 id="goal-modal-title" class="text-lg font-bold text-bgray-900 dark:text-white">Objetivo</h3>
+            <button type="button" onclick="closeGoalModal()" class="rounded-lg p-2 text-bgray-500 hover:bg-bgray-100 dark:hover:bg-darkblack-500 transition-colors" aria-label="Cerrar">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
           </div>
-          
-          <!-- Body -->
           <div class="px-6 py-5">
-            <form id="income-goal-form" onsubmit="handleSaveIncomeGoal(event)">
-              <div>
-                <label for="income-goal-input" class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
-                  Objetivo de ingresos anuales (&euro;)
-                </label>
-                <input
-                  type="text"
-                  id="income-goal-input"
-                  inputmode="decimal"
-                  pattern="[0-9.,]*"
-                  required
-                  class="w-full h-12 rounded-lg border border-bgray-300 dark:border-darkblack-400 bg-white dark:bg-darkblack-500 px-4 py-3 text-sm text-bgray-900 dark:text-white placeholder:text-bgray-500 focus:border-success-300 focus:ring-2 focus:ring-success-300/20 transition-all"
-                  placeholder="Ej: 50000"
-                  oninput="this.value = this.value.replace(/[^0-9.,]/g, '')"
-                />
-              </div>
-              
-              <!-- Footer -->
+            <form id="goal-form" onsubmit="handleSaveGoal(event)">
+              <label for="goal-input" id="goal-label" class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">Objetivo (&euro;)</label>
+              <input type="text" id="goal-input" inputmode="decimal" pattern="[0-9.,]*" required class="w-full h-12 rounded-lg border border-bgray-300 dark:border-darkblack-400 bg-white dark:bg-darkblack-500 px-4 py-3 text-sm text-bgray-900 dark:text-white placeholder:text-bgray-500 focus:border-success-300 focus:ring-2 focus:ring-success-300/20 transition-all" placeholder="Ej: 50000" oninput="this.value = this.value.replace(/[^0-9.,]/g, '')"/>
               <div class="flex items-center justify-end gap-3 mt-5">
-                <button
-                  type="button"
-                  onclick="closeIncomeGoalModal()"
-                  class="rounded-lg border border-bgray-300 dark:border-darkblack-400 px-5 py-2.5 text-sm font-semibold text-bgray-700 dark:text-bgray-50 hover:bg-bgray-50 dark:hover:bg-darkblack-500 transition-colors"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  id="income-goal-save-btn"
-                  class="rounded-lg bg-success-300 hover:bg-success-400 px-5 py-2.5 text-sm font-semibold text-white transition-colors"
-                >
-                  Guardar
-                </button>
+                <button type="button" onclick="closeGoalModal()" class="rounded-lg border border-bgray-300 dark:border-darkblack-400 px-5 py-2.5 text-sm font-semibold text-bgray-700 dark:text-bgray-50 hover:bg-bgray-50 dark:hover:bg-darkblack-500 transition-colors">Cancelar</button>
+                <button type="submit" id="goal-save-btn" class="rounded-lg bg-success-300 hover:bg-success-400 px-5 py-2.5 text-sm font-semibold text-white transition-colors">Guardar</button>
               </div>
             </form>
           </div>
@@ -2352,7 +2375,7 @@
       }
     </style>
 
-    <!-- Panel financiero: Objetivo + Datos reales -->
+    <!-- Panel financiero: Objetivos + Datos reales -->
     <script>
       function fmtEUR(v) {
         return new Intl.NumberFormat('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.round(parseFloat(v) || 0)) + ' \u20AC';
@@ -2361,42 +2384,69 @@
         return new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(parseFloat(v) || 0) + ' \u20AC';
       }
 
-      // --- Modal: Editar Objetivo de Ingresos ---
-      function openIncomeGoalModal() {
-        var modal = document.getElementById('income-goal-modal');
-        var input = document.getElementById('income-goal-input');
-        // Prellenar con el valor actual guardado
-        input.value = window._currentIncomeGoal || '';
+      // --- Goals data ---
+      window._goals = { year: 0, q1: null, q2: null, q3: null, q4: null };
+      var _editingGoalPeriod = 'year';
+
+      var goalTitles = {
+        year: 'Objetivo Anual',
+        q1: 'Objetivo 1er Trimestre',
+        q2: 'Objetivo 2\u00BA Trimestre',
+        q3: 'Objetivo 3er Trimestre',
+        q4: 'Objetivo 4\u00BA Trimestre'
+      };
+      var goalLabels = {
+        year: 'Objetivo de ingresos anuales (\u20AC)',
+        q1: 'Objetivo 1er trimestre (\u20AC)',
+        q2: 'Objetivo 2\u00BA trimestre (\u20AC)',
+        q3: 'Objetivo 3er trimestre (\u20AC)',
+        q4: 'Objetivo 4\u00BA trimestre (\u20AC)'
+      };
+
+      function openGoalModal(period) {
+        _editingGoalPeriod = period;
+        var modal = document.getElementById('goal-modal');
+        var input = document.getElementById('goal-input');
+        var title = document.getElementById('goal-modal-title');
+        var label = document.getElementById('goal-label');
+
+        title.textContent = goalTitles[period] || 'Objetivo';
+        label.textContent = goalLabels[period] || 'Objetivo (\u20AC)';
+
+        var currentVal = window._goals[period];
+        if (currentVal == null && period !== 'year') {
+          currentVal = Math.round((window._goals.year || 0) / 4);
+        }
+        input.value = currentVal || '';
         modal.classList.remove('hidden');
         modal.classList.add('flex');
         setTimeout(function() { input.focus(); input.select(); }, 100);
       }
 
-      function closeIncomeGoalModal() {
-        var modal = document.getElementById('income-goal-modal');
+      function closeGoalModal() {
+        var modal = document.getElementById('goal-modal');
         modal.classList.add('hidden');
         modal.classList.remove('flex');
       }
 
-      // Cerrar con Escape
+      function editRevenueGoal() { openGoalModal('year'); }
+
       document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') closeIncomeGoalModal();
+        if (e.key === 'Escape') closeGoalModal();
       });
 
-      async function handleSaveIncomeGoal(e) {
+      async function handleSaveGoal(e) {
         e.preventDefault();
-        var input = document.getElementById('income-goal-input');
-        // Parsear valor: permitir comas como separador decimal
+        var input = document.getElementById('goal-input');
         var rawVal = (input.value || '').replace(/[^0-9.,]/g, '').replace(',', '.');
         var val = parseFloat(rawVal) || 0;
         if (val < 0) val = 0;
 
-        var btn = document.getElementById('income-goal-save-btn');
+        var btn = document.getElementById('goal-save-btn');
         btn.disabled = true;
         btn.textContent = 'Guardando...';
 
         try {
-          // Esperar Supabase
           var attempts = 0;
           while (!window.supabaseClient && attempts < 100) {
             await new Promise(function(r) { setTimeout(r, 100); });
@@ -2409,41 +2459,36 @@
           if (!userResult.data || !userResult.data.user) throw new Error('No autenticado');
           var userId = userResult.data.user.id;
 
-          // Upsert en business_info
-          var { error } = await supabase
-            .from('business_info')
-            .update({ income_goal: val })
-            .eq('user_id', userId);
+          var colMap = { year: 'income_goal', q1: 'income_goal_q1', q2: 'income_goal_q2', q3: 'income_goal_q3', q4: 'income_goal_q4' };
+          var col = colMap[_editingGoalPeriod] || 'income_goal';
+          var updateData = {};
+          updateData[col] = val;
 
-          if (error) {
-            // Si no existe registro, intentar insert
-            if (error.code === 'PGRST116') {
-              await supabase.from('business_info').insert({ user_id: userId, income_goal: val });
+          var result = await supabase.from('business_info').update(updateData).eq('user_id', userId);
+          if (result.error) {
+            if (result.error.code === 'PGRST116') {
+              var insertData = { user_id: userId };
+              insertData[col] = val;
+              await supabase.from('business_info').insert(insertData);
             } else {
-              throw error;
+              throw result.error;
             }
           }
 
-          window._currentIncomeGoal = val;
-          closeIncomeGoalModal();
+          window._goals[_editingGoalPeriod] = val;
+          closeGoalModal();
           loadFinancePanel();
         } catch (err) {
           console.error('Error guardando objetivo:', err);
-          alert('Error al guardar el objetivo. Inténtalo de nuevo.');
+          alert('Error al guardar el objetivo. Int\u00E9ntalo de nuevo.');
         } finally {
           btn.disabled = false;
           btn.textContent = 'Guardar';
         }
       }
 
-      // Alias para el botón "Editar" del HTML
-      function editRevenueGoal() {
-        openIncomeGoalModal();
-      }
-
       async function loadFinancePanel() {
         try {
-          // Esperar Supabase
           var attempts = 0;
           while (!window.supabaseClient && attempts < 100) {
             await new Promise(function(r) { setTimeout(r, 100); });
@@ -2457,156 +2502,135 @@
           var userId = userResult.data.user.id;
 
           var year = new Date().getFullYear();
-          
-          // Determinar rango según periodo seleccionado
-          var period = window.currentFinancePeriod || 'year';
-          var periodRanges = {
-            'year': { start: year + '-01-01', end: year + '-12-31', label: 'Año ' + year },
-            'q1':   { start: year + '-01-01', end: year + '-03-31', label: '1T ' + year },
-            'q2':   { start: year + '-04-01', end: year + '-06-30', label: '2T ' + year },
-            'q3':   { start: year + '-07-01', end: year + '-09-30', label: '3T ' + year },
-            'q4':   { start: year + '-10-01', end: year + '-12-31', label: '4T ' + year }
+          var ranges = {
+            year: { start: year + '-01-01', end: year + '-12-31' },
+            q1:   { start: year + '-01-01', end: year + '-03-31' },
+            q2:   { start: year + '-04-01', end: year + '-06-30' },
+            q3:   { start: year + '-07-01', end: year + '-09-30' },
+            q4:   { start: year + '-10-01', end: year + '-12-31' }
           };
-          var pr = periodRanges[period] || periodRanges.year;
-          var yearStart = pr.start;
-          var yearEnd = pr.end;
 
-          // Consultar TODAS las transacciones del periodo (ingresos + gastos)
-          var totalRevenue = 0;
-          var expensesTotal = 0;
+          // Cargar TODAS las transacciones del a\u00F1o
+          var allTrans = [];
           try {
-            var transResult = await supabase
-              .from('transacciones')
-              .select('importe, tipo')
-              .eq('user_id', userId)
-              .gte('fecha', yearStart)
-              .lte('fecha', yearEnd);
-            if (transResult.data) {
-              transResult.data.forEach(function(t) {
-                var importe = parseFloat(t.importe) || 0;
-                if (t.tipo === 'ingreso') totalRevenue += importe;
-                else if (t.tipo === 'gasto') expensesTotal += importe;
-              });
-            }
+            var transResult = await supabase.from('transacciones').select('importe, tipo, fecha').eq('user_id', userId).gte('fecha', ranges.year.start).lte('fecha', ranges.year.end);
+            allTrans = transResult.data || [];
           } catch (e) {}
 
-          // Consultar facturas emitidas del periodo (para conteo y pendientes)
-          var invoicesResult = await supabase
-            .from('invoices')
-            .select('total_amount, status, is_paid')
-            .eq('user_id', userId)
-            .gte('issue_date', yearStart)
-            .lte('issue_date', yearEnd);
-
-          var invoices = invoicesResult.data || [];
-          var issuedInvoices = invoices.filter(function(i) { return i.status === 'issued'; });
-          var unpaidInvoices = issuedInvoices.filter(function(i) { return !i.is_paid; });
-
-          // Consultar presupuestos activos (sin filtro de fecha - siempre total)
-          var quotesCount = 0;
-          try {
-            var quotesResult = await supabase
-              .from('quotes')
-              .select('id', { count: 'exact' })
-              .eq('user_id', userId)
-              .eq('status', 'issued');
-            quotesCount = quotesResult.count || (quotesResult.data ? quotesResult.data.length : 0);
-          } catch (e) {}
-
-          // Cargar objetivo desde business_info en Supabase
-          var goalFull = 0;
-          try {
-            var bizResult = await supabase
-              .from('business_info')
-              .select('income_goal')
-              .eq('user_id', userId)
-              .single();
-            if (bizResult.data && bizResult.data.income_goal != null) {
-              goalFull = parseFloat(bizResult.data.income_goal) || 0;
-            }
-          } catch (e) {}
-          window._currentIncomeGoal = goalFull;
-
-          // Calcular objetivo del periodo: año completo o trimestre (÷4)
-          var goal = (period === 'year') ? goalFull : Math.round(goalFull / 4);
-          var profit = totalRevenue - expensesTotal;
-          var progressPct = goal > 0 ? Math.min(100, Math.round((totalRevenue / goal) * 100)) : 0;
-          var remaining = Math.max(0, goal - totalRevenue);
-
-          // ======= Actualizar DOM =======
-
-          // Objetivo de ingresos
-          var revenueEl = document.getElementById('finance-revenue');
-          var goalEl = document.getElementById('finance-goal');
-          var barEl = document.getElementById('finance-progress-bar');
-          var pctEl = document.getElementById('finance-progress-pct');
-          var remainEl = document.getElementById('finance-goal-remaining');
-
-          if (revenueEl) revenueEl.textContent = fmtEUR2(totalRevenue);
-          if (goalEl) goalEl.textContent = goal > 0 ? fmtEUR(goal) : '0 €';
-          if (barEl) barEl.style.width = progressPct + '%';
-          if (pctEl) pctEl.textContent = progressPct + '%';
-          if (remainEl) {
-            if (goal > 0) {
-              remainEl.textContent = remaining > 0 ? ('Faltan ' + fmtEUR(remaining)) : '¡Objetivo alcanzado!';
-            } else {
-              remainEl.textContent = 'Define un objetivo';
-            }
+          function calcRevenue(start, end) {
+            var total = 0;
+            allTrans.forEach(function(t) {
+              if (t.tipo === 'ingreso' && t.fecha >= start && t.fecha <= end) total += parseFloat(t.importe) || 0;
+            });
+            return total;
+          }
+          function calcExpenses(start, end) {
+            var total = 0;
+            allTrans.forEach(function(t) {
+              if (t.tipo === 'gasto' && t.fecha >= start && t.fecha <= end) total += parseFloat(t.importe) || 0;
+            });
+            return total;
           }
 
-          // Ingresos / Gastos / Beneficio
-          var incomeEl = document.getElementById('finance-income');
-          var expensesEl = document.getElementById('finance-expenses');
-          var profitEl = document.getElementById('finance-profit');
+          var yearRevenue = calcRevenue(ranges.year.start, ranges.year.end);
+          var yearExpenses = calcExpenses(ranges.year.start, ranges.year.end);
 
-          if (incomeEl) incomeEl.textContent = fmtEUR(totalRevenue);
-          if (expensesEl) expensesEl.textContent = fmtEUR(expensesTotal);
-          if (profitEl) profitEl.textContent = fmtEUR(Math.abs(profit));
+          // Cargar objetivos desde business_info
+          var goalFull = 0;
+          var goalQ = { q1: null, q2: null, q3: null, q4: null };
+          try {
+            var bizResult = await supabase.from('business_info').select('income_goal, income_goal_q1, income_goal_q2, income_goal_q3, income_goal_q4').eq('user_id', userId).single();
+            if (bizResult.data) {
+              goalFull = parseFloat(bizResult.data.income_goal) || 0;
+              goalQ.q1 = bizResult.data.income_goal_q1 != null ? parseFloat(bizResult.data.income_goal_q1) : null;
+              goalQ.q2 = bizResult.data.income_goal_q2 != null ? parseFloat(bizResult.data.income_goal_q2) : null;
+              goalQ.q3 = bizResult.data.income_goal_q3 != null ? parseFloat(bizResult.data.income_goal_q3) : null;
+              goalQ.q4 = bizResult.data.income_goal_q4 != null ? parseFloat(bizResult.data.income_goal_q4) : null;
+            }
+          } catch (e) {}
+          window._goals = { year: goalFull, q1: goalQ.q1, q2: goalQ.q2, q3: goalQ.q3, q4: goalQ.q4 };
+          window._currentIncomeGoal = goalFull;
 
-          // Color del beneficio
+          // --- Update ANNUAL section ---
+          var period = window.currentFinancePeriod || 'year';
+          var pr = ranges[period] || ranges.year;
+          var periodRevenue = calcRevenue(pr.start, pr.end);
+          var periodExpenses = calcExpenses(pr.start, pr.end);
+          var annualGoal = goalFull;
+          var progressPct = annualGoal > 0 ? Math.min(100, Math.round((yearRevenue / annualGoal) * 100)) : 0;
+          var remaining = Math.max(0, annualGoal - yearRevenue);
+
+          var el = function(id) { return document.getElementById(id); };
+          if (el('finance-revenue')) el('finance-revenue').textContent = fmtEUR2(yearRevenue);
+          if (el('finance-goal')) el('finance-goal').textContent = annualGoal > 0 ? fmtEUR(annualGoal) : '0 \u20AC';
+          if (el('finance-progress-bar')) el('finance-progress-bar').style.width = progressPct + '%';
+          if (el('finance-progress-pct')) el('finance-progress-pct').textContent = progressPct + '%';
+          if (el('finance-goal-remaining')) {
+            el('finance-goal-remaining').textContent = annualGoal > 0 ? (remaining > 0 ? ('Faltan ' + fmtEUR(remaining)) : '\u00A1Objetivo alcanzado!') : 'Define un objetivo';
+          }
+
+          // --- Update QUARTERLY sections ---
+          ['q1', 'q2', 'q3', 'q4'].forEach(function(q) {
+            var r = ranges[q];
+            var rev = calcRevenue(r.start, r.end);
+            var qGoal = goalQ[q] != null ? goalQ[q] : Math.round(goalFull / 4);
+            var pct = qGoal > 0 ? Math.min(100, Math.round((rev / qGoal) * 100)) : 0;
+
+            if (el(q + '-revenue')) el(q + '-revenue').textContent = fmtEUR(rev);
+            if (el(q + '-goal')) el(q + '-goal').textContent = qGoal > 0 ? fmtEUR(qGoal) : '0 \u20AC';
+            if (el(q + '-bar')) el(q + '-bar').style.width = pct + '%';
+            if (el(q + '-pct')) el(q + '-pct').textContent = pct + '%';
+          });
+
+          // --- Ingresos / Gastos / Beneficio (siempre seg\u00FAn filtro de periodo) ---
+          var dispRevenue = calcRevenue(pr.start, pr.end);
+          var dispExpenses = calcExpenses(pr.start, pr.end);
+          var profit = dispRevenue - dispExpenses;
+
+          if (el('finance-income')) el('finance-income').textContent = fmtEUR(dispRevenue);
+          if (el('finance-expenses')) el('finance-expenses').textContent = fmtEUR(dispExpenses);
+          var profitEl = el('finance-profit');
           if (profitEl) {
+            profitEl.classList.remove('text-red-500', 'text-bgray-900', 'dark:text-white');
             if (profit >= 0) {
-              profitEl.classList.remove('text-red-500');
               profitEl.classList.add('text-bgray-900', 'dark:text-white');
               profitEl.textContent = fmtEUR(profit);
             } else {
-              profitEl.classList.remove('text-bgray-900', 'dark:text-white');
               profitEl.classList.add('text-red-500');
               profitEl.textContent = '-' + fmtEUR(Math.abs(profit));
             }
           }
 
           // Facturas / Presupuestos
-          var issuedCountEl = document.getElementById('finance-issued-count');
-          var unpaidCountEl = document.getElementById('finance-unpaid-count');
-          var quotesCountEl = document.getElementById('finance-quotes-count');
-          if (issuedCountEl) issuedCountEl.textContent = issuedInvoices.length;
-          if (unpaidCountEl) unpaidCountEl.textContent = unpaidInvoices.length;
-          if (quotesCountEl) quotesCountEl.textContent = quotesCount;
+          try {
+            var invoicesResult = await supabase.from('invoices').select('total_amount, status, is_paid').eq('user_id', userId).gte('issue_date', pr.start).lte('issue_date', pr.end);
+            var invoices = invoicesResult.data || [];
+            var issuedInvoices = invoices.filter(function(i) { return i.status === 'issued'; });
+            var unpaidInvoices = issuedInvoices.filter(function(i) { return !i.is_paid; });
+            if (el('finance-issued-count')) el('finance-issued-count').textContent = issuedInvoices.length;
+            if (el('finance-unpaid-count')) el('finance-unpaid-count').textContent = unpaidInvoices.length;
+          } catch (e) {}
+          try {
+            var quotesResult = await supabase.from('quotes').select('id', { count: 'exact' }).eq('user_id', userId).eq('status', 'issued');
+            if (el('finance-quotes-count')) el('finance-quotes-count').textContent = quotesResult.count || (quotesResult.data ? quotesResult.data.length : 0);
+          } catch (e) {}
 
-          // Color barra de progreso según avance
+          // Color barra anual
+          var barEl = el('finance-progress-bar');
           if (barEl) {
-            // Reset all possible color classes
-            barEl.classList.remove('bg-success-300', 'bg-warning-300', 'bg-bgray-400');
-            if (progressPct >= 75) {
-              barEl.classList.add('bg-success-300');
-            } else if (progressPct >= 40) {
-              barEl.classList.add('bg-warning-300');
-            } else {
-              barEl.classList.add('bg-success-300');
-            }
+            barEl.classList.remove('bg-success-300', 'bg-warning-300');
+            barEl.classList.add(progressPct >= 75 ? 'bg-success-300' : progressPct >= 40 ? 'bg-warning-300' : 'bg-success-300');
           }
-
         } catch (error) {
           console.error('Error cargando panel financiero:', error);
         }
       }
 
-      // Cambiar periodo del panel de objetivos
+      // Cambiar periodo
       window.currentFinancePeriod = 'year';
-      
-      const financePeriodLabels = {
-        year: 'Año Natural',
+
+      var financePeriodLabels = {
+        year: 'A\u00F1o Natural',
         q1: '1<sup>er</sup> Trimestre',
         q2: '2<sup>o</sup> Trimestre',
         q3: '3<sup>er</sup> Trimestre',
@@ -2615,7 +2639,7 @@
 
       window.setFinancePeriod = function(period) {
         window.currentFinancePeriod = period;
-        const labelEl = document.getElementById('finance-range-label');
+        var labelEl = document.getElementById('finance-range-label');
         if (labelEl) labelEl.innerHTML = financePeriodLabels[period] || financePeriodLabels.year;
         loadFinancePanel();
       };
@@ -2624,7 +2648,6 @@
         window.setFinancePeriod(period);
       }
 
-      // Iniciar
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function() { setTimeout(loadFinancePanel, 1500); });
       } else {
