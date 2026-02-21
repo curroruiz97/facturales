@@ -191,12 +191,17 @@
     </div>
 
     <!-- Scripts -->
+    <script src="./assets/js/jquery-3.6.0.min.js"></script>
     <script src="./assets/js/aos.js"></script>
     <script src="./assets/js/slick.min.js"></script>
     <script>
       AOS.init();
     </script>
     <script src="./assets/js/load-components.js"></script>
+    <script src="./assets/js/main.js"></script>
+
+    <!-- Supabase y Autenticación -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script type="module">
       import './assets/js/supabaseClient.js';
       import './assets/js/auth.js';
@@ -205,6 +210,8 @@
       await new Promise(resolve => setTimeout(resolve, 100));
     </script>
     <script type="module" src="./assets/js/auth-guard.js"></script>
+
+    <!-- User header y utilidades -->
     <script src="./assets/js/user-header.js"></script>
     <script src="./assets/js/onboardingProgress.js"></script>
     <script type="module">
@@ -212,6 +219,7 @@
       await window.checkBusinessInfoComplete();
       await window.loadOnboardingProgress();
     </script>
+
     <script src="./assets/js/toast.js"></script>
     <script src="./assets/js/transactions.js"></script>
     <script src="./assets/js/scan-ocr-page.js"></script>
