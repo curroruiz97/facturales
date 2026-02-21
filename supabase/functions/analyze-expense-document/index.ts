@@ -34,17 +34,23 @@ Deno.serve(async (req) => {
   try {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
-      return jsonError("No autorizado", 401);
+      return jsonError("No autorizado: falta header Authorization", 401);
     }
 
-    const supabaseUser = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
-      global: { headers: { Authorization: authHeader } },
-    });
-    const { data: { user }, error: authErr } = await supabaseUser.auth.getUser(
-      authHeader.replace("Bearer ", ""),
-    );
-    if (authErr || !user) {
-      return jsonError("Token inválido", 401);
+    if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
+      return jsonError("Config error: faltan SUPABASE_URL o SERVICE_ROLE_KEY", 500);
+    }
+
+    if (!AZURE_ENDPOINT || !AZURE_KEY) {
+      return jsonError("Config error: faltan AZURE_DI_ENDPOINT o AZURE_DI_KEY", 500);
+    }
+
+    const token = authHeader.replace("Bearer ", "");
+    const userClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+    const { data: { user: authedUser }, error: authErr } = await userClient.auth.getUser(token);
+
+    if (authErr || !authedUser) {
+      return jsonError("Token inválido: " + (authErr?.message || "usuario no encontrado"), 401);
     }
 
     const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
@@ -55,7 +61,7 @@ Deno.serve(async (req) => {
     const { count } = await admin
       .from("expense_ocr_log")
       .select("*", { count: "exact", head: true })
-      .eq("user_id", user.id)
+      .eq("user_id", authedUser.id)
       .gte("created_at", withinWindow);
 
     if ((count ?? 0) >= RATE_LIMIT_MAX) {
@@ -71,7 +77,7 @@ Deno.serve(async (req) => {
     }
 
     const pathParts = filePath.split("/");
-    if (pathParts[0] !== user.id) {
+    if (pathParts[0] !== authedUser.id) {
       return jsonError("Acceso denegado al archivo", 403);
     }
 
@@ -90,7 +96,7 @@ Deno.serve(async (req) => {
       ocrResult = await analyzeWithAzure(fileBytes, contentType);
     } catch (e: unknown) {
       const errorMsg = e instanceof Error ? e.message : String(e);
-      await logOcr(admin, user.id, "error", null, null, null, null, null, null, errorMsg);
+      await logOcr(admin, authedUser.id, "error", null, null, null, null, null, null, errorMsg);
       await deleteFile(admin, filePath);
       return jsonError(`Error OCR: ${errorMsg}`, 502);
     }
@@ -98,7 +104,7 @@ Deno.serve(async (req) => {
     const status = ocrResult.confidence < 0.65 ? "low_confidence" : "success";
     await logOcr(
       admin,
-      user.id,
+      authedUser.id,
       status,
       ocrResult.confidence,
       ocrResult.vendorName,

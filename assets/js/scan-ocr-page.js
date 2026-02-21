@@ -129,7 +129,17 @@
         { body: { filePath } },
       );
 
-      if (fnErr) throw new Error(fnErr.message || "Error del servidor OCR");
+      if (fnErr) {
+        let detail = fnErr.message || "Error del servidor OCR";
+        try {
+          if (fnErr.context && typeof fnErr.context.json === "function") {
+            const errBody = await fnErr.context.json();
+            if (errBody && errBody.error) detail = errBody.error;
+          }
+        } catch (_) {}
+        console.error("Edge Function error detail:", detail, fnErr);
+        throw new Error(detail);
+      }
       if (data && data.error) throw new Error(data.error);
 
       const body = data;
