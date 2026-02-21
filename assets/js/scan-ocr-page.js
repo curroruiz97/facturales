@@ -124,38 +124,15 @@
 
       if (upErr) throw new Error("Error subiendo archivo: " + upErr.message);
 
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      const { data, error: fnErr } = await supabase.functions.invoke(
+        "analyze-expense-document",
+        { body: { filePath } },
+      );
 
-      const ctrl = new AbortController();
-      const fetchTimeout = setTimeout(() => ctrl.abort(), 60000);
+      if (fnErr) throw new Error(fnErr.message || "Error del servidor OCR");
+      if (data && data.error) throw new Error(data.error);
 
-      let res;
-      try {
-        res = await fetch(
-          `${supabase.supabaseUrl}/functions/v1/analyze-expense-document`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${session.access_token}`,
-              "Content-Type": "application/json",
-              apikey: supabase.supabaseKey,
-            },
-            body: JSON.stringify({ filePath }),
-            signal: ctrl.signal,
-          },
-        );
-      } catch (abortErr) {
-        if (abortErr.name === "AbortError")
-          throw new Error("Tiempo de espera agotado (60s). Intenta con un archivo más ligero.");
-        throw abortErr;
-      } finally {
-        clearTimeout(fetchTimeout);
-      }
-
-      const body = await res.json();
-      if (!res.ok) throw new Error(body.error || "Error del servidor OCR");
+      const body = data;
 
       ocrData = body;
       showResults(body);
