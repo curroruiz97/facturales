@@ -48,7 +48,6 @@
     $("ocr-file-size").textContent = formatBytes(file.size);
     $("ocr-drop-empty").classList.add("hidden");
     $("ocr-drop-file").classList.remove("hidden");
-    $("ocr-upload-zone").classList.add("has-file");
     $("ocr-scan-btn").disabled = false;
     showPanel("upload");
     setStep(1);
@@ -60,7 +59,6 @@
     $("ocr-file-input").value = "";
     $("ocr-drop-empty").classList.remove("hidden");
     $("ocr-drop-file").classList.add("hidden");
-    $("ocr-upload-zone").classList.remove("has-file");
     $("ocr-scan-btn").disabled = true;
     $("ocr-scan-text").textContent = "Escanear documento";
     $("ocr-progress").classList.add("hidden");
@@ -286,17 +284,30 @@
 
     fi.addEventListener("change", (e) => { if (e.target.files[0]) handleFile(e.target.files[0]); });
 
-    $("ocr-remove-file")?.addEventListener("click", (e) => { e.stopPropagation(); clearAll(); });
+    $("ocr-remove-file")?.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      clearAll();
+    });
     $("ocr-scan-btn")?.addEventListener("click", doScan);
     $("ocr-save-btn")?.addEventListener("click", saveExpense);
     $("ocr-reset-btn")?.addEventListener("click", clearAll);
     $("ocr-scan-another")?.addEventListener("click", clearAll);
 
-    const zone = $("ocr-upload-zone");
-    if (zone) {
-      ["dragenter", "dragover"].forEach((ev) => zone.addEventListener(ev, (e) => { e.preventDefault(); zone.classList.add("drag-over"); }));
-      ["dragleave", "drop"].forEach((ev) => zone.addEventListener(ev, (e) => { e.preventDefault(); zone.classList.remove("drag-over"); }));
-      zone.addEventListener("drop", (e) => { if (e.dataTransfer?.files?.[0]) handleFile(e.dataTransfer.files[0]); });
+    const dropZone = $("ocr-drop-empty");
+    const uploadPanel = $("panel-upload");
+    if (uploadPanel) {
+      ["dragenter", "dragover"].forEach((ev) => uploadPanel.addEventListener(ev, (e) => {
+        e.preventDefault();
+        if (dropZone && !dropZone.classList.contains("hidden")) dropZone.style.borderColor = "#22c55e";
+      }));
+      ["dragleave", "drop"].forEach((ev) => uploadPanel.addEventListener(ev, (e) => {
+        e.preventDefault();
+        if (dropZone) dropZone.style.borderColor = "#d1d5db";
+      }));
+      uploadPanel.addEventListener("drop", (e) => {
+        if (e.dataTransfer?.files?.[0]) handleFile(e.dataTransfer.files[0]);
+      });
     }
 
     loadHistory();
