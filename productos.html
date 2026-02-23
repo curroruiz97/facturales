@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Productos</title>
+    <link rel="stylesheet" href="./assets/css/output.css" />
+    <link rel="stylesheet" href="./assets/css/style.css" />
+  </head>
+  <body>
+    <!-- layout start -->
+    <div class="layout-wrapper active w-full">
+      <div class="relative flex w-full">
+        <div id="sidebar-container"></div>
+        <div
+          class="body-wrapper flex-1 overflow-x-hidden dark:bg-darkblack-700"
+        >
+          <div id="header-container"></div>
+          <main
+            class="w-full px-6 pb-6 pt-[100px] sm:pt-[156px] xl:px-[48px] xl:pb-[48px]"
+          >
+
+<div class="flex flex-col gap-6">
+  <!-- Header -->
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+    <div>
+      <h2 class="text-2xl font-bold text-bgray-900 dark:text-white">Listado de productos</h2>
+      <p class="text-sm text-bgray-600 dark:text-bgray-50">Gestiona tu catálogo de productos y servicios</p>
+    </div>
+    <button
+      type="button"
+      id="btn-new-product"
+      class="inline-flex items-center justify-center gap-2 rounded-lg bg-success-300 px-4 py-3 text-sm font-semibold text-white transition hover:bg-success-400"
+    >
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M9 3.75V14.25" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M3.75 9H14.25" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Añadir producto
+    </button>
+  </div>
+
+  <!-- Productos recientes -->
+  <div>
+    <h3 class="mb-3 text-xs font-semibold uppercase tracking-wider text-bgray-500 dark:text-bgray-400">Productos recientes</h3>
+    <div id="recent-products">
+      <p class="text-sm text-bgray-500 dark:text-bgray-400">Cargando...</p>
+    </div>
+  </div>
+
+  <!-- Card: Lista -->
+  <div class="w-full rounded-lg bg-white px-[24px] py-[20px] dark:bg-darkblack-600">
+    <div class="flex flex-col gap-6">
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-bgray-100 dark:bg-darkblack-500">
+              <svg class="stroke-bgray-900 dark:stroke-bgray-50" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <h3 class="text-base font-bold text-bgray-900 dark:text-white">Catálogo</h3>
+          </div>
+          <p class="mt-1 text-sm text-bgray-600 dark:text-bgray-50"><span id="products-count">0</span> productos registrados</p>
+        </div>
+
+        <!-- Search -->
+        <div class="searchbar-wrapper">
+          <div
+            class="flex h-[56px] w-full items-center justify-between rounded-lg border border-transparent bg-bgray-50 px-4 focus-within:border-success-300 dark:bg-darkblack-500 lg:w-[420px]"
+          >
+            <div class="flex w-full items-center space-x-3.5">
+              <span>
+                <svg class="stroke-bgray-900 dark:stroke-bgray-50" fill="none" height="20" width="20" viewBox="0 0 20 20">
+                  <circle cx="9.78639" cy="9.78602" r="8.23951" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></circle>
+                  <path d="M15.5176 15.9447L18.7479 19.1667" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+                </svg>
+              </span>
+              <label class="w-full" for="products-search">
+                <input
+                  id="products-search"
+                  type="text"
+                  placeholder="Buscar por nombre o referencia"
+                  class="search-input w-full border-none bg-bgray-50 bg-none text-sm font-medium text-bgray-900 placeholder:text-sm placeholder:font-medium placeholder:text-bgray-500 focus:outline-none dark:bg-darkblack-500 dark:text-white"
+                />
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="w-full overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="border-b border-bgray-300 dark:border-darkblack-400">
+              <td class="whitespace-nowrap py-4 pr-6"><span class="text-xs font-semibold uppercase tracking-wider text-bgray-600 dark:text-bgray-50">Producto / Servicio</span></td>
+              <td class="whitespace-nowrap px-6 py-4"><span class="text-xs font-semibold uppercase tracking-wider text-bgray-600 dark:text-bgray-50">Referencia</span></td>
+              <td class="whitespace-nowrap px-6 py-4"><span class="text-xs font-semibold uppercase tracking-wider text-bgray-600 dark:text-bgray-50">Precio Compra</span></td>
+              <td class="whitespace-nowrap px-6 py-4"><span class="text-xs font-semibold uppercase tracking-wider text-bgray-600 dark:text-bgray-50">Precio Venta</span></td>
+              <td class="whitespace-nowrap px-6 py-4"><span class="text-xs font-semibold uppercase tracking-wider text-bgray-600 dark:text-bgray-50">Margen</span></td>
+              <td class="whitespace-nowrap px-6 py-4"><span class="text-xs font-semibold uppercase tracking-wider text-bgray-600 dark:text-bgray-50">Descuento</span></td>
+              <td class="whitespace-nowrap px-6 py-4"><span class="text-xs font-semibold uppercase tracking-wider text-bgray-600 dark:text-bgray-50">PVP</span></td>
+              <td class="whitespace-nowrap py-4 pl-6 text-right"><span class="text-xs font-semibold uppercase tracking-wider text-bgray-600 dark:text-bgray-50">Acciones</span></td>
+            </tr>
+          </thead>
+          <tbody id="products-table-body">
+            <tr><td colspan="8" class="py-8 text-center text-sm text-bgray-500 dark:text-bgray-400">Cargando productos...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="flex w-full items-center justify-center">
+        <div class="flex items-center space-x-2" id="products-page-buttons"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Crear/Editar Producto -->
+<div id="product-modal" class="modal fixed inset-0 z-50 hidden items-center justify-center overflow-y-auto bg-black/50 backdrop-blur-sm transition-opacity duration-200" role="dialog" aria-modal="true">
+  <div class="modal-overlay absolute inset-0" data-action="close-product-modal"></div>
+  <div class="modal-content relative w-full max-w-2xl mx-4 my-8 transform transition-all duration-200">
+    <div class="relative rounded-2xl bg-white dark:bg-darkblack-600 shadow-2xl border-2 border-success-300">
+      <!-- Header -->
+      <div class="flex items-center justify-between border-b border-bgray-200 dark:border-darkblack-400 px-6 py-4">
+        <h3 class="text-xl font-bold text-bgray-900 dark:text-white" id="product-modal-title">Nuevo Producto</h3>
+        <button type="button" data-action="close-product-modal" class="rounded-lg p-2 text-bgray-500 hover:bg-bgray-100 dark:hover:bg-darkblack-500 transition-colors" aria-label="Cerrar">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <!-- Body -->
+      <div class="px-6 py-5 max-h-[calc(100vh-200px)] overflow-y-auto">
+        <form id="product-form" class="space-y-5">
+          <!-- Nombre -->
+          <div>
+            <label for="product-nombre" class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
+              Nombre del producto <span class="text-red-500">*</span>
+            </label>
+            <input type="text" id="product-nombre" required
+              class="w-full h-12 rounded-lg border border-bgray-300 dark:border-darkblack-400 bg-white dark:bg-darkblack-500 px-4 py-3 text-sm text-bgray-900 dark:text-white placeholder:text-bgray-500 focus:border-success-300 focus:ring-2 focus:ring-success-300/20 transition-all"
+              placeholder="Ej: Servicio de consultoría" />
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <!-- Referencia -->
+            <div>
+              <label for="product-referencia" class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">Referencia</label>
+              <input type="text" id="product-referencia"
+                class="w-full h-12 rounded-lg border border-bgray-300 dark:border-darkblack-400 bg-white dark:bg-darkblack-500 px-4 py-3 text-sm text-bgray-900 dark:text-white placeholder:text-bgray-500 focus:border-success-300 focus:ring-2 focus:ring-success-300/20 transition-all"
+                placeholder="Ej: REF-001" />
+            </div>
+            <!-- Impuesto -->
+            <div>
+              <label for="product-impuesto" class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">Impuesto</label>
+              <select id="product-impuesto"
+                class="w-full h-12 rounded-lg border border-bgray-300 dark:border-darkblack-400 bg-white dark:bg-darkblack-500 px-4 py-3 text-sm text-bgray-900 dark:text-white focus:border-success-300 focus:ring-2 focus:ring-success-300/20 transition-all">
+                <optgroup label="IVA — Península/Baleares">
+                  <option value="IVA_21" selected>IVA 21%</option>
+                  <option value="IVA_10">IVA 10%</option>
+                  <option value="IVA_4">IVA 4%</option>
+                  <option value="IVA_0">IVA 0%</option>
+                </optgroup>
+                <optgroup label="IGIC — Canarias">
+                  <option value="IGIC_7">IGIC 7%</option>
+                  <option value="IGIC_3">IGIC 3%</option>
+                  <option value="IGIC_0">IGIC 0%</option>
+                </optgroup>
+                <optgroup label="Exenciones">
+                  <option value="EXENTO">Exento</option>
+                </optgroup>
+              </select>
+            </div>
+          </div>
+
+          <!-- Descripción -->
+          <div>
+            <label for="product-descripcion" class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">Descripción adicional</label>
+            <textarea id="product-descripcion" rows="2"
+              class="w-full rounded-lg border border-bgray-300 dark:border-darkblack-400 bg-white dark:bg-darkblack-500 px-4 py-3 text-sm text-bgray-900 dark:text-white placeholder:text-bgray-500 focus:border-success-300 focus:ring-2 focus:ring-success-300/20 transition-all"
+              placeholder="Descripción del servicio"></textarea>
+          </div>
+
+          <!-- Tarifa -->
+          <div>
+            <h4 class="mb-3 text-xs font-semibold uppercase tracking-wider text-bgray-500 dark:text-bgray-400 border-b border-bgray-200 dark:border-darkblack-400 pb-2">Tarifa</h4>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <!-- Precio compra -->
+              <div>
+                <label for="product-precio-compra" class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">Precio compra</label>
+                <input type="number" id="product-precio-compra" step="0.01" min="0" value="0"
+                  class="w-full h-12 rounded-lg border border-bgray-300 dark:border-darkblack-400 bg-white dark:bg-darkblack-500 px-4 py-3 text-sm text-bgray-900 dark:text-white placeholder:text-bgray-500 focus:border-success-300 focus:ring-2 focus:ring-success-300/20 transition-all"
+                  placeholder="0.00" />
+              </div>
+              <!-- Precio venta -->
+              <div>
+                <label for="product-precio-venta" class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">Precio venta</label>
+                <input type="number" id="product-precio-venta" step="0.01" min="0" value="0"
+                  class="w-full h-12 rounded-lg border border-bgray-300 dark:border-darkblack-400 bg-white dark:bg-darkblack-500 px-4 py-3 text-sm text-bgray-900 dark:text-white placeholder:text-bgray-500 focus:border-success-300 focus:ring-2 focus:ring-success-300/20 transition-all"
+                  placeholder="0.00" />
+              </div>
+              <!-- Descuento -->
+              <div>
+                <label for="product-descuento" class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">Descuento %</label>
+                <input type="number" id="product-descuento" step="0.01" min="0" max="100" value="0"
+                  class="w-full h-12 rounded-lg border border-bgray-300 dark:border-darkblack-400 bg-white dark:bg-darkblack-500 px-4 py-3 text-sm text-bgray-900 dark:text-white placeholder:text-bgray-500 focus:border-success-300 focus:ring-2 focus:ring-success-300/20 transition-all"
+                  placeholder="0" />
+              </div>
+              <!-- PVP (readonly) -->
+              <div>
+                <label for="product-pvp" class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">PVP</label>
+                <input type="text" id="product-pvp" readonly
+                  class="w-full h-12 rounded-lg border border-bgray-200 bg-bgray-50 dark:border-darkblack-400 dark:bg-darkblack-700 px-4 py-3 text-sm font-semibold text-bgray-900 dark:text-white cursor-not-allowed"
+                  value="0.00" />
+              </div>
+              <!-- Margen (readonly) -->
+              <div>
+                <label for="product-margen" class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">Margen</label>
+                <input type="text" id="product-margen" readonly
+                  class="w-full h-12 rounded-lg border border-bgray-200 bg-bgray-50 dark:border-darkblack-400 dark:bg-darkblack-700 px-4 py-3 text-sm font-semibold text-bgray-900 dark:text-white cursor-not-allowed"
+                  value="N/A" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="flex items-center justify-end gap-3 border-t border-bgray-200 dark:border-darkblack-400 pt-5 mt-6">
+            <button type="button" data-action="close-product-modal"
+              class="rounded-lg border border-bgray-300 dark:border-darkblack-400 px-6 py-2.5 text-sm font-semibold text-bgray-700 dark:text-bgray-50 hover:bg-bgray-50 dark:hover:bg-darkblack-500 transition-colors">
+              Cancelar
+            </button>
+            <button type="submit" id="product-save-btn"
+              class="rounded-lg bg-success-300 px-6 py-2.5 text-sm font-semibold text-white hover:bg-success-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              Guardar Producto
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Confirmar Eliminación -->
+<div id="delete-product-modal" class="modal fixed inset-0 z-50 hidden items-center justify-center overflow-y-auto bg-black/50 backdrop-blur-sm transition-opacity duration-200" role="dialog" aria-modal="true">
+  <div class="modal-overlay absolute inset-0" data-action="close-delete-product-modal"></div>
+  <div class="modal-content relative w-full max-w-md mx-4 my-8">
+    <div class="relative rounded-2xl bg-white dark:bg-darkblack-600 shadow-2xl p-6 text-center">
+      <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
+        <svg class="h-7 w-7 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7M10 11v6M14 11v6M15 7V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+        </svg>
+      </div>
+      <h3 class="text-lg font-bold text-bgray-900 dark:text-white mb-2">Eliminar producto</h3>
+      <p class="text-sm text-bgray-600 dark:text-bgray-50 mb-6">¿Estás seguro? Esta acción no se puede deshacer.</p>
+      <div class="flex items-center justify-center gap-3">
+        <button type="button" data-action="close-delete-product-modal"
+          class="rounded-lg border border-bgray-300 dark:border-darkblack-400 px-6 py-2.5 text-sm font-semibold text-bgray-700 dark:text-bgray-50 hover:bg-bgray-50 dark:hover:bg-darkblack-500 transition-colors">
+          Cancelar
+        </button>
+        <button type="button" id="btn-confirm-delete-product"
+          class="rounded-lg bg-red-500 px-6 py-2.5 text-sm font-semibold text-white hover:bg-red-600 transition-colors">
+          Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+          </main>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module" src="./assets/js/supabaseClient.js"></script>
+    <script type="module" src="./assets/js/auth.js"></script>
+    <script type="module" src="./assets/js/auth-guard.js"></script>
+    <script src="./assets/js/user-header.js"></script>
+    <script src="./assets/js/toast.js"></script>
+    <script src="./assets/js/productos-db.js"></script>
+    <script src="./assets/js/productos-page.js"></script>
+    <script src="./assets/js/jquery-3.6.0.min.js"></script>
+    <script src="./assets/js/slick.min.js"></script>
+    <script src="./assets/js/load-components.js"></script>
+    <script src="./assets/js/main.js"></script>
+  </body>
+</html>

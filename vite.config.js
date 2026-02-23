@@ -25,6 +25,7 @@ export default defineConfig({
         'invoices-quote-drafts': resolve(__dirname, 'invoices/quote-drafts.html'),
         'invoices-quote-issued': resolve(__dirname, 'invoices/quote-issued.html'),
         'scan-ocr': resolve(__dirname, 'scan-ocr.html'),
+        productos: resolve(__dirname, 'productos.html'),
         subscribe: resolve(__dirname, 'subscribe.html'),
         'billing-success': resolve(__dirname, 'billing/success.html'),
         'billing-cancel': resolve(__dirname, 'billing/cancel.html'),
