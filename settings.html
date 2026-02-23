@@ -4052,11 +4052,10 @@
             var intEl = document.getElementById('interval-' + plan);
             if (priceEl) {
               var p = prices[plan][interval];
+              priceEl.textContent = p + '\u20AC';
               if (interval === 'yearly' && p > 0) {
-                priceEl.textContent = (p * 12) + '\u20AC';
-                intEl.textContent = '/a\u00F1o';
+                intEl.innerHTML = '/mes<br><span class="text-xs text-success-300 font-semibold">Facturado anualmente</span>';
               } else {
-                priceEl.textContent = p + '\u20AC';
                 intEl.textContent = '/mes';
               }
             }
@@ -4079,7 +4078,8 @@
 
           _pendingPlan = planKey;
           var price = prices[planKey][currentInterval];
-          var totalLabel = currentInterval === 'yearly' ? (price * 12) + ' \u20AC/a\u00F1o' : price + ' \u20AC/mes';
+          var totalLabel = price + ' \u20AC/mes';
+          if (currentInterval === 'yearly') totalLabel += ' (facturado anualmente)';
           var modal = document.getElementById('plan-confirm-modal');
           document.getElementById('plan-modal-plan-name').textContent = planNames[planKey];
           document.getElementById('plan-modal-plan-price').textContent = totalLabel;
@@ -4188,7 +4188,8 @@
             if (cancelBtn) cancelBtn.classList.add('hidden');
           } else {
             var p = prices[activePlan][interval];
-            var label = interval === 'yearly' ? (p * 12) + ' \u20AC/a\u00F1o' : p + ' \u20AC/mes';
+            var label = p + ' \u20AC/mes';
+            if (interval === 'yearly') label += ' (facturado anualmente)';
             if (renewalEl) renewalEl.textContent = label + ' \u00B7 Pr\u00F3xima renovaci\u00F3n: autom\u00E1tica';
             if (cancelBtn) cancelBtn.classList.remove('hidden');
           }
