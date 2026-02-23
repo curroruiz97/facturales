@@ -2654,7 +2654,7 @@
                     <div class="flex items-center justify-center mb-8">
                       <div class="relative inline-flex items-center rounded-full p-1 bg-bgray-100 dark:bg-darkblack-400">
                         <button id="pricing-monthly-btn" type="button" onclick="setPricingInterval('monthly')" class="relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-white" style="background:#22c55e">Mensual</button>
-                        <button id="pricing-yearly-btn" type="button" onclick="setPricingInterval('yearly')" class="relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-bgray-600 dark:text-bgray-300">Anual <span class="ml-1 text-[10px] font-bold text-success-300">-20%</span></button>
+                        <button id="pricing-yearly-btn" type="button" onclick="setPricingInterval('yearly')" class="relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-bgray-600 dark:text-bgray-300">Anual <span class="ml-1 text-[10px] font-bold text-success-300">2 meses gratis</span></button>
                       </div>
                     </div>
 
@@ -2667,65 +2667,85 @@
                           <span class="inline-flex items-center rounded-full bg-bgray-100 dark:bg-darkblack-400 px-3 py-1 text-xs font-bold text-bgray-700 dark:text-bgray-200 uppercase tracking-wider">Starter</span>
                         </div>
                         <div class="mb-5">
-                          <span id="price-starter" class="text-4xl font-extrabold text-bgray-900 dark:text-white">0&euro;</span>
-                          <span id="interval-starter" class="text-sm text-bgray-500 dark:text-bgray-400">/mes</span>
+                          <span id="price-starter" class="text-4xl font-extrabold text-bgray-900 dark:text-white">4,99&euro;</span>
+                          <span id="interval-starter" class="text-sm text-bgray-500 dark:text-bgray-400">/mes + IVA</span>
                         </div>
-                        <p class="mb-6 text-sm text-bgray-500 dark:text-bgray-400">Para aut&oacute;nomos que empiezan. Lo esencial para facturar.</p>
+                        <p class="mb-6 text-sm text-bgray-500 dark:text-bgray-400">Probar y empezar a facturar.</p>
                         <button type="button" onclick="selectPlan('starter')" class="mb-6 w-full rounded-xl border-2 border-bgray-200 dark:border-darkblack-400 py-3 text-sm font-bold text-bgray-700 dark:text-bgray-200 transition-all hover:border-success-300 hover:text-success-300">Plan actual</button>
                         <ul class="space-y-3">
-                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>5 facturas / mes</li>
-                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>10 contactos</li>
-                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>Dashboard b&aacute;sico</li>
-                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>1 serie de numeraci&oacute;n</li>
-                          <li class="flex items-start gap-2.5 text-sm text-bgray-400 dark:text-bgray-500"><svg class="mt-0.5 h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>Sin OCR</li>
-                          <li class="flex items-start gap-2.5 text-sm text-bgray-400 dark:text-bgray-500"><svg class="mt-0.5 h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>Sin presupuestos</li>
+                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>Hasta 10 clientes</li>
+                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>1 usuario</li>
+                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>Hasta 30 productos/servicios</li>
+                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>10 facturas / mes</li>
+                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>Escaneado: 10 docs/mes</li>
+                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>Soporte: Email</li>
                         </ul>
                       </div>
 
-                      <!-- PLAN PROFESIONAL (popular) -->
+                      <!-- PLAN PRO (popular) -->
                       <div id="plan-pro" class="relative rounded-2xl border-2 border-success-300 bg-white dark:bg-darkblack-500 p-6 shadow-xl shadow-success-300/10 transition-all duration-300">
-                        <div class="absolute -top-3 left-1/2 -translate-x-1/2">
-                          <span class="rounded-full px-4 py-1 text-[11px] font-bold uppercase tracking-wider text-white" style="background:linear-gradient(135deg,#22c55e,#16a34a)">M&aacute;s popular</span>
+                        <div class="mb-5 flex items-center gap-2">
+                          <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider text-white" style="background:linear-gradient(135deg,#22c55e,#16a34a)">Pro</span>
+                          <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white" style="background:linear-gradient(135deg,#22c55e,#16a34a)">M&aacute;s popular</span>
                         </div>
                         <div class="mb-5">
-                          <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider text-white" style="background:linear-gradient(135deg,#22c55e,#16a34a)">Profesional</span>
+                          <span id="price-pro" class="text-4xl font-extrabold text-bgray-900 dark:text-white">9,99&euro;</span>
+                          <span id="interval-pro" class="text-sm text-bgray-500 dark:text-bgray-400">/mes + IVA</span>
                         </div>
-                        <div class="mb-5">
-                          <span id="price-pro" class="text-4xl font-extrabold text-bgray-900 dark:text-white">19&euro;</span>
-                          <span id="interval-pro" class="text-sm text-bgray-500 dark:text-bgray-400">/mes</span>
-                        </div>
-                        <p class="mb-6 text-sm text-bgray-500 dark:text-bgray-400">Para freelancers y peque&ntilde;as empresas. Todo lo que necesitas.</p>
-                        <button type="button" onclick="selectPlan('pro')" class="mb-6 w-full rounded-xl py-3 text-sm font-bold text-white transition-all hover:shadow-lg hover:shadow-success-300/25" style="background:linear-gradient(135deg,#22c55e,#16a34a)">Cambiar a Profesional</button>
+                        <p class="mb-6 text-sm text-bgray-500 dark:text-bgray-400">Automatizar cobros y recurrentes.</p>
+                        <button type="button" onclick="selectPlan('pro')" class="mb-6 w-full rounded-xl py-3 text-sm font-bold text-white transition-all hover:shadow-lg hover:shadow-success-300/25" style="background:linear-gradient(135deg,#22c55e,#16a34a)">Cambiar a Pro</button>
                         <ul class="space-y-3">
+                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>Hasta 100 clientes</li>
+                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>Hasta 3 usuarios</li>
+                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>Hasta 150 productos/servicios</li>
                           <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg><strong>Facturas ilimitadas</strong></li>
-                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg><strong>Contactos ilimitados</strong></li>
-                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>Presupuestos</li>
-                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>Scan OCR (50 escaneos/mes)</li>
-                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>Series de numeraci&oacute;n ilimitadas</li>
-                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>Personalizaci&oacute;n avanzada</li>
-                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>Soporte prioritario</li>
+                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>Escaneado: 75 docs/mes</li>
+                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>Soporte: Chat + email</li>
                         </ul>
                       </div>
 
-                      <!-- PLAN EMPRESA -->
+                      <!-- PLAN ILIMITADO -->
+                      <style>
+                        @keyframes gold-shimmer {
+                          0% { background-position: -200% center; }
+                          100% { background-position: 200% center; }
+                        }
+                        .badge-gold-shimmer {
+                          background: linear-gradient(105deg, #b8860b 0%, #daa520 25%, #ffd700 50%, #daa520 75%, #b8860b 100%);
+                          background-size: 200% auto;
+                          animation: gold-shimmer 3s linear infinite;
+                        }
+                        .btn-gold-border {
+                          border: 2px solid #daa520;
+                          color: #b8860b;
+                        }
+                        .dark .btn-gold-border {
+                          border-color: #daa520;
+                          color: #ffd700;
+                        }
+                        .btn-gold-border:hover {
+                          background: linear-gradient(135deg, #b8860b, #daa520);
+                          border-color: transparent;
+                          color: #fff !important;
+                        }
+                      </style>
                       <div id="plan-business" class="relative rounded-2xl border-2 border-bgray-200 dark:border-darkblack-400 bg-white dark:bg-darkblack-500 p-6 transition-all duration-300 hover:border-success-300 hover:shadow-lg">
                         <div class="mb-5">
-                          <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider text-white" style="background:linear-gradient(135deg,#1e293b,#334155)">Empresa</span>
+                          <span class="badge-gold-shimmer inline-flex items-center rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider text-white">Ilimitado</span>
                         </div>
                         <div class="mb-5">
-                          <span id="price-business" class="text-4xl font-extrabold text-bgray-900 dark:text-white">49&euro;</span>
-                          <span id="interval-business" class="text-sm text-bgray-500 dark:text-bgray-400">/mes</span>
+                          <span id="price-business" class="text-4xl font-extrabold text-bgray-900 dark:text-white">17,99&euro;</span>
+                          <span id="interval-business" class="text-sm text-bgray-500 dark:text-bgray-400">/mes + IVA</span>
                         </div>
-                        <p class="mb-6 text-sm text-bgray-500 dark:text-bgray-400">Para empresas en crecimiento. M&aacute;ximo control y automatizaci&oacute;n.</p>
-                        <button type="button" onclick="selectPlan('business')" class="mb-6 w-full rounded-xl border-2 border-bgray-900 dark:border-bgray-200 py-3 text-sm font-bold text-bgray-900 dark:text-white transition-all hover:bg-bgray-900 hover:text-white dark:hover:bg-white dark:hover:text-bgray-900">Cambiar a Empresa</button>
+                        <p class="mb-6 text-sm text-bgray-500 dark:text-bgray-400">Equipos, asesor&iacute;as y alto volumen.</p>
+                        <button type="button" onclick="selectPlan('business')" class="btn-gold-border mb-6 w-full rounded-xl py-3 text-sm font-bold transition-all">Cambiar a Ilimitado</button>
                         <ul class="space-y-3">
-                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>Todo de Profesional</li>
-                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg><strong>Scan OCR ilimitado</strong></li>
-                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>Multi-usuario (hasta 5)</li>
-                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>Facturas recurrentes</li>
-                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>API &amp; integraciones</li>
-                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>Soporte dedicado 24/7</li>
-                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>Exportaci&oacute;n contable</li>
+                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg><strong>Clientes ilimitados</strong></li>
+                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg><strong>Usuarios ilimitados*</strong></li>
+                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg><strong>Productos/servicios ilimitados</strong></li>
+                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg><strong>Facturas ilimitadas</strong></li>
+                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>Escaneado: 300 docs/mes</li>
+                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>Soporte prioritario (chat, email y tel&eacute;fono)</li>
                         </ul>
                       </div>
                     </div>
@@ -4021,11 +4041,11 @@
       (function() {
         var currentInterval = 'monthly';
         var prices = {
-          starter:  { monthly: 0,  yearly: 0 },
-          pro:      { monthly: 19, yearly: 15 },
-          business: { monthly: 49, yearly: 39 }
+          starter:  { monthly: '4,99',  yearly: '49,90' },
+          pro:      { monthly: '9,99',  yearly: '99,90' },
+          business: { monthly: '17,99', yearly: '179,90' }
         };
-        var planNames = { starter: 'Starter', pro: 'Profesional', business: 'Empresa' };
+        var planNames = { starter: 'Starter', pro: 'Pro', business: 'Ilimitado' };
 
         window.setPricingInterval = function(interval) {
           currentInterval = interval;
@@ -4041,22 +4061,21 @@
           } else {
             yBtn.style.background = '#22c55e';
             yBtn.className = 'relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-white';
-            yBtn.innerHTML = 'Anual <span class="ml-1 text-[10px] font-bold text-green-200">-20%</span>';
+            yBtn.innerHTML = 'Anual <span class="ml-1 text-[10px] font-bold text-green-200">2 meses gratis</span>';
             mBtn.style.background = 'transparent';
             mBtn.className = 'relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-bgray-600 dark:text-bgray-300';
           }
 
-          var suffix = interval === 'monthly' ? '/mes' : '/a\u00F1o';
           ['starter', 'pro', 'business'].forEach(function(plan) {
             var priceEl = document.getElementById('price-' + plan);
             var intEl = document.getElementById('interval-' + plan);
             if (priceEl) {
               var p = prices[plan][interval];
               priceEl.textContent = p + '\u20AC';
-              if (interval === 'yearly' && p > 0) {
-                intEl.innerHTML = '/mes<br><span class="text-xs text-success-300 font-semibold">Facturado anualmente</span>';
+              if (interval === 'yearly') {
+                intEl.textContent = '/a\u00F1o + IVA';
               } else {
-                intEl.textContent = '/mes';
+                intEl.textContent = '/mes + IVA';
               }
             }
           });
@@ -4064,6 +4083,7 @@
 
         var _pendingPlan = null;
 
+        // Redirigir a Stripe Checkout para cambiar de plan
         window.selectPlan = function(planKey) {
           var userPlan = window._userPlan || 'starter';
           if (planKey === userPlan) {
@@ -4102,52 +4122,25 @@
           if (modal) modal.classList.remove('hidden'), modal.style.display = 'flex';
         };
 
+        function redirectToCheckout(planKey) {
+          var url = '/subscribe.html?plan=' + planKey + '&interval=' + currentInterval;
+          window.location.href = url;
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
           var confirmBtn = document.getElementById('plan-modal-confirm-btn');
           if (confirmBtn) confirmBtn.addEventListener('click', function() {
             closePlanModal();
-            if (_pendingPlan) savePlan(_pendingPlan);
+            if (_pendingPlan) redirectToCheckout(_pendingPlan);
           });
           var cancelConfirmBtn = document.getElementById('plan-cancel-confirm-btn');
           if (cancelConfirmBtn) cancelConfirmBtn.addEventListener('click', function() {
             closeCancelModal();
-            savePlan('starter');
+            redirectToCheckout('starter');
           });
         });
 
-        async function savePlan(planKey) {
-          try {
-            var attempts = 0;
-            while (!window.supabaseClient && attempts < 50) {
-              await new Promise(function(r) { setTimeout(r, 100); });
-              attempts++;
-            }
-            if (!window.supabaseClient) throw new Error('Supabase no disponible');
-            var supabase = window.supabaseClient;
-            var userResult = await supabase.auth.getUser();
-            if (!userResult.data || !userResult.data.user) throw new Error('No autenticado');
-            var userId = userResult.data.user.id;
-
-            var updateData = {
-              subscription_plan: planKey,
-              subscription_interval: currentInterval,
-              subscription_updated_at: new Date().toISOString()
-            };
-
-            var result = await supabase.from('business_info').update(updateData).eq('user_id', userId);
-            if (result.error) throw result.error;
-
-            window._userPlan = planKey;
-            window._userInterval = currentInterval;
-            updatePricingUI(planKey, currentInterval);
-            if (window.showToast) window.showToast('Plan actualizado a ' + planNames[planKey], 'success');
-          } catch (err) {
-            console.error('Error cambiando plan:', err);
-            if (window.showToast) window.showToast('Error al cambiar de plan. Int\u00E9ntalo de nuevo.', 'error');
-          }
-        }
-
-        function updatePricingUI(activePlan, interval) {
+        function updatePricingUI(activePlan, interval, periodEnd, cancelAtEnd) {
           ['starter', 'pro', 'business'].forEach(function(plan) {
             var card = document.getElementById('plan-' + plan);
             if (!card) return;
@@ -4164,12 +4157,12 @@
               btn.disabled = false;
               card.style.outline = 'none';
               if (plan === 'pro') {
-                btn.textContent = 'Cambiar a Profesional';
+                btn.textContent = 'Cambiar a Pro';
                 btn.className = 'mb-6 w-full rounded-xl py-3 text-sm font-bold text-white transition-all hover:shadow-lg hover:shadow-success-300/25';
                 btn.style.background = 'linear-gradient(135deg,#22c55e,#16a34a)';
               } else if (plan === 'business') {
-                btn.textContent = 'Cambiar a Empresa';
-                btn.className = 'mb-6 w-full rounded-xl border-2 border-bgray-900 dark:border-bgray-200 py-3 text-sm font-bold text-bgray-900 dark:text-white transition-all hover:bg-bgray-900 hover:text-white dark:hover:bg-white dark:hover:text-bgray-900';
+                btn.textContent = 'Cambiar a Ilimitado';
+                btn.className = 'btn-gold-border mb-6 w-full rounded-xl py-3 text-sm font-bold transition-all';
                 btn.style.background = '';
               } else {
                 btn.textContent = 'Cambiar a Starter';
@@ -4183,14 +4176,31 @@
           var renewalEl = document.getElementById('pricing-current-renewal');
           var cancelBtn = document.getElementById('pricing-cancel-btn');
           if (nameEl) nameEl.textContent = planNames[activePlan] || 'Starter';
-          if (activePlan === 'starter') {
-            if (renewalEl) renewalEl.textContent = 'Gratuito \u00B7 Sin fecha de renovaci\u00F3n';
+
+          if (!activePlan || activePlan === 'none') {
+            if (renewalEl) renewalEl.textContent = 'Sin plan activo';
             if (cancelBtn) cancelBtn.classList.add('hidden');
           } else {
             var p = prices[activePlan][interval];
-            var label = p + ' \u20AC/mes';
-            if (interval === 'yearly') label += ' (facturado anualmente)';
-            if (renewalEl) renewalEl.textContent = label + ' \u00B7 Pr\u00F3xima renovaci\u00F3n: autom\u00E1tica';
+            var label = p + ' \u20AC';
+            if (interval === 'yearly') {
+              label += '/a\u00F1o + IVA';
+            } else {
+              label += '/mes + IVA';
+            }
+
+            if (periodEnd) {
+              var dateStr = new Date(periodEnd).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+              if (cancelAtEnd) {
+                label += ' \u00B7 Se cancela el ' + dateStr;
+              } else {
+                label += ' \u00B7 Pr\u00F3xima renovaci\u00F3n: ' + dateStr;
+              }
+            } else {
+              label += ' \u00B7 Pr\u00F3xima renovaci\u00F3n: autom\u00E1tica';
+            }
+
+            if (renewalEl) renewalEl.textContent = label;
             if (cancelBtn) cancelBtn.classList.remove('hidden');
           }
         }
@@ -4208,13 +4218,38 @@
             if (!userResult.data || !userResult.data.user) return;
             var userId = userResult.data.user.id;
 
-            var result = await supabase.from('business_info').select('subscription_plan, subscription_interval').eq('user_id', userId).single();
-            var plan = (result.data && result.data.subscription_plan) || 'starter';
-            var interval = (result.data && result.data.subscription_interval) || 'monthly';
+            // Fuente de verdad: billing_subscriptions
+            var subResult = await supabase
+              .from('billing_subscriptions')
+              .select('plan, interval, status, current_period_end, cancel_at_period_end')
+              .eq('user_id', userId)
+              .in('status', ['trialing', 'active'])
+              .order('created_at', { ascending: false })
+              .limit(1)
+              .maybeSingle();
+
+            var plan = 'starter';
+            var interval = 'monthly';
+            var periodEnd = null;
+            var cancelAtEnd = false;
+
+            if (subResult.data) {
+              plan = subResult.data.plan || 'starter';
+              interval = subResult.data.interval || 'monthly';
+              periodEnd = subResult.data.current_period_end;
+              cancelAtEnd = subResult.data.cancel_at_period_end || false;
+            } else {
+              // Fallback: leer de business_info si no hay suscripción activa
+              var biResult = await supabase.from('business_info').select('subscription_plan, subscription_interval').eq('user_id', userId).single();
+              if (biResult.data) {
+                plan = biResult.data.subscription_plan || 'starter';
+                interval = biResult.data.subscription_interval || 'monthly';
+              }
+            }
 
             window._userPlan = plan;
             window._userInterval = interval;
-            updatePricingUI(plan, interval);
+            updatePricingUI(plan, interval, periodEnd, cancelAtEnd);
           } catch (e) {
             console.error('Error loading plan:', e);
           }

@@ -30,7 +30,6 @@
 
             <!-- Estado: Procesando -->
             <div id="state-processing">
-              <!-- Spinner -->
               <div class="mx-auto mb-6">
                 <svg
                   class="animate-spin h-16 w-16 mx-auto text-success-300"
@@ -50,7 +49,6 @@
                 Esto puede tardar unos segundos.
               </p>
 
-              <!-- Barra de progreso simulada -->
               <div class="w-full bg-bgray-200 dark:bg-darkblack-400 rounded-full h-2 mb-3">
                 <div
                   id="progress-bar"
@@ -63,9 +61,8 @@
               </p>
             </div>
 
-            <!-- Estado: Completado (oculto por defecto) -->
+            <!-- Estado: Completado -->
             <div id="state-completed" class="hidden">
-              <!-- Icono check -->
               <div class="mx-auto mb-6">
                 <div class="w-16 h-16 rounded-full bg-success-300/10 flex items-center justify-center mx-auto">
                   <svg class="w-10 h-10 text-success-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -77,7 +74,7 @@
               <h1 class="text-bgray-900 dark:text-white text-2xl font-semibold font-poppins mb-3">
                 ¡Suscripción activada!
               </h1>
-              <p class="text-bgray-600 dark:text-bgray-50 text-base font-medium mb-6">
+              <p id="success-plan-info" class="text-bgray-600 dark:text-bgray-50 text-base font-medium mb-6">
                 Tu plan está listo. Ya puedes empezar a usar Facturales.
               </p>
 
@@ -90,9 +87,8 @@
               </a>
             </div>
 
-            <!-- Estado: Error / timeout (oculto por defecto) -->
+            <!-- Estado: Error / timeout -->
             <div id="state-error" class="hidden">
-              <!-- Icono warning -->
               <div class="mx-auto mb-6">
                 <div class="w-16 h-16 rounded-full bg-warning-300/10 flex items-center justify-center mx-auto">
                   <svg class="w-10 h-10 text-warning-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -134,14 +130,19 @@
       </div>
     </section>
 
-    <!-- Scripts -->
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../assets/js/supabaseClient.js"></script>
+
     <script>
       (function () {
-        // TODO: Ruta principal de la app. Ajustar si cambia.
-        var APP_HOME_ROUTE = '../index.html';
+        var POLL_INTERVAL_MS = 2500;
+        var POLL_TIMEOUT_MS = 60000;
+        var ACTIVE_STATUSES = ['trialing', 'active'];
+        var PLAN_NAMES = { starter: 'Starter', pro: 'Pro', business: 'Ilimitado' };
 
         // =============================================
-        // Elementos del DOM
+        // DOM
         // =============================================
         var stateProcessing = document.getElementById('state-processing');
         var stateCompleted  = document.getElementById('state-completed');
@@ -149,26 +150,22 @@
         var progressBar     = document.getElementById('progress-bar');
         var progressText    = document.getElementById('progress-text');
         var btnRetry        = document.getElementById('btn-retry');
-        var btnGoDashboard  = document.getElementById('btn-go-dashboard');
-
-        // Configurar link del dashboard
-        btnGoDashboard.href = APP_HOME_ROUTE;
+        var successPlanInfo = document.getElementById('success-plan-info');
 
         // =============================================
-        // Simulación de polling
+        // Validate session_id query param
         // =============================================
-        var POLL_STEPS = [
-          { progress: 20,  text: 'Verificando pago...',           delay: 600  },
-          { progress: 45,  text: 'Confirmando con Stripe...',     delay: 700  },
-          { progress: 70,  text: 'Activando suscripción...',      delay: 800  },
-          { progress: 90,  text: 'Configurando tu cuenta...',     delay: 500  },
-          { progress: 100, text: 'Completado',                    delay: 400  }
-        ];
+        var params = new URLSearchParams(window.location.search);
+        var sessionId = params.get('session_id');
 
-        var MAX_RETRIES = 5;
-        var currentStep = 0;
-        var hasCompleted = false;
+        if (!sessionId) {
+          window.location.href = '../subscribe.html';
+          return;
+        }
 
+        // =============================================
+        // State management
+        // =============================================
         function showState(state) {
           stateProcessing.classList.add('hidden');
           stateCompleted.classList.add('hidden');
@@ -179,73 +176,117 @@
           if (state === 'error')      stateError.classList.remove('hidden');
         }
 
-        function runPolling() {
-          // TODO: Aquí se implementará el polling real contra Supabase
-          // para verificar que billing_subscriptions tenga un status
-          // 'trialing' o 'active' para el usuario actual.
-          // Ejemplo futuro:
-          //   const { data } = await supabase
-          //     .from('billing_subscriptions')
-          //     .select('status')
-          //     .eq('user_id', user.id)
-          //     .single();
-          //   if (data && ['trialing','active'].includes(data.status)) { ... }
+        // =============================================
+        // Real polling against billing_subscriptions
+        // =============================================
+        var pollTimer = null;
+        var timeoutTimer = null;
+        var progressPercent = 0;
+        var hasCompleted = false;
 
-          if (currentStep >= POLL_STEPS.length) {
-            if (!hasCompleted) {
-              hasCompleted = true;
-              showState('completed');
+        var PROGRESS_MESSAGES = [
+          { at: 0,  text: 'Verificando pago...' },
+          { at: 20, text: 'Confirmando con Stripe...' },
+          { at: 45, text: 'Activando suscripción...' },
+          { at: 70, text: 'Configurando tu cuenta...' }
+        ];
+
+        function updateProgress(percent) {
+          progressPercent = Math.min(percent, 95);
+          progressBar.style.width = progressPercent + '%';
+
+          for (var i = PROGRESS_MESSAGES.length - 1; i >= 0; i--) {
+            if (progressPercent >= PROGRESS_MESSAGES[i].at) {
+              progressText.textContent = PROGRESS_MESSAGES[i].text;
+              break;
             }
-            return;
           }
+        }
 
-          var step = POLL_STEPS[currentStep];
-          progressBar.style.width = step.progress + '%';
-          progressText.textContent = step.text;
-          currentStep++;
-
-          setTimeout(function () {
-            if (currentStep >= POLL_STEPS.length) {
-              hasCompleted = true;
-              showState('completed');
-            } else {
-              runPolling();
+        async function checkSubscription() {
+          try {
+            var attempts = 0;
+            while (!window.supabaseClient && attempts < 30) {
+              await new Promise(function (r) { setTimeout(r, 100); });
+              attempts++;
             }
-          }, step.delay);
+            if (!window.supabaseClient) return null;
+
+            var supabase = window.supabaseClient;
+            var authResult = await supabase.auth.getUser();
+            if (!authResult.data || !authResult.data.user) return null;
+
+            var userId = authResult.data.user.id;
+
+            var result = await supabase
+              .from('billing_subscriptions')
+              .select('status, plan, interval')
+              .eq('user_id', userId)
+              .in('status', ACTIVE_STATUSES)
+              .order('created_at', { ascending: false })
+              .limit(1)
+              .maybeSingle();
+
+            return result.data || null;
+          } catch (err) {
+            console.error('Error checking subscription:', err);
+            return null;
+          }
+        }
+
+        async function poll() {
+          if (hasCompleted) return;
+
+          progressPercent += 5 + Math.random() * 8;
+          updateProgress(progressPercent);
+
+          var sub = await checkSubscription();
+
+          if (sub && ACTIVE_STATUSES.indexOf(sub.status) !== -1) {
+            hasCompleted = true;
+            clearInterval(pollTimer);
+            clearTimeout(timeoutTimer);
+
+            progressBar.style.width = '100%';
+            progressText.textContent = 'Completado';
+
+            var planLabel = PLAN_NAMES[sub.plan] || sub.plan;
+            successPlanInfo.textContent = 'Plan ' + planLabel + ' activado. Ya puedes empezar a usar Facturales.';
+
+            setTimeout(function () {
+              showState('completed');
+            }, 600);
+          }
         }
 
         function startPolling() {
-          currentStep = 0;
           hasCompleted = false;
-          progressBar.style.width = '0%';
+          progressPercent = 0;
+          updateProgress(0);
           showState('processing');
-          runPolling();
+
+          poll();
+          pollTimer = window.setInterval(poll, POLL_INTERVAL_MS);
+
+          timeoutTimer = setTimeout(function () {
+            if (!hasCompleted) {
+              clearInterval(pollTimer);
+              showState('error');
+            }
+          }, POLL_TIMEOUT_MS);
         }
 
         // =============================================
-        // Timeout: si tarda demasiado mostrar estado error
-        // =============================================
-        var timeoutTimer = setTimeout(function () {
-          if (!hasCompleted) {
-            showState('error');
-          }
-        }, 12000);
-
-        // =============================================
-        // Reintentar
+        // Retry
         // =============================================
         btnRetry.addEventListener('click', function () {
+          clearInterval(pollTimer);
           clearTimeout(timeoutTimer);
-          timeoutTimer = setTimeout(function () {
-            if (!hasCompleted) {
-              showState('error');
-            }
-          }, 12000);
           startPolling();
         });
 
         // =============================================
-        // Iniciar
+        // Init
         // =============================================
         startPolling();
       })();

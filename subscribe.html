@@ -40,13 +40,21 @@
       <!-- Contenido principal -->
       <div class="max-w-[1200px] mx-auto px-5 xl:px-12 pb-16">
         <!-- Título -->
-        <div class="text-center mb-10">
+        <div class="text-center mb-6">
           <h1 class="text-bgray-900 dark:text-white text-4xl font-semibold font-poppins mb-3">
             Elige tu plan
           </h1>
           <p class="font-urbanist text-base font-medium text-bgray-600 dark:text-bgray-50">
-            14 días de prueba gratis (solo una vez por usuario)
+            14 días de prueba gratis en planes Pro e Ilimitado
           </p>
+        </div>
+
+        <!-- Toggle mensual / anual -->
+        <div class="flex items-center justify-center mb-8">
+          <div class="relative inline-flex items-center rounded-full p-1 bg-bgray-100 dark:bg-darkblack-400">
+            <button id="interval-monthly-btn" type="button" class="relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-white" style="background:#22c55e">Mensual</button>
+            <button id="interval-yearly-btn" type="button" class="relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-bgray-600 dark:text-bgray-300">Anual <span class="ml-1 text-[10px] font-bold text-success-300">2 meses gratis</span></button>
+          </div>
         </div>
 
         <!-- Error message -->
@@ -70,36 +78,48 @@
               </span>
             </div>
             <div class="mb-4">
-              <span class="text-3xl font-bold text-bgray-900 dark:text-white">9€</span>
-              <span class="text-base text-bgray-600 dark:text-bgray-50">/mes</span>
+              <span id="price-starter" class="text-3xl font-bold text-bgray-900 dark:text-white">4,99€</span>
+              <span id="interval-label-starter" class="text-base text-bgray-600 dark:text-bgray-50">/mes + IVA</span>
             </div>
             <p class="text-sm text-bgray-600 dark:text-bgray-50 mb-6">
-              Ideal para autónomos que empiezan a facturar.
+              Probar y empezar a facturar.
             </p>
             <ul class="space-y-3 mb-6">
               <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
                 <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
-                Hasta 50 facturas/mes
+                Hasta 10 clientes
               </li>
               <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
                 <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
-                Hasta 20 clientes
+                1 usuario
               </li>
               <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
                 <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
-                Presupuestos ilimitados
+                Hasta 30 productos/servicios
               </li>
               <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
                 <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
-                Envío de facturas por email
+                10 facturas/mes
+              </li>
+              <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
+                <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Escaneado: 10 docs/mes
+              </li>
+              <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
+                <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Soporte: Email
               </li>
             </ul>
             <button
@@ -108,7 +128,6 @@
             >
               Seleccionar
             </button>
-            <!-- Checkmark para plan seleccionado -->
             <div class="plan-check hidden absolute top-4 right-4">
               <div class="w-6 h-6 rounded-full bg-success-300 flex items-center justify-center">
                 <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -124,25 +143,40 @@
             class="plan-card relative rounded-lg bg-white dark:bg-darkblack-600 p-6 border-2 border-bgray-200 dark:border-darkblack-400 cursor-pointer transition-all hover:shadow-lg"
             data-plan="pro"
           >
-            <!-- Badge popular -->
-            <div class="absolute -top-3 left-1/2 -translate-x-1/2">
-              <span class="text-xs font-bold uppercase tracking-wider text-white bg-success-300 rounded-full px-3 py-1">
-                Popular
-              </span>
-            </div>
-            <div class="mb-4 mt-2">
+            <div class="mb-4 flex items-center gap-2">
               <span class="inline-block text-xs font-bold uppercase tracking-wider text-success-300 bg-success-300/10 rounded-full px-3 py-1">
                 Pro
               </span>
+              <span class="inline-block text-[10px] font-bold uppercase tracking-wider text-white bg-success-300 rounded-full px-2.5 py-0.5">
+                Popular
+              </span>
             </div>
             <div class="mb-4">
-              <span class="text-3xl font-bold text-bgray-900 dark:text-white">19€</span>
-              <span class="text-base text-bgray-600 dark:text-bgray-50">/mes</span>
+              <span id="price-pro" class="text-3xl font-bold text-bgray-900 dark:text-white">9,99€</span>
+              <span id="interval-label-pro" class="text-base text-bgray-600 dark:text-bgray-50">/mes + IVA</span>
             </div>
             <p class="text-sm text-bgray-600 dark:text-bgray-50 mb-6">
-              Para profesionales que necesitan más potencia.
+              Automatizar cobros y recurrentes.
             </p>
             <ul class="space-y-3 mb-6">
+              <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
+                <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Hasta 100 clientes
+              </li>
+              <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
+                <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Hasta 3 usuarios
+              </li>
+              <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
+                <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Hasta 150 productos/servicios
+              </li>
               <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
                 <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -153,31 +187,13 @@
                 <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
-                Clientes ilimitados
+                Escaneado: 75 docs/mes
               </li>
               <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
                 <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
-                Presupuestos ilimitados
-              </li>
-              <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
-                <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-                Envío de facturas por email
-              </li>
-              <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
-                <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-                Panel de analíticas avanzado
-              </li>
-              <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
-                <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-                Soporte prioritario
+                Soporte: Chat + email
               </li>
             </ul>
             <button
@@ -195,64 +211,99 @@
             </div>
           </div>
 
-          <!-- Plan Business -->
+          <!-- Plan Ilimitado -->
+          <style>
+            @keyframes gold-shimmer {
+              0% { background-position: -200% center; }
+              100% { background-position: 200% center; }
+            }
+            .badge-gold-shimmer {
+              background: linear-gradient(105deg, #b8860b 0%, #daa520 25%, #ffd700 50%, #daa520 75%, #b8860b 100%);
+              background-size: 200% auto;
+              animation: gold-shimmer 3s linear infinite;
+            }
+            .plan-select-btn-gold {
+              border: 2px solid #daa520 !important;
+              color: #b8860b !important;
+              background: transparent !important;
+            }
+            .dark .plan-select-btn-gold {
+              color: #ffd700 !important;
+            }
+            .plan-select-btn-gold:hover {
+              background: linear-gradient(135deg, #b8860b, #daa520) !important;
+              border-color: transparent !important;
+              color: #fff !important;
+            }
+            .plan-select-btn-gold.selected {
+              background: linear-gradient(135deg, #b8860b, #daa520) !important;
+              border-color: transparent !important;
+              color: #fff !important;
+            }
+          </style>
           <div
             id="card-business"
             class="plan-card relative rounded-lg bg-white dark:bg-darkblack-600 p-6 border-2 border-bgray-200 dark:border-darkblack-400 cursor-pointer transition-all hover:shadow-lg"
             data-plan="business"
           >
             <div class="mb-4">
-              <span class="inline-block text-xs font-bold uppercase tracking-wider text-success-300 bg-success-300/10 rounded-full px-3 py-1">
-                Business
+              <span class="badge-gold-shimmer inline-block text-xs font-bold uppercase tracking-wider text-white rounded-full px-3 py-1">
+                Ilimitado
               </span>
             </div>
             <div class="mb-4">
-              <span class="text-3xl font-bold text-bgray-900 dark:text-white">39€</span>
-              <span class="text-base text-bgray-600 dark:text-bgray-50">/mes</span>
+              <span id="price-business" class="text-3xl font-bold text-bgray-900 dark:text-white">17,99€</span>
+              <span id="interval-label-business" class="text-base text-bgray-600 dark:text-bgray-50">/mes + IVA</span>
             </div>
             <p class="text-sm text-bgray-600 dark:text-bgray-50 mb-6">
-              Para empresas con alto volumen de facturación.
+              Equipos, asesorías y alto volumen.
             </p>
             <ul class="space-y-3 mb-6">
               <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
                 <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
-                Todo lo de Pro incluido
+                Clientes ilimitados
               </li>
               <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
                 <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
-                Multi-serie de facturación
+                Usuarios ilimitados*
               </li>
               <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
                 <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
-                Exportación contable masiva
+                Productos/servicios ilimitados
               </li>
               <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
                 <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
-                Integraciones avanzadas
+                Facturas ilimitadas
               </li>
               <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
                 <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
-                Soporte dedicado 24/7
+                Escaneado: 300 docs/mes
+              </li>
+              <li class="flex items-start gap-2 text-sm text-bgray-700 dark:text-bgray-50">
+                <svg class="w-5 h-5 text-success-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Soporte prioritario (chat, email y teléfono)
               </li>
             </ul>
             <button
-              class="plan-select-btn w-full py-3 rounded-lg text-sm font-semibold border-2 border-success-300 text-success-300 hover:bg-success-300 hover:text-white transition-all"
+              class="plan-select-btn plan-select-btn-gold w-full py-3 rounded-lg text-sm font-semibold transition-all"
               data-plan="business"
             >
               Seleccionar
             </button>
             <div class="plan-check hidden absolute top-4 right-4">
-              <div class="w-6 h-6 rounded-full bg-success-300 flex items-center justify-center">
+              <div class="w-6 h-6 rounded-full flex items-center justify-center" style="background:linear-gradient(135deg,#b8860b,#daa520)">
                 <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
@@ -268,7 +319,6 @@
             class="py-3.5 flex items-center justify-center text-white font-bold bg-success-300 hover:bg-success-400 transition-all rounded-lg w-full text-base"
           >
             <span id="btn-continue-text">Continuar con Starter</span>
-            <!-- Spinner (oculto por defecto) -->
             <svg
               id="btn-continue-spinner"
               class="hidden animate-spin ml-2 h-5 w-5 text-white"
@@ -281,7 +331,7 @@
             </svg>
           </button>
           <p class="text-center text-xs text-bgray-500 dark:text-bgray-50 mt-3">
-            Puedes cancelar en cualquier momento. Sin compromisos.
+            Todos los precios + IVA. Puedes cancelar en cualquier momento.
           </p>
         </div>
 
@@ -306,50 +356,105 @@
       </div>
     </section>
 
-    <!-- Scripts -->
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./assets/js/supabaseClient.js"></script>
+
     <script>
       (function () {
         // =============================================
-        // Configuración de planes
+        // Precios (sin IVA)
         // =============================================
-        var PLANS = {
-          starter: { name: 'Starter', price: '9€/mes' },
-          pro:     { name: 'Pro',     price: '19€/mes' },
-          business:{ name: 'Business',price: '39€/mes' }
+        var PRICES = {
+          starter:  { monthly: '4,99',  yearly: '49,90' },
+          pro:      { monthly: '9,99',  yearly: '99,90' },
+          business: { monthly: '17,99', yearly: '179,90' }
         };
 
-        var VALID_PLANS = Object.keys(PLANS);
+        var PLAN_NAMES = {
+          starter:  'Starter',
+          pro:      'Pro',
+          business: 'Ilimitado'
+        };
 
-        // TODO: Ruta principal de la app. Ajustar si cambia.
-        var APP_HOME_ROUTE = '/index.html';
+        var VALID_PLANS = ['starter', 'pro', 'business'];
+        var VALID_INTERVALS = ['monthly', 'yearly'];
 
         // =============================================
         // Estado
         // =============================================
         var selectedPlan = 'starter';
+        var selectedInterval = 'monthly';
         var isLoading = false;
 
         // =============================================
-        // Elementos del DOM
+        // DOM
         // =============================================
         var btnContinue     = document.getElementById('btn-continue');
         var btnContinueText = document.getElementById('btn-continue-text');
         var btnSpinner      = document.getElementById('btn-continue-spinner');
         var errorContainer  = document.getElementById('subscribe-error');
         var planCards       = document.querySelectorAll('.plan-card');
+        var monthlyBtn      = document.getElementById('interval-monthly-btn');
+        var yearlyBtn       = document.getElementById('interval-yearly-btn');
 
         // =============================================
-        // Leer query param ?plan=
+        // Query params: ?plan= & ?interval=
         // =============================================
-        function getQueryPlan() {
+        function getQueryParams() {
           var params = new URLSearchParams(window.location.search);
           var plan = (params.get('plan') || '').toLowerCase();
-          if (VALID_PLANS.indexOf(plan) === -1) return 'starter';
-          return plan;
+          var interval = (params.get('interval') || '').toLowerCase();
+          if (VALID_PLANS.indexOf(plan) === -1) plan = 'starter';
+          if (VALID_INTERVALS.indexOf(interval) === -1) interval = 'monthly';
+          return { plan: plan, interval: interval };
         }
 
         // =============================================
-        // Actualizar UI según plan seleccionado
+        // Toggle mensual / anual
+        // =============================================
+        function setInterval(interval) {
+          selectedInterval = interval;
+
+          if (interval === 'monthly') {
+            monthlyBtn.style.background = '#22c55e';
+            monthlyBtn.className = 'relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-white';
+            yearlyBtn.style.background = 'transparent';
+            yearlyBtn.className = 'relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-bgray-600 dark:text-bgray-300';
+            yearlyBtn.innerHTML = 'Anual <span class="ml-1 text-[10px] font-bold text-success-300">2 meses gratis</span>';
+          } else {
+            yearlyBtn.style.background = '#22c55e';
+            yearlyBtn.className = 'relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-white';
+            yearlyBtn.innerHTML = 'Anual <span class="ml-1 text-[10px] font-bold text-green-200">2 meses gratis</span>';
+            monthlyBtn.style.background = 'transparent';
+            monthlyBtn.className = 'relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-bgray-600 dark:text-bgray-300';
+          }
+
+          updatePriceDisplay();
+        }
+
+        function updatePriceDisplay() {
+          VALID_PLANS.forEach(function (plan) {
+            var priceEl = document.getElementById('price-' + plan);
+            var labelEl = document.getElementById('interval-label-' + plan);
+            if (!priceEl) return;
+
+            var p = PRICES[plan][selectedInterval];
+            priceEl.textContent = p + '€';
+
+            if (selectedInterval === 'yearly') {
+              labelEl.textContent = '/año + IVA';
+            } else {
+              labelEl.textContent = '/mes + IVA';
+            }
+          });
+        }
+
+        monthlyBtn.addEventListener('click', function () { setInterval('monthly'); });
+        yearlyBtn.addEventListener('click', function () { setInterval('yearly'); });
+
+        // =============================================
+        // Selección de plan
         // =============================================
         function selectPlan(plan) {
           if (VALID_PLANS.indexOf(plan) === -1) plan = 'starter';
@@ -360,33 +465,43 @@
             var check = card.querySelector('.plan-check');
             var btn = card.querySelector('.plan-select-btn');
 
+            var isGold = cardPlan === 'business';
+
             if (cardPlan === plan) {
               card.classList.remove('border-bgray-200', 'dark:border-darkblack-400');
-              card.classList.add('border-success-300', 'shadow-lg');
+              card.classList.add(isGold ? 'border-[#daa520]' : 'border-success-300', 'shadow-lg');
               if (check) check.classList.remove('hidden');
               if (btn) {
-                btn.classList.add('bg-success-300', 'text-white');
-                btn.classList.remove('text-success-300');
+                if (isGold) {
+                  btn.classList.add('selected');
+                } else {
+                  btn.classList.add('bg-success-300', 'text-white');
+                  btn.classList.remove('text-success-300');
+                }
                 btn.textContent = 'Seleccionado';
               }
             } else {
               card.classList.add('border-bgray-200', 'dark:border-darkblack-400');
-              card.classList.remove('border-success-300', 'shadow-lg');
+              card.classList.remove('border-success-300', 'border-[#daa520]', 'shadow-lg');
               if (check) check.classList.add('hidden');
               if (btn) {
-                btn.classList.remove('bg-success-300', 'text-white');
-                btn.classList.add('text-success-300');
+                if (isGold) {
+                  btn.classList.remove('selected');
+                } else {
+                  btn.classList.remove('bg-success-300', 'text-white');
+                  btn.classList.add('text-success-300');
+                }
                 btn.textContent = 'Seleccionar';
               }
             }
           });
 
-          btnContinueText.textContent = 'Continuar con ' + PLANS[plan].name;
+          btnContinueText.textContent = 'Continuar con ' + PLAN_NAMES[plan];
           hideError();
         }
 
         // =============================================
-        // Mostrar / ocultar error
+        // Error helpers
         // =============================================
         function showError(msg) {
           errorContainer.textContent = msg;
@@ -398,37 +513,73 @@
           errorContainer.classList.add('hidden');
         }
 
-        // =============================================
-        // Acción de continuar (SIMULADA)
-        // =============================================
-        function handleContinue() {
-          if (isLoading) return;
-          isLoading = true;
-          hideError();
-
-          btnContinue.disabled = true;
-          btnContinueText.textContent = 'Procesando...';
-          btnSpinner.classList.remove('hidden');
-
-          // TODO: Aquí se llamará al backend create-checkout-session
-          // con el priceId correspondiente al plan seleccionado y se
-          // redirigirá a Stripe Checkout (session.url).
-          // Ejemplo futuro:
-          //   const res = await fetch('/functions/v1/create-checkout-session', {
-          //     method: 'POST',
-          //     headers: { 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json' },
-          //     body: JSON.stringify({ priceId: STRIPE_PRICES[selectedPlan] })
-          //   });
-          //   const { url } = await res.json();
-          //   window.location.href = url;
-
-          var delay = 800 + Math.random() * 400;
-          setTimeout(function () {
-            isLoading = false;
-            btnContinue.disabled = false;
+        function setLoadingState(loading) {
+          isLoading = loading;
+          btnContinue.disabled = loading;
+          if (loading) {
+            btnContinueText.textContent = 'Procesando...';
+            btnSpinner.classList.remove('hidden');
+          } else {
+            btnContinueText.textContent = 'Continuar con ' + PLAN_NAMES[selectedPlan];
             btnSpinner.classList.add('hidden');
-            window.location.href = '/billing/success.html?plan=' + selectedPlan;
-          }, delay);
+          }
+        }
+
+        // =============================================
+        // Continuar: flujo real Stripe Checkout
+        // =============================================
+        async function handleContinue() {
+          if (isLoading) return;
+          hideError();
+          setLoadingState(true);
+
+          try {
+            var attempts = 0;
+            while (!window.supabaseClient && attempts < 30) {
+              await new Promise(function (r) { setTimeout(r, 100); });
+              attempts++;
+            }
+
+            if (!window.supabaseClient) {
+              throw new Error('No se pudo conectar con el servidor. Recarga la página.');
+            }
+
+            var supabase = window.supabaseClient;
+
+            var authResult = await supabase.auth.getUser();
+            if (!authResult.data || !authResult.data.user) {
+              var redirectUrl = '/subscribe.html?plan=' + selectedPlan + '&interval=' + selectedInterval;
+              window.location.href = '/signin.html?redirect=' + encodeURIComponent(redirectUrl);
+              return;
+            }
+
+            var fnResult = await supabase.functions.invoke('create-checkout-session', {
+              body: { plan: selectedPlan, interval: selectedInterval }
+            });
+
+            if (fnResult.error) {
+              var errMsg = 'Error al crear la sesión de pago.';
+              if (fnResult.error.message) errMsg = fnResult.error.message;
+              if (fnResult.error.context && typeof fnResult.error.context === 'object') {
+                try {
+                  var ctxBody = await fnResult.error.context.json();
+                  if (ctxBody && ctxBody.error) errMsg = ctxBody.error;
+                } catch (_) {}
+              }
+              throw new Error(errMsg);
+            }
+
+            var data = fnResult.data;
+            if (!data || !data.url) {
+              throw new Error('Respuesta inválida del servidor. Inténtalo de nuevo.');
+            }
+
+            window.location.href = data.url;
+          } catch (err) {
+            console.error('Error en checkout:', err);
+            showError(err.message || 'Error inesperado. Inténtalo de nuevo.');
+            setLoadingState(false);
+          }
         }
 
         // =============================================
@@ -452,10 +603,11 @@
         btnContinue.addEventListener('click', handleContinue);
 
         // =============================================
-        // Inicialización
+        // Init
         // =============================================
-        var initialPlan = getQueryPlan();
-        selectPlan(initialPlan);
+        var queryParams = getQueryParams();
+        setInterval(queryParams.interval);
+        selectPlan(queryParams.plan);
       })();
     </script>
   </body>
