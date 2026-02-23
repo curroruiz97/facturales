@@ -32,16 +32,31 @@
       <p class="text-sm text-bgray-600 dark:text-bgray-50">Gestiona tus clientes recurrentes</p>
     </div>
 
-    <button
-      type="button"
-      class="modal-open inline-flex items-center justify-center gap-2 rounded-lg bg-success-300 px-4 py-3 text-sm font-semibold text-white transition hover:bg-success-400"
-    >
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M9 3.75V14.25" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-        <path d="M3.75 9H14.25" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-      Nuevo Cliente
-    </button>
+    <div class="flex items-center gap-3">
+      <button
+        type="button"
+        id="import-contacts-btn"
+        class="inline-flex items-center justify-center gap-2 rounded-lg border-2 border-success-300 px-4 py-3 text-sm font-semibold text-success-300 transition hover:bg-success-300 hover:text-white"
+      >
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 12.75V3.75" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M5.25 7.5L9 3.75L12.75 7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M3 14.25H15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Importar contactos
+      </button>
+      <button
+        type="button"
+        class="modal-open inline-flex items-center justify-center gap-2 rounded-lg bg-success-300 px-4 py-3 text-sm font-semibold text-white transition hover:bg-success-400"
+      >
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 3.75V14.25" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M3.75 9H14.25" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Nuevo Cliente
+      </button>
+    </div>
+    <input type="file" id="import-file-input" class="hidden" accept=".csv,.xlsx,.xls" />
   </div>
 
   <!-- Card: Lista -->
@@ -418,7 +433,139 @@
   </div>
 </div>
 
+<!-- Modal: Importación masiva de contactos -->
+<div id="import-modal" class="fixed inset-0 z-[9999] hidden items-center justify-center overflow-y-auto" role="dialog" aria-modal="true">
+  <div class="absolute inset-0 bg-black/50 backdrop-blur-md" id="import-modal-overlay"></div>
+  <div class="relative w-full max-w-5xl mx-4 my-8">
+    <div class="rounded-2xl bg-white dark:bg-darkblack-600 shadow-2xl border-2 border-success-300 overflow-hidden flex flex-col" style="max-height: calc(100vh - 4rem);">
+      <!-- Header -->
+      <div class="flex items-center justify-between border-b border-bgray-200 dark:border-darkblack-400 px-6 py-4 shrink-0">
+        <h3 id="import-modal-title" class="text-lg font-bold text-bgray-900 dark:text-white">Importar contactos</h3>
+        <button type="button" id="import-modal-close" class="rounded-lg p-2 text-bgray-500 hover:bg-bgray-100 dark:hover:bg-darkblack-500 transition-colors" aria-label="Cerrar">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Body: scrollable -->
+      <div id="import-modal-body" class="px-6 py-5 overflow-y-auto flex-1 min-h-0">
+
+        <!-- Estado 1: Selección de archivo -->
+        <div id="import-step-select" class="">
+          <div id="import-dropzone" class="flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-bgray-300 dark:border-darkblack-400 p-10 transition-colors hover:border-success-300 cursor-pointer">
+            <svg class="h-10 w-10 text-bgray-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+            </svg>
+            <p class="text-sm font-medium text-bgray-700 dark:text-bgray-200">Arrastra tu archivo aquí o <span class="text-success-300 font-semibold">haz clic para seleccionar</span></p>
+            <p class="text-xs text-bgray-400 dark:text-bgray-500">Formatos aceptados: CSV, XLSX. Máximo recomendado: 5.000 filas.</p>
+          </div>
+        </div>
+
+        <!-- Estado 2: Preview -->
+        <div id="import-step-preview" class="hidden">
+          <!-- Columnas detectadas -->
+          <div id="import-columns-info" class="mb-4 rounded-lg bg-bgray-50 dark:bg-darkblack-500 p-3">
+            <p class="text-xs font-semibold text-bgray-500 dark:text-bgray-400 mb-1">Columnas mapeadas:</p>
+            <div id="import-columns-list" class="flex flex-wrap gap-1.5"></div>
+          </div>
+          <!-- Contadores -->
+          <div class="mb-4 flex items-center gap-4">
+            <span id="import-valid-count" class="inline-flex items-center gap-1.5 rounded-full bg-green-50 dark:bg-green-900/20 px-3 py-1 text-xs font-semibold text-green-700 dark:text-green-400">
+              <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+              0 válidos
+            </span>
+            <span id="import-invalid-count" class="inline-flex items-center gap-1.5 rounded-full bg-red-50 dark:bg-red-900/20 px-3 py-1 text-xs font-semibold text-red-700 dark:text-red-400">
+              <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+              0 con errores
+            </span>
+          </div>
+          <!-- Tabla preview -->
+          <div class="overflow-auto rounded-lg border border-bgray-200 dark:border-darkblack-400">
+            <table class="w-full text-left min-w-[600px]">
+              <thead id="import-preview-thead" class="sticky top-0 bg-bgray-50 dark:bg-darkblack-500">
+              </thead>
+              <tbody id="import-preview-tbody">
+              </tbody>
+            </table>
+          </div>
+          <!-- Errores detallados (expandible) -->
+          <div id="import-errors-section" class="mt-5 hidden">
+            <button type="button" id="import-toggle-errors" class="flex items-center gap-1.5 text-xs font-semibold text-red-600 dark:text-red-400 hover:underline mb-2">
+              <svg class="h-3.5 w-3.5 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              Ver errores detallados
+            </button>
+            <div id="import-errors-list" class="hidden max-h-[180px] overflow-auto rounded-lg border border-red-200 dark:border-red-900/30">
+              <table class="w-full text-left text-xs">
+                <thead class="sticky top-0 bg-red-50 dark:bg-red-900/20">
+                  <tr>
+                    <th class="px-3 py-2 font-semibold text-red-700 dark:text-red-400">Fila</th>
+                    <th class="px-3 py-2 font-semibold text-red-700 dark:text-red-400">Error</th>
+                  </tr>
+                </thead>
+                <tbody id="import-errors-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Estado 3: Importando -->
+        <div id="import-step-progress" class="hidden">
+          <div class="flex flex-col items-center gap-4 py-10">
+            <div class="relative h-12 w-12">
+              <svg class="h-12 w-12 animate-spin text-success-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            </div>
+            <p id="import-progress-text" class="text-sm font-semibold text-bgray-700 dark:text-bgray-200">Importando 0 de 0...</p>
+            <div class="w-full max-w-md rounded-full bg-bgray-200 dark:bg-darkblack-400 h-2.5">
+              <div id="import-progress-bar" class="h-2.5 rounded-full bg-success-300 transition-all duration-300" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Estado 4: Resumen -->
+        <div id="import-step-summary" class="hidden">
+          <div class="flex flex-col items-center gap-3 py-6">
+            <div id="import-summary-icon" class="flex h-14 w-14 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
+              <svg class="h-7 w-7 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <h4 id="import-summary-title" class="text-lg font-bold text-bgray-900 dark:text-white">Importación completada</h4>
+          </div>
+          <div id="import-summary-stats" class="mt-2 space-y-2 max-w-lg mx-auto">
+          </div>
+          <!-- Errores de inserción -->
+          <div id="import-summary-errors" class="mt-4 hidden max-h-[200px] overflow-auto rounded-lg border border-red-200 dark:border-red-900/30">
+            <table class="w-full text-left text-xs">
+              <thead class="sticky top-0 bg-red-50 dark:bg-red-900/20">
+                <tr>
+                  <th class="px-3 py-2 font-semibold text-red-700 dark:text-red-400">Fila</th>
+                  <th class="px-3 py-2 font-semibold text-red-700 dark:text-red-400">Identificador</th>
+                  <th class="px-3 py-2 font-semibold text-red-700 dark:text-red-400">Motivo</th>
+                </tr>
+              </thead>
+              <tbody id="import-summary-errors-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div id="import-modal-footer" class="flex items-center justify-end gap-3 border-t border-bgray-200 dark:border-darkblack-400 px-6 py-4 shrink-0">
+        <button type="button" id="import-cancel-btn" class="rounded-lg border border-bgray-300 dark:border-darkblack-400 px-5 py-2.5 text-sm font-semibold text-bgray-700 dark:text-bgray-50 hover:bg-bgray-50 dark:hover:bg-darkblack-500 transition-colors">
+          Cancelar
+        </button>
+        <button type="button" id="import-confirm-btn" class="hidden rounded-lg bg-success-300 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-success-400 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+          Importar 0 contactos
+        </button>
+        <button type="button" id="import-close-btn" class="hidden rounded-lg bg-success-300 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-success-400">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script type="module" src="./assets/js/supabaseClient.js"></script>
 <script type="module" src="./assets/js/auth.js"></script>
 <script type="module" src="./assets/js/businessInfo.js"></script>
@@ -426,6 +573,7 @@
 <script src="./assets/js/user-header.js"></script>
 <script src="./assets/js/toast.js"></script>
 <script type="module" src="./assets/js/clients.js"></script>
+<script src="./assets/js/csv-import.js"></script>
 <script src="./assets/js/modal-cliente.js"></script>
 <script src="./assets/js/users-page.js"></script>
 

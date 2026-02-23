@@ -535,6 +535,348 @@ async function toggleClientStatus(clientId, currentStatus) {
   }
 }
 
+// ============================================================
+// Importación masiva de contactos (CSV/XLSX)
+// ============================================================
+
+var _importValidRows = [];
+var _importInvalidRows = [];
+
+function openImportModal() {
+  var modal = document.getElementById('import-modal');
+  if (!modal) return;
+
+  // Resetear a estado inicial
+  _importValidRows = [];
+  _importInvalidRows = [];
+  document.getElementById('import-file-input').value = '';
+
+  showImportStep('select');
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+
+function closeImportModal() {
+  var modal = document.getElementById('import-modal');
+  if (!modal) return;
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+  _importValidRows = [];
+  _importInvalidRows = [];
+}
+
+function showImportStep(step) {
+  var steps = ['select', 'preview', 'progress', 'summary'];
+  steps.forEach(function (s) {
+    var el = document.getElementById('import-step-' + s);
+    if (el) el.classList.toggle('hidden', s !== step);
+  });
+
+  var cancelBtn = document.getElementById('import-cancel-btn');
+  var confirmBtn = document.getElementById('import-confirm-btn');
+  var closeBtn = document.getElementById('import-close-btn');
+
+  if (cancelBtn) cancelBtn.classList.toggle('hidden', step === 'progress' || step === 'summary');
+  if (confirmBtn) confirmBtn.classList.toggle('hidden', step !== 'preview');
+  if (closeBtn) closeBtn.classList.toggle('hidden', step !== 'summary');
+}
+
+async function handleFileSelected(file) {
+  if (!file) return;
+
+  if (!window.csvImport) {
+    showToast('Módulo de importación no disponible', 'error');
+    return;
+  }
+
+  showImportStep('progress');
+  document.getElementById('import-progress-text').textContent = 'Analizando archivo...';
+  document.getElementById('import-progress-bar').style.width = '0%';
+
+  try {
+    var result = await window.csvImport.processFile(file);
+
+    _importValidRows = result.validRows;
+    _importInvalidRows = result.invalidRows;
+
+    renderImportPreview(result);
+    showImportStep('preview');
+  } catch (err) {
+    showToast(err.message || 'Error al procesar el archivo', 'error');
+    showImportStep('select');
+  }
+}
+
+function renderImportPreview(result) {
+  // Contadores
+  var validEl = document.getElementById('import-valid-count');
+  var invalidEl = document.getElementById('import-invalid-count');
+  if (validEl) validEl.innerHTML =
+    '<svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> ' +
+    result.validRows.length + ' válidos';
+  if (invalidEl) invalidEl.innerHTML =
+    '<svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg> ' +
+    result.invalidRows.length + ' con errores';
+
+  // Columnas mapeadas
+  var colsList = document.getElementById('import-columns-list');
+  if (colsList) {
+    var html = '';
+    for (var orig in result.headerMap) {
+      html += '<span class="inline-flex items-center rounded bg-success-50 dark:bg-success-300/10 px-2 py-0.5 text-[11px] font-medium text-success-300">' +
+        escapeHtml(orig) + ' &rarr; ' + escapeHtml(result.headerMap[orig]) + '</span>';
+    }
+    if (result.unmappedHeaders.length > 0) {
+      result.unmappedHeaders.forEach(function (h) {
+        html += '<span class="inline-flex items-center rounded bg-bgray-100 dark:bg-darkblack-500 px-2 py-0.5 text-[11px] font-medium text-bgray-500">' +
+          escapeHtml(h) + ' (ignorada)</span>';
+      });
+    }
+    colsList.innerHTML = html;
+  }
+
+  // Tabla preview (hasta 20 filas)
+  var previewFields = ['nombre_razon_social', 'identificador', 'email', 'telefono', 'estado'];
+  var fieldLabels = { nombre_razon_social: 'Nombre', identificador: 'NIF/CIF', email: 'Email', telefono: 'Teléfono', estado: 'Estado' };
+
+  var thead = document.getElementById('import-preview-thead');
+  if (thead) {
+    var headerHtml = '<tr>';
+    headerHtml += '<th class="px-3 py-2 text-xs font-semibold text-bgray-500 dark:text-bgray-400">#</th>';
+    previewFields.forEach(function (f) {
+      headerHtml += '<th class="px-3 py-2 text-xs font-semibold text-bgray-500 dark:text-bgray-400">' + (fieldLabels[f] || f) + '</th>';
+    });
+    headerHtml += '<th class="px-3 py-2 text-xs font-semibold text-bgray-500 dark:text-bgray-400">Estado</th>';
+    headerHtml += '</tr>';
+    thead.innerHTML = headerHtml;
+  }
+
+  var tbody = document.getElementById('import-preview-tbody');
+  if (tbody) {
+    var bodyHtml = '';
+    var allRows = [];
+
+    result.validRows.slice(0, 20).forEach(function (r) {
+      allRows.push({ row: r, isValid: true });
+    });
+    result.invalidRows.slice(0, 10).forEach(function (r) {
+      allRows.push({ row: r, isValid: false });
+    });
+
+    allRows.sort(function (a, b) { return a.row.rowIndex - b.row.rowIndex; });
+
+    allRows.slice(0, 20).forEach(function (item) {
+      var r = item.row;
+      var bgClass = item.isValid ? '' : 'bg-red-50/50 dark:bg-red-900/10';
+      bodyHtml += '<tr class="border-b border-bgray-100 dark:border-darkblack-500 ' + bgClass + '">';
+      bodyHtml += '<td class="px-3 py-2 text-xs text-bgray-500">' + r.rowIndex + '</td>';
+      previewFields.forEach(function (f) {
+        var val = r.data ? (r.data[f] || '') : '';
+        bodyHtml += '<td class="px-3 py-2 text-xs text-bgray-900 dark:text-white">' + escapeHtml(val) + '</td>';
+      });
+      if (item.isValid) {
+        bodyHtml += '<td class="px-3 py-2"><span class="inline-block h-2 w-2 rounded-full bg-green-500"></span></td>';
+      } else {
+        bodyHtml += '<td class="px-3 py-2" title="' + escapeHtml(r.errors.join('; ')) + '"><span class="inline-block h-2 w-2 rounded-full bg-red-500"></span></td>';
+      }
+      bodyHtml += '</tr>';
+    });
+    tbody.innerHTML = bodyHtml;
+  }
+
+  // Errores detallados
+  var errSection = document.getElementById('import-errors-section');
+  var errTbody = document.getElementById('import-errors-tbody');
+  if (errSection && errTbody) {
+    if (result.invalidRows.length > 0) {
+      errSection.classList.remove('hidden');
+      var errHtml = '';
+      result.invalidRows.forEach(function (r) {
+        errHtml += '<tr class="border-b border-red-100 dark:border-red-900/20">';
+        errHtml += '<td class="px-3 py-1.5 text-red-700 dark:text-red-400 font-medium">' + r.rowIndex + '</td>';
+        errHtml += '<td class="px-3 py-1.5 text-red-600 dark:text-red-400">' + escapeHtml(r.errors.join('; ')) + '</td>';
+        errHtml += '</tr>';
+      });
+      errTbody.innerHTML = errHtml;
+    } else {
+      errSection.classList.add('hidden');
+    }
+  }
+
+  // Botón confirmar
+  var confirmBtn = document.getElementById('import-confirm-btn');
+  if (confirmBtn) {
+    var count = result.validRows.length;
+    confirmBtn.textContent = 'Importar ' + count + ' contacto' + (count !== 1 ? 's' : '');
+    confirmBtn.disabled = count === 0;
+    confirmBtn.classList.remove('hidden');
+  }
+}
+
+async function executeImport() {
+  if (_importValidRows.length === 0) return;
+  if (!window.importClientsBulk) {
+    showToast('Función de importación no disponible', 'error');
+    return;
+  }
+
+  showImportStep('progress');
+  var progressText = document.getElementById('import-progress-text');
+  var progressBar = document.getElementById('import-progress-bar');
+  var total = _importValidRows.length;
+
+  try {
+    var result = await window.importClientsBulk(_importValidRows, {
+      onProgress: function (processed, totalCount) {
+        var pct = Math.round((processed / totalCount) * 100);
+        if (progressText) progressText.textContent = 'Importando ' + processed + ' de ' + totalCount + '...';
+        if (progressBar) progressBar.style.width = pct + '%';
+      }
+    });
+
+    renderImportSummary(result);
+    showImportStep('summary');
+
+    // Refrescar tabla
+    loadClients();
+
+    if (result.insertedCount > 0) {
+      showToast(result.insertedCount + ' contacto' + (result.insertedCount !== 1 ? 's' : '') + ' importado' + (result.insertedCount !== 1 ? 's' : '') + ' correctamente', 'success');
+    }
+  } catch (err) {
+    showToast(err.message || 'Error durante la importación', 'error');
+    showImportStep('preview');
+  }
+}
+
+function renderImportSummary(result) {
+  var statsContainer = document.getElementById('import-summary-stats');
+  if (statsContainer) {
+    var html = '';
+
+    html += '<div class="flex items-center gap-3 rounded-lg bg-green-50 dark:bg-green-900/20 px-4 py-3">';
+    html += '<svg class="h-5 w-5 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>';
+    html += '<span class="text-sm font-semibold text-green-700 dark:text-green-400">' + result.insertedCount + ' contacto' + (result.insertedCount !== 1 ? 's' : '') + ' importado' + (result.insertedCount !== 1 ? 's' : '') + '</span>';
+    html += '</div>';
+
+    if (result.skippedDuplicates > 0) {
+      html += '<div class="flex items-center gap-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 px-4 py-3">';
+      html += '<svg class="h-5 w-5 text-amber-600 dark:text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>';
+      html += '<span class="text-sm font-semibold text-amber-700 dark:text-amber-400">' + result.skippedDuplicates + ' omitido' + (result.skippedDuplicates !== 1 ? 's' : '') + ' por duplicado</span>';
+      html += '</div>';
+    }
+
+    if (result.errorRows.length > 0) {
+      html += '<div class="flex items-center gap-3 rounded-lg bg-red-50 dark:bg-red-900/20 px-4 py-3">';
+      html += '<svg class="h-5 w-5 text-red-600 dark:text-red-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>';
+      html += '<span class="text-sm font-semibold text-red-700 dark:text-red-400">' + result.errorRows.length + ' error' + (result.errorRows.length !== 1 ? 'es' : '') + ' de inserción</span>';
+      html += '</div>';
+    }
+
+    statsContainer.innerHTML = html;
+  }
+
+  // Título/icono del resumen
+  var titleEl = document.getElementById('import-summary-title');
+  if (titleEl) {
+    titleEl.textContent = result.insertedCount > 0 ? 'Importación completada' : 'Importación finalizada con errores';
+  }
+
+  // Tabla de errores de inserción
+  var errContainer = document.getElementById('import-summary-errors');
+  var errTbody = document.getElementById('import-summary-errors-tbody');
+  if (errContainer && errTbody) {
+    if (result.errorRows.length > 0) {
+      errContainer.classList.remove('hidden');
+      var errHtml = '';
+      result.errorRows.forEach(function (e) {
+        errHtml += '<tr class="border-b border-red-100 dark:border-red-900/20">';
+        errHtml += '<td class="px-3 py-1.5 text-red-700 dark:text-red-400 font-medium">' + (e.row || '-') + '</td>';
+        errHtml += '<td class="px-3 py-1.5 text-red-600 dark:text-red-400">' + escapeHtml(e.identificador || '-') + '</td>';
+        errHtml += '<td class="px-3 py-1.5 text-red-600 dark:text-red-400">' + escapeHtml(e.reason || 'Error desconocido') + '</td>';
+        errHtml += '</tr>';
+      });
+      errTbody.innerHTML = errHtml;
+    } else {
+      errContainer.classList.add('hidden');
+    }
+  }
+}
+
+// Inicializar listeners de importación
+function initImportListeners() {
+  var importBtn = document.getElementById('import-contacts-btn');
+  var fileInput = document.getElementById('import-file-input');
+  var dropzone = document.getElementById('import-dropzone');
+  var overlay = document.getElementById('import-modal-overlay');
+  var closeBtn = document.getElementById('import-modal-close');
+  var cancelBtn = document.getElementById('import-cancel-btn');
+  var confirmBtn = document.getElementById('import-confirm-btn');
+  var closeSummaryBtn = document.getElementById('import-close-btn');
+  var toggleErrorsBtn = document.getElementById('import-toggle-errors');
+
+  if (importBtn) {
+    importBtn.addEventListener('click', openImportModal);
+  }
+
+  if (fileInput) {
+    fileInput.addEventListener('change', function () {
+      if (this.files && this.files[0]) {
+        handleFileSelected(this.files[0]);
+      }
+    });
+  }
+
+  if (dropzone) {
+    dropzone.addEventListener('click', function () {
+      fileInput && fileInput.click();
+    });
+
+    dropzone.addEventListener('dragover', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      this.classList.add('border-success-300', 'bg-success-50/30');
+    });
+
+    dropzone.addEventListener('dragleave', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      this.classList.remove('border-success-300', 'bg-success-50/30');
+    });
+
+    dropzone.addEventListener('drop', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      this.classList.remove('border-success-300', 'bg-success-50/30');
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        handleFileSelected(e.dataTransfer.files[0]);
+      }
+    });
+  }
+
+  if (overlay) overlay.addEventListener('click', closeImportModal);
+  if (closeBtn) closeBtn.addEventListener('click', closeImportModal);
+  if (cancelBtn) cancelBtn.addEventListener('click', closeImportModal);
+  if (closeSummaryBtn) closeSummaryBtn.addEventListener('click', closeImportModal);
+
+  if (confirmBtn) {
+    confirmBtn.addEventListener('click', executeImport);
+  }
+
+  if (toggleErrorsBtn) {
+    toggleErrorsBtn.addEventListener('click', function () {
+      var list = document.getElementById('import-errors-list');
+      var arrow = this.querySelector('svg');
+      if (list) {
+        list.classList.toggle('hidden');
+        if (arrow) arrow.classList.toggle('rotate-180');
+      }
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', initImportListeners);
+
 // Hacer funciones globales
 window.handleSearchClients = handleSearchClients;
 window.openCreateClientModal = openCreateClientModal;
@@ -544,3 +886,5 @@ window.openDeleteModal = openDeleteModal;
 window.closeDeleteModal = closeDeleteModal;
 window.confirmDeleteClient = confirmDeleteClient;
 window.toggleClientStatus = toggleClientStatus;
+window.openImportModal = openImportModal;
+window.closeImportModal = closeImportModal;

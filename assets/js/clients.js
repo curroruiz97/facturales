@@ -445,6 +445,105 @@ function isValidPhone(phone) {
   return re.test(phone);
 }
 
+/**
+ * Importación masiva de clientes en lotes.
+ * Inserta filas validadas, salta duplicados por identificador y reporta errores.
+ * @param {Object[]} validRows - Array de objetos con datos normalizados (output de csv-import.js)
+ * @param {Object} options
+ * @param {Function} [options.onProgress] - Callback (processed, total) para actualizar UI
+ * @returns {Promise<{ insertedCount: number, skippedDuplicates: number, errorRows: Array }>}
+ */
+async function importClientsBulk(validRows, options) {
+  const BATCH_SIZE = 200;
+  const onProgress = (options && options.onProgress) || function () {};
+  const supabase = getSupabaseForClients();
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    throw new Error('Usuario no autenticado. Por favor, inicia sesión.');
+  }
+
+  let insertedCount = 0;
+  let skippedDuplicates = 0;
+  const errorRows = [];
+  let processed = 0;
+
+  for (let i = 0; i < validRows.length; i += BATCH_SIZE) {
+    const batchItems = validRows.slice(i, i + BATCH_SIZE);
+    const batchData = batchItems.map(function (item) {
+      const d = item.data || item;
+      return {
+        nombre_razon_social: d.nombre_razon_social,
+        identificador: d.identificador,
+        email: d.email || null,
+        telefono: d.telefono || null,
+        direccion: d.direccion || null,
+        codigo_postal: d.codigo_postal || null,
+        ciudad: d.ciudad || null,
+        pais: d.pais || null,
+        dia_facturacion: d.dia_facturacion || null,
+        estado: d.estado || 'recurrente',
+        user_id: user.id
+      };
+    });
+
+    const { data, error } = await supabase.from('clientes').insert(batchData).select();
+
+    if (!error) {
+      insertedCount += batchData.length;
+      processed += batchData.length;
+      onProgress(processed, validRows.length);
+      continue;
+    }
+
+    // Si el lote falla (probablemente por duplicado), insertar fila a fila
+    if (error.code === '23505' || error.message.includes('duplicate') || error.message.includes('unique')) {
+      for (let j = 0; j < batchData.length; j++) {
+        const singleRow = batchData[j];
+        const rowRef = batchItems[j];
+        const { error: singleError } = await supabase.from('clientes').insert([singleRow]).select();
+
+        if (!singleError) {
+          insertedCount++;
+        } else if (singleError.code === '23505' || singleError.message.includes('duplicate') || singleError.message.includes('unique')) {
+          skippedDuplicates++;
+        } else {
+          errorRows.push({
+            row: rowRef.rowIndex || (i + j + 2),
+            identificador: singleRow.identificador,
+            reason: singleError.message || 'Error desconocido'
+          });
+        }
+
+        processed++;
+        onProgress(processed, validRows.length);
+      }
+    } else {
+      // Error genérico del lote completo
+      batchData.forEach(function (row, j) {
+        errorRows.push({
+          row: batchItems[j].rowIndex || (i + j + 2),
+          identificador: row.identificador,
+          reason: error.message || 'Error desconocido'
+        });
+      });
+      processed += batchData.length;
+      onProgress(processed, validRows.length);
+    }
+  }
+
+  // Marcar paso 2 si se insertó al menos un cliente
+  if (insertedCount > 0 && window.updateStepProgress) {
+    try {
+      await window.updateStepProgress(user.id, 2, true);
+    } catch (e) {
+      // No bloquear por error de progreso
+    }
+  }
+
+  return { insertedCount: insertedCount, skippedDuplicates: skippedDuplicates, errorRows: errorRows };
+}
+
 // Utilidades adicionales
 window.clientsUtils = {
   getInitials,
@@ -458,3 +557,4 @@ window.clientsUtils = {
 window.validateClientData = validateClientData;
 window.isValidEmail = isValidEmail;
 window.isValidPhone = isValidPhone;
+window.importClientsBulk = importClientsBulk;
