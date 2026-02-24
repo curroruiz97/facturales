@@ -55,8 +55,8 @@
         <!-- Toggle mensual / anual -->
         <div class="flex items-center justify-center mb-8">
           <div class="relative inline-flex items-center rounded-full p-1 bg-bgray-100 dark:bg-darkblack-400">
-            <button id="interval-monthly-btn" type="button" class="relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-white bg-success-300">Mensual</button>
-            <button id="interval-yearly-btn" type="button" class="relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-bgray-600 dark:text-bgray-300">Anual <span class="ml-1 text-[10px] font-bold text-success-300">2 meses gratis</span></button>
+            <button id="interval-monthly-btn" type="button" class="relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-bgray-600 dark:text-bgray-300">Mensual</button>
+            <button id="interval-yearly-btn" type="button" class="relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-white bg-success-300">Anual <span class="ml-1 text-[10px] font-bold text-orange-200">20% dto.</span></button>
           </div>
         </div>
 
@@ -81,8 +81,9 @@
               </span>
             </div>
             <div class="mb-4">
-              <span id="price-starter" class="text-3xl font-bold text-bgray-900 dark:text-white">4,99€</span>
+              <span id="price-starter" class="text-3xl font-bold text-bgray-900 dark:text-white">4,16€</span>
               <span id="interval-label-starter" class="text-base text-bgray-600 dark:text-bgray-50">/mes + IVA</span>
+              <p id="yearly-total-starter" class="text-xs text-bgray-500 dark:text-bgray-400 mt-1">49,90 € facturados anualmente</p>
             </div>
             <p class="text-sm text-bgray-600 dark:text-bgray-50 mb-6">
               Probar y empezar a facturar.
@@ -155,8 +156,9 @@
               </span>
             </div>
             <div class="mb-4">
-              <span id="price-pro" class="text-3xl font-bold text-bgray-900 dark:text-white">9,99€</span>
+              <span id="price-pro" class="text-3xl font-bold text-bgray-900 dark:text-white">8,33€</span>
               <span id="interval-label-pro" class="text-base text-bgray-600 dark:text-bgray-50">/mes + IVA</span>
+              <p id="yearly-total-pro" class="text-xs text-bgray-500 dark:text-bgray-400 mt-1">99,90 € facturados anualmente</p>
             </div>
             <p class="text-sm text-bgray-600 dark:text-bgray-50 mb-6">
               Automatizar cobros y recurrentes.
@@ -255,8 +257,9 @@
               </span>
             </div>
             <div class="mb-4">
-              <span id="price-business" class="text-3xl font-bold text-bgray-900 dark:text-white">17,99€</span>
+              <span id="price-business" class="text-3xl font-bold text-bgray-900 dark:text-white">14,99€</span>
               <span id="interval-label-business" class="text-base text-bgray-600 dark:text-bgray-50">/mes + IVA</span>
+              <p id="yearly-total-business" class="text-xs text-bgray-500 dark:text-bgray-400 mt-1">179,90 € facturados anualmente</p>
             </div>
             <p class="text-sm text-bgray-600 dark:text-bgray-50 mb-6">
               Equipos, asesorías y alto volumen.
@@ -452,7 +455,7 @@
           var plan = (params.get('plan') || '').toLowerCase();
           var interval = (params.get('interval') || '').toLowerCase();
           if (VALID_PLANS.indexOf(plan) === -1) plan = 'starter';
-          if (VALID_INTERVALS.indexOf(interval) === -1) interval = 'monthly';
+          if (VALID_INTERVALS.indexOf(interval) === -1) interval = 'yearly';
           return { plan: plan, interval: interval };
         }
 
@@ -467,11 +470,11 @@
             monthlyBtn.className = 'relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-white bg-success-300';
             yearlyBtn.style.background = 'transparent';
             yearlyBtn.className = 'relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-bgray-600 dark:text-bgray-300';
-            yearlyBtn.innerHTML = 'Anual <span class="ml-1 text-[10px] font-bold text-success-300">2 meses gratis</span>';
+            yearlyBtn.innerHTML = 'Anual <span class="ml-1 text-[10px] font-bold text-success-300">20% dto.</span>';
           } else {
             yearlyBtn.style.background = '';
             yearlyBtn.className = 'relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-white bg-success-300';
-            yearlyBtn.innerHTML = 'Anual <span class="ml-1 text-[10px] font-bold text-orange-200">2 meses gratis</span>';
+            yearlyBtn.innerHTML = 'Anual <span class="ml-1 text-[10px] font-bold text-orange-200">20% dto.</span>';
             monthlyBtn.style.background = 'transparent';
             monthlyBtn.className = 'relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-bgray-600 dark:text-bgray-300';
           }
@@ -479,19 +482,30 @@
           updatePriceDisplay();
         }
 
+        function formatPrice(num) {
+          return num.toFixed(2).replace('.', ',');
+        }
+
         function updatePriceDisplay() {
           VALID_PLANS.forEach(function (plan) {
             var priceEl = document.getElementById('price-' + plan);
             var labelEl = document.getElementById('interval-label-' + plan);
+            var yearlyTotalEl = document.getElementById('yearly-total-' + plan);
             if (!priceEl) return;
 
-            var p = PRICES[plan][selectedInterval];
-            priceEl.textContent = p + '€';
-
             if (selectedInterval === 'yearly') {
-              labelEl.textContent = '/año + IVA';
-            } else {
+              var yearlyRaw = parseFloat(PRICES[plan].yearly.replace(',', '.'));
+              var monthlyEquiv = yearlyRaw / 12;
+              priceEl.textContent = formatPrice(monthlyEquiv) + '\u20AC';
               labelEl.textContent = '/mes + IVA';
+              if (yearlyTotalEl) {
+                yearlyTotalEl.textContent = PRICES[plan].yearly + ' \u20AC facturados anualmente';
+                yearlyTotalEl.classList.remove('hidden');
+              }
+            } else {
+              priceEl.textContent = PRICES[plan].monthly + '\u20AC';
+              labelEl.textContent = '/mes + IVA';
+              if (yearlyTotalEl) yearlyTotalEl.classList.add('hidden');
             }
           });
         }
