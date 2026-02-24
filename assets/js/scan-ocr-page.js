@@ -218,7 +218,9 @@
       setStep(2);
       toast("Documento analizado correctamente", "success");
       if (window.planLimits) {
-        window.planLimits.recordOCRUsage().catch(function () {});
+        window.planLimits.recordOCRUsage().catch(function (e) {
+          console.error('[plan-limits] Error registrando uso OCR:', e);
+        });
       }
     } catch (err) {
       console.error("OCR error:", err);

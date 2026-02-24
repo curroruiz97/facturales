@@ -44,11 +44,48 @@ function extractPlanInfo(metadata: Record<string, string> | null): { plan: strin
 // Event handlers
 // ============================================
 
+async function handleSetupCheckoutCompleted(
+  session: Stripe.Checkout.Session,
+  stripe: Stripe,
+) {
+  const setupIntentId = session.setup_intent as string;
+  if (!setupIntentId) return;
+
+  const setupIntent = await stripe.setupIntents.retrieve(setupIntentId);
+  const paymentMethodId = setupIntent.payment_method as string;
+  if (!paymentMethodId) return;
+
+  const customerId = session.customer as string;
+  const subscriptionId = session.metadata?.subscription_id;
+
+  // Set as customer's default payment method
+  await stripe.customers.update(customerId, {
+    invoice_settings: { default_payment_method: paymentMethodId },
+  });
+
+  // Also set as subscription's default if we have the subscription ID
+  if (subscriptionId) {
+    await stripe.subscriptions.update(subscriptionId, {
+      default_payment_method: paymentMethodId,
+    });
+  }
+
+  console.log(
+    `Payment method ${paymentMethodId} set as default for customer ${customerId}`,
+  );
+}
+
 async function handleCheckoutCompleted(
   session: Stripe.Checkout.Session,
   stripe: Stripe,
   supabase: ReturnType<typeof createClient>,
 ) {
+  // Handle setup mode (payment method update)
+  if (session.mode === "setup") {
+    await handleSetupCheckoutCompleted(session, stripe);
+    return;
+  }
+
   const userId = session.metadata?.user_id;
   if (!userId) {
     console.error("checkout.session.completed: missing user_id in metadata");
@@ -111,6 +148,8 @@ async function handleSubscriptionChange(
   const { plan, interval } = extractPlanInfo(subscription.metadata);
   const status = mapStripeStatus(subscription.status);
 
+  // When the plan changes (e.g. downgrade schedule applied),
+  // clear pending_downgrade fields
   const { error } = await supabase
     .from("billing_subscriptions")
     .update({
@@ -120,6 +159,8 @@ async function handleSubscriptionChange(
       current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
       current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
       cancel_at_period_end: subscription.cancel_at_period_end,
+      pending_downgrade_plan: null,
+      pending_downgrade_interval: null,
       trial_start: subscription.trial_start
         ? new Date(subscription.trial_start * 1000).toISOString()
         : null,
@@ -135,7 +176,7 @@ async function handleSubscriptionChange(
 
   // Sync business_info
   if (status === "canceled") {
-    await syncBusinessInfo(supabase, userId, "starter", "monthly");
+    await syncBusinessInfo(supabase, userId, null, null);
   } else {
     await syncBusinessInfo(supabase, userId, plan, interval);
   }
@@ -149,7 +190,12 @@ async function handleSubscriptionDeleted(
 
   const { error } = await supabase
     .from("billing_subscriptions")
-    .update({ status: "canceled", cancel_at_period_end: false })
+    .update({
+      status: "canceled",
+      cancel_at_period_end: false,
+      pending_downgrade_plan: null,
+      pending_downgrade_interval: null,
+    })
     .eq("stripe_subscription_id", subscription.id);
 
   if (error) {
@@ -157,7 +203,7 @@ async function handleSubscriptionDeleted(
   }
 
   if (userId) {
-    await syncBusinessInfo(supabase, userId, "starter", "monthly");
+    await syncBusinessInfo(supabase, userId, null, null);
   }
 }
 
@@ -193,7 +239,11 @@ async function handleInvoicePaymentSucceeded(
   const { error } = await supabase
     .from("billing_subscriptions")
     .update({
+      plan,
+      interval,
       status,
+      pending_downgrade_plan: null,
+      pending_downgrade_interval: null,
       current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
       current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
     })

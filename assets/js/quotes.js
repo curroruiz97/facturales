@@ -98,7 +98,9 @@ async function createQuote(quoteData, status = 'draft') {
     
     console.log('Presupuesto creado:', quote.quote_number);
     if (window.planLimits) {
-      window.planLimits.recordInvoiceUsage().catch(function () {});
+      window.planLimits.recordInvoiceUsage().catch(function (e) {
+        console.error('[plan-limits] Error registrando uso de presupuesto:', e);
+      });
     }
     return { success: true, data: quote };
   } catch (error) {

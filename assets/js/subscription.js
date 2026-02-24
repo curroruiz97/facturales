@@ -53,6 +53,8 @@
       if (!authResult.data || !authResult.data.user) return null;
 
       var userId = authResult.data.user.id;
+
+      // Buscar suscripción activa/trialing
       var result = await supabase
         .from('billing_subscriptions')
         .select('*')
@@ -62,9 +64,33 @@
         .limit(1)
         .maybeSingle();
 
-      _cache = result.data || null;
+      if (result.data) {
+        _cache = result.data;
+        _cacheTs = Date.now();
+        return _cache;
+      }
+
+      // Fallback: cancel_at_period_end con periodo aún vigente
+      var cancelResult = await supabase
+        .from('billing_subscriptions')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('cancel_at_period_end', true)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (cancelResult.data && cancelResult.data.current_period_end) {
+        if (new Date(cancelResult.data.current_period_end) > new Date()) {
+          _cache = cancelResult.data;
+          _cacheTs = Date.now();
+          return _cache;
+        }
+      }
+
+      _cache = null;
       _cacheTs = Date.now();
-      return _cache;
+      return null;
     } catch (err) {
       console.error('subscriptionHelper.getCurrentSubscription error:', err);
       return null;
@@ -77,7 +103,7 @@
    */
   async function getUserPlan(forceRefresh) {
     var sub = await getCurrentSubscription(forceRefresh);
-    return (sub && sub.plan) || 'starter';
+    return (sub && sub.plan) || 'none';
   }
 
   /**

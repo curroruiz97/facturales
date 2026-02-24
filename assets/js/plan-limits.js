@@ -8,6 +8,7 @@
   'use strict';
 
   var LIMITS = {
+    none:     { clients: 0,        products: 0,        invoices_month: 0,        ocr_month: 0 },
     starter:  { clients: 10,       products: 30,       invoices_month: 10,       ocr_month: 10 },
     pro:      { clients: 100,      products: 150,      invoices_month: Infinity, ocr_month: 75 },
     business: { clients: Infinity, products: Infinity,  invoices_month: Infinity, ocr_month: 300 }
@@ -40,7 +41,7 @@
   }
 
   function _getLimits(plan) {
-    return LIMITS[plan] || LIMITS.starter;
+    return LIMITS[plan] || LIMITS.none;
   }
 
   // Determina el inicio del periodo actual de facturación
@@ -225,37 +226,62 @@
   }
 
   /**
-   * Incrementa el contador de facturas del periodo actual (+1).
+   * Incrementa un campo de billing_usage para el periodo actual.
+   * Intenta RPC primero; si falla, hace upsert + update manual.
    */
-  async function recordInvoiceUsage() {
+  async function _incrementUsage(field) {
     var userId = await _getUserId();
-    if (!userId) return;
+    if (!userId) { console.warn('[plan-limits] No userId para incrementar uso'); return; }
     var periodStart = await _getPeriodStart(userId);
     var sb = await _waitSb();
     if (!sb) return;
 
-    await sb.rpc('increment_billing_usage', {
+    // Intentar RPC atómica
+    var rpcResult = await sb.rpc('increment_billing_usage', {
       p_user_id: userId,
       p_period_start: periodStart,
-      p_field: 'invoices_used'
+      p_field: field
     });
+
+    if (!rpcResult.error) return;
+
+    console.warn('[plan-limits] RPC falló, usando upsert manual:', rpcResult.error.message);
+
+    // Fallback: asegurar que la fila existe
+    await sb.from('billing_usage').upsert(
+      { user_id: userId, period_start: periodStart },
+      { onConflict: 'user_id,period_start', ignoreDuplicates: true }
+    );
+
+    // Leer valor actual
+    var readResult = await sb.from('billing_usage')
+      .select(field)
+      .eq('user_id', userId)
+      .eq('period_start', periodStart)
+      .single();
+
+    var currentVal = (readResult.data && readResult.data[field]) || 0;
+
+    var updateData = {};
+    updateData[field] = currentVal + 1;
+    updateData.updated_at = new Date().toISOString();
+
+    var updateResult = await sb.from('billing_usage')
+      .update(updateData)
+      .eq('user_id', userId)
+      .eq('period_start', periodStart);
+
+    if (updateResult.error) {
+      console.error('[plan-limits] Error actualizando uso:', updateResult.error);
+    }
   }
 
-  /**
-   * Incrementa el contador de escaneos OCR del periodo actual (+1).
-   */
-  async function recordOCRUsage() {
-    var userId = await _getUserId();
-    if (!userId) return;
-    var periodStart = await _getPeriodStart(userId);
-    var sb = await _waitSb();
-    if (!sb) return;
+  async function recordInvoiceUsage() {
+    return _incrementUsage('invoices_used');
+  }
 
-    await sb.rpc('increment_billing_usage', {
-      p_user_id: userId,
-      p_period_start: periodStart,
-      p_field: 'ocr_scans_used'
-    });
+  async function recordOCRUsage() {
+    return _incrementUsage('ocr_scans_used');
   }
 
   /**

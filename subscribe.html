@@ -20,19 +20,22 @@
             <img src="assets/images/logo/logo-color.svg" class="block dark:hidden" alt="Logo" />
             <img src="assets/images/logo/logo-white.svg" class="hidden dark:block" alt="Logo" />
           </a>
-          <div class="flex items-center gap-4">
-            <a
-              href="signin.html"
-              class="text-sm font-semibold text-bgray-700 dark:text-bgray-50 hover:text-success-300 transition-all"
-            >
-              Iniciar sesión
-            </a>
-            <a
-              href="signup.html"
-              class="text-sm font-semibold text-white bg-success-300 hover:bg-success-400 transition-all rounded-lg px-4 py-2"
-            >
-              Registrarse
-            </a>
+          <!-- No autenticado -->
+          <div id="header-guest" class="flex items-center gap-4">
+            <a href="signin.html" class="text-sm font-semibold text-bgray-700 dark:text-bgray-50 hover:text-success-300 transition-all">Iniciar sesión</a>
+            <a href="signup.html" class="text-sm font-semibold text-white bg-success-300 hover:bg-success-400 transition-all rounded-lg px-4 py-2">Registrarse</a>
+          </div>
+          <!-- Autenticado -->
+          <div id="header-user" class="hidden flex items-center gap-3">
+            <div class="flex items-center gap-2">
+              <div class="h-8 w-8 rounded-full bg-success-300/10 flex items-center justify-center">
+                <span id="header-user-initial" class="text-sm font-bold text-success-300">U</span>
+              </div>
+              <span id="header-user-email" class="text-sm font-medium text-bgray-700 dark:text-bgray-50 max-w-[200px] truncate"></span>
+            </div>
+            <button id="header-logout-btn" type="button" class="text-sm font-semibold text-bgray-500 dark:text-bgray-400 hover:text-red-500 transition-all">
+              Cerrar sesión
+            </button>
           </div>
         </header>
       </div>
@@ -52,7 +55,7 @@
         <!-- Toggle mensual / anual -->
         <div class="flex items-center justify-center mb-8">
           <div class="relative inline-flex items-center rounded-full p-1 bg-bgray-100 dark:bg-darkblack-400">
-            <button id="interval-monthly-btn" type="button" class="relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-white" style="background:#22c55e">Mensual</button>
+            <button id="interval-monthly-btn" type="button" class="relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-white bg-success-300">Mensual</button>
             <button id="interval-yearly-btn" type="button" class="relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-bgray-600 dark:text-bgray-300">Anual <span class="ml-1 text-[10px] font-bold text-success-300">2 meses gratis</span></button>
           </div>
         </div>
@@ -148,7 +151,7 @@
                 Pro
               </span>
               <span class="inline-block text-[10px] font-bold uppercase tracking-wider text-white bg-success-300 rounded-full px-2.5 py-0.5">
-                Popular
+                Más popular
               </span>
             </div>
             <div class="mb-4">
@@ -335,15 +338,6 @@
           </p>
         </div>
 
-        <!-- Links secundarios -->
-        <div class="text-center mt-8">
-          <p class="text-bgray-600 dark:text-bgray-50 text-sm">
-            <a href="signin.html" class="font-semibold text-success-300 hover:underline">Iniciar sesión</a>
-            <span class="mx-2">·</span>
-            <a href="signup.html" class="font-semibold text-success-300 hover:underline">Crear cuenta</a>
-          </p>
-        </div>
-
         <!-- Footer -->
         <nav class="flex items-center justify-center flex-wrap gap-x-11 pt-12">
           <a href="#" class="text-sm text-bgray-700 dark:text-white">Términos y condiciones</a>
@@ -353,6 +347,54 @@
         <p class="text-bgray-600 dark:text-white text-center text-sm mt-6">
           &copy; 2026 Facturales. Todos los derechos reservados.
         </p>
+      </div>
+
+      <!-- Modal confirmación cambio de plan -->
+      <div id="plan-change-modal" class="hidden fixed inset-0 z-50 items-center justify-center" style="display:none">
+        <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" onclick="closePlanChangeModal()"></div>
+        <div class="relative w-full max-w-md mx-auto bg-white dark:bg-darkblack-600 rounded-2xl shadow-2xl border-2 border-success-300 p-6 z-10">
+          <!-- Estado: Preview -->
+          <div id="pcm-state-preview">
+            <h3 id="pcm-title" class="text-lg font-bold text-bgray-900 dark:text-white mb-4">Cambiar de plan</h3>
+            <div id="pcm-upgrade-info" class="hidden">
+              <div class="bg-success-300/10 rounded-lg p-4 mb-4">
+                <p class="text-sm font-semibold text-bgray-900 dark:text-white mb-2">Resumen del cambio</p>
+                <div id="pcm-proration-lines" class="space-y-1 text-xs text-bgray-600 dark:text-bgray-300 mb-3"></div>
+                <div class="flex items-center justify-between border-t border-bgray-200 dark:border-darkblack-400 pt-2">
+                  <span class="text-sm font-bold text-bgray-900 dark:text-white">Cargo hoy:</span>
+                  <span id="pcm-amount" class="text-lg font-extrabold text-success-300">0,00 €</span>
+                </div>
+              </div>
+              <p class="text-xs text-bgray-500 dark:text-bgray-400 mb-4">El cambio se aplica inmediatamente. Se te cobrará la diferencia prorrateada.</p>
+            </div>
+            <div id="pcm-downgrade-info" class="hidden">
+              <div class="bg-blue-50 dark:bg-blue-900/10 rounded-lg p-4 mb-4">
+                <p class="text-sm text-bgray-700 dark:text-bgray-200">
+                  <svg class="inline w-4 h-4 text-blue-500 mr-1 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                  Tu plan actual seguirá activo hasta el <strong id="pcm-period-end"></strong>. 
+                  A partir de entonces, cambiarás automáticamente al nuevo plan sin ningún cargo adicional.
+                </p>
+              </div>
+            </div>
+            <p id="pcm-error" class="hidden text-sm text-red-500 mb-3"></p>
+            <div class="flex justify-end gap-3">
+              <button type="button" onclick="closePlanChangeModal()" class="rounded-lg border border-bgray-300 dark:border-darkblack-400 px-5 py-2.5 text-sm font-semibold text-bgray-700 dark:text-bgray-100 hover:bg-bgray-50 dark:hover:bg-darkblack-500 transition">Cancelar</button>
+              <button type="button" id="pcm-confirm-btn" onclick="confirmPlanChange()" class="rounded-lg px-5 py-2.5 text-sm font-bold text-white bg-success-300 hover:bg-success-400 transition">
+                <span id="pcm-confirm-text">Confirmar cambio</span>
+                <svg id="pcm-confirm-spinner" class="hidden animate-spin inline ml-1 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/></svg>
+              </button>
+            </div>
+          </div>
+          <!-- Estado: Éxito -->
+          <div id="pcm-state-success" class="hidden text-center py-4">
+            <div class="w-14 h-14 rounded-full bg-success-300/10 flex items-center justify-center mx-auto mb-4">
+              <svg class="w-8 h-8 text-success-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <h3 id="pcm-success-title" class="text-lg font-bold text-bgray-900 dark:text-white mb-2">Plan actualizado</h3>
+            <p id="pcm-success-text" class="text-sm text-bgray-500 dark:text-bgray-400 mb-5"></p>
+            <button type="button" onclick="window.location.href='/settings.html'" class="rounded-lg px-6 py-2.5 text-sm font-bold text-white bg-success-300 hover:bg-success-400 transition">Ir a Configuración</button>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -380,12 +422,16 @@
         var VALID_PLANS = ['starter', 'pro', 'business'];
         var VALID_INTERVALS = ['monthly', 'yearly'];
 
+        var PLAN_RANK = { starter: 1, pro: 2, business: 3 };
+
         // =============================================
         // Estado
         // =============================================
         var selectedPlan = 'starter';
         var selectedInterval = 'monthly';
         var isLoading = false;
+        var currentUserPlan = null; // plan actual del usuario (null = sin suscripción)
+        var pendingChangeData = null; // datos del preview de prorrateo
 
         // =============================================
         // DOM
@@ -417,15 +463,15 @@
           selectedInterval = interval;
 
           if (interval === 'monthly') {
-            monthlyBtn.style.background = '#22c55e';
-            monthlyBtn.className = 'relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-white';
+            monthlyBtn.style.background = '';
+            monthlyBtn.className = 'relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-white bg-success-300';
             yearlyBtn.style.background = 'transparent';
             yearlyBtn.className = 'relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-bgray-600 dark:text-bgray-300';
             yearlyBtn.innerHTML = 'Anual <span class="ml-1 text-[10px] font-bold text-success-300">2 meses gratis</span>';
           } else {
-            yearlyBtn.style.background = '#22c55e';
-            yearlyBtn.className = 'relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-white';
-            yearlyBtn.innerHTML = 'Anual <span class="ml-1 text-[10px] font-bold text-green-200">2 meses gratis</span>';
+            yearlyBtn.style.background = '';
+            yearlyBtn.className = 'relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-white bg-success-300';
+            yearlyBtn.innerHTML = 'Anual <span class="ml-1 text-[10px] font-bold text-orange-200">2 meses gratis</span>';
             monthlyBtn.style.background = 'transparent';
             monthlyBtn.className = 'relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-bgray-600 dark:text-bgray-300';
           }
@@ -458,20 +504,34 @@
         // =============================================
         function selectPlan(plan) {
           if (VALID_PLANS.indexOf(plan) === -1) plan = 'starter';
+          if (currentUserPlan && plan === currentUserPlan) return;
           selectedPlan = plan;
 
           planCards.forEach(function (card) {
             var cardPlan = card.getAttribute('data-plan');
             var check = card.querySelector('.plan-check');
             var btn = card.querySelector('.plan-select-btn');
-
             var isGold = cardPlan === 'business';
+            var isCurrent = currentUserPlan && cardPlan === currentUserPlan;
 
-            if (cardPlan === plan) {
+            if (isCurrent) {
+              card.classList.remove('border-bgray-200', 'dark:border-darkblack-400', 'border-success-300', 'border-[#daa520]', 'shadow-lg');
+              card.classList.add('border-success-300');
+              card.style.opacity = '0.6';
+              if (check) check.classList.add('hidden');
+              if (btn) {
+                btn.textContent = 'Plan actual';
+                btn.disabled = true;
+                btn.className = 'plan-select-btn w-full py-3 rounded-lg text-sm font-semibold border-2 border-success-300 text-success-300 cursor-not-allowed opacity-60';
+                if (isGold) btn.className = 'plan-select-btn plan-select-btn-gold w-full py-3 rounded-lg text-sm font-semibold cursor-not-allowed opacity-60';
+              }
+            } else if (cardPlan === plan) {
+              card.style.opacity = '1';
               card.classList.remove('border-bgray-200', 'dark:border-darkblack-400');
               card.classList.add(isGold ? 'border-[#daa520]' : 'border-success-300', 'shadow-lg');
               if (check) check.classList.remove('hidden');
               if (btn) {
+                btn.disabled = false;
                 if (isGold) {
                   btn.classList.add('selected');
                 } else {
@@ -481,10 +541,12 @@
                 btn.textContent = 'Seleccionado';
               }
             } else {
+              card.style.opacity = '1';
               card.classList.add('border-bgray-200', 'dark:border-darkblack-400');
               card.classList.remove('border-success-300', 'border-[#daa520]', 'shadow-lg');
               if (check) check.classList.add('hidden');
               if (btn) {
+                btn.disabled = false;
                 if (isGold) {
                   btn.classList.remove('selected');
                 } else {
@@ -496,7 +558,12 @@
             }
           });
 
-          btnContinueText.textContent = 'Continuar con ' + PLAN_NAMES[plan];
+          if (currentUserPlan) {
+            var isUpgrade = (PLAN_RANK[plan] || 0) > (PLAN_RANK[currentUserPlan] || 0);
+            btnContinueText.textContent = isUpgrade ? 'Mejorar a ' + PLAN_NAMES[plan] : 'Cambiar a ' + PLAN_NAMES[plan];
+          } else {
+            btnContinueText.textContent = 'Continuar con ' + PLAN_NAMES[plan];
+          }
           hideError();
         }
 
@@ -530,21 +597,12 @@
         // =============================================
         async function handleContinue() {
           if (isLoading) return;
+          if (currentUserPlan && selectedPlan === currentUserPlan) return;
           hideError();
           setLoadingState(true);
 
           try {
-            var attempts = 0;
-            while (!window.supabaseClient && attempts < 30) {
-              await new Promise(function (r) { setTimeout(r, 100); });
-              attempts++;
-            }
-
-            if (!window.supabaseClient) {
-              throw new Error('No se pudo conectar con el servidor. Recarga la página.');
-            }
-
-            var supabase = window.supabaseClient;
+            var supabase = await waitForSupabase();
 
             var authResult = await supabase.auth.getUser();
             if (!authResult.data || !authResult.data.user) {
@@ -553,28 +611,54 @@
               return;
             }
 
-            var fnResult = await supabase.functions.invoke('create-checkout-session', {
-              body: { plan: selectedPlan, interval: selectedInterval }
-            });
+            if (currentUserPlan) {
+              // Cambio de plan: mostrar preview de prorrateo
+              var previewResult = await supabase.functions.invoke('preview-proration', {
+                body: { new_plan: selectedPlan, new_interval: selectedInterval }
+              });
 
-            if (fnResult.error) {
-              var errMsg = 'Error al crear la sesión de pago.';
-              if (fnResult.error.message) errMsg = fnResult.error.message;
-              if (fnResult.error.context && typeof fnResult.error.context === 'object') {
+              if (previewResult.error) {
+                var msg = 'Error al calcular el cambio.';
                 try {
-                  var ctxBody = await fnResult.error.context.json();
-                  if (ctxBody && ctxBody.error) errMsg = ctxBody.error;
+                  if (previewResult.error.context && typeof previewResult.error.context.json === 'function') {
+                    var body = await previewResult.error.context.json();
+                    if (body && body.error) msg = body.error;
+                  }
                 } catch (_) {}
+                throw new Error(msg);
               }
-              throw new Error(errMsg);
-            }
 
-            var data = fnResult.data;
-            if (!data || !data.url) {
-              throw new Error('Respuesta inválida del servidor. Inténtalo de nuevo.');
-            }
+              var preview = previewResult.data;
+              if (!preview) throw new Error('Respuesta vacía del servidor.');
 
-            window.location.href = data.url;
+              pendingChangeData = preview;
+              showPlanChangeModal(preview);
+              setLoadingState(false);
+            } else {
+              // Nueva suscripción: ir a Stripe Checkout
+              var fnResult = await supabase.functions.invoke('create-checkout-session', {
+                body: { plan: selectedPlan, interval: selectedInterval }
+              });
+
+              if (fnResult.error) {
+                var errMsg = 'Error al crear la sesión de pago.';
+                if (fnResult.error.message) errMsg = fnResult.error.message;
+                if (fnResult.error.context && typeof fnResult.error.context === 'object') {
+                  try {
+                    var ctxBody = await fnResult.error.context.json();
+                    if (ctxBody && ctxBody.error) errMsg = ctxBody.error;
+                  } catch (_) {}
+                }
+                throw new Error(errMsg);
+              }
+
+              var data = fnResult.data;
+              if (!data || !data.url) {
+                throw new Error('Respuesta inválida del servidor. Inténtalo de nuevo.');
+              }
+
+              window.location.href = data.url;
+            }
           } catch (err) {
             console.error('Error en checkout:', err);
             showError(err.message || 'Error inesperado. Inténtalo de nuevo.');
@@ -582,13 +666,139 @@
           }
         }
 
+        async function waitForSupabase() {
+          var attempts = 0;
+          while (!window.supabaseClient && attempts < 30) {
+            await new Promise(function (r) { setTimeout(r, 100); });
+            attempts++;
+          }
+          if (!window.supabaseClient) throw new Error('No se pudo conectar con el servidor. Recarga la página.');
+          return window.supabaseClient;
+        }
+
+        // =============================================
+        // Modal de cambio de plan
+        // =============================================
+        function showPlanChangeModal(preview) {
+          var modal = document.getElementById('plan-change-modal');
+          var titleEl = document.getElementById('pcm-title');
+          var upgradeInfo = document.getElementById('pcm-upgrade-info');
+          var downgradeInfo = document.getElementById('pcm-downgrade-info');
+          var previewState = document.getElementById('pcm-state-preview');
+          var successState = document.getElementById('pcm-state-success');
+          var errorEl = document.getElementById('pcm-error');
+
+          previewState.classList.remove('hidden');
+          successState.classList.add('hidden');
+          errorEl.classList.add('hidden');
+
+          if (preview.type === 'upgrade') {
+            titleEl.textContent = 'Mejorar a ' + PLAN_NAMES[preview.new_plan];
+            upgradeInfo.classList.remove('hidden');
+            downgradeInfo.classList.add('hidden');
+
+            var linesEl = document.getElementById('pcm-proration-lines');
+            linesEl.innerHTML = '';
+            if (preview.lines && preview.lines.length) {
+              preview.lines.forEach(function (l) {
+                var div = document.createElement('div');
+                div.className = 'flex justify-between';
+                var desc = document.createElement('span');
+                desc.textContent = l.description || '';
+                var amt = document.createElement('span');
+                amt.className = 'font-medium';
+                amt.textContent = l.amount.toFixed(2) + ' €';
+                div.appendChild(desc);
+                div.appendChild(amt);
+                linesEl.appendChild(div);
+              });
+            }
+
+            document.getElementById('pcm-amount').textContent = preview.amount_due.toFixed(2) + ' €';
+            document.getElementById('pcm-confirm-text').textContent = 'Pagar y mejorar';
+          } else {
+            titleEl.textContent = 'Cambiar a ' + PLAN_NAMES[preview.new_plan];
+            upgradeInfo.classList.add('hidden');
+            downgradeInfo.classList.remove('hidden');
+
+            var endDate = new Date(preview.period_end).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+            document.getElementById('pcm-period-end').textContent = endDate;
+            document.getElementById('pcm-confirm-text').textContent = 'Confirmar cambio';
+          }
+
+          modal.classList.remove('hidden');
+          modal.style.display = 'flex';
+        }
+
+        window.closePlanChangeModal = function () {
+          var modal = document.getElementById('plan-change-modal');
+          modal.classList.add('hidden');
+          modal.style.display = 'none';
+          pendingChangeData = null;
+        };
+
+        window.confirmPlanChange = async function () {
+          if (!pendingChangeData) return;
+          var btn = document.getElementById('pcm-confirm-btn');
+          var spinner = document.getElementById('pcm-confirm-spinner');
+          var textEl = document.getElementById('pcm-confirm-text');
+          var errorEl = document.getElementById('pcm-error');
+          errorEl.classList.add('hidden');
+          btn.disabled = true;
+          spinner.classList.remove('hidden');
+
+          try {
+            var supabase = await waitForSupabase();
+            var result = await supabase.functions.invoke('update-subscription', {
+              body: { new_plan: pendingChangeData.new_plan, new_interval: pendingChangeData.new_interval }
+            });
+
+            if (result.error) {
+              var msg = 'Error al cambiar el plan.';
+              try {
+                if (result.error.context && typeof result.error.context.json === 'function') {
+                  var body = await result.error.context.json();
+                  if (body && body.error) msg = body.error;
+                }
+              } catch (_) {}
+              throw new Error(msg);
+            }
+
+            var data = result.data;
+            if (!data || !data.success) throw new Error((data && data.error) || 'Error inesperado.');
+
+            // Mostrar éxito
+            document.getElementById('pcm-state-preview').classList.add('hidden');
+            var successState = document.getElementById('pcm-state-success');
+            successState.classList.remove('hidden');
+
+            if (data.type === 'upgrade') {
+              document.getElementById('pcm-success-title').textContent = 'Plan mejorado';
+              document.getElementById('pcm-success-text').textContent = 'Ahora tienes el plan ' + PLAN_NAMES[data.plan || data.new_plan] + '. Los cambios ya están activos.';
+            } else {
+              var endDate = new Date(data.period_end).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+              document.getElementById('pcm-success-title').textContent = 'Cambio programado';
+              document.getElementById('pcm-success-text').textContent = 'Tu plan cambiar\u00E1 a ' + PLAN_NAMES[data.new_plan || data.plan] + ' el ' + endDate + '. Hasta entonces, mantienes tu plan actual.';
+            }
+          } catch (err) {
+            console.error('Error confirmando cambio:', err);
+            errorEl.textContent = err.message || 'Error inesperado.';
+            errorEl.classList.remove('hidden');
+          } finally {
+            btn.disabled = false;
+            spinner.classList.add('hidden');
+          }
+        };
+
         // =============================================
         // Event listeners
         // =============================================
         planCards.forEach(function (card) {
           card.addEventListener('click', function () {
             if (isLoading) return;
-            selectPlan(card.getAttribute('data-plan'));
+            var plan = card.getAttribute('data-plan');
+            if (currentUserPlan && plan === currentUserPlan) return;
+            selectPlan(plan);
           });
         });
 
@@ -596,11 +806,106 @@
           btn.addEventListener('click', function (e) {
             e.stopPropagation();
             if (isLoading) return;
-            selectPlan(btn.getAttribute('data-plan'));
+            var plan = btn.getAttribute('data-plan');
+            if (currentUserPlan && plan === currentUserPlan) return;
+            selectPlan(plan);
           });
         });
 
         btnContinue.addEventListener('click', handleContinue);
+
+        // =============================================
+        // Auth check + header UI
+        // =============================================
+        async function checkAuth() {
+          var attempts = 0;
+          while (!window.supabaseClient && attempts < 40) {
+            await new Promise(function (r) { setTimeout(r, 100); });
+            attempts++;
+          }
+          if (!window.supabaseClient) return;
+          if (window.supabaseAuthReady) await window.supabaseAuthReady;
+
+          var authResult = await window.supabaseClient.auth.getUser();
+          var guestEl = document.getElementById('header-guest');
+          var userEl = document.getElementById('header-user');
+
+          if (!authResult.data || !authResult.data.user) {
+            var current = window.location.pathname + window.location.search;
+            window.location.href = '/signin.html?redirect=' + encodeURIComponent(current);
+            return;
+          }
+
+          var user = authResult.data.user;
+          var email = user.email || '';
+
+          if (guestEl) guestEl.classList.add('hidden');
+          if (userEl) userEl.classList.remove('hidden');
+
+          var emailEl = document.getElementById('header-user-email');
+          var initialEl = document.getElementById('header-user-initial');
+          if (emailEl) emailEl.textContent = email;
+          if (initialEl) initialEl.textContent = email.charAt(0).toUpperCase();
+
+          var logoutBtn = document.getElementById('header-logout-btn');
+          if (logoutBtn) {
+            logoutBtn.addEventListener('click', async function () {
+              await window.supabaseClient.auth.signOut();
+              window.location.href = '/signin.html';
+            });
+          }
+
+          // Detectar plan actual del usuario y downgrade pendiente
+          try {
+            var subResult = await window.supabaseClient
+              .from('billing_subscriptions')
+              .select('plan, status, cancel_at_period_end, current_period_end, pending_downgrade_plan, pending_downgrade_interval')
+              .eq('user_id', user.id)
+              .order('created_at', { ascending: false })
+              .limit(1)
+              .maybeSingle();
+
+            if (subResult.data) {
+              var s = subResult.data;
+              var isActive = (s.status === 'active' || s.status === 'trialing');
+              var isGracePeriod = s.cancel_at_period_end && s.current_period_end && new Date(s.current_period_end) > new Date();
+              if (isActive || isGracePeriod) {
+                currentUserPlan = s.plan;
+
+                // Si hay un downgrade pendiente, mostrar aviso
+                if (s.pending_downgrade_plan) {
+                  var endDate = new Date(s.current_period_end).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+                  var pendingName = PLAN_NAMES[s.pending_downgrade_plan] || s.pending_downgrade_plan;
+                  var noticeEl = document.getElementById('pending-change-notice');
+                  if (!noticeEl) {
+                    noticeEl = document.createElement('div');
+                    noticeEl.id = 'pending-change-notice';
+                    noticeEl.className = 'max-w-3xl mx-auto mb-6 rounded-xl border border-warning-300 bg-warning-300/5 p-4';
+                    var plansContainer = document.querySelector('.plans-container') || document.querySelector('[data-plan]').parentElement;
+                    if (plansContainer) plansContainer.parentElement.insertBefore(noticeEl, plansContainer);
+                  }
+                  noticeEl.innerHTML = '<div class="flex items-center gap-3">'
+                    + '<svg class="h-5 w-5 text-warning-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+                    + '<p class="text-sm text-bgray-700 dark:text-bgray-300">Ya tienes un cambio programado a <strong class="text-warning-300">' + pendingName + '</strong> para el ' + endDate + '.</p>'
+                    + '</div>';
+                }
+
+                selectPlan(selectedPlan === currentUserPlan ? getFirstSelectablePlan() : selectedPlan);
+              }
+            }
+          } catch (e) {
+            console.error('Error detectando plan actual:', e);
+          }
+        }
+
+        function getFirstSelectablePlan() {
+          for (var i = 0; i < VALID_PLANS.length; i++) {
+            if (VALID_PLANS[i] !== currentUserPlan) return VALID_PLANS[i];
+          }
+          return 'starter';
+        }
+
+        checkAuth();
 
         // =============================================
         // Init

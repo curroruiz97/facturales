@@ -103,7 +103,9 @@ async function createInvoice(invoiceData, status = 'draft') {
     
     console.log('Factura creada:', invoice.invoice_number);
     if (window.planLimits) {
-      window.planLimits.recordInvoiceUsage().catch(function () {});
+      window.planLimits.recordInvoiceUsage().catch(function (e) {
+        console.error('[plan-limits] Error registrando uso de factura:', e);
+      });
     }
     return { success: true, data: invoice };
   } catch (error) {
