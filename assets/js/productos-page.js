@@ -61,6 +61,30 @@
     renderPagination(allProducts.length);
     var countEl = document.getElementById('products-count');
     if (countEl) countEl.textContent = allProducts.length;
+    updateProductsUsageBadge(allProducts.length);
+  }
+
+  async function updateProductsUsageBadge(currentCount) {
+    var badge = document.getElementById('products-usage-badge');
+    if (!badge) return;
+    if (!window.planLimits) { badge.classList.add('hidden'); return; }
+    try {
+      var check = await window.planLimits.canCreateProduct();
+      var limitEl = document.getElementById('products-usage-limit');
+      var currentEl = document.getElementById('products-usage-current');
+      if (!limitEl || !currentEl) return;
+      var count = typeof currentCount === 'number' ? currentCount : check.current;
+      currentEl.textContent = count;
+      limitEl.textContent = window.planLimits.formatLimit(check.limit);
+      if (check.limit !== Infinity && count >= check.limit) {
+        currentEl.classList.add('text-error-300');
+        currentEl.classList.remove('text-bgray-900', 'dark:text-white');
+      } else {
+        currentEl.classList.remove('text-error-300');
+        currentEl.classList.add('text-bgray-900', 'dark:text-white');
+      }
+      badge.classList.remove('hidden');
+    } catch (_) {}
   }
 
   // ========== Recent cards ==========

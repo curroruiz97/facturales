@@ -33,6 +33,13 @@ async function getSupabaseForQuotes() {
  */
 async function createQuote(quoteData, status = 'draft') {
   try {
+    if (window.planLimits) {
+      var limitCheck = await window.planLimits.canCreateInvoice();
+      if (!limitCheck.allowed) {
+        throw new Error(limitCheck.reason.replace('facturas', 'documentos'));
+      }
+    }
+
     const supabase = await getSupabaseForQuotes();
     
     // Obtener usuario autenticado
@@ -89,7 +96,10 @@ async function createQuote(quoteData, status = 'draft') {
       throw new Error(error.message || 'Error al crear el presupuesto');
     }
     
-    console.log('✅ Presupuesto creado:', quote.quote_number);
+    console.log('Presupuesto creado:', quote.quote_number);
+    if (window.planLimits) {
+      window.planLimits.recordInvoiceUsage().catch(function () {});
+    }
     return { success: true, data: quote };
   } catch (error) {
     console.error('Error in createQuote:', error);

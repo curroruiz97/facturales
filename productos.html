@@ -67,6 +67,12 @@
             <h3 class="text-base font-bold text-bgray-900 dark:text-white">Catálogo</h3>
           </div>
           <p class="mt-1 text-sm text-bgray-600 dark:text-bgray-50"><span id="products-count">0</span> productos registrados</p>
+          <p id="products-usage-badge" class="mt-0.5 hidden text-xs font-semibold">
+            <span id="products-usage-current" class="text-bgray-900 dark:text-white">0</span>
+            <span class="text-bgray-400">/</span>
+            <span id="products-usage-limit" class="text-bgray-500 dark:text-bgray-300">0</span>
+            <span class="text-bgray-500 dark:text-bgray-300">productos</span>
+          </p>
         </div>
 
         <!-- Search -->
@@ -284,6 +290,8 @@
     <script type="module" src="./assets/js/auth-guard.js"></script>
     <script src="./assets/js/user-header.js"></script>
     <script src="./assets/js/toast.js"></script>
+    <script src="./assets/js/subscription.js"></script>
+    <script src="./assets/js/plan-limits.js"></script>
     <script src="./assets/js/productos-db.js"></script>
     <script src="./assets/js/productos-page.js"></script>
     <script src="./assets/js/jquery-3.6.0.min.js"></script>

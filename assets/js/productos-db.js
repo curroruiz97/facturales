@@ -32,6 +32,13 @@ function calcMargen(precioCompra, precioVenta) {
 
 async function createProduct(data) {
   try {
+    if (window.planLimits) {
+      var limitCheck = await window.planLimits.canCreateProduct();
+      if (!limitCheck.allowed) {
+        throw new Error(limitCheck.reason);
+      }
+    }
+
     var supabase = getSupabaseForProducts();
     var { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) throw new Error('Usuario no autenticado.');

@@ -210,26 +210,48 @@
               await new Promise(function (r) { setTimeout(r, 100); });
               attempts++;
             }
-            if (!window.supabaseClient) return null;
+            if (!window.supabaseClient) {
+              console.warn('[billing] supabaseClient no disponible');
+              return null;
+            }
 
             var supabase = window.supabaseClient;
             var authResult = await supabase.auth.getUser();
-            if (!authResult.data || !authResult.data.user) return null;
+            if (!authResult.data || !authResult.data.user) {
+              console.warn('[billing] Usuario no autenticado');
+              return null;
+            }
 
             var userId = authResult.data.user.id;
+            console.log('[billing] Polling para user_id:', userId);
 
-            var result = await supabase
+            // Primero buscar cualquier fila del usuario (sin filtro de status)
+            var anyResult = await supabase
               .from('billing_subscriptions')
-              .select('status, plan, interval')
+              .select('status, plan, interval, stripe_subscription_id')
               .eq('user_id', userId)
-              .in('status', ACTIVE_STATUSES)
               .order('created_at', { ascending: false })
               .limit(1)
               .maybeSingle();
 
-            return result.data || null;
+            if (anyResult.error) {
+              console.error('[billing] Error en query:', anyResult.error.message, anyResult.error);
+              return null;
+            }
+
+            if (anyResult.data) {
+              console.log('[billing] Suscripción encontrada:', anyResult.data);
+              if (ACTIVE_STATUSES.indexOf(anyResult.data.status) !== -1) {
+                return anyResult.data;
+              }
+              console.log('[billing] Status actual:', anyResult.data.status, '(esperando:', ACTIVE_STATUSES.join('/'), ')');
+              return null;
+            }
+
+            console.log('[billing] Sin filas en billing_subscriptions para este usuario');
+            return null;
           } catch (err) {
-            console.error('Error checking subscription:', err);
+            console.error('[billing] Error checking subscription:', err);
             return null;
           }
         }

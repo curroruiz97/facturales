@@ -149,6 +149,33 @@ function updateClientsCount(count) {
   if (countElement) {
     countElement.textContent = count;
   }
+  updateClientsUsageBadge(count);
+}
+
+async function updateClientsUsageBadge(currentCount) {
+  var badge = document.getElementById('clients-usage-badge');
+  if (!badge) return;
+  if (!window.planLimits) { badge.classList.add('hidden'); return; }
+
+  try {
+    var check = await window.planLimits.canCreateClient();
+    var limitEl = document.getElementById('clients-usage-limit');
+    var currentEl = document.getElementById('clients-usage-current');
+    if (!limitEl || !currentEl) return;
+
+    var count = typeof currentCount === 'number' ? currentCount : check.current;
+    currentEl.textContent = count;
+    limitEl.textContent = window.planLimits.formatLimit(check.limit);
+
+    if (check.limit !== Infinity && count >= check.limit) {
+      currentEl.classList.add('text-error-300');
+      currentEl.classList.remove('text-bgray-900', 'dark:text-white');
+    } else {
+      currentEl.classList.remove('text-error-300');
+      currentEl.classList.add('text-bgray-900', 'dark:text-white');
+    }
+    badge.classList.remove('hidden');
+  } catch (_) {}
 }
 
 /**

@@ -19,6 +19,13 @@ const getSupabaseForClients = () => {
  */
 async function createClient(clientData) {
   try {
+    if (window.planLimits) {
+      var limitCheck = await window.planLimits.canCreateClient();
+      if (!limitCheck.allowed) {
+        throw new Error(limitCheck.reason);
+      }
+    }
+
     const supabase = getSupabaseForClients();
     
     // Obtener usuario autenticado para asignar user_id
@@ -461,6 +468,17 @@ async function importClientsBulk(validRows, options) {
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
     throw new Error('Usuario no autenticado. Por favor, inicia sesión.');
+  }
+
+  if (window.planLimits) {
+    var limitCheck = await window.planLimits.canCreateClient();
+    if (!limitCheck.allowed) {
+      throw new Error(limitCheck.reason);
+    }
+    var remaining = limitCheck.limit === Infinity ? Infinity : limitCheck.limit - limitCheck.current;
+    if (remaining !== Infinity && validRows.length > remaining) {
+      throw new Error('Solo puedes añadir ' + remaining + ' clientes más con tu plan actual (' + limitCheck.current + '/' + limitCheck.limit + ').');
+    }
   }
 
   let insertedCount = 0;

@@ -33,6 +33,13 @@ async function getSupabaseForInvoices() {
  */
 async function createInvoice(invoiceData, status = 'draft') {
   try {
+    if (window.planLimits) {
+      var limitCheck = await window.planLimits.canCreateInvoice();
+      if (!limitCheck.allowed) {
+        throw new Error(limitCheck.reason);
+      }
+    }
+
     const supabase = await getSupabaseForInvoices();
     
     // Obtener usuario autenticado
@@ -94,7 +101,10 @@ async function createInvoice(invoiceData, status = 'draft') {
       throw new Error(error.message || 'Error al crear la factura');
     }
     
-    console.log('✅ Factura creada:', invoice.invoice_number);
+    console.log('Factura creada:', invoice.invoice_number);
+    if (window.planLimits) {
+      window.planLimits.recordInvoiceUsage().catch(function () {});
+    }
     return { success: true, data: invoice };
   } catch (error) {
     console.error('Error in createInvoice:', error);

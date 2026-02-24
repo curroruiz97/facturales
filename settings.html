@@ -2761,6 +2761,56 @@
                         <button type="button" onclick="cancelSubscription()" id="pricing-cancel-btn" class="hidden rounded-lg border border-red-300 px-4 py-2 text-xs font-semibold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">Cancelar suscripci&oacute;n</button>
                       </div>
                     </div>
+
+                    <!-- Uso del plan -->
+                    <div id="plan-usage-section" class="mt-5 hidden rounded-xl border border-bgray-200 dark:border-darkblack-400 bg-white dark:bg-darkblack-600 p-5">
+                      <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-sm font-bold text-bgray-900 dark:text-white">Uso de tu plan</h4>
+                        <p id="usage-reset-date" class="text-[11px] text-bgray-500 dark:text-bgray-400"></p>
+                      </div>
+                      <div class="grid grid-cols-2 gap-4">
+                        <!-- Clientes -->
+                        <div>
+                          <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-xs font-medium text-bgray-600 dark:text-bgray-300">Clientes</span>
+                            <span class="text-xs font-bold text-bgray-900 dark:text-white"><span id="usage-clients-current">0</span> / <span id="usage-clients-limit">0</span></span>
+                          </div>
+                          <div class="w-full bg-bgray-200 dark:bg-darkblack-400 rounded-full h-1.5">
+                            <div id="usage-clients-bar" class="bg-success-300 h-1.5 rounded-full transition-all" style="width:0%"></div>
+                          </div>
+                        </div>
+                        <!-- Productos -->
+                        <div>
+                          <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-xs font-medium text-bgray-600 dark:text-bgray-300">Productos</span>
+                            <span class="text-xs font-bold text-bgray-900 dark:text-white"><span id="usage-products-current">0</span> / <span id="usage-products-limit">0</span></span>
+                          </div>
+                          <div class="w-full bg-bgray-200 dark:bg-darkblack-400 rounded-full h-1.5">
+                            <div id="usage-products-bar" class="bg-success-300 h-1.5 rounded-full transition-all" style="width:0%"></div>
+                          </div>
+                        </div>
+                        <!-- Facturas / Presupuestos -->
+                        <div>
+                          <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-xs font-medium text-bgray-600 dark:text-bgray-300">Facturas / Presup.</span>
+                            <span class="text-xs font-bold text-bgray-900 dark:text-white"><span id="usage-invoices-current">0</span> / <span id="usage-invoices-limit">0</span></span>
+                          </div>
+                          <div class="w-full bg-bgray-200 dark:bg-darkblack-400 rounded-full h-1.5">
+                            <div id="usage-invoices-bar" class="bg-success-300 h-1.5 rounded-full transition-all" style="width:0%"></div>
+                          </div>
+                        </div>
+                        <!-- OCR -->
+                        <div>
+                          <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-xs font-medium text-bgray-600 dark:text-bgray-300">Escaneos OCR</span>
+                            <span class="text-xs font-bold text-bgray-900 dark:text-white"><span id="usage-ocr-current">0</span> / <span id="usage-ocr-limit">0</span></span>
+                          </div>
+                          <div class="w-full bg-bgray-200 dark:bg-darkblack-400 rounded-full h-1.5">
+                            <div id="usage-ocr-bar" class="bg-success-300 h-1.5 rounded-full transition-all" style="width:0%"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -3152,6 +3202,8 @@
     <script type="module" src="./assets/js/auth-guard.js"></script>
     <script src="./assets/js/toast.js"></script>
     <script src="./assets/js/user-header.js"></script>
+    <script src="./assets/js/subscription.js"></script>
+    <script src="./assets/js/plan-limits.js"></script>
     <script src="./assets/js/invoice-series-db.js"></script>
 
     <!-- Sincronizar porcentaje de perfil con onboarding -->
@@ -4255,10 +4307,77 @@
           }
         }
 
+        async function loadPlanUsage() {
+          if (!window.planLimits) return;
+          try {
+            var data = await window.planLimits.getUsage();
+            if (!data) return;
+
+            var section = document.getElementById('plan-usage-section');
+            if (!section) return;
+            section.classList.remove('hidden');
+
+            var u = data.usage;
+            var l = data.limits;
+            var fmt = window.planLimits.formatLimit;
+
+            function fillBar(id, current, limit) {
+              var curEl = document.getElementById('usage-' + id + '-current');
+              var limEl = document.getElementById('usage-' + id + '-limit');
+              var barEl = document.getElementById('usage-' + id + '-bar');
+              if (!curEl || !limEl || !barEl) return;
+
+              curEl.textContent = current;
+              limEl.textContent = fmt(limit);
+
+              var pct = limit === Infinity ? 2 : Math.min((current / limit) * 100, 100);
+              barEl.style.width = pct + '%';
+
+              if (limit !== Infinity && current >= limit) {
+                barEl.classList.remove('bg-success-300');
+                barEl.classList.add('bg-error-300');
+              } else if (limit !== Infinity && current >= limit * 0.8) {
+                barEl.classList.remove('bg-success-300');
+                barEl.classList.add('bg-warning-300');
+              } else {
+                barEl.classList.remove('bg-error-300', 'bg-warning-300');
+                barEl.classList.add('bg-success-300');
+              }
+            }
+
+            fillBar('clients', u.clients, l.clients);
+            fillBar('products', u.products, l.products);
+            fillBar('invoices', u.invoices_month, l.invoices_month);
+            fillBar('ocr', u.ocr_month, l.ocr_month);
+
+            // Fecha de reinicio
+            var resetEl = document.getElementById('usage-reset-date');
+            if (resetEl) {
+              var sub = window.subscriptionHelper ? await window.subscriptionHelper.getCurrentSubscription() : null;
+              if (sub && sub.current_period_end) {
+                var d = new Date(sub.current_period_end);
+                var opts = { day: 'numeric', month: 'long', year: 'numeric' };
+                resetEl.textContent = 'Se reinicia el ' + d.toLocaleDateString('es-ES', opts);
+              } else {
+                var now = new Date();
+                var nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+                var opts2 = { day: 'numeric', month: 'long', year: 'numeric' };
+                resetEl.textContent = 'Se reinicia el ' + nextMonth.toLocaleDateString('es-ES', opts2);
+              }
+            }
+          } catch (e) {
+            console.error('Error loading plan usage:', e);
+          }
+        }
+
         if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', function() { setTimeout(loadCurrentPlan, 2000); });
+          document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(loadCurrentPlan, 2000);
+            setTimeout(loadPlanUsage, 2500);
+          });
         } else {
           setTimeout(loadCurrentPlan, 2000);
+          setTimeout(loadPlanUsage, 2500);
         }
       })();
     </script>

@@ -162,6 +162,14 @@
     var user = authResult.data.user;
     if (!user) { toast("Inicia sesión primero", "error"); return; }
 
+    if (window.planLimits) {
+      var ocrCheck = await window.planLimits.canScanOCR();
+      if (!ocrCheck.allowed) {
+        toast(ocrCheck.reason, "error");
+        return;
+      }
+    }
+
     $("ocr-scan-btn").disabled = true;
     $("ocr-scan-text").textContent = "Analizando...";
     $("ocr-progress").classList.remove("hidden");
@@ -209,6 +217,9 @@
       showPanel("results");
       setStep(2);
       toast("Documento analizado correctamente", "success");
+      if (window.planLimits) {
+        window.planLimits.recordOCRUsage().catch(function () {});
+      }
     } catch (err) {
       console.error("OCR error:", err);
       toast(err.message || "Error al escanear", "error");

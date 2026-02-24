@@ -30,6 +30,12 @@
     <div>
       <h2 class="text-2xl font-bold text-bgray-900 dark:text-white">Contactos</h2>
       <p class="text-sm text-bgray-600 dark:text-bgray-50">Gestiona tus clientes recurrentes</p>
+      <p id="clients-usage-badge" class="mt-1 hidden text-xs font-semibold">
+        <span id="clients-usage-current" class="text-bgray-900 dark:text-white">0</span>
+        <span class="text-bgray-400">/</span>
+        <span id="clients-usage-limit" class="text-bgray-500 dark:text-bgray-300">0</span>
+        <span class="text-bgray-500 dark:text-bgray-300">clientes</span>
+      </p>
     </div>
 
     <div class="flex items-center gap-3">
@@ -575,6 +581,8 @@
 <script type="module" src="./assets/js/clients.js"></script>
 <script src="./assets/js/csv-import.js"></script>
 <script src="./assets/js/modal-cliente.js"></script>
+<script src="./assets/js/subscription.js"></script>
+<script src="./assets/js/plan-limits.js"></script>
 <script src="./assets/js/users-page.js"></script>
 
 <script src="./assets/js/jquery-3.6.0.min.js"></script>
