@@ -12,111 +12,59 @@
     <link rel="stylesheet" href="./assets/css/aos.css" />
     <link rel="stylesheet" href="./assets/css/output.css" />
     <link rel="stylesheet" href="./assets/css/style.css" />
+    <style>
+      html{height:100%;}
+      body{height:100%;margin:0;}
+      .signin-page{display:flex;flex-direction:column;height:100dvh;height:100vh;}
+      @supports(height:100dvh){.signin-page{height:100dvh;}}
+      .signin-left{display:flex;flex-direction:column;height:100%;padding:clamp(12px,2vh,24px) 20px clamp(8px,1.5vh,16px);}
+      @media(min-width:1280px){.signin-left{padding-left:48px;}}
+      .signin-form-wrap{display:flex;flex-direction:column;justify-content:center;flex:1;max-width:450px;width:100%;margin:0 auto;gap:clamp(10px,1.5vh,20px);}
+      .signin-form-wrap header{text-align:center;}
+      .signin-form-wrap h2{font-size:clamp(1.4rem,3vh,2.25rem);margin-bottom:clamp(2px,0.4vh,8px);}
+      .signin-form-wrap .si-sub{font-size:clamp(0.8rem,1.5vh,1rem);}
+      .si-input{height:clamp(42px,5.5vh,56px);font-size:clamp(0.8rem,1.5vh,1rem);border-radius:8px;padding:0 16px;}
+      .si-btn{height:clamp(42px,5.5vh,56px);font-size:clamp(0.8rem,1.5vh,1rem);border-radius:8px;}
+      .si-footer{margin-top:auto;text-align:center;flex-shrink:0;padding-top:clamp(4px,0.8vh,12px);}
+      .si-footer nav{display:flex;justify-content:center;gap:24px;padding-top:clamp(4px,0.6vh,8px);}
+      .si-footer nav a,.si-footer p{font-size:clamp(0.7rem,1.2vh,0.8125rem);}
+      .si-footer p{margin-top:clamp(2px,0.4vh,6px);padding-bottom:clamp(4px,0.8vh,12px);}
+    </style>
   </head>
   <body>
-    <section class="bg-white dark:bg-darkblack-500">
-      <div class="flex flex-col lg:flex-row justify-between min-h-screen">
+    <section class="bg-white dark:bg-darkblack-500 signin-page">
+      <div class="flex flex-col lg:flex-row flex-1 min-h-0">
         <!-- Left -->
-        <div class="lg:w-1/2 px-5 xl:pl-12 pt-10">
-          <header>
-            <a href="index.html" class="">
+        <div class="lg:w-1/2 signin-left">
+          <header class="flex-shrink-0">
+            <a href="index.html">
               <img src="assets/images/logo/logo-color.svg" class="block dark:hidden" alt="Logo" />
               <img src="assets/images/logo/logo-white.svg" class="hidden dark:block" alt="Logo" />
             </a>
           </header>
-          <div class="max-w-[450px] m-auto pt-24 pb-16">
-            <header class="text-center mb-8">
-              <h2
-                class="text-bgray-900 dark:text-white text-4xl font-semibold font-poppins mb-2"
-              >
-                Inicia sesión en Facturales.
-              </h2>
-              <p class="font-urbanis text-base font-medium text-bgray-600 dark:text-bgray-50">
-                Envía, gasta y ahorra de forma inteligente
-              </p>
+          <div class="signin-form-wrap">
+            <header>
+              <h2 class="text-bgray-900 dark:text-white font-semibold font-poppins">Inicia sesión en Facturales.</h2>
+              <p class="si-sub font-medium text-bgray-600 dark:text-bgray-50">Envía, gasta y ahorra de forma inteligente</p>
             </header>
-            <div class="flex flex-col md:flex-row gap-4">
-              <a
-                href="#"
-                class="inline-flex justify-center items-center gap-x-2 border border-bgray-300 dark:border-darkblack-400 rounded-lg px-6 py-4 text-base text-bgray-900 dark:text-white font-medium"
-              >
-                <svg
-                  width="23"
-                  height="22"
-                  viewBox="0 0 23 22"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M20.8758 11.2137C20.8758 10.4224 20.8103 9.84485 20.6685 9.24597H11.4473V12.8179H16.8599C16.7508 13.7055 16.1615 15.0424 14.852 15.9406L14.8336 16.0602L17.7492 18.2737L17.9512 18.2935C19.8063 16.6144 20.8758 14.144 20.8758 11.2137Z"
-                    fill="#4285F4"
-                  />
-                  <path
-                    d="M11.4467 20.625C14.0984 20.625 16.3245 19.7694 17.9506 18.2936L14.8514 15.9408C14.022 16.5076 12.9089 16.9033 11.4467 16.9033C8.84946 16.9033 6.64512 15.2243 5.85933 12.9036L5.74415 12.9131L2.7125 15.2125L2.67285 15.3205C4.28791 18.4647 7.60536 20.625 11.4467 20.625Z"
-                    fill="#34A853"
-                  />
-                  <path
-                    d="M5.86006 12.9036C5.65272 12.3047 5.53273 11.663 5.53273 11C5.53273 10.3369 5.65272 9.69524 5.84915 9.09636L5.84366 8.96881L2.774 6.63257L2.67357 6.67938C2.00792 7.98412 1.62598 9.44929 1.62598 11C1.62598 12.5507 2.00792 14.0158 2.67357 15.3205L5.86006 12.9036Z"
-                    fill="#FBBC05"
-                  />
-                  <path
-                    d="M11.4467 5.09664C13.2909 5.09664 14.5349 5.87733 15.2443 6.52974L18.0161 3.8775C16.3138 2.32681 14.0985 1.375 11.4467 1.375C7.60539 1.375 4.28792 3.53526 2.67285 6.6794L5.84844 9.09638C6.64514 6.77569 8.84949 5.09664 11.4467 5.09664Z"
-                    fill="#EB4335"
-                  />
-                </svg>
-                <span> Iniciar sesión con Google </span> </a
-              >
-              <a
-                href="#"
-                class="inline-flex justify-center items-center gap-x-2 border border-bgray-300 dark:border-darkblack-400 rounded-lg px-6 py-4 text-base text-bgray-900 dark:text-white font-medium"
-              >
-                <svg
-                  class="fill-bgray-900 dark:fill-white"
-                  width="21"
-                  height="22"
-                  viewBox="0 0 21 22"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M19.8744 7.50391C19.7653 7.56519 17.1672 8.85841 17.1672 11.7258C17.2897 14.9959 20.4459 16.1427 20.5 16.1427C20.4459 16.2039 20.0235 17.7049 18.7724 19.2783C17.7795 20.6336 16.6775 22 15.004 22C13.4121 22 12.8407 21.0967 11.004 21.0967C9.03147 21.0967 8.47335 22 6.96314 22C5.28967 22 4.10599 20.5603 3.05896 19.2178C1.69871 17.4606 0.54254 14.703 0.501723 12.0553C0.474217 10.6522 0.774128 9.27304 1.53544 8.10158C2.60998 6.46614 4.52835 5.35595 6.6233 5.31935C8.22845 5.2708 9.65703 6.30777 10.6366 6.30777C11.5754 6.30777 13.3305 5.31935 15.3163 5.31935C16.1735 5.32014 18.4592 5.55173 19.8744 7.50391ZM10.5009 5.03921C10.2151 3.75792 11.004 2.47663 11.7387 1.65931C12.6774 0.670887 14.1601 0 15.4388 0C15.5204 1.28129 15.0031 2.53791 14.0785 3.45312C13.2489 4.44154 11.8203 5.18565 10.5009 5.03921Z"
-                   
-                  />
-                </svg>
-                <span> Iniciar sesión con Apple </span>
-              </a>
+            <a href="#" class="si-btn inline-flex w-full justify-center items-center gap-x-2 border border-bgray-300 dark:border-darkblack-400 text-bgray-900 dark:text-white font-medium" style="border-radius:8px;">
+              <svg width="20" height="20" viewBox="0 0 23 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20.8758 11.2137C20.8758 10.4224 20.8103 9.84485 20.6685 9.24597H11.4473V12.8179H16.8599C16.7508 13.7055 16.1615 15.0424 14.852 15.9406L14.8336 16.0602L17.7492 18.2737L17.9512 18.2935C19.8063 16.6144 20.8758 14.144 20.8758 11.2137Z" fill="#4285F4"/>
+                <path d="M11.4467 20.625C14.0984 20.625 16.3245 19.7694 17.9506 18.2936L14.8514 15.9408C14.022 16.5076 12.9089 16.9033 11.4467 16.9033C8.84946 16.9033 6.64512 15.2243 5.85933 12.9036L5.74415 12.9131L2.7125 15.2125L2.67285 15.3205C4.28791 18.4647 7.60536 20.625 11.4467 20.625Z" fill="#34A853"/>
+                <path d="M5.86006 12.9036C5.65272 12.3047 5.53273 11.663 5.53273 11C5.53273 10.3369 5.65272 9.69524 5.84915 9.09636L5.84366 8.96881L2.774 6.63257L2.67357 6.67938C2.00792 7.98412 1.62598 9.44929 1.62598 11C1.62598 12.5507 2.00792 14.0158 2.67357 15.3205L5.86006 12.9036Z" fill="#FBBC05"/>
+                <path d="M11.4467 5.09664C13.2909 5.09664 14.5349 5.87733 15.2443 6.52974L18.0161 3.8775C16.3138 2.32681 14.0985 1.375 11.4467 1.375C7.60539 1.375 4.28792 3.53526 2.67285 6.6794L5.84844 9.09638C6.64514 6.77569 8.84949 5.09664 11.4467 5.09664Z" fill="#EB4335"/>
+              </svg>
+              <span>Iniciar sesión con Google</span>
+            </a>
+            <div class="relative" style="margin:clamp(2px,0.3vh,4px) 0;">
+              <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-300 dark:border-darkblack-400"></div></div>
+              <div class="relative flex justify-center"><span class="bg-white dark:bg-darkblack-500 px-2 text-bgray-600" style="font-size:clamp(0.75rem,1.3vh,0.875rem);">O continúa con</span></div>
             </div>
-            <div class="relative mt-6 mb-5">
-              <div class="absolute inset-0 flex items-center">
-                <div class="w-full border-t border-gray-300 dark:border-darkblack-400"></div>
-              </div>
-              <div class="relative flex justify-center text-sm">
-                <span class="bg-white dark:bg-darkblack-500 px-2 text-base text-bgray-600"
-                  >O continúa con</span
-                >
-              </div>
-            </div>
-            <form id="signin-form">
-              <div class="mb-4">
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  required
-                  class="text-bgray-800 text-base border border-bgray-300 dark:border-darkblack-400 dark:bg-darkblack-500 dark:text-white h-14 w-full focus:border-success-300 focus:ring-0 rounded-lg px-4 py-3.5 placeholder:text-bgray-500 placeholder:text-base"
-                  placeholder="Correo electrónico"
-                />
-              </div>
-              <div class="mb-6 relative">
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  required
-                  class="text-bgray-800 text-base border border-bgray-300 dark:border-darkblack-400 dark:bg-darkblack-500 dark:text-white h-14 w-full focus:border-success-300 focus:ring-0 rounded-lg px-4 py-3.5 placeholder:text-bgray-500 placeholder:text-base"
-                  placeholder="Contraseña"
-                />
-                <button type="button" id="toggle-signin-password" class="absolute top-4 right-4 bottom-4">
+            <form id="signin-form" style="display:flex;flex-direction:column;gap:clamp(8px,1.2vh,16px);">
+              <input type="email" id="email" name="email" required class="si-input text-bgray-800 border border-bgray-300 dark:border-darkblack-400 dark:bg-darkblack-500 dark:text-white w-full focus:border-success-300 focus:ring-0 placeholder:text-bgray-500" placeholder="Correo electrónico" />
+              <div class="relative">
+                <input type="password" id="password" name="password" required class="si-input text-bgray-800 border border-bgray-300 dark:border-darkblack-400 dark:bg-darkblack-500 dark:text-white w-full focus:border-success-300 focus:ring-0 placeholder:text-bgray-500 pr-12" placeholder="Contraseña" />
+                <button type="button" id="toggle-signin-password" style="position:absolute;top:50%;right:16px;transform:translateY(-50%);padding:0;line-height:0;">
                   <svg
                     id="eye-off-signin-password"
                     width="22"
@@ -173,54 +121,29 @@
                   </svg>
                 </button>
               </div>
-              <div class="flex justify-between mb-7">
-                <div class="flex items-center space-x-3">
-                  <input
-                    type="checkbox"
-                    class="w-5 h-5 dark:bg-darkblack-500 focus:ring-transparent rounded-full border border-bgray-300 focus:accent-success-300 text-success-300"
-                    name="remember"
-                    id="remember"
-                  />
-                  <label
-                    for="remember"
-                    class="text-bgray-900 dark:text-white text-base font-semibold"
-                    >Recordarme</label
-                  >
+              <div class="flex justify-between items-center" style="font-size:clamp(0.8rem,1.3vh,0.9375rem);">
+                <div class="flex items-center space-x-2">
+                  <input type="checkbox" class="w-4 h-4 dark:bg-darkblack-500 focus:ring-transparent rounded-full border border-bgray-300 focus:accent-success-300 text-success-300" name="remember" id="remember" />
+                  <label for="remember" class="text-bgray-900 dark:text-white font-semibold">Recordarme</label>
                 </div>
-                <div>
-                  <a
-                    href="#"
-                    data-target="#multi-step-modal"
-                    class="modal-open text-success-300 font-semibold text-base underline"
-                    >¿Olvidaste tu contraseña?</a
-                  >
-                </div>
+                <a href="#" data-target="#multi-step-modal" class="modal-open text-success-300 font-semibold underline">¿Olvidaste tu contraseña?</a>
               </div>
-              <div id="error-message" class="hidden mb-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 rounded-lg text-sm"></div>
-              <div id="success-message" class="hidden mb-4 p-3 bg-green-100 dark:bg-green-900/30 border border-green-400 dark:border-green-800 text-green-700 dark:text-green-300 rounded-lg text-sm"></div>
-              <button
-                type="submit"
-                id="signin-button"
-                class="py-3.5 flex items-center justify-center text-white font-bold bg-success-300 hover:bg-success-400 transition-all rounded-lg w-full"
-              >
-                Iniciar sesión
-              </button>
+              <div id="error-message" class="hidden p-3 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 rounded-lg text-sm font-medium"></div>
+              <div id="success-message" class="hidden p-3 bg-green-100 dark:bg-green-900/30 border border-green-400 dark:border-green-800 text-green-700 dark:text-green-300 rounded-lg text-sm font-medium"></div>
+              <button type="submit" id="signin-button" class="si-btn flex items-center justify-center text-white font-bold bg-success-300 hover:bg-success-400 transition-all w-full">Iniciar sesión</button>
             </form>
-            <p class="text-center text-bgray-900 dark:text-bgray-50 text-base font-medium pt-7">
+            <p class="text-center text-bgray-900 dark:text-bgray-50 font-medium" style="font-size:clamp(0.8rem,1.3vh,0.9375rem);padding-top:clamp(6px,1vh,16px);">
               ¿No tienes una cuenta?
               <a href="signup.html" class="font-semibold underline">Regístrate</a>
             </p>
-            <nav
-              class="flex items-center justify-center flex-wrap gap-x-11 pt-24"
-            >
-              <a href="#" class="text-sm text-bgray-700 dark:text-white">Términos y condiciones</a>
-              <a href="#" class="text-sm text-bgray-700 dark:text-white">Política de privacidad</a>
-              <a href="#" class="text-sm text-bgray-700 dark:text-white">Ayuda</a>
-              <a href="#" class="text-sm text-bgray-700 dark:text-white">Español</a>
+          </div>
+          <div class="si-footer flex-shrink-0">
+            <nav>
+              <a href="#" class="text-bgray-700 dark:text-bgray-50" style="white-space:nowrap;">Términos y condiciones</a>
+              <a href="#" class="text-bgray-700 dark:text-bgray-50" style="white-space:nowrap;">Política de privacidad</a>
+              <a href="#" class="text-bgray-700 dark:text-bgray-50" style="white-space:nowrap;">Ayuda</a>
             </nav>
-            <p class="text-bgray-600 dark:text-white text-center text-sm mt-6">
-              © 2023 Facturales. Todos los derechos reservados.
-            </p>
+            <p class="text-bgray-600 dark:text-darkblack-300">© 2026 Facturales. Todos los derechos reservados.</p>
           </div>
         </div>
         <!-- Divider -->
@@ -450,16 +373,6 @@
           </div>
           </div>
 
-          <div class="relative z-10" style="margin-top:12px;">
-            <div class="text-center max-w-lg px-4 m-auto">
-              <h3 class="text-bgray-900 dark:text-white font-semibold font-popins text-2xl xl:text-3xl mb-2">
-                Facturaci&oacute;n simple y r&aacute;pida
-              </h3>
-              <p class="text-bgray-600 dark:text-bgray-50 text-xs font-medium leading-relaxed">
-                Crea facturas, gestiona presupuestos y controla tus finanzas en un solo lugar.
-              </p>
-            </div>
-          </div>
 
           <script>
           (function() {

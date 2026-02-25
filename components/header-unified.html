@@ -44,8 +44,13 @@
     <!--              search-bar-->
     <div class="searchbar-wrapper">
       <div
-        class="px flex h-[56px] w-[300px] items-center rounded-lg border border-transparent bg-bgray-50 px-4 focus-within:border-success-300 dark:bg-darkblack-500 lg:w-[400px]"
+        class="flex h-[56px] w-[300px] items-center gap-3 rounded-lg border bg-bgray-50 px-4 focus-within:border-success-300 dark:bg-darkblack-500 dark:border-darkblack-400 lg:w-[400px]"
+        style="border-color:rgba(0,0,0,0.12);"
       >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" class="flex-shrink-0" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="11" cy="11" r="7" stroke="#A0AEC0" stroke-width="2"/>
+          <path d="M20 20L16.65 16.65" stroke="#A0AEC0" stroke-width="2" stroke-linecap="round"/>
+        </svg>
         <label for="search" class="w-full">
           <input
             type="text"
@@ -153,6 +158,7 @@
             type="button"
             id="message-btn"
             class="relative flex h-[52px] w-[52px] items-center justify-center rounded-[12px] border border-success-300 dark:border-darkblack-400"
+            style="display:none"
           >
             <span
               class="absolute -right-[5px] -top-[2px] h-3.5 w-3.5 rounded-full border-2 border-white bg-error-300 dark:border-none"
@@ -177,6 +183,7 @@
             type="button"
             id="store-btn"
             class="relative flex h-[52px] w-[52px] items-center justify-center rounded-[12px] border border-success-300 dark:border-darkblack-400"
+            style="display:none"
           >
             <span
               class="absolute -right-[5px] -top-[2px] h-3.5 w-3.5 rounded-full border-2 border-white bg-bgray-300 dark:border-none dark:bg-bgray-600"
@@ -487,11 +494,11 @@
           >
             <path
               d="M0 10C0 4.47715 4.47715 0 10 0H16V40H10C4.47715 40 0 35.5228 0 30V10Z"
-              fill="#F7F7F7"
+              fill="#EC8228"
             />
             <path
               d="M10 15L6 20.0049L10 25.0098"
-              stroke="#A0AEC0"
+              stroke="#ffffff"
               stroke-width="1.2"
               stroke-linecap="round"
               stroke-linejoin="round"
