@@ -16,7 +16,7 @@ let currentFilters = {
   maxAmount: null,
   startDate: null,
   endDate: null,
-  tipo: null,
+  tipo: 'gasto',
   categoria: null
 };
 
@@ -672,7 +672,7 @@ function handleTypeFilter(tipo) {
   if (label) {
     if (tipo === 'ingreso') label.textContent = 'Ingreso';
     else if (tipo === 'gasto') label.textContent = 'Gasto';
-    else label.textContent = 'Tipo de transacci\u00f3n';
+    else label.textContent = 'Todos';
   }
 
   closeAllFilterDropdowns();
@@ -747,7 +747,7 @@ function clearFilters() {
     maxAmount: null,
     startDate: null,
     endDate: null,
-    tipo: null,
+    tipo: 'gasto',
     categoria: null
   };
 
@@ -755,7 +755,7 @@ function clearFilters() {
   if (catLabel) catLabel.textContent = 'Todas las categor\u00edas';
 
   var typeLabel = document.getElementById('type-filter-label');
-  if (typeLabel) typeLabel.textContent = 'Tipo de transacci\u00f3n';
+  if (typeLabel) typeLabel.textContent = 'Gasto';
 
   var priceDisplay = document.getElementById('priceRangeDisplay');
   if (priceDisplay) priceDisplay.textContent = 'Seleccionar rango';
@@ -1083,6 +1083,12 @@ window.goToPage = goToPage;
 window.setResultsPerPage = setResultsPerPage;
 window.updatePagination = updatePagination;
 window.toggleExpensesPerPageDropdown = toggleExpensesPerPageDropdown;
+
+function toggleExpensesFilters() {
+  var panel = document.getElementById('expenses-filters-panel');
+  if (panel) panel.classList.toggle('hidden');
+}
+window.toggleExpensesFilters = toggleExpensesFilters;
 
 // Cargar transacciones al iniciar la página
 document.addEventListener('DOMContentLoaded', () => {

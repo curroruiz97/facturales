@@ -129,6 +129,7 @@
             id="notification-btn"
             type="button"
             class="relative flex h-[52px] w-[52px] items-center justify-center rounded-[12px] border border-success-300 dark:border-darkblack-400"
+            style="display:none"
           >
             <span
               class="absolute -right-[5px] -top-[2px] h-3.5 w-3.5 rounded-full border-2 border-white bg-bgray-300 dark:border-none dark:bg-bgray-600"
@@ -247,7 +248,7 @@
         </div>
       </div>
       <!--                notification ,message, store-->
-      <div class="notification-popup-wrapper">
+      <div class="notification-popup-wrapper" style="display:none">
         <div
           onclick="notificationAction()"
           id="noti-outside"

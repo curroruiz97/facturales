@@ -41,6 +41,12 @@ function initLayoutHandlers() {
   
   // Reinicializar sub-menús del sidebar
   navSubmenu();
+
+  // Mark active sidebar item based on current URL
+  highlightActiveSidebarItem();
+
+  // Sidebar flyout hover behaviour
+  initSidebarFlyouts();
   
   console.log('✅ Event handlers inicializados');
 }
@@ -299,6 +305,62 @@ function navSubmenu() {
     return false;
   }
 }
+function highlightActiveSidebarItem() {
+  var path = window.location.pathname.replace(/\/$/, '') || '/index.html';
+  var items = document.querySelectorAll('.sidebar-wrapper .item a[href]');
+  items.forEach(function(link) {
+    var href = link.getAttribute('href').replace(/\/$/, '');
+    var li = link.closest('li.item');
+    if (!li) return;
+    if (path === href || path.endsWith(href)) {
+      li.classList.add('active');
+      var subMenu = li.querySelector('.sub-menu');
+      if (subMenu) subMenu.classList.add('active');
+    }
+  });
+}
+
+function initSidebarFlyouts() {
+  var items = document.querySelectorAll('li.item');
+  items.forEach(function(li) {
+    var flyout = li.querySelector('.sidebar-flyout');
+    if (!flyout) return;
+
+    var hideTimer = null;
+
+    function showFlyout() {
+      clearTimeout(hideTimer);
+      var subMenu = li.querySelector('.sub-menu');
+      if (subMenu && subMenu.classList.contains('active')) return;
+
+      flyout.style.left = '-9999px';
+      flyout.style.top = '0';
+      flyout.classList.add('flyout-visible');
+
+      var rect = li.getBoundingClientRect();
+      var aside = li.closest('aside');
+      var asideRect = aside ? aside.getBoundingClientRect() : rect;
+      var fh = flyout.offsetHeight;
+      var top = rect.top + rect.height / 2 - fh / 2;
+      top = Math.max(8, Math.min(top, window.innerHeight - fh - 8));
+
+      flyout.style.left = (asideRect.right + 4) + 'px';
+      flyout.style.top = top + 'px';
+    }
+
+    function hideFlyout() {
+      hideTimer = setTimeout(function() {
+        flyout.classList.remove('flyout-visible');
+      }, 80);
+    }
+
+    li.addEventListener('mouseenter', showFlyout);
+    li.addEventListener('mouseleave', hideFlyout);
+    flyout.addEventListener('mouseenter', function() { clearTimeout(hideTimer); });
+    flyout.addEventListener('mouseleave', hideFlyout);
+  });
+}
+
 // navSubmenu() ahora se llama desde initLayoutHandlers() después de cargar componentes
 
 // function initModeSetting() {

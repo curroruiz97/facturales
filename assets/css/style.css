@@ -560,6 +560,45 @@ button.fc-button.fc-button-primary.fc-prev-button {
 .sidebar-wrapper .sidebar-body .nav-wrapper ul li.item .sub-menu.active {
   display: block;
 }
+
+/* ─── Sidebar hover flyout ─── */
+.sidebar-flyout {
+  display: none;
+  position: fixed;
+  min-width: 190px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  padding: 8px 0;
+  z-index: 9999;
+  white-space: nowrap;
+}
+.sidebar-flyout.flyout-visible {
+  display: block;
+}
+.dark .sidebar-flyout {
+  background: var(--dm-elevated, #222228);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,255,255,0.07);
+}
+.sidebar-flyout a {
+  display: block;
+  padding: 8px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #4a5568;
+  transition: all 0.15s;
+}
+.sidebar-flyout a:hover {
+  background: #f7f7f7;
+  color: #1a202c;
+}
+.dark .sidebar-flyout a {
+  color: #8b8fa3;
+}
+.dark .sidebar-flyout a:hover {
+  background: rgba(255,255,255,0.06);
+  color: #e2e4e9;
+}
 @keyframes tabFade {
   0% {
     opacity: 0;
@@ -572,23 +611,8 @@ button.fc-button.fc-button-primary.fc-prev-button {
   position: relative;
 }
 
-.sidebar-wrapper-collapse .sidebar-body .nav-wrapper ul li.item .sub-menu {
-  position: absolute;
-  left: 100%;
-  top: 0;
-  z-index: 10;
-  display: none;
-}
-.sidebar-wrapper-collapse
-  .sidebar-body
-  .nav-wrapper
-  ul
-  li.item:hover
-  .sub-menu {
-  display: block;
-}
-
 /* TODO: ===============RESPONSIVE */
+/* Dark sidebar — inactive items: muted, not pure white */
 :is(.dark .sidebar-wrapper, .dark .sidebar-wrapper-collapse)
 .sidebar-body
 .item-wrapper
@@ -602,8 +626,8 @@ svg
 .item-wrapper
 ul
 li.item {
-  fill: #FFFFFF;
-  color: #FFFFFF;
+  fill: var(--dm-text-secondary);
+  color: var(--dm-text-secondary);
 }
 :is(.dark .sidebar-wrapper, .dark .sidebar-wrapper-collapse)
 .sidebar-body
@@ -618,8 +642,8 @@ svg
 .item-wrapper
 ul
 li.item:hover {
-  fill: #ec8228;
-  color: #ec8228;
+  fill: var(--dm-text-primary);
+  color: var(--dm-text-primary);
 }
 :is(.dark .sidebar-wrapper, .dark .sidebar-wrapper-collapse)
 .sidebar-body
@@ -631,6 +655,54 @@ svg
 .path-2 {
   fill: #FFFFFF;
   stroke: #FFFFFF;
+}
+
+/* Dark sidebar — active item: background highlight + left indicator */
+:is(.dark .sidebar-wrapper, .dark .sidebar-wrapper-collapse)
+.sidebar-body
+.item-wrapper
+ul
+li.item.active {
+  color: var(--dm-text-primary) !important;
+  fill: var(--dm-text-primary) !important;
+  background-color: var(--dm-selected);
+  border-radius: 8px;
+  margin-left: -8px;
+  margin-right: -8px;
+  padding-left: 8px;
+  padding-right: 8px;
+  position: relative;
+}
+:is(.dark .sidebar-wrapper, .dark .sidebar-wrapper-collapse)
+.sidebar-body
+.item-wrapper
+ul
+li.item.active::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 25%;
+  bottom: 25%;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--fd-brand);
+}
+:is(.dark .sidebar-wrapper, .dark .sidebar-wrapper-collapse)
+.sidebar-body
+.item-wrapper
+ul
+li.item.active .item-ico svg .path-1 {
+  fill: var(--dm-text-primary) !important;
+}
+
+/* Dark sidebar background: slightly darker than surface */
+.dark .sidebar-wrapper,
+.dark .sidebar-wrapper-collapse {
+  background-color: var(--dm-surface) !important;
+  border-right: 1px solid var(--dm-border);
+}
+.dark .sidebar-header {
+  border-color: var(--dm-border) !important;
 }
 @media (max-width: 1536px) {
 }
@@ -904,6 +976,107 @@ svg
 :root{
   --fd-brand: #ec8228;
   --fd-brand-soft: #FFEDD5;
+
+  /* ─── Dark-mode design tokens ─── */
+  --dm-app:       #131316;
+  --dm-surface:   #1a1a1f;
+  --dm-elevated:  #222228;
+  --dm-border:    rgba(255,255,255,0.07);
+  --dm-border-strong: rgba(255,255,255,0.12);
+  --dm-text-primary:  #e2e4e9;
+  --dm-text-secondary:#8b8fa3;
+  --dm-text-disabled: #4e5264;
+  --dm-hover:     rgba(255,255,255,0.04);
+  --dm-selected:  rgba(255,255,255,0.07);
+  --dm-focus-ring: rgba(236,130,40,0.45);
+}
+
+/* ─── Dark-mode global overrides ─── */
+
+/* App-level background */
+html.dark{ background: var(--dm-app); }
+.dark .body-wrapper{ background-color: var(--dm-app); }
+
+/* Surface cards (override the ad-hoc darkblack-600) */
+.dark .dm-surface,
+.dark .rounded-lg.dark\:bg-darkblack-600{
+  background-color: var(--dm-surface) !important;
+  box-shadow: inset 0 0 0 1px var(--dm-border);
+}
+
+/* Elevated elements (dropdowns, modals, popovers) */
+.dark .dm-elevated{
+  background-color: var(--dm-elevated);
+  box-shadow: inset 0 0 0 1px var(--dm-border);
+}
+
+/* ─── Text hierarchy ─── */
+.dark .dm-text-primary{ color: var(--dm-text-primary); }
+.dark .dm-text-secondary{ color: var(--dm-text-secondary); }
+.dark .dm-text-disabled{ color: var(--dm-text-disabled); }
+
+/* Soften pure-white text globally in dark mode */
+.dark [class*="dark:text-white"]{
+  color: var(--dm-text-primary);
+}
+
+/* Secondary text: labels, descriptions, table headers */
+.dark .text-bgray-600,
+.dark .text-bgray-700,
+.dark [class*="dark:text-bgray-50"]{
+  color: var(--dm-text-secondary);
+}
+
+/* ─── Hover / focus / selected states ─── */
+.dark .dm-hover:hover,
+.dark .rounded-lg:hover > .dark\:bg-darkblack-600{
+  background-color: var(--dm-elevated);
+}
+
+/* Focus ring for inputs & buttons in dark mode */
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus{
+  border-color: var(--fd-brand) !important;
+  box-shadow: 0 0 0 2px var(--dm-focus-ring) !important;
+}
+
+/* Ghost buttons consistent hover */
+.dark button:not([style*="background"]):not(.bg-success-300):hover{
+  background-color: var(--dm-hover);
+}
+
+/* Borders: make all dark borders use the token */
+.dark [class*="dark:border-darkblack-400"]{
+  border-color: var(--dm-border-strong) !important;
+}
+.dark .border-bgray-300{
+  border-color: var(--dm-border);
+}
+.dark .border-bgray-200{
+  border-color: var(--dm-border);
+}
+
+/* Inputs in dark mode: elevated layer */
+.dark input[class*="dark:bg-darkblack-500"],
+.dark select[class*="dark:bg-darkblack-500"],
+.dark textarea[class*="dark:bg-darkblack-500"]{
+  background-color: var(--dm-elevated) !important;
+}
+
+/* Header: surface layer with bottom border */
+.dark .header-wrapper [class*="dark:bg-darkblack-600"]{
+  background-color: var(--dm-surface) !important;
+  border-bottom: 1px solid var(--dm-border);
+}
+
+/* Dropdowns and popovers */
+.dark .profile-box,
+.dark [id$="-filter-body"],
+.dark [id$="-filter"],
+.dark [id$="-dropdown"]{
+  background-color: var(--dm-elevated) !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4), inset 0 0 0 1px var(--dm-border) !important;
 }
 
 /* Sidebar + Header: cambia fills/strokes verdes inline SOLO en esas zonas */

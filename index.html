@@ -705,7 +705,7 @@
                       <!-- Añadir contacto -->
                       <button
                         onclick="window.location.href='users.html'"
-                        class="group flex flex-col items-center justify-center p-2 sm:p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-success-300 hover:bg-white dark:bg-darkblack-500 dark:hover:bg-darkblack-400 transition-all duration-300 hover:shadow-md active:scale-95"
+                        class="group flex flex-col items-center justify-center p-2 sm:p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-success-300 hover:bg-white dark:bg-transparent dark:border-[rgba(255,255,255,0.07)] dark:hover:bg-[rgba(255,255,255,0.04)] dark:hover:border-[rgba(236,130,40,0.5)] transition-all duration-300 hover:shadow-md active:scale-95"
                       >
                         <div class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 mb-2 sm:mb-3 rounded-full bg-blue-50 group-hover:bg-blue-100 transition-colors duration-300">
                           <svg
@@ -751,7 +751,7 @@
                       <!-- Añadir gasto -->
                       <button
                         onclick="window.location.href='expenses.html'"
-                        class="group flex flex-col items-center justify-center p-2 sm:p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-success-300 hover:bg-white dark:bg-darkblack-500 dark:hover:bg-darkblack-400 transition-all duration-300 hover:shadow-md active:scale-95"
+                        class="group flex flex-col items-center justify-center p-2 sm:p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-success-300 hover:bg-white dark:bg-transparent dark:border-[rgba(255,255,255,0.07)] dark:hover:bg-[rgba(255,255,255,0.04)] dark:hover:border-[rgba(236,130,40,0.5)] transition-all duration-300 hover:shadow-md active:scale-95"
                       >
                         <div class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 mb-2 sm:mb-3 rounded-full bg-red-50 group-hover:bg-red-100 transition-colors duration-300">
                           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -768,7 +768,7 @@
                       <!-- Crear un presupuesto -->
                       <button
                         onclick="window.location.href='invoices/quote.html'"
-                        class="group flex flex-col items-center justify-center p-2 sm:p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-success-300 hover:bg-white dark:bg-darkblack-500 dark:hover:bg-darkblack-400 transition-all duration-300 hover:shadow-md active:scale-95"
+                        class="group flex flex-col items-center justify-center p-2 sm:p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-success-300 hover:bg-white dark:bg-transparent dark:border-[rgba(255,255,255,0.07)] dark:hover:bg-[rgba(255,255,255,0.04)] dark:hover:border-[rgba(236,130,40,0.5)] transition-all duration-300 hover:shadow-md active:scale-95"
                       >
                         <div class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 mb-2 sm:mb-3 rounded-full transition-colors duration-300" style="background-color: rgba(139,92,246,0.1);" onmouseover="this.style.backgroundColor='rgba(139,92,246,0.25)'" onmouseout="this.style.backgroundColor='rgba(139,92,246,0.1)'">
                           <svg
@@ -1515,15 +1515,15 @@
             localStorage.theme === "dark"
           ) {
             revenueFlow.data.datasets = dataSetsDark;
-            revenueFlow.options.scales.y.ticks.color = "white";
-            revenueFlow.options.scales.x.ticks.color = "white";
-            revenueFlow.options.scales.x.grid.color = "#222429";
-            revenueFlow.options.scales.y.grid.color = "#222429";
+            revenueFlow.options.scales.y.ticks.color = "#8b8fa3";
+            revenueFlow.options.scales.x.ticks.color = "#8b8fa3";
+            revenueFlow.options.scales.x.grid.color = "rgba(255,255,255,0.06)";
+            revenueFlow.options.scales.y.grid.color = "rgba(255,255,255,0.06)";
             revenueFlow.update();
           } else {
             revenueFlow.data.datasets = dataSetsLight;
-            revenueFlow.options.scales.y.ticks.color = "black";
-            revenueFlow.options.scales.x.ticks.color = "black";
+            revenueFlow.options.scales.y.ticks.color = "#4a5568";
+            revenueFlow.options.scales.x.ticks.color = "#4a5568";
             revenueFlow.options.scales.x.grid.color = "rgb(243 ,246, 255 ,1)";
             revenueFlow.options.scales.y.grid.color = "rgb(243 ,246, 255 ,1)";
             revenueFlow.update();
@@ -1537,14 +1537,14 @@
         window.matchMedia("(prefers-color-scheme: dark)").matches
       ) {
         revenueFlow.data.datasets = dataSetsDark;
-        revenueFlow.options.scales.y.ticks.color = "white";
-        revenueFlow.options.scales.x.ticks.color = "white";
-        revenueFlow.options.scales.x.grid.color = "#222429";
-        revenueFlow.options.scales.y.grid.color = "#222429";
+        revenueFlow.options.scales.y.ticks.color = "#8b8fa3";
+        revenueFlow.options.scales.x.ticks.color = "#8b8fa3";
+        revenueFlow.options.scales.x.grid.color = "rgba(255,255,255,0.06)";
+        revenueFlow.options.scales.y.grid.color = "rgba(255,255,255,0.06)";
       } else {
         revenueFlow.data.datasets = dataSetsLight;
-        revenueFlow.options.scales.y.ticks.color = "black";
-        revenueFlow.options.scales.x.ticks.color = "black";
+        revenueFlow.options.scales.y.ticks.color = "#4a5568";
+        revenueFlow.options.scales.x.ticks.color = "#4a5568";
         revenueFlow.options.scales.x.grid.color = "rgb(243 ,246, 255 ,1)";
         revenueFlow.options.scales.y.grid.color = "rgb(243 ,246, 255 ,1)";
       }

@@ -915,3 +915,42 @@ window.confirmDeleteClient = confirmDeleteClient;
 window.toggleClientStatus = toggleClientStatus;
 window.openImportModal = openImportModal;
 window.closeImportModal = closeImportModal;
+
+function exportContactsCSV() {
+  if (!allClients || allClients.length === 0) {
+    showToast('No hay contactos para exportar', 'error');
+    return;
+  }
+  var headers = ['Nombre / Razón Social','NIF/CIF','Email','Teléfono','Dirección','Ciudad','Provincia','Código Postal','País','Día Facturación','Estado','Total Facturado'];
+  var rows = allClients.map(function(c) {
+    return [
+      c.nombre_razon_social || '',
+      c.identificador || '',
+      c.email || '',
+      c.telefono || '',
+      c.direccion || '',
+      c.ciudad || '',
+      c.provincia || '',
+      c.codigo_postal || '',
+      c.pais || '',
+      c.dia_facturacion || '',
+      c.estado || '',
+      c._totalFacturado != null ? c._totalFacturado : ''
+    ].map(function(v) {
+      var s = String(v).replace(/"/g, '""');
+      return '"' + s + '"';
+    }).join(',');
+  });
+  var csv = '\uFEFF' + headers.join(',') + '\n' + rows.join('\n');
+  var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'contactos_' + new Date().toISOString().slice(0,10) + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Contactos exportados correctamente', 'success');
+}
+window.exportContactsCSV = exportContactsCSV;
