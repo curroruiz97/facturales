@@ -179,9 +179,11 @@
                       </p>
                     </div>
                   </div>
+                  <!-- Pagos tab oculto (ya no se usa; método de pago se muestra en suscripción) -->
                   <div
                     data-tab="tab4"
                     class="tab group flex gap-x-4 rounded-lg p-4 transition-all"
+                    style="display:none"
                   >
                     <div
                       class="tab-icon inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-bgray-100 transition-all"
@@ -586,6 +588,22 @@
                                 <option value="servicios profesionales">Servicios profesionales</option>
                                 <option value="servicios tecnológicos IT">Servicios tecnológicos IT</option>
                                 <option value="transporte">Transporte</option>
+                              </select>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                              <label
+                                for="business-type"
+                                class="text-base font-medium text-bgray-600 dark:text-bgray-50"
+                                >Tipo de negocio</label
+                              >
+                              <select
+                                id="business-type"
+                                class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white"
+                                name="business_type"
+                              >
+                                <option value="">Selecciona tipo</option>
+                                <option value="autonomo">Aut&oacute;nomo</option>
+                                <option value="empresa">Empresa</option>
                               </select>
                             </div>
                           </div>
@@ -1614,8 +1632,8 @@
                     </div>
                   </div>
                 </div>
-                <!-- Pagos -->
-                <div id="tab4" class="tab-pane">
+                <!-- Pagos (oculto: método de pago se muestra en suscripción) -->
+                <div id="tab4" class="tab-pane" style="display:none">
                   <!-- Tarjetas -->
                   <div>
                     <h3
@@ -2769,6 +2787,23 @@
                       </div>
                     </div>
 
+                    <!-- Método de pago asociado -->
+                    <div id="payment-method-section" class="mt-5 hidden rounded-xl border border-bgray-200 dark:border-darkblack-400 bg-white dark:bg-darkblack-600 p-5">
+                      <div class="flex flex-wrap items-center justify-between gap-4">
+                        <div class="flex items-center gap-4">
+                          <div id="pm-icon" class="flex h-12 w-12 items-center justify-center rounded-xl bg-bgray-100 dark:bg-darkblack-400">
+                            <svg id="pm-icon-card" class="h-6 w-6 text-bgray-600 dark:text-bgray-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z"/></svg>
+                          </div>
+                          <div>
+                            <p class="text-xs font-semibold text-bgray-500 dark:text-bgray-400 uppercase tracking-wider mb-0.5">M&eacute;todo de pago</p>
+                            <p id="pm-details" class="text-sm font-bold text-bgray-900 dark:text-white">Cargando...</p>
+                            <p id="pm-expiry" class="text-xs text-bgray-500 dark:text-bgray-400 mt-0.5"></p>
+                          </div>
+                        </div>
+                        <button type="button" onclick="openPortalSession()" id="pm-change-btn" class="rounded-lg border border-bgray-300 dark:border-darkblack-400 px-4 py-2 text-xs font-semibold text-bgray-600 dark:text-bgray-300 hover:bg-bgray-100 dark:hover:bg-darkblack-400 transition-colors">Cambiar m&eacute;todo</button>
+                      </div>
+                    </div>
+
                     <!-- Uso del plan -->
                     <div id="plan-usage-section" class="mt-5 hidden rounded-xl border border-bgray-200 dark:border-darkblack-400 bg-white dark:bg-darkblack-600 p-5">
                       <div class="flex items-center justify-between mb-4">
@@ -3382,6 +3417,7 @@
             document.getElementById('provincia').value = data.provincia || '';
             document.getElementById('pais').value = data.pais || '';
             document.getElementById('sector').value = data.sector || '';
+            document.getElementById('business-type').value = data.business_type || '';
             
             // Cargar color de marca si existe
             if (data.brand_color) {
@@ -3441,6 +3477,7 @@
           const provincia = document.getElementById('provincia').value.trim();
           const pais = document.getElementById('pais').value.trim();
           const sector = document.getElementById('sector').value;
+          const businessType = document.getElementById('business-type').value;
           const brandColor = brandColorHexInput.value.trim();
 
           if (!telefono) {
@@ -3497,6 +3534,7 @@
               provincia: provincia,
               pais: pais,
               sector: sector,
+              business_type: businessType || null,
               brand_color: brandColor || '#000000'
             };
 
@@ -4674,14 +4712,64 @@
           }
         })();
 
+        var BRAND_LABELS = { visa: 'Visa', mastercard: 'Mastercard', amex: 'American Express', discover: 'Discover', diners: 'Diners Club', jcb: 'JCB', unionpay: 'UnionPay' };
+
+        async function loadPaymentMethod() {
+          try {
+            var attempts = 0;
+            while (!window.supabaseClient && attempts < 50) {
+              await new Promise(function(r) { setTimeout(r, 100); });
+              attempts++;
+            }
+            if (!window.supabaseClient) return;
+
+            var section = document.getElementById('payment-method-section');
+            var detailsEl = document.getElementById('pm-details');
+            var expiryEl = document.getElementById('pm-expiry');
+            var changeBtn = document.getElementById('pm-change-btn');
+            if (!section) return;
+
+            var result = await window.supabaseClient.functions.invoke('get-payment-method', { body: {} });
+
+            if (result.error) {
+              section.classList.add('hidden');
+              return;
+            }
+
+            var pm = result.data && result.data.payment_method;
+
+            if (!pm) {
+              section.classList.remove('hidden');
+              if (detailsEl) detailsEl.textContent = 'Sin m\u00E9todo de pago';
+              if (expiryEl) expiryEl.textContent = 'A\u00F1ade un m\u00E9todo de pago para tu suscripci\u00F3n';
+              if (changeBtn) changeBtn.textContent = 'A\u00F1adir m\u00E9todo';
+              return;
+            }
+
+            section.classList.remove('hidden');
+            if (pm.type === 'card' && pm.brand) {
+              var brandName = BRAND_LABELS[pm.brand] || pm.brand.charAt(0).toUpperCase() + pm.brand.slice(1);
+              if (detailsEl) detailsEl.textContent = brandName + ' \u2022\u2022\u2022\u2022 ' + pm.last4;
+              if (expiryEl) expiryEl.textContent = 'Expira ' + String(pm.exp_month).padStart(2, '0') + '/' + pm.exp_year;
+            } else {
+              if (detailsEl) detailsEl.textContent = pm.type || 'M\u00E9todo de pago';
+              if (expiryEl) expiryEl.textContent = '';
+            }
+          } catch (e) {
+            console.error('Error loading payment method:', e);
+          }
+        }
+
         if (document.readyState === 'loading') {
           document.addEventListener('DOMContentLoaded', function() {
             setTimeout(loadCurrentPlan, 2000);
             setTimeout(loadPlanUsage, 2500);
+            setTimeout(loadPaymentMethod, 2200);
           });
         } else {
           setTimeout(loadCurrentPlan, 2000);
           setTimeout(loadPlanUsage, 2500);
+          setTimeout(loadPaymentMethod, 2200);
         }
       })();
     </script>

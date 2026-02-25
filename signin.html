@@ -507,42 +507,17 @@
       </div>
     </section>
 
-    <!-- Modal -->
-    <div
-      class="modal hidden fixed inset-0 z-50 overflow-y-auto flex items-center justify-center"
-      id="multi-step-modal"
-    >
+    <!-- Modal de recuperación de contraseña -->
+    <div class="modal hidden fixed inset-0 z-50 overflow-y-auto flex items-center justify-center" id="multi-step-modal">
       <div class="modal-overlay absolute inset-0 bg-gray-500 opacity-75 dark:bg-bgray-900 dark:opacity-50"></div>
       <div class="modal-content w-full max-w-lg mx-auto px-4">
+        <!-- Step 1: Introducir email -->
         <div class="step-content step-1">
-          <!-- My Content -->
-          <div
-            class="relative max-w-[492px] transform overflow-hidden rounded-lg bg-white dark:bg-darkblack-600 p-8 text-left transition-all"
-          >
+          <div class="relative max-w-[492px] transform overflow-hidden rounded-lg bg-white dark:bg-darkblack-600 p-8 text-left transition-all">
             <div class="absolute top-0 right-0 pt-5 pr-5">
-              <button
-                type="button"
-                id="step-1-cancel"
-                class="rounded-md bg-white dark:bg-darkblack-500 focus:outline-none"
-              >
+              <button type="button" id="step-1-cancel" class="rounded-md bg-white dark:bg-darkblack-500 focus:outline-none">
                 <span class="sr-only">Cerrar</span>
-                <!-- Cross Icon -->
-                <svg
-                  class="stroke-darkblack-300"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M6 6L18 18M6 18L18 6L6 18Z"
-                    
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
+                <svg class="stroke-darkblack-300" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6L18 18M6 18L18 6L6 18Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </button>
             </div>
             <div>
@@ -550,65 +525,26 @@
                 <img src="assets/images/logo/logo-color.svg" class="block dark:hidden" alt="" />
                 <img src="assets/images/logo/logo-white.svg" class="hidden dark:block" alt="" />
               </a>
-              <h3 class="text-2xl font-bold text-bgray-900 dark:text-white mb-3">
-                Restablece tu contraseña
-              </h3>
-              <p class="text-base font-medium text-bgray-600 dark:text-darkblack-300 mb-7">
-                Introduce el correo electrónico asociado a tu cuenta y te enviaremos
-                un enlace para restablecer tu contraseña.
-              </p>
-              <form action="">
-                <div class="mb-8">
-                  <input
-                    type="text"
-                    class="rounded-lg bg-[#F5F5F5] dark:bg-darkblack-500 dark:text-white p-4 border-0 focus:border focus:ring-0 focus:border-success-300 w-full placeholder:font-medium text-base h-14"
-                    placeholder="Correo electrónico"
-                  />
+              <h3 class="text-2xl font-bold text-bgray-900 dark:text-white mb-3">Restablece tu contrase&ntilde;a</h3>
+              <p class="text-base font-medium text-bgray-600 dark:text-darkblack-300 mb-7">Introduce el correo electr&oacute;nico asociado a tu cuenta y te enviaremos un c&oacute;digo de verificaci&oacute;n.</p>
+              <form id="recovery-email-form" onsubmit="return false;">
+                <div class="mb-4">
+                  <input type="email" id="recovery-email" required class="rounded-lg bg-[#F5F5F5] dark:bg-darkblack-500 dark:text-white p-4 border-0 focus:border focus:ring-0 focus:border-success-300 w-full placeholder:font-medium text-base h-14" placeholder="Correo electr&oacute;nico" />
                 </div>
-                <a
-                  href="signin.html"
-                  class="block text-sm font-bold text-success-300 mb-8 underline"
-                  >Volver a iniciar sesión</a
-                >
-                <button
-                  type="button"
-                  id="step-1-next"
-                  class="flex w-full py-4 text-white bg-success-300 hover:bg-success-400 transition-all justify-center text-base font-medium rounded-lg"
-                >
-                  Continuar
-                </button>
+                <div id="recovery-step1-error" class="hidden mb-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 rounded-lg text-sm"></div>
+                <button type="button" class="block text-sm font-bold text-success-300 mb-6 underline" onclick="closeRecoveryModal()">Volver a iniciar sesi&oacute;n</button>
+                <button type="button" id="recovery-send-btn" class="flex w-full py-4 text-white bg-success-300 hover:bg-success-400 transition-all justify-center text-base font-medium rounded-lg disabled:opacity-50">Enviar c&oacute;digo</button>
               </form>
             </div>
           </div>
         </div>
-        <!-- Step 2 -->
+        <!-- Step 2: Introducir OTP -->
         <div class="step-content step-2 hidden">
-          <div
-            class="relative max-w-lg transform overflow-hidden rounded-lg bg-white dark:bg-darkblack-600 p-8 text-left transition-all"
-          >
+          <div class="relative max-w-[492px] transform overflow-hidden rounded-lg bg-white dark:bg-darkblack-600 p-8 text-left transition-all">
             <div class="absolute top-0 right-0 pt-5 pr-5">
-              <button
-                type="button"
-                class="rounded-md bg-white dark:bg-darkblack-500 focus:outline-none"
-                id="step-2-cancel"
-              >
+              <button type="button" id="step-2-cancel" class="rounded-md bg-white dark:bg-darkblack-500 focus:outline-none">
                 <span class="sr-only">Cerrar</span>
-                <!-- Cross Icon -->
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M6 6L18 18M6 18L18 6L6 18Z"
-                    stroke="#747681"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6L18 18M6 18L18 6L6 18Z" stroke="#747681" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </button>
             </div>
             <div>
@@ -616,83 +552,33 @@
                 <img src="assets/images/logo/logo-color.svg" class="block dark:hidden" alt="" />
                 <img src="assets/images/logo/logo-white.svg" class="hidden dark:block" alt="" />
               </a>
-              <h3 class="text-2xl font-bold text-bgray-900 dark:text-white mb-3">
-                Introduce el código de verificación
-              </h3>
-              <p class="text-base font-medium text-bgray-600 dark:text-darkblack-300 mb-7">
-                Acabamos de enviar un código de verificación a ajoy*****@mail.com
-              </p>
-              <form>
-                <div class="flex space-x-6 mb-8">
-                  <input
-                    type="text"
-                    class="px-5 py-3 rounded-xl text-2xl border border-transparent focus:ring-0 focus:border focus:border-success-300 font-bold text-bgray-900 bg-[#F5F5F5] dark:bg-darkblack-500 dark:text-white w-14 h-14"
-                    placeholder=""
-                  />
-                  <input
-                    type="text"
-                    class="px-5 py-3 rounded-xl text-2xl border border-transparent focus:ring-0 focus:border focus:border-success-300 font-bold text-bgray-900 bg-[#F5F5F5] dark:bg-darkblack-500 dark:text-white w-14 h-14"
-                    placeholder=""
-                  />
-                  <input
-                    type="text"
-                    class="px-5 py-3 rounded-xl text-2xl border border-transparent focus:ring-0 focus:border focus:border-success-300 font-bold text-bgray-900 bg-[#F5F5F5] dark:bg-darkblack-500 dark:text-white w-14 h-14"
-                    placeholder=""
-                  />
-                  <input
-                    type="text"
-                    class="px-5 py-3 rounded-xl text-2xl border border-transparent focus:ring-0 focus:border focus:border-success-300 font-bold text-bgray-900 bg-[#F5F5F5] dark:bg-darkblack-500 dark:text-white w-14 h-14"
-                    placeholder=""
-                  />
-                  <input
-                    type="text"
-                    class="px-5 py-3 rounded-xl text-2xl border border-transparent focus:ring-0 focus:border focus:border-success-300 font-bold text-bgray-900 bg-[#F5F5F5] dark:bg-darkblack-500 dark:text-white w-14 h-14"
-                    placeholder=""
-                  />
+              <h3 class="text-2xl font-bold text-bgray-900 dark:text-white mb-3">Introduce el c&oacute;digo de verificaci&oacute;n</h3>
+              <p class="text-base font-medium text-bgray-600 dark:text-darkblack-300 mb-7">Acabamos de enviar un c&oacute;digo de verificaci&oacute;n a <span id="recovery-masked-email" class="font-semibold text-bgray-900 dark:text-white"></span></p>
+              <form id="recovery-otp-form" onsubmit="return false;">
+                <div class="flex justify-center space-x-2 sm:space-x-3 mb-4">
+                  <input type="text" maxlength="1" inputmode="numeric" class="otp-input text-center px-0 py-3 rounded-xl text-xl sm:text-2xl border border-transparent focus:ring-0 focus:border focus:border-success-300 font-bold text-bgray-900 bg-[#F5F5F5] dark:bg-darkblack-500 dark:text-white w-10 h-12 sm:w-12 sm:h-14" />
+                  <input type="text" maxlength="1" inputmode="numeric" class="otp-input text-center px-0 py-3 rounded-xl text-xl sm:text-2xl border border-transparent focus:ring-0 focus:border focus:border-success-300 font-bold text-bgray-900 bg-[#F5F5F5] dark:bg-darkblack-500 dark:text-white w-10 h-12 sm:w-12 sm:h-14" />
+                  <input type="text" maxlength="1" inputmode="numeric" class="otp-input text-center px-0 py-3 rounded-xl text-xl sm:text-2xl border border-transparent focus:ring-0 focus:border focus:border-success-300 font-bold text-bgray-900 bg-[#F5F5F5] dark:bg-darkblack-500 dark:text-white w-10 h-12 sm:w-12 sm:h-14" />
+                  <input type="text" maxlength="1" inputmode="numeric" class="otp-input text-center px-0 py-3 rounded-xl text-xl sm:text-2xl border border-transparent focus:ring-0 focus:border focus:border-success-300 font-bold text-bgray-900 bg-[#F5F5F5] dark:bg-darkblack-500 dark:text-white w-10 h-12 sm:w-12 sm:h-14" />
+                  <input type="text" maxlength="1" inputmode="numeric" class="otp-input text-center px-0 py-3 rounded-xl text-xl sm:text-2xl border border-transparent focus:ring-0 focus:border focus:border-success-300 font-bold text-bgray-900 bg-[#F5F5F5] dark:bg-darkblack-500 dark:text-white w-10 h-12 sm:w-12 sm:h-14" />
+                  <input type="text" maxlength="1" inputmode="numeric" class="otp-input text-center px-0 py-3 rounded-xl text-xl sm:text-2xl border border-transparent focus:ring-0 focus:border focus:border-success-300 font-bold text-bgray-900 bg-[#F5F5F5] dark:bg-darkblack-500 dark:text-white w-10 h-12 sm:w-12 sm:h-14" />
+                  <input type="text" maxlength="1" inputmode="numeric" class="otp-input text-center px-0 py-3 rounded-xl text-xl sm:text-2xl border border-transparent focus:ring-0 focus:border focus:border-success-300 font-bold text-bgray-900 bg-[#F5F5F5] dark:bg-darkblack-500 dark:text-white w-10 h-12 sm:w-12 sm:h-14" />
+                  <input type="text" maxlength="1" inputmode="numeric" class="otp-input text-center px-0 py-3 rounded-xl text-xl sm:text-2xl border border-transparent focus:ring-0 focus:border focus:border-success-300 font-bold text-bgray-900 bg-[#F5F5F5] dark:bg-darkblack-500 dark:text-white w-10 h-12 sm:w-12 sm:h-14" />
                 </div>
-                <button class="block text-sm font-bold text-success-300 mb-8">
-                  Enviar el código de nuevo
-                </button>
-                <button
-                  type="button"
-                  id="step-2-next"
-                  class="flex w-full py-4 text-white bg-success-300 transition-all justify-center text-base font-medium rounded-lg"
-                >
-                  Verificar
-                </button>
+                <div id="recovery-step2-error" class="hidden mb-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 rounded-lg text-sm"></div>
+                <button type="button" id="recovery-resend-btn" class="block text-sm font-bold text-success-300 mb-6">Enviar el c&oacute;digo de nuevo</button>
+                <button type="button" id="recovery-verify-btn" class="flex w-full py-4 text-white bg-success-300 hover:bg-success-400 transition-all justify-center text-base font-medium rounded-lg disabled:opacity-50">Verificar</button>
               </form>
             </div>
           </div>
         </div>
-        <!-- Step 3 -->
+        <!-- Step 3: Nueva contraseña -->
         <div class="step-content step-3 hidden">
-          <!-- Step 3 Content Here -->
-          <div
-            class="relative  transform overflow-hidden rounded-lg bg-white dark:bg-darkblack-600 p-8 text-left transition-all"
-          >
+          <div class="relative max-w-[492px] transform overflow-hidden rounded-lg bg-white dark:bg-darkblack-600 p-8 text-left transition-all">
             <div class="absolute top-0 right-0 pt-5 pr-5">
-              <button
-                type="button"
-                id="step-3-cancel"
-                class="rounded-md bg-white dark:bg-darkblack-500 focus:outline-none"
-              >
+              <button type="button" id="step-3-cancel" class="rounded-md bg-white dark:bg-darkblack-500 focus:outline-none">
                 <span class="sr-only">Cerrar</span>
-                <!-- Cross Icon -->
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M6 6L18 18M6 18L18 6L6 18Z"
-                    stroke="#747681"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6L18 18M6 18L18 6L6 18Z" stroke="#747681" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </button>
             </div>
             <div>
@@ -700,147 +586,39 @@
                 <img src="assets/images/logo/logo-color.svg" class="block dark:hidden" alt="" />
                 <img src="assets/images/logo/logo-white.svg" class="hidden dark:block" alt="" />
               </a>
-              <h3 class="text-2xl font-bold text-bgray-900 dark:text-white mb-3">
-                Crear nueva contraseña
-              </h3>
-              <p class="text-base font-medium text-bgray-600 dark:text-darkblack-300 mb-7">
-                Introduce una nueva contraseña. Tu nueva contraseña debe ser distinta
-                de la anterior.
-              </p>
-              <form action="">
+              <h3 class="text-2xl font-bold text-bgray-900 dark:text-white mb-3">Crear nueva contrase&ntilde;a</h3>
+              <p class="text-base font-medium text-bgray-600 dark:text-darkblack-300 mb-7">Introduce una nueva contrase&ntilde;a. Debe tener al menos 6 caracteres.</p>
+              <form id="recovery-password-form" onsubmit="return false;">
                 <div class="mb-6 relative">
-                  <input
-                    type="text"
-                    class="text-bgray-800 text-base border border-bgray-300 h-14 w-full 
-                    focus:border focus:border-success-300 focus:ring-0 rounded-lg px-4 py-3.5 placeholder:text-bgray-500 placeholder:text-base dark:text-white dark:bg-darkblack-500 dark:border-0"
-                    placeholder="Contraseña"
-                  />
-                  <button class="absolute top-4 right-4 bottom-4">
-                    <svg
-                      width="22"
-                      height="20"
-                      viewBox="0 0 22 20"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M2 1L20 19"
-                        stroke="#718096"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                      <path
-                        d="M9.58445 8.58704C9.20917 8.96205 8.99823 9.47079 8.99805 10.0013C8.99786 10.5319 9.20844 11.0408 9.58345 11.416C9.95847 11.7913 10.4672 12.0023 10.9977 12.0024C11.5283 12.0026 12.0372 11.7921 12.4125 11.417"
-                        stroke="#718096"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                      <path
-                        d="M8.363 3.36506C9.22042 3.11978 10.1082 2.9969 11 3.00006C15 3.00006 18.333 5.33306 21 10.0001C20.222 11.3611 19.388 12.5241 18.497 13.4881M16.357 15.3491C14.726 16.4491 12.942 17.0001 11 17.0001C7 17.0001 3.667 14.6671 1 10.0001C2.369 7.60506 3.913 5.82506 5.632 4.65906"
-                        stroke="#718096"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                  </button>
+                  <input type="password" id="recovery-new-password" required minlength="6" class="text-bgray-800 text-base border border-bgray-300 h-14 w-full focus:border focus:border-success-300 focus:ring-0 rounded-lg px-4 py-3.5 placeholder:text-bgray-500 placeholder:text-base dark:text-white dark:bg-darkblack-500 dark:border-0" placeholder="Nueva contrase&ntilde;a" />
                 </div>
-                <div class="mb-8 relative">
-                  <input
-                    type="text"
-                    class="text-bgray-800 text-base border border-bgray-300 h-14 w-full focus:border-success-300 focus:ring-0 rounded-lg px-4 py-3.5 placeholder:text-bgray-500 placeholder:text-base dark:bg-darkblack-500 dark:border-0"
-                    placeholder="Confirmar nueva contraseña"
-                  />
-                  <button class="absolute top-4 right-4 bottom-4">
-                    <svg
-                      width="22"
-                      height="20"
-                      viewBox="0 0 22 20"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M2 1L20 19"
-                        stroke="#718096"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                      <path
-                        d="M9.58445 8.58704C9.20917 8.96205 8.99823 9.47079 8.99805 10.0013C8.99786 10.5319 9.20844 11.0408 9.58345 11.416C9.95847 11.7913 10.4672 12.0023 10.9977 12.0024C11.5283 12.0026 12.0372 11.7921 12.4125 11.417"
-                        stroke="#718096"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                      <path
-                        d="M8.363 3.36506C9.22042 3.11978 10.1082 2.9969 11 3.00006C15 3.00006 18.333 5.33306 21 10.0001C20.222 11.3611 19.388 12.5241 18.497 13.4881M16.357 15.3491C14.726 16.4491 12.942 17.0001 11 17.0001C7 17.0001 3.667 14.6671 1 10.0001C2.369 7.60506 3.913 5.82506 5.632 4.65906"
-                        stroke="#718096"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                  </button>
+                <div class="mb-4 relative">
+                  <input type="password" id="recovery-confirm-password" required minlength="6" class="text-bgray-800 text-base border border-bgray-300 h-14 w-full focus:border-success-300 focus:ring-0 rounded-lg px-4 py-3.5 placeholder:text-bgray-500 placeholder:text-base dark:bg-darkblack-500 dark:text-white dark:border-0" placeholder="Confirmar nueva contrase&ntilde;a" />
                 </div>
-                <button
-                  type="button"
-                  id="step-2-next"
-                  class="flex w-full py-4 text-white bg-success-300 hover:bg-success-400 transition-all justify-center text-base font-medium rounded-lg"
-                >
-                  Confirmar contraseña
-                </button>
+                <div id="recovery-step3-error" class="hidden mb-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 rounded-lg text-sm"></div>
+                <button type="button" id="recovery-update-btn" class="flex w-full py-4 text-white bg-success-300 hover:bg-success-400 transition-all justify-center text-base font-medium rounded-lg disabled:opacity-50">Confirmar contrase&ntilde;a</button>
               </form>
             </div>
           </div>
         </div>
-        <!-- Step 4 -->
+        <!-- Step 4: Éxito -->
         <div class="step-content step-4 hidden">
-          <div
-            class="relative  transform overflow-hidden rounded-lg bg-white dark:bg-darkblack-600 p-8 text-left transition-all"
-          >
+          <div class="relative max-w-[492px] transform overflow-hidden rounded-lg bg-white dark:bg-darkblack-600 p-8 text-left transition-all">
             <div class="absolute top-0 right-0 pt-5 pr-5">
-              <button
-                type="button"
-                id="step-4-cancel"
-                class="rounded-md bg-white dark:bg-darkblack-500 focus:outline-none"
-              >
+              <button type="button" id="step-4-cancel" class="rounded-md bg-white dark:bg-darkblack-500 focus:outline-none">
                 <span class="sr-only">Cerrar</span>
-                <!-- Cross Icon -->
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M6 6L18 18M6 18L18 6L6 18Z"
-                    stroke="#747681"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6L18 18M6 18L18 6L6 18Z" stroke="#747681" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </button>
             </div>
             <div class="text-center mt-4">
-              <h3 class="text-2xl font-bold text-bgray-900 dark:text-white mb-3">
-                Tu contraseña se cambió correctamente
-              </h3>
-              <p class="text-base font-medium text-bgray-600 dark:text-darkblack-300 mb-7">
-                Commodo gravida eget ultricies sed in lacus. Commodo, tellus
-                duis eros pellentesque.
-              </p>
-              <a
-                href="#"
-                id="step-4-cancel"
-                class="flex w-full py-4 text-white bg-success-300 hover:bg-success-400 transition-all justify-center text-base font-semibold rounded-lg"
-              >
-                Volver a iniciar sesión
-              </a>
+              <div class="flex justify-center mb-6">
+                <div class="flex h-16 w-16 items-center justify-center rounded-full bg-success-300/10">
+                  <svg class="h-8 w-8 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+                </div>
+              </div>
+              <h3 class="text-2xl font-bold text-bgray-900 dark:text-white mb-3">Contrase&ntilde;a actualizada</h3>
+              <p class="text-base font-medium text-bgray-600 dark:text-darkblack-300 mb-7">Tu contrase&ntilde;a se ha cambiado correctamente. Ya puedes iniciar sesi&oacute;n con tu nueva contrase&ntilde;a.</p>
+              <button type="button" onclick="closeRecoveryModal()" class="flex w-full py-4 text-white bg-success-300 hover:bg-success-400 transition-all justify-center text-base font-semibold rounded-lg">Volver a iniciar sesi&oacute;n</button>
             </div>
           </div>
         </div>
@@ -1054,6 +832,260 @@
           document.addEventListener('DOMContentLoaded', initSignin);
         } else {
           initSignin();
+        }
+      })();
+    </script>
+
+    <!-- Lógica de recuperación de contraseña -->
+    <script>
+      (function() {
+        var _recoveryEmail = '';
+
+        function maskEmail(email) {
+          if (!email) return '';
+          var parts = email.split('@');
+          if (parts.length !== 2) return email;
+          var local = parts[0];
+          var domain = parts[1];
+          if (local.length <= 2) return local[0] + '*****@' + domain;
+          return local.substring(0, 2) + '*'.repeat(Math.min(local.length - 2, 5)) + '@' + domain;
+        }
+
+        function showStep(n) {
+          var modal = document.getElementById('multi-step-modal');
+          if (!modal) return;
+          modal.querySelectorAll('.step-content').forEach(function(el) { el.classList.add('hidden'); });
+          var step = modal.querySelector('.step-' + n);
+          if (step) step.classList.remove('hidden');
+        }
+
+        function showStepError(step, msg) {
+          var el = document.getElementById('recovery-step' + step + '-error');
+          if (el) { el.textContent = msg; el.classList.remove('hidden'); }
+        }
+
+        function hideStepError(step) {
+          var el = document.getElementById('recovery-step' + step + '-error');
+          if (el) el.classList.add('hidden');
+        }
+
+        window.closeRecoveryModal = function() {
+          var modal = document.getElementById('multi-step-modal');
+          if (modal) modal.classList.add('hidden');
+          _recoveryEmail = '';
+          var emailInput = document.getElementById('recovery-email');
+          if (emailInput) emailInput.value = '';
+          document.querySelectorAll('.otp-input').forEach(function(inp) { inp.value = ''; });
+          var np = document.getElementById('recovery-new-password');
+          var cp = document.getElementById('recovery-confirm-password');
+          if (np) np.value = '';
+          if (cp) cp.value = '';
+          showStep(1);
+          hideStepError(1);
+          hideStepError(2);
+          hideStepError(3);
+        };
+
+        function initRecoveryModal() {
+          // Close buttons
+          ['step-1-cancel', 'step-2-cancel', 'step-3-cancel', 'step-4-cancel'].forEach(function(id) {
+            var btn = document.getElementById(id);
+            if (btn) btn.addEventListener('click', window.closeRecoveryModal);
+          });
+
+          // Overlay click closes
+          var modal = document.getElementById('multi-step-modal');
+          if (modal) {
+            modal.querySelector('.modal-overlay').addEventListener('click', window.closeRecoveryModal);
+          }
+
+          // Step 1: Send recovery code
+          var sendBtn = document.getElementById('recovery-send-btn');
+          if (sendBtn) {
+            sendBtn.addEventListener('click', async function() {
+              hideStepError(1);
+              var emailInput = document.getElementById('recovery-email');
+              var email = emailInput ? emailInput.value.trim() : '';
+
+              if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showStepError(1, 'Introduce un correo electr\u00F3nico v\u00E1lido');
+                return;
+              }
+
+              sendBtn.disabled = true;
+              sendBtn.textContent = 'Enviando...';
+
+              try {
+                var attempts = 0;
+                while (!window.supabaseClient && attempts < 50) {
+                  await new Promise(function(r) { setTimeout(r, 100); });
+                  attempts++;
+                }
+                if (!window.supabaseClient) throw new Error('No se pudo conectar con el servidor');
+
+                var result = await window.supabaseClient.auth.resetPasswordForEmail(email.toLowerCase(), {
+                  redirectTo: window.location.origin + '/reset-password.html'
+                });
+
+                if (result.error) throw new Error(result.error.message);
+
+                _recoveryEmail = email;
+                var maskedEl = document.getElementById('recovery-masked-email');
+                if (maskedEl) maskedEl.textContent = maskEmail(email);
+
+                showStep(2);
+                var otpInputs = document.querySelectorAll('.otp-input');
+                if (otpInputs.length > 0) otpInputs[0].focus();
+              } catch (e) {
+                console.error('Error sending recovery:', e);
+                showStepError(1, e.message || 'Error al enviar el c\u00F3digo. Int\u00E9ntalo de nuevo.');
+              } finally {
+                sendBtn.disabled = false;
+                sendBtn.textContent = 'Enviar c\u00F3digo';
+              }
+            });
+          }
+
+          // OTP input behavior
+          var otpInputs = document.querySelectorAll('.otp-input');
+          otpInputs.forEach(function(input, idx) {
+            input.addEventListener('input', function(e) {
+              var val = e.target.value.replace(/[^0-9a-zA-Z]/g, '');
+              e.target.value = val;
+              if (val && idx < otpInputs.length - 1) {
+                otpInputs[idx + 1].focus();
+              }
+            });
+            input.addEventListener('keydown', function(e) {
+              if (e.key === 'Backspace' && !e.target.value && idx > 0) {
+                otpInputs[idx - 1].focus();
+              }
+            });
+            input.addEventListener('paste', function(e) {
+              e.preventDefault();
+              var pasted = (e.clipboardData || window.clipboardData).getData('text').replace(/[^0-9a-zA-Z]/g, '');
+              for (var i = 0; i < otpInputs.length && i < pasted.length; i++) {
+                otpInputs[i].value = pasted[i];
+              }
+              var lastIdx = Math.min(pasted.length, otpInputs.length) - 1;
+              if (lastIdx >= 0) otpInputs[lastIdx].focus();
+            });
+          });
+
+          // Step 2: Verify OTP
+          var verifyBtn = document.getElementById('recovery-verify-btn');
+          if (verifyBtn) {
+            verifyBtn.addEventListener('click', async function() {
+              hideStepError(2);
+              var token = '';
+              otpInputs.forEach(function(inp) { token += inp.value; });
+
+              if (token.length !== 8) {
+                showStepError(2, 'Introduce el c\u00F3digo completo de 8 caracteres');
+                return;
+              }
+
+              verifyBtn.disabled = true;
+              verifyBtn.textContent = 'Verificando...';
+
+              try {
+                if (!window.supabaseClient) throw new Error('No se pudo conectar con el servidor');
+
+                var result = await window.supabaseClient.auth.verifyOtp({
+                  email: _recoveryEmail.toLowerCase(),
+                  token: token,
+                  type: 'recovery'
+                });
+
+                if (result.error) throw new Error(result.error.message);
+
+                showStep(3);
+                var npInput = document.getElementById('recovery-new-password');
+                if (npInput) npInput.focus();
+              } catch (e) {
+                console.error('Error verifying OTP:', e);
+                showStepError(2, 'C\u00F3digo incorrecto o expirado. Int\u00E9ntalo de nuevo.');
+              } finally {
+                verifyBtn.disabled = false;
+                verifyBtn.textContent = 'Verificar';
+              }
+            });
+          }
+
+          // Step 2: Resend code
+          var resendBtn = document.getElementById('recovery-resend-btn');
+          if (resendBtn) {
+            resendBtn.addEventListener('click', async function() {
+              hideStepError(2);
+              if (!_recoveryEmail || !window.supabaseClient) return;
+
+              resendBtn.textContent = 'Enviando...';
+              resendBtn.disabled = true;
+
+              try {
+                var result = await window.supabaseClient.auth.resetPasswordForEmail(_recoveryEmail.toLowerCase(), {
+                  redirectTo: window.location.origin + '/reset-password.html'
+                });
+                if (result.error) throw new Error(result.error.message);
+
+                resendBtn.textContent = 'C\u00F3digo reenviado \u2713';
+                otpInputs.forEach(function(inp) { inp.value = ''; });
+                if (otpInputs.length > 0) otpInputs[0].focus();
+                setTimeout(function() {
+                  resendBtn.textContent = 'Enviar el c\u00F3digo de nuevo';
+                  resendBtn.disabled = false;
+                }, 3000);
+              } catch (e) {
+                showStepError(2, 'Error al reenviar el c\u00F3digo');
+                resendBtn.textContent = 'Enviar el c\u00F3digo de nuevo';
+                resendBtn.disabled = false;
+              }
+            });
+          }
+
+          // Step 3: Update password
+          var updateBtn = document.getElementById('recovery-update-btn');
+          if (updateBtn) {
+            updateBtn.addEventListener('click', async function() {
+              hideStepError(3);
+              var newPw = document.getElementById('recovery-new-password').value;
+              var confirmPw = document.getElementById('recovery-confirm-password').value;
+
+              if (!newPw || newPw.length < 6) {
+                showStepError(3, 'La contrase\u00F1a debe tener al menos 6 caracteres');
+                return;
+              }
+              if (newPw !== confirmPw) {
+                showStepError(3, 'Las contrase\u00F1as no coinciden');
+                return;
+              }
+
+              updateBtn.disabled = true;
+              updateBtn.textContent = 'Guardando...';
+
+              try {
+                if (!window.supabaseClient) throw new Error('No se pudo conectar con el servidor');
+
+                var result = await window.supabaseClient.auth.updateUser({ password: newPw });
+                if (result.error) throw new Error(result.error.message);
+
+                await window.supabaseClient.auth.signOut();
+                showStep(4);
+              } catch (e) {
+                console.error('Error updating password:', e);
+                showStepError(3, e.message || 'Error al actualizar la contrase\u00F1a');
+              } finally {
+                updateBtn.disabled = false;
+                updateBtn.textContent = 'Confirmar contrase\u00F1a';
+              }
+            });
+          }
+        }
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', initRecoveryModal);
+        } else {
+          initRecoveryModal();
         }
       })();
     </script>

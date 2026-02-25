@@ -26,51 +26,61 @@
           >
             <div class="rounded-lg bg-white px-6 py-8 dark:bg-darkblack-600">
               <div class="justify-between gap-12 2xl:flex">
-                <form action="" class="flex-1">
+                <form id="support-form" class="flex-1" onsubmit="return false;">
                   <div class="grid gap-6 md:grid-cols-2">
                     <div>
                       <label
-                        for="fn"
+                        for="support-nombre"
                         class="text-base mb-2 block font-medium text-bgray-600 dark:text-bgray-50"
-                        >Nombre</label
+                        >Nombre <span class="text-red-500">*</span></label
                       >
                       <input
+                        id="support-nombre"
                         type="text"
+                        required
                         class="w-full rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white"
                       />
                     </div>
                     <div>
                       <label
-                        for="ln"
+                        for="support-apellido"
                         class="text-base mb-2 block font-medium text-bgray-600 dark:text-bgray-50"
-                        >Apellido</label
+                        >Apellido <span class="text-red-500">*</span></label
                       >
                       <input
+                        id="support-apellido"
                         type="text"
+                        required
                         class="w-full rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white"
                       />
                     </div>
                     <div>
                       <label
-                        for="email"
+                        for="support-email"
                         class="text-base mb-2 block font-medium text-bgray-600 dark:text-bgray-50"
-                        >Correo electrónico</label
+                        >Correo electr&oacute;nico <span class="text-red-500">*</span></label
                       >
                       <input
-                        type="text"
+                        id="support-email"
+                        type="email"
+                        required
                         class="w-full rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white"
                       />
+                      <p id="support-email-error" class="mt-1 text-xs text-red-500 hidden">Introduce un correo electr&oacute;nico v&aacute;lido</p>
                     </div>
                     <div>
                       <label
-                        for="fn"
+                        for="support-telefono"
                         class="text-base mb-2 block font-medium text-bgray-600 dark:text-bgray-50"
-                        >Número de teléfono (opcional)</label
+                        >N&uacute;mero de tel&eacute;fono (opcional)</label
                       >
                       <input
-                        type="text"
+                        id="support-telefono"
+                        type="tel"
                         class="w-full rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white"
+                        placeholder="+34 600 000 000"
                       />
+                      <p id="support-telefono-error" class="mt-1 text-xs text-red-500 hidden">Introduce un n&uacute;mero de tel&eacute;fono v&aacute;lido</p>
                     </div>
                   </div>
                   <div class="mb-6 mt-10">
@@ -80,12 +90,14 @@
                       Problemas de soporte
                     </h4>
                     <label
-                      for=""
+                      for="support-titulo"
                       class="mb-2 block text-base font-semibold dark:text-white"
-                      >Título</label
+                      >T&iacute;tulo <span class="text-red-500">*</span></label
                     >
                     <input
+                      id="support-titulo"
                       type="text"
+                      required
                       class="w-full rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white"
                     />
                   </div>
@@ -93,13 +105,31 @@
                     <label
                       for=""
                       class="mb-2 block text-base font-semibold dark:text-white"
-                      >Descripción</label
+                      >Descripci&oacute;n <span class="text-red-500">*</span></label
                     >
                     <div class="h-60 rounded-b-lg" id="editor"></div>
+                    <div class="mt-2 flex items-center justify-between">
+                      <p id="desc-char-count" class="text-xs text-bgray-500 dark:text-bgray-400">0 / 150 caracteres m&iacute;nimo</p>
+                      <p id="desc-error" class="text-xs text-red-500 hidden">M&iacute;nimo 150 caracteres</p>
+                    </div>
                   </div>
+
+                  <!-- Rate limit warning -->
+                  <p id="support-rate-error" class="mb-4 text-sm text-red-500 hidden"></p>
+
+                  <!-- Success message -->
+                  <div id="support-success" class="mb-4 hidden rounded-lg bg-success-300/10 border border-success-300 p-4">
+                    <div class="flex items-center gap-3">
+                      <svg class="h-5 w-5 text-success-300 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+                      <p class="text-sm font-semibold text-success-300">Tu ticket ha sido enviado correctamente. Nos pondremos en contacto contigo lo antes posible.</p>
+                    </div>
+                  </div>
+
                   <div class="flex justify-end">
                     <button
-                      class="rounded-lg bg-success-300 px-12 py-3.5 font-semibold text-white transition-all hover:bg-success-400"
+                      id="support-submit-btn"
+                      type="button"
+                      class="rounded-lg bg-success-300 px-12 py-3.5 font-semibold text-white transition-all hover:bg-success-400 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Enviar ticket
                     </button>
@@ -134,7 +164,7 @@
       document.addEventListener('DOMContentLoaded', function() {
         var quill = new Quill('#editor', {
           theme: 'snow',
-          placeholder: 'Describe tu problema...',
+          placeholder: 'Describe tu problema con detalle (mínimo 150 caracteres)...',
           modules: {
             toolbar: [
               ['bold', 'italic', 'underline'],
@@ -142,6 +172,153 @@
               ['link'],
               ['clean']
             ]
+          }
+        });
+
+        var charCountEl = document.getElementById('desc-char-count');
+        var descErrorEl = document.getElementById('desc-error');
+        var MIN_CHARS = 150;
+
+        quill.on('text-change', function() {
+          var plainText = quill.getText().trim();
+          var len = plainText.length;
+          if (charCountEl) {
+            charCountEl.textContent = len + ' / ' + MIN_CHARS + ' caracteres m\u00EDnimo';
+            charCountEl.className = len >= MIN_CHARS
+              ? 'text-xs text-success-300'
+              : 'text-xs text-bgray-500 dark:text-bgray-400';
+          }
+          if (descErrorEl && len >= MIN_CHARS) {
+            descErrorEl.classList.add('hidden');
+          }
+        });
+
+        var emailInput = document.getElementById('support-email');
+        var emailError = document.getElementById('support-email-error');
+        if (emailInput) {
+          emailInput.addEventListener('blur', function() {
+            var val = emailInput.value.trim();
+            var valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+            if (val && !valid) {
+              emailError.classList.remove('hidden');
+              emailInput.classList.add('border', 'border-red-500');
+            } else {
+              emailError.classList.add('hidden');
+              emailInput.classList.remove('border', 'border-red-500');
+            }
+          });
+        }
+
+        var telInput = document.getElementById('support-telefono');
+        var telError = document.getElementById('support-telefono-error');
+        if (telInput) {
+          telInput.addEventListener('blur', function() {
+            var val = telInput.value.trim();
+            var valid = !val || /^\+?[\d\s\-()]{6,20}$/.test(val);
+            if (!valid) {
+              telError.classList.remove('hidden');
+              telInput.classList.add('border', 'border-red-500');
+            } else {
+              telError.classList.add('hidden');
+              telInput.classList.remove('border', 'border-red-500');
+            }
+          });
+        }
+
+        var submitBtn = document.getElementById('support-submit-btn');
+        submitBtn.addEventListener('click', async function() {
+          var nombre = document.getElementById('support-nombre').value.trim();
+          var apellido = document.getElementById('support-apellido').value.trim();
+          var email = document.getElementById('support-email').value.trim();
+          var telefono = document.getElementById('support-telefono').value.trim();
+          var titulo = document.getElementById('support-titulo').value.trim();
+          var descHtml = quill.root.innerHTML;
+          var descPlain = quill.getText().trim();
+
+          var rateError = document.getElementById('support-rate-error');
+          var successEl = document.getElementById('support-success');
+          rateError.classList.add('hidden');
+          successEl.classList.add('hidden');
+
+          // Validations
+          var hasErrors = false;
+
+          if (!nombre || !apellido || !email || !titulo) {
+            rateError.textContent = 'Por favor completa todos los campos obligatorios.';
+            rateError.classList.remove('hidden');
+            hasErrors = true;
+          }
+
+          if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            emailError.classList.remove('hidden');
+            hasErrors = true;
+          }
+
+          if (telefono && !/^\+?[\d\s\-()]{6,20}$/.test(telefono)) {
+            telError.classList.remove('hidden');
+            hasErrors = true;
+          }
+
+          if (descPlain.length < MIN_CHARS) {
+            descErrorEl.classList.remove('hidden');
+            hasErrors = true;
+          }
+
+          if (hasErrors) return;
+
+          submitBtn.disabled = true;
+          var originalText = submitBtn.textContent;
+          submitBtn.textContent = 'Enviando...';
+
+          try {
+            var attempts = 0;
+            while (!window.supabaseClient && attempts < 50) {
+              await new Promise(function(r) { setTimeout(r, 100); });
+              attempts++;
+            }
+            if (!window.supabaseClient) throw new Error('No se pudo conectar con el servidor.');
+
+            var result = await window.supabaseClient.functions.invoke('send-support-ticket', {
+              body: {
+                nombre: nombre,
+                apellido: apellido,
+                email: email,
+                telefono: telefono || null,
+                titulo: titulo,
+                descripcion: descHtml
+              }
+            });
+
+            if (result.error) {
+              var msg = 'Error al enviar el ticket.';
+              try {
+                if (result.error.context && typeof result.error.context.json === 'function') {
+                  var body = await result.error.context.json();
+                  if (body && body.error) msg = body.error;
+                }
+              } catch(_) {}
+              throw new Error(msg);
+            }
+
+            var data = result.data;
+            if (!data || !data.success) {
+              throw new Error((data && data.error) || 'Error inesperado al enviar el ticket.');
+            }
+
+            successEl.classList.remove('hidden');
+            document.getElementById('support-form').reset();
+            quill.setContents([]);
+            if (charCountEl) {
+              charCountEl.textContent = '0 / ' + MIN_CHARS + ' caracteres m\u00EDnimo';
+              charCountEl.className = 'text-xs text-bgray-500 dark:text-bgray-400';
+            }
+          } catch(e) {
+            console.error('Error sending support ticket:', e);
+            rateError.textContent = e.message || 'Error al enviar el ticket. Int\u00E9ntalo de nuevo.';
+            rateError.classList.remove('hidden');
+          } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
           }
         });
       });

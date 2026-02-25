@@ -852,9 +852,9 @@
                         id="withholding"
                         class="h-11 w-full rounded-lg border border-bgray-200 bg-white px-4 text-sm text-bgray-600 focus:border-success-300 focus:outline-none dark:border-darkblack-500 dark:bg-darkblack-500 dark:text-bgray-50"
                       >
-                        <option value="0">Sin retención</option>
+                        <option value="0" selected>Sin retención</option>
                         <option value="7">7% (reducido)</option>
-                        <option value="15" selected>15% (general)</option>
+                        <option value="15">15% (general)</option>
                         <option value="19">19%</option>
                         <option value="24">24%</option>
                       </select>
@@ -2676,6 +2676,12 @@
             if (currentUser.email) document.getElementById('issuer-email').value = currentUser.email;
             if (bd.direccion_facturacion) document.getElementById('issuer-address').value = bd.direccion_facturacion;
             if (bd.codigo_postal) document.getElementById('issuer-postal-code').value = bd.codigo_postal;
+
+            var withholdingSelect = document.getElementById('withholding');
+            if (withholdingSelect && bd.business_type) {
+              withholdingSelect.value = bd.business_type === 'autonomo' ? '15' : '0';
+              if (typeof updateInvoiceSummary === 'function') updateInvoiceSummary();
+            }
             
           } catch (error) {
             console.error('Error al cargar datos del emisor:', error);

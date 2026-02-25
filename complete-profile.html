@@ -180,6 +180,22 @@
                 </select>
               </div>
 
+              <div class="mb-6">
+                <label class="text-sm font-medium text-bgray-600 dark:text-bgray-50 mb-2 block">
+                  Tipo de negocio<span class="text-red-500">*</span>
+                </label>
+                <select
+                  id="business-type"
+                  name="business_type"
+                  required
+                  class="text-bgray-800 dark:text-white dark:bg-darkblack-500 dark:border-darkblack-400 text-base border border-bgray-300 h-14 w-full focus:border-success-300 focus:ring-0 rounded-lg px-4 py-3.5"
+                >
+                  <option value="">Selecciona tipo</option>
+                  <option value="autonomo">Aut&oacute;nomo</option>
+                  <option value="empresa">Empresa</option>
+                </select>
+              </div>
+
               <div id="error-message" class="hidden mb-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 rounded-lg text-sm"></div>
               <div id="success-message" class="hidden mb-4 p-3 bg-green-100 dark:bg-green-900/30 border border-green-400 dark:border-green-800 text-green-700 dark:text-green-300 rounded-lg text-sm"></div>
               
@@ -303,6 +319,7 @@
           const provincia = document.getElementById('provincia').value.trim();
           const pais = document.getElementById('pais').value.trim() || 'España';
           const sector = document.getElementById('sector').value;
+          const businessType = document.getElementById('business-type').value;
 
           // Validaciones
           if (!nombreFiscal) {
@@ -350,6 +367,11 @@
             return;
           }
 
+          if (!businessType) {
+            showError('Debes seleccionar el tipo de negocio');
+            return;
+          }
+
           // Deshabilitar botón durante el envío
           submitButton.disabled = true;
           submitButton.textContent = 'Guardando...';
@@ -365,7 +387,8 @@
               codigo_postal: codigoPostal,
               provincia: provincia,
               pais: pais,
-              sector: sector
+              sector: sector,
+              business_type: businessType
             };
 
             const result = await window.saveBusinessInfo(businessData);
