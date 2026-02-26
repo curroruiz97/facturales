@@ -226,6 +226,7 @@ class ClienteModal {
       'cliente-id': client.id,
       'cliente-name': client.nombre_razon_social || '',
       'cliente-taxid': client.identificador || '',
+      'cliente-tipo': client.tipo_cliente || 'autonomo',
       'cliente-email': client.email || '',
       'cliente-phone': client.telefono || '',
       'cliente-address': client.direccion || '',
@@ -290,6 +291,7 @@ class ClienteModal {
     return {
       nombre_razon_social: document.getElementById('cliente-name')?.value.trim() || '',
       identificador: document.getElementById('cliente-taxid')?.value.trim() || '',
+      tipo_cliente: document.getElementById('cliente-tipo')?.value || 'autonomo',
       email: document.getElementById('cliente-email')?.value.trim() || null,
       telefono: document.getElementById('cliente-phone')?.value.trim() || null,
       direccion: document.getElementById('cliente-address')?.value.trim() || null,

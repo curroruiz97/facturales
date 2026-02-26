@@ -183,6 +183,9 @@ async function handleSaveExpense(event) {
     const tipo = tipoGasto ? 'gasto' : (tipoIngreso ? 'ingreso' : 'gasto');
     
     // Recoger datos del formulario
+    const ivaVal = document.getElementById('expense-iva')?.value;
+    const irpfVal = document.getElementById('expense-irpf')?.value;
+
     const transactionData = {
       cliente_id: document.getElementById('expense-contact-id').value || null,
       concepto: document.getElementById('expense-concept').value.trim(),
@@ -190,7 +193,9 @@ async function handleSaveExpense(event) {
       fecha: document.getElementById('expense-date').value,
       categoria: document.getElementById('expense-category').value,
       observaciones: document.getElementById('expense-notes')?.value.trim() || null,
-      tipo: tipo
+      tipo: tipo,
+      iva_porcentaje: ivaVal !== '' && ivaVal != null ? parseFloat(ivaVal) : null,
+      irpf_porcentaje: irpfVal !== '' && irpfVal != null ? parseFloat(irpfVal) : null
     };
     
     // Validaciones básicas
@@ -390,7 +395,7 @@ function renderTransactions(transactions) {
     // Mostrar mensaje de no hay datos
     const emptyRow = document.createElement('tr');
     emptyRow.innerHTML = `
-      <td colspan="8" class="px-6 py-10 text-center">
+      <td colspan="9" class="px-6 py-10 text-center">
         <p class="text-base text-bgray-500 dark:text-bgray-400">No se encontraron transacciones</p>
       </td>
     `;
@@ -455,6 +460,13 @@ function renderTransactions(transactions) {
         <p class="text-base font-semibold ${amountColor}">
           ${window.formatCurrency(transaction.importe)}
         </p>
+      </td>
+      <td class="px-6 py-5 xl:px-0">
+        <div class="flex flex-col gap-0.5">
+          ${transaction.iva_porcentaje != null ? `<span class="text-xs font-medium text-bgray-600 dark:text-bgray-400">IVA: ${transaction.iva_porcentaje}%</span>` : ''}
+          ${transaction.irpf_porcentaje != null ? `<span class="text-xs font-medium text-bgray-600 dark:text-bgray-400">IRPF: ${transaction.irpf_porcentaje}%</span>` : ''}
+          ${transaction.iva_porcentaje == null && transaction.irpf_porcentaje == null ? '<span class="text-xs text-bgray-400">—</span>' : ''}
+        </div>
       </td>
       <td class="px-6 py-5 xl:px-0">
         <p class="text-sm font-medium text-bgray-600 dark:text-bgray-400">
@@ -938,6 +950,8 @@ async function editTransaction(transactionId) {
     document.getElementById('expense-date').value = transaction.fecha || '';
     document.getElementById('expense-category').value = transaction.categoria || '';
     document.getElementById('expense-notes').value = transaction.observaciones || '';
+    document.getElementById('expense-iva').value = transaction.iva_porcentaje != null ? transaction.iva_porcentaje : '';
+    document.getElementById('expense-irpf').value = transaction.irpf_porcentaje != null ? transaction.irpf_porcentaje : '';
     
     // Actualizar contador de observaciones
     const notesLength = (transaction.observaciones || '').length;

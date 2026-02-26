@@ -47,6 +47,7 @@ async function createClient(clientData) {
       pais: clientData.pais?.trim() || null,
       dia_facturacion: clientData.dia_facturacion ? parseInt(clientData.dia_facturacion) : null,
       estado: clientData.estado || 'activo',
+      tipo_cliente: clientData.tipo_cliente || 'autonomo',
       user_id: user.id // Auto-asignar user_id
     };
 
@@ -56,6 +57,9 @@ async function createClient(clientData) {
     }
     if (!data.identificador) {
       throw new Error('El identificador es obligatorio');
+    }
+    if (!['autonomo', 'sociedad'].includes(data.tipo_cliente)) {
+      throw new Error('El tipo de cliente debe ser "autonomo" o "sociedad"');
     }
     
     // Insertar en Supabase
@@ -229,6 +233,10 @@ async function updateClient(clientId, clientData) {
     
     if (clientData.estado !== undefined) {
       data.estado = clientData.estado || 'activo';
+    }
+
+    if (clientData.tipo_cliente !== undefined) {
+      data.tipo_cliente = clientData.tipo_cliente;
     }
 
     // Validaciones SOLO si se están actualizando esos campos
@@ -417,6 +425,11 @@ function validateClientData(data) {
     errors.telefono = 'El formato del teléfono no es válido';
   }
   
+  // Tipo de cliente obligatorio
+  if (!data.tipo_cliente || !['autonomo', 'sociedad'].includes(data.tipo_cliente)) {
+    errors.tipo_cliente = 'El tipo de cliente es obligatorio (autónomo o sociedad)';
+  }
+
   // Día de facturación válido
   if (data.dia_facturacion) {
     const day = parseInt(data.dia_facturacion);
@@ -501,6 +514,7 @@ async function importClientsBulk(validRows, options) {
         pais: d.pais || null,
         dia_facturacion: d.dia_facturacion || null,
         estado: d.estado || 'recurrente',
+        tipo_cliente: d.tipo_cliente || 'autonomo',
         user_id: user.id
       };
     });

@@ -66,6 +66,21 @@
                   placeholder="Ej: B12345678"
                 />
               </div>
+
+              <!-- Tipo de cliente -->
+              <div>
+                <label for="cliente-tipo" class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
+                  Tipo de cliente <span class="text-red-500">*</span>
+                </label>
+                <select
+                  id="cliente-tipo"
+                  required
+                  class="w-full h-12 rounded-lg border border-bgray-300 dark:border-darkblack-400 bg-white dark:bg-darkblack-500 px-4 py-3 text-sm text-bgray-900 dark:text-white focus:border-success-300 focus:ring-2 focus:ring-success-300/20 transition-all"
+                >
+                  <option value="autonomo">Aut&oacute;nomo</option>
+                  <option value="sociedad">Sociedad</option>
+                </select>
+              </div>
               
               <!-- Email -->
               <div>

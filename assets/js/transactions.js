@@ -36,7 +36,9 @@ async function createTransaction(transactionData) {
       fecha: transactionData.fecha,
       categoria: transactionData.categoria,
       observaciones: transactionData.observaciones?.trim() || null,
-      tipo: transactionData.tipo
+      tipo: transactionData.tipo,
+      iva_porcentaje: transactionData.iva_porcentaje != null && transactionData.iva_porcentaje !== '' ? parseFloat(transactionData.iva_porcentaje) : null,
+      irpf_porcentaje: transactionData.irpf_porcentaje != null && transactionData.irpf_porcentaje !== '' ? parseFloat(transactionData.irpf_porcentaje) : null
     };
 
     // Validaciones básicas
@@ -270,6 +272,14 @@ async function updateTransaction(transactionId, transactionData) {
         throw new Error('El tipo debe ser "gasto" o "ingreso"');
       }
       data.tipo = transactionData.tipo;
+    }
+
+    if (transactionData.iva_porcentaje !== undefined) {
+      data.iva_porcentaje = transactionData.iva_porcentaje != null && transactionData.iva_porcentaje !== '' ? parseFloat(transactionData.iva_porcentaje) : null;
+    }
+
+    if (transactionData.irpf_porcentaje !== undefined) {
+      data.irpf_porcentaje = transactionData.irpf_porcentaje != null && transactionData.irpf_porcentaje !== '' ? parseFloat(transactionData.irpf_porcentaje) : null;
     }
 
     // Actualizar en Supabase

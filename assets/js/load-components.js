@@ -146,6 +146,10 @@ function updatePageTitle() {
     '/invoices/quote-issued': 'Presupuestos emitidos',
     '/scan-ocr.html': 'Scan OCR',
     '/scan-ocr': 'Scan OCR',
+    '/fiscal.html': 'Resumen Fiscal',
+    '/fiscal': 'Resumen Fiscal',
+    '/productos.html': 'Productos',
+    '/productos': 'Productos',
   };
 
   const title = pageTitles[path] || pageTitles[path.replace('.html', '')] || 'Panel de control';

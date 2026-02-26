@@ -442,6 +442,9 @@
                             </button>
                           </td>
                           <td class="px-6 py-5 xl:px-0">
+                            <span class="text-base font-medium text-bgray-600 dark:text-bgray-50">IVA / IRPF</span>
+                          </td>
+                          <td class="px-6 py-5 xl:px-0">
                             <button type="button" onclick="window.sortTransactions('fecha')" class="flex items-center space-x-2 cursor-pointer group">
                               <span class="text-base font-medium text-bgray-600 dark:text-bgray-50">Fecha</span>
                               <svg class="sort-icon" width="10" height="12" viewBox="0 0 10 12" fill="none"><path d="M5 0L9 4H1L5 0Z" class="sort-asc" fill="#CBD5E0"/><path d="M5 12L1 8H9L5 12Z" class="sort-desc" fill="#CBD5E0"/></svg>
@@ -866,6 +869,44 @@
                         placeholder="0,00"
                       />
                       <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-bgray-500">&euro;</span>
+                    </div>
+                  </div>
+
+                  <!-- IVA e IRPF -->
+                  <div class="grid grid-cols-2 gap-3">
+                    <div>
+                      <label for="expense-iva" class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
+                        IVA <span class="text-xs text-bgray-500">(%)</span>
+                      </label>
+                      <div class="relative">
+                        <input
+                          type="number"
+                          id="expense-iva"
+                          step="0.01"
+                          min="0"
+                          max="100"
+                          class="w-full h-12 rounded-lg border border-bgray-300 dark:border-darkblack-400 bg-white dark:bg-darkblack-500 px-4 py-3 text-sm text-bgray-900 dark:text-white placeholder:text-bgray-500 focus:border-success-300 focus:ring-2 focus:ring-success-300/20 transition-all"
+                          placeholder="21"
+                        />
+                        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-bgray-500">%</span>
+                      </div>
+                    </div>
+                    <div>
+                      <label for="expense-irpf" class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
+                        IRPF <span class="text-xs text-bgray-500">(%)</span>
+                      </label>
+                      <div class="relative">
+                        <input
+                          type="number"
+                          id="expense-irpf"
+                          step="0.01"
+                          min="0"
+                          max="100"
+                          class="w-full h-12 rounded-lg border border-bgray-300 dark:border-darkblack-400 bg-white dark:bg-darkblack-500 px-4 py-3 text-sm text-bgray-900 dark:text-white placeholder:text-bgray-500 focus:border-success-300 focus:ring-2 focus:ring-success-300/20 transition-all"
+                          placeholder="15"
+                        />
+                        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-bgray-500">%</span>
+                      </div>
                     </div>
                   </div>
                   

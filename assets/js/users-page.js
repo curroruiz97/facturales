@@ -244,6 +244,10 @@ function renderClientsTable(clients) {
           <div>
             <p class="text-sm font-semibold text-bgray-900 dark:text-white">${escapeHtml(client.nombre_razon_social)}</p>
             <p class="text-xs font-medium text-bgray-600 dark:text-bgray-50">${escapeHtml(client.identificador)}</p>
+            ${client.tipo_cliente === 'sociedad'
+              ? '<span class="inline-block mt-1 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-600 dark:bg-blue-900/20 dark:text-blue-400">Sociedad</span>'
+              : '<span class="inline-block mt-1 rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-bold text-orange-600 dark:bg-orange-900/20 dark:text-orange-400">Aut\u00f3nomo</span>'
+            }
           </div>
         </div>
       </td>
@@ -459,6 +463,7 @@ async function openEditClientModal(clientId) {
     document.getElementById('client-id').value = client.id;
     document.getElementById('client-name').value = client.nombre_razon_social || '';
     document.getElementById('client-taxid').value = client.identificador || '';
+    document.getElementById('client-tipo').value = client.tipo_cliente || 'autonomo';
     document.getElementById('client-email').value = client.email || '';
     document.getElementById('client-phone').value = client.telefono || '';
     document.getElementById('client-address').value = client.direccion || '';
@@ -490,6 +495,7 @@ async function handleSubmitClient(event) {
     const clientData = {
       nombre_razon_social: document.getElementById('client-name').value,
       identificador: document.getElementById('client-taxid').value,
+      tipo_cliente: document.getElementById('client-tipo').value,
       email: document.getElementById('client-email').value || null,
       telefono: document.getElementById('client-phone').value || null,
       direccion: document.getElementById('client-address').value || null,
@@ -921,11 +927,12 @@ function exportContactsCSV() {
     showToast('No hay contactos para exportar', 'error');
     return;
   }
-  var headers = ['Nombre / Razón Social','NIF/CIF','Email','Teléfono','Dirección','Ciudad','Provincia','Código Postal','País','Día Facturación','Estado','Total Facturado'];
+  var headers = ['Nombre / Razón Social','NIF/CIF','Tipo Cliente','Email','Teléfono','Dirección','Ciudad','Provincia','Código Postal','País','Día Facturación','Estado','Total Facturado'];
   var rows = allClients.map(function(c) {
     return [
       c.nombre_razon_social || '',
       c.identificador || '',
+      c.tipo_cliente === 'sociedad' ? 'Sociedad' : 'Autónomo',
       c.email || '',
       c.telefono || '',
       c.direccion || '',
