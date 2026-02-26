@@ -127,16 +127,13 @@
           <thead>
             <tr class="border-b border-bgray-300 dark:border-darkblack-400">
               <td class="whitespace-nowrap py-4 pr-6">
-                <span class="text-base font-medium text-bgray-600 dark:text-bgray-50">Cliente</span>
-              </td>
-              <td class="whitespace-nowrap px-6 py-4">
                 <span class="text-base font-medium text-bgray-600 dark:text-bgray-50">Contacto</span>
               </td>
               <td class="whitespace-nowrap px-6 py-4">
-                <span class="text-base font-medium text-bgray-600 dark:text-bgray-50">Facturación</span>
+                <span class="text-base font-medium text-bgray-600 dark:text-bgray-50">Info. contacto</span>
               </td>
               <td class="whitespace-nowrap px-6 py-4">
-                <span class="text-base font-medium text-bgray-600 dark:text-bgray-50">Estado</span>
+                <span class="text-base font-medium text-bgray-600 dark:text-bgray-50">Tipo</span>
               </td>
               <td class="whitespace-nowrap px-6 py-4">
                 <span class="text-base font-medium text-bgray-600 dark:text-bgray-50">Facturado</span>
@@ -196,7 +193,7 @@
       <!-- Header -->
       <div class="flex items-center justify-between border-b border-bgray-200 dark:border-darkblack-400 px-6 py-4">
         <h3 class="modal-title text-xl font-bold text-bgray-900 dark:text-white" id="modal-title">
-          Nuevo Cliente
+          Nuevo Contacto
         </h3>
         <button 
           type="button" 
@@ -250,10 +247,10 @@
                 />
               </div>
 
-              <!-- Tipo de cliente -->
+              <!-- Tipo de contacto -->
               <div>
                 <label for="client-tipo" class="mb-2 block text-sm font-semibold text-bgray-900 dark:text-white">
-                  Tipo de cliente <span class="text-red-500">*</span>
+                  Tipo de contacto <span class="text-red-500">*</span>
                 </label>
                 <select
                   id="client-tipo"
@@ -261,7 +258,7 @@
                   class="w-full h-12 rounded-lg border border-bgray-300 dark:border-darkblack-400 bg-white dark:bg-darkblack-500 px-4 py-3 text-sm text-bgray-900 dark:text-white focus:border-success-300 focus:ring-2 focus:ring-success-300/20 transition-all"
                 >
                   <option value="autonomo">Aut&oacute;nomo</option>
-                  <option value="sociedad">Sociedad</option>
+                  <option value="empresa">Empresa</option>
                 </select>
               </div>
               

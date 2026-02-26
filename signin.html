@@ -640,6 +640,57 @@
             console.error('❌ toggleSigninPasswordBtn no encontrado');
           }
 
+          async function redirectAfterLogin() {
+            try {
+              if (!window.supabaseClient) { window.location.href = './index.html'; return; }
+              var sb = window.supabaseClient;
+              var authRes = await sb.auth.getUser();
+              if (!authRes.data || !authRes.data.user) { window.location.href = './index.html'; return; }
+              var uid = authRes.data.user.id;
+
+              // 1. Verificar si tiene business_info
+              if (typeof window.getBusinessInfo === 'function') {
+                var biRes = await window.getBusinessInfo(uid);
+                if (!biRes.success || !biRes.data) {
+                  window.location.href = './complete-profile.html';
+                  return;
+                }
+              }
+
+              // 2. Verificar suscripción activa
+              var subRes = await sb
+                .from('billing_subscriptions')
+                .select('status')
+                .eq('user_id', uid)
+                .in('status', ['trialing', 'active'])
+                .limit(1)
+                .maybeSingle();
+
+              if (!subRes.data) {
+                // Comprobar periodo de gracia
+                var cancelRes = await sb
+                  .from('billing_subscriptions')
+                  .select('status, cancel_at_period_end, current_period_end')
+                  .eq('user_id', uid)
+                  .eq('cancel_at_period_end', true)
+                  .order('created_at', { ascending: false })
+                  .limit(1)
+                  .maybeSingle();
+
+                var hasGrace = cancelRes.data && cancelRes.data.current_period_end && new Date(cancelRes.data.current_period_end) > new Date();
+                if (!hasGrace) {
+                  window.location.href = './subscribe.html';
+                  return;
+                }
+              }
+
+              window.location.href = './index.html';
+            } catch (e) {
+              console.error('Error en redirectAfterLogin:', e);
+              window.location.href = './index.html';
+            }
+          }
+
           // Submit del formulario
           if (form) {
             console.log('✅ Configurando submit del formulario');
@@ -693,8 +744,12 @@
                 if (result.success) {
                   showSuccess('¡Inicio de sesión exitoso! Redirigiendo...');
                   
-                  setTimeout(() => {
-                    window.location.href = './index.html';
+                  setTimeout(async () => {
+                    try {
+                      await redirectAfterLogin();
+                    } catch (e) {
+                      window.location.href = './index.html';
+                    }
                   }, 1000);
                 } else {
                   if (result.error && result.error.includes('confirmar tu email')) {
@@ -728,8 +783,7 @@
               if (typeof window.checkAuth === 'function') {
                 const isAuthenticated = await window.checkAuth();
                 if (isAuthenticated) {
-                  console.log('✅ Usuario ya autenticado, redirigiendo...');
-                  window.location.href = './index.html';
+                  await redirectAfterLogin();
                 }
               }
             } catch (error) {

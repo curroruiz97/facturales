@@ -618,22 +618,19 @@
                         <thead>
                           <tr class="border-b border-bgray-300 dark:border-darkblack-400">
                             <td class="whitespace-nowrap py-4 pr-6">
-                              <span class="text-base font-medium text-bgray-600 dark:text-bgray-50">Cliente</span>
-                            </td>
-                            <td class="whitespace-nowrap px-6 py-4">
                               <span class="text-base font-medium text-bgray-600 dark:text-bgray-50">Contacto</span>
                             </td>
                             <td class="whitespace-nowrap px-6 py-4">
-                              <span class="text-base font-medium text-bgray-600 dark:text-bgray-50">Facturación</span>
+                              <span class="text-base font-medium text-bgray-600 dark:text-bgray-50">Info. contacto</span>
                             </td>
                             <td class="whitespace-nowrap px-6 py-4">
-                              <span class="text-base font-medium text-bgray-600 dark:text-bgray-50">Estado</span>
+                              <span class="text-base font-medium text-bgray-600 dark:text-bgray-50">Tipo</span>
                             </td>
                             <td class="whitespace-nowrap px-6 py-4">
                               <span class="text-base font-medium text-bgray-600 dark:text-bgray-50">Facturado</span>
                             </td>
                             <td class="whitespace-nowrap py-4 pl-6 text-right">
-                              <span class="text-base font-medium text-bgray-600 dark:text-bgray-50">Acciones</span>
+                              <span class="text-base font-medium text-bgray-600 dark:text-bgray-50"></span>
                             </td>
                           </tr>
                         </thead>
@@ -705,7 +702,7 @@
                       <!-- Añadir contacto -->
                       <button
                         onclick="window.location.href='users.html'"
-                        class="group flex flex-col items-center justify-center p-2 sm:p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-success-300 hover:bg-white dark:bg-transparent dark:border-[rgba(255,255,255,0.07)] dark:hover:bg-[rgba(255,255,255,0.04)] dark:hover:border-[rgba(236,130,40,0.5)] transition-all duration-300 hover:shadow-md active:scale-95"
+                        class="group flex flex-col items-center justify-center p-2 sm:p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-blue-400 hover:bg-white dark:bg-transparent dark:border-[rgba(255,255,255,0.15)] dark:hover:bg-[rgba(255,255,255,0.04)] dark:hover:border-blue-400 transition-all duration-300 hover:shadow-md active:scale-95"
                       >
                         <div class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 mb-2 sm:mb-3 rounded-full bg-blue-50 group-hover:bg-blue-100 transition-colors duration-300">
                           <svg
@@ -751,7 +748,7 @@
                       <!-- Añadir gasto -->
                       <button
                         onclick="window.location.href='expenses.html'"
-                        class="group flex flex-col items-center justify-center p-2 sm:p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-success-300 hover:bg-white dark:bg-transparent dark:border-[rgba(255,255,255,0.07)] dark:hover:bg-[rgba(255,255,255,0.04)] dark:hover:border-[rgba(236,130,40,0.5)] transition-all duration-300 hover:shadow-md active:scale-95"
+                        class="group flex flex-col items-center justify-center p-2 sm:p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-red-400 hover:bg-white dark:bg-transparent dark:border-[rgba(255,255,255,0.15)] dark:hover:bg-[rgba(255,255,255,0.04)] dark:hover:border-red-400 transition-all duration-300 hover:shadow-md active:scale-95"
                       >
                         <div class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 mb-2 sm:mb-3 rounded-full bg-red-50 group-hover:bg-red-100 transition-colors duration-300">
                           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -768,7 +765,7 @@
                       <!-- Crear un presupuesto -->
                       <button
                         onclick="window.location.href='invoices/quote.html'"
-                        class="group flex flex-col items-center justify-center p-2 sm:p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-success-300 hover:bg-white dark:bg-transparent dark:border-[rgba(255,255,255,0.07)] dark:hover:bg-[rgba(255,255,255,0.04)] dark:hover:border-[rgba(236,130,40,0.5)] transition-all duration-300 hover:shadow-md active:scale-95"
+                        class="group flex flex-col items-center justify-center p-2 sm:p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-purple-400 hover:bg-white dark:bg-transparent dark:border-[rgba(255,255,255,0.15)] dark:hover:bg-[rgba(255,255,255,0.04)] dark:hover:border-purple-400 transition-all duration-300 hover:shadow-md active:scale-95"
                       >
                         <div class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 mb-2 sm:mb-3 rounded-full transition-colors duration-300" style="background-color: rgba(139,92,246,0.1);" onmouseover="this.style.backgroundColor='rgba(139,92,246,0.25)'" onmouseout="this.style.backgroundColor='rgba(139,92,246,0.1)'">
                           <svg
@@ -1515,15 +1512,19 @@
             localStorage.theme === "dark"
           ) {
             revenueFlow.data.datasets = dataSetsDark;
-            revenueFlow.options.scales.y.ticks.color = "#8b8fa3";
-            revenueFlow.options.scales.x.ticks.color = "#8b8fa3";
-            revenueFlow.options.scales.x.grid.color = "rgba(255,255,255,0.06)";
-            revenueFlow.options.scales.y.grid.color = "rgba(255,255,255,0.06)";
+            revenueFlow.options.scales.y.ticks.color = "#c5c9d6";
+            revenueFlow.options.scales.y.ticks.font = { size: 12, weight: '600' };
+            revenueFlow.options.scales.x.ticks.color = "#c5c9d6";
+            revenueFlow.options.scales.x.ticks.font = { size: 12, weight: '600' };
+            revenueFlow.options.scales.x.grid.color = "rgba(255,255,255,0.04)";
+            revenueFlow.options.scales.y.grid.color = "rgba(255,255,255,0.04)";
             revenueFlow.update();
           } else {
             revenueFlow.data.datasets = dataSetsLight;
             revenueFlow.options.scales.y.ticks.color = "#4a5568";
+            revenueFlow.options.scales.y.ticks.font = { size: 12, weight: '500' };
             revenueFlow.options.scales.x.ticks.color = "#4a5568";
+            revenueFlow.options.scales.x.ticks.font = { size: 12, weight: '500' };
             revenueFlow.options.scales.x.grid.color = "rgb(243 ,246, 255 ,1)";
             revenueFlow.options.scales.y.grid.color = "rgb(243 ,246, 255 ,1)";
             revenueFlow.update();
@@ -1537,14 +1538,18 @@
         window.matchMedia("(prefers-color-scheme: dark)").matches
       ) {
         revenueFlow.data.datasets = dataSetsDark;
-        revenueFlow.options.scales.y.ticks.color = "#8b8fa3";
-        revenueFlow.options.scales.x.ticks.color = "#8b8fa3";
-        revenueFlow.options.scales.x.grid.color = "rgba(255,255,255,0.06)";
-        revenueFlow.options.scales.y.grid.color = "rgba(255,255,255,0.06)";
+        revenueFlow.options.scales.y.ticks.color = "#c5c9d6";
+        revenueFlow.options.scales.y.ticks.font = { size: 12, weight: '600' };
+        revenueFlow.options.scales.x.ticks.color = "#c5c9d6";
+        revenueFlow.options.scales.x.ticks.font = { size: 12, weight: '600' };
+        revenueFlow.options.scales.x.grid.color = "rgba(255,255,255,0.04)";
+        revenueFlow.options.scales.y.grid.color = "rgba(255,255,255,0.04)";
       } else {
         revenueFlow.data.datasets = dataSetsLight;
         revenueFlow.options.scales.y.ticks.color = "#4a5568";
+        revenueFlow.options.scales.y.ticks.font = { size: 12, weight: '500' };
         revenueFlow.options.scales.x.ticks.color = "#4a5568";
+        revenueFlow.options.scales.x.ticks.font = { size: 12, weight: '500' };
         revenueFlow.options.scales.x.grid.color = "rgb(243 ,246, 255 ,1)";
         revenueFlow.options.scales.y.grid.color = "rgb(243 ,246, 255 ,1)";
       }
@@ -1751,6 +1756,7 @@
       var _allDashboardClients = [];
       var _filteredDashboardClients = [];
       var _dashboardInvoiceTotals = {};
+      var _dashboardExpenseTotals = {};
       var _contactFilterCity = '';
       var _contactFilterStatus = '';
       var _contactFilterPriceMin = null;
@@ -1773,6 +1779,7 @@
           var uid = userResult.data.user.id;
 
           _dashboardInvoiceTotals = {};
+          _dashboardExpenseTotals = {};
           _dashPendingUnlinkedInvoices = [];
 
           // Query 1: facturas CON client_id, emitidas y pagadas
@@ -1799,6 +1806,19 @@
             .is('client_id', null);
           if (unlinked.data) {
             _dashPendingUnlinkedInvoices = unlinked.data;
+          }
+
+          // Query 3: gastos por cliente
+          var gastos = await supabase
+            .from('transacciones')
+            .select('cliente_id, importe')
+            .eq('user_id', uid)
+            .eq('tipo', 'gasto')
+            .not('cliente_id', 'is', null);
+          if (gastos.data) {
+            gastos.data.forEach(function(g) {
+              _dashboardExpenseTotals[g.cliente_id] = (_dashboardExpenseTotals[g.cliente_id] || 0) + (parseFloat(g.importe) || 0);
+            });
           }
         } catch (e) { console.error('Error loading invoice totals:', e); }
       }
@@ -1838,6 +1858,7 @@
             resolveDashUnlinkedInvoices(result.data || []);
             (result.data || []).forEach(function(c) {
               c._totalFacturado = _dashboardInvoiceTotals[c.id] || 0;
+              c._totalGastos = _dashboardExpenseTotals[c.id] || 0;
             });
             _allDashboardClients = result.data || [];
             populateCityFilter(_allDashboardClients);
@@ -2003,24 +2024,27 @@
         if (!tbody) return;
         tbody.innerHTML = '';
         if (clients.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="6" class="py-12 text-center"><p class="text-sm text-bgray-600 dark:text-bgray-50">No hay clientes que coincidan con los filtros</p></td></tr>';
+          tbody.innerHTML = '<tr><td colspan="5" class="py-12 text-center"><p class="text-sm text-bgray-600 dark:text-bgray-50">No hay contactos que coincidan con los filtros</p></td></tr>';
           return;
         }
         clients.forEach(function(client) {
           var initials = window.getInitials ? window.getInitials(client.nombre_razon_social) : '??';
           var address = window.formatFullAddress ? window.formatFullAddress(client) : '-';
-          var estadoBadge = client.estado === 'activo'
-            ? '<span class="inline-flex items-center rounded-lg bg-success-50 px-3 py-1 text-xs font-semibold text-success-300 dark:bg-darkblack-500">Activo</span>'
-            : '<span class="inline-flex items-center rounded-lg bg-bgray-100 px-3 py-1 text-xs font-semibold text-bgray-700 dark:bg-darkblack-500 dark:text-bgray-50">Inactivo</span>';
+          var tipoBadge = client.estado === 'recurrente'
+            ? '<span class="inline-flex items-center rounded-lg bg-success-50 px-3 py-1 text-xs font-semibold text-success-300 dark:bg-darkblack-500">Recurrente</span>' + (client.dia_facturacion ? '<p class="text-[11px] font-medium text-bgray-500 dark:text-bgray-400 mt-1">Día ' + escapeHtml(client.dia_facturacion) + ' de cada mes</p>' : '')
+            : '<span class="inline-flex items-center rounded-lg bg-bgray-100 px-3 py-1 text-xs font-semibold text-bgray-700 dark:bg-darkblack-500 dark:text-bgray-50">Puntual</span>';
           var totalFact = client._totalFacturado || 0;
+          var totalGast = client._totalGastos || 0;
+          var tipoBadgeCliente = client.tipo_cliente === 'empresa'
+            ? '<span class="inline-block mt-1 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-600 dark:bg-blue-900/20 dark:text-blue-400">Empresa</span>'
+            : '<span class="inline-block mt-1 rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-bold text-orange-600 dark:bg-orange-900/20 dark:text-orange-400">Aut\u00f3nomo</span>';
           var row = document.createElement('tr');
           row.className = 'border-b border-bgray-200 dark:border-darkblack-400';
           row.innerHTML =
-            '<td class="py-5 pr-6"><div class="flex items-center gap-3"><div class="flex h-10 w-10 items-center justify-center rounded-full bg-bgray-100 text-sm font-bold text-bgray-700 dark:bg-darkblack-500 dark:text-white">' + escapeHtml(initials) + '</div><div><p class="text-sm font-semibold text-bgray-900 dark:text-white">' + escapeHtml(client.nombre_razon_social || '') + '</p><p class="text-xs font-medium text-bgray-600 dark:text-bgray-50">' + escapeHtml(client.identificador || '') + '</p></div></div></td>' +
+            '<td class="py-5 pr-6"><div class="flex items-center gap-3"><div class="flex h-10 w-10 items-center justify-center rounded-full bg-bgray-100 text-sm font-bold text-bgray-700 dark:bg-darkblack-500 dark:text-white">' + escapeHtml(initials) + '</div><div><p class="text-sm font-semibold text-bgray-900 dark:text-white">' + escapeHtml(client.nombre_razon_social || '') + '</p><p class="text-xs font-medium text-bgray-600 dark:text-bgray-50">' + escapeHtml(client.identificador || '') + '</p>' + tipoBadgeCliente + '</div></div></td>' +
             '<td class="px-6 py-5"><div class="flex flex-col gap-1"><p class="text-sm font-medium text-bgray-900 dark:text-white">' + escapeHtml(client.email || '-') + '</p><p class="text-xs font-medium text-bgray-600 dark:text-bgray-50">' + escapeHtml(client.telefono || '-') + '</p><p class="text-xs font-medium text-bgray-600 dark:text-bgray-50">' + escapeHtml(address) + '</p></div></td>' +
-            '<td class="px-6 py-5"><p class="text-sm font-medium text-bgray-900 dark:text-white">' + (client.dia_facturacion ? 'Día ' + escapeHtml(client.dia_facturacion) : '-') + '</p><p class="text-xs font-medium text-bgray-600 dark:text-bgray-50">' + (client.dia_facturacion ? 'de cada mes' : '') + '</p></td>' +
-            '<td class="px-6 py-5">' + estadoBadge + '</td>' +
-            '<td class="px-6 py-5"><p class="text-sm font-semibold text-bgray-900 dark:text-white">' + formatDashEUR(totalFact) + '</p></td>' +
+            '<td class="px-6 py-5">' + tipoBadge + '</td>' +
+            '<td class="px-6 py-5"><p class="text-sm font-semibold text-green-600 dark:text-green-400">' + formatDashEUR(totalFact) + '</p><p class="text-sm font-semibold text-red-500 dark:text-red-400">' + formatDashEUR(totalGast) + '</p></td>' +
             '<td class="py-5 pl-6 text-right"><a href="users.html" class="inline-flex h-9 items-center gap-1.5 rounded-lg bg-bgray-100 px-3 transition hover:bg-bgray-200 dark:bg-darkblack-500 hover:dark:bg-darkblack-400" title="Ver en Contactos"><svg class="stroke-bgray-900 dark:stroke-bgray-50" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 3h6v6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 14L21 3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="text-xs font-medium text-bgray-700 dark:text-bgray-50">Gestionar</span></a></td>';
           tbody.appendChild(row);
         });

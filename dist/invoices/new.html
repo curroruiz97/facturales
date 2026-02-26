@@ -10,7 +10,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <title>Facturales - Emitir factura</title>
+    <title>Facturales - Emitir factura</title>
     <style>
       /* Estilos para flatpickr en modo oscuro */
       .dark .flatpickr-calendar {
@@ -700,7 +700,7 @@
                       <input
                         type="checkbox"
                         id="gastos-suplidos"
-                        onclick="toggleConditionalField('gastos-suplidos', 'gastos-suplidos-fields')"
+                        onclick="toggleConditionalField('gastos-suplidos', 'gastos-suplidos-fields'); if(typeof updateInvoiceSummary==='function') updateInvoiceSummary();"
                         class="w-5 h-5 rounded border-2 border-bgray-300 text-success-300 focus:ring-2 focus:ring-success-200 focus:border-success-300 dark:border-darkblack-400"
                       />
                       <span class="text-sm font-medium text-bgray-900 dark:text-white">Añadir gastos suplidos</span>
@@ -2318,7 +2318,7 @@
     </script>
 
     <!-- Supabase and Clients Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <!-- Utilidades -->
     <script src="../assets/js/user-header.js" defer></script>

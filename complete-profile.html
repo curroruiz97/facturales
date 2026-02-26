@@ -301,8 +301,7 @@
         // Verificar si ya tiene business_info (evitar duplicados)
         const existingInfo = await window.getBusinessInfo(userResult.user.id);
         if (existingInfo.success && existingInfo.data) {
-          // Ya tiene información de negocio, redirigir al dashboard
-          window.location.href = './index.html';
+          window.location.href = './subscribe.html';
           return;
         }
 
@@ -396,9 +395,8 @@
             if (result.success) {
               showSuccess('¡Perfil completado exitosamente! Redirigiendo...');
               
-              // Redirigir después de 1.5 segundos
               setTimeout(() => {
-                window.location.href = './index.html';
+                window.location.href = './subscribe.html';
               }, 1500);
             } else {
               showError(result.error || 'Error al guardar información');

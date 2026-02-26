@@ -14,6 +14,7 @@ let currentClientId = null;
 let clientToDelete = null;
 let allClients = [];
 let _usersInvoiceTotals = {}; // { client_id: totalAmount }
+let _usersExpenseTotals = {}; // { client_id: totalGastos }
 let _usersCurrentPage = 1;
 let _usersPerPage = 10;
 
@@ -43,6 +44,7 @@ async function loadInvoiceTotals() {
     if (!user) return;
 
     _usersInvoiceTotals = {};
+    _usersExpenseTotals = {};
     _pendingUnlinkedInvoices = [];
 
     // Query 1: facturas CON client_id, emitidas y pagadas
@@ -71,6 +73,20 @@ async function loadInvoiceTotals() {
 
     if (!err2 && unlinked) {
       _pendingUnlinkedInvoices = unlinked;
+    }
+
+    // Query 3: gastos (transacciones de tipo gasto) por cliente
+    const { data: gastos, error: err3 } = await supabase
+      .from('transacciones')
+      .select('cliente_id, importe')
+      .eq('user_id', user.id)
+      .eq('tipo', 'gasto')
+      .not('cliente_id', 'is', null);
+
+    if (!err3 && gastos) {
+      gastos.forEach(function(g) {
+        _usersExpenseTotals[g.cliente_id] = (_usersExpenseTotals[g.cliente_id] || 0) + (parseFloat(g.importe) || 0);
+      });
     }
   } catch (e) {
     console.error('Error loading invoice totals:', e);
@@ -122,9 +138,10 @@ async function loadClients(searchTerm = '') {
       // Resolver facturas antiguas sin client_id usando NIF/CIF
       resolveUnlinkedInvoiceTotals(result.data);
       
-      // Añadir total facturado a cada cliente
+      // Añadir totales a cada cliente
       result.data.forEach(function(c) {
         c._totalFacturado = _usersInvoiceTotals[c.id] || 0;
+        c._totalGastos = _usersExpenseTotals[c.id] || 0;
       });
       allClients = result.data;
       _usersCurrentPage = 1;
@@ -219,7 +236,7 @@ function renderClientsTable(clients) {
   }
 
   if (clients.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" class="py-12 text-center"><p class="text-sm text-bgray-600 dark:text-bgray-50">No hay clientes en esta página</p></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" class="py-12 text-center"><p class="text-sm text-bgray-600 dark:text-bgray-50">No hay contactos en esta página</p></td></tr>';
     return;
   }
   
@@ -229,11 +246,12 @@ function renderClientsTable(clients) {
     
     const initials = getInitials(client.nombre_razon_social);
     const chevronDown = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" class="ml-1 opacity-60"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-    const estadoBadge = client.estado === 'recurrente' 
-      ? `<button onclick="toggleClientStatus('${client.id}', '${client.estado}')" class="inline-flex items-center rounded-lg bg-success-50 px-3 py-1 text-xs font-semibold text-success-300 dark:bg-darkblack-500 hover:bg-success-100 transition-colors cursor-pointer">Recurrente${chevronDown}</button>`
+    const tipoBadge = client.estado === 'recurrente' 
+      ? `<button onclick="toggleClientStatus('${client.id}', '${client.estado}')" class="inline-flex items-center rounded-lg bg-success-50 px-3 py-1 text-xs font-semibold text-success-300 dark:bg-darkblack-500 hover:bg-success-100 transition-colors cursor-pointer">Recurrente${chevronDown}</button>${client.dia_facturacion ? '<p class="text-[11px] font-medium text-bgray-500 dark:text-bgray-400 mt-1">Día ' + escapeHtml(client.dia_facturacion) + ' de cada mes</p>' : ''}`
       : `<button onclick="toggleClientStatus('${client.id}', '${client.estado}')" class="inline-flex items-center rounded-lg bg-bgray-100 px-3 py-1 text-xs font-semibold text-bgray-700 dark:bg-darkblack-500 dark:text-bgray-50 hover:bg-bgray-200 transition-colors cursor-pointer">Puntual${chevronDown}</button>`;
     
     const totalFacturado = client._totalFacturado || 0;
+    const totalGastos = client._totalGastos || 0;
     
     row.innerHTML = `
       <td class="py-5 pr-6">
@@ -244,8 +262,8 @@ function renderClientsTable(clients) {
           <div>
             <p class="text-sm font-semibold text-bgray-900 dark:text-white">${escapeHtml(client.nombre_razon_social)}</p>
             <p class="text-xs font-medium text-bgray-600 dark:text-bgray-50">${escapeHtml(client.identificador)}</p>
-            ${client.tipo_cliente === 'sociedad'
-              ? '<span class="inline-block mt-1 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-600 dark:bg-blue-900/20 dark:text-blue-400">Sociedad</span>'
+            ${client.tipo_cliente === 'empresa'
+              ? '<span class="inline-block mt-1 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-600 dark:bg-blue-900/20 dark:text-blue-400">Empresa</span>'
               : '<span class="inline-block mt-1 rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-bold text-orange-600 dark:bg-orange-900/20 dark:text-orange-400">Aut\u00f3nomo</span>'
             }
           </div>
@@ -259,14 +277,11 @@ function renderClientsTable(clients) {
         </div>
       </td>
       <td class="px-6 py-5">
-        <p class="text-sm font-medium text-bgray-900 dark:text-white">${client.dia_facturacion ? 'Día ' + escapeHtml(client.dia_facturacion) : '-'}</p>
-        <p class="text-xs font-medium text-bgray-600 dark:text-bgray-50">${client.dia_facturacion ? 'de cada mes' : ''}</p>
+        ${tipoBadge}
       </td>
       <td class="px-6 py-5">
-        ${estadoBadge}
-      </td>
-      <td class="px-6 py-5">
-        <p class="text-sm font-semibold text-bgray-900 dark:text-white">${formatEUR(totalFacturado)}</p>
+        <p class="text-sm font-semibold text-green-600 dark:text-green-400">${formatEUR(totalFacturado)}</p>
+        <p class="text-sm font-semibold text-red-500 dark:text-red-400">${formatEUR(totalGastos)}</p>
       </td>
       <td class="py-5 pl-6 text-right">
         <div class="inline-flex items-center gap-2">
@@ -397,7 +412,7 @@ function renderEmptyState() {
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M8 3V13M3 8H13" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
-            Nuevo Cliente
+            Nuevo Contacto
           </button>
         </div>
       </td>
@@ -442,7 +457,7 @@ function initModal() {
 function openCreateClientModal() {
   currentClientId = null;
   const title = document.querySelector('#multi-step-modal h2, #multi-step-modal h3');
-  if (title) title.textContent = 'Nuevo Cliente';
+  if (title) title.textContent = 'Nuevo Contacto';
   document.getElementById('client-form').reset();
   document.getElementById('client-id').value = '';
   const saveBtn = document.getElementById('client-save-btn');
@@ -454,7 +469,7 @@ function openCreateClientModal() {
 async function openEditClientModal(clientId) {
   currentClientId = clientId;
   const title = document.querySelector('#multi-step-modal h2, #multi-step-modal h3');
-  if (title) title.textContent = 'Editar Cliente';
+  if (title) title.textContent = 'Editar Contacto';
   const saveBtn = document.getElementById('client-save-btn');
   if (saveBtn) saveBtn.textContent = 'Actualizar';
   const result = await getClientById(clientId);
@@ -932,7 +947,7 @@ function exportContactsCSV() {
     return [
       c.nombre_razon_social || '',
       c.identificador || '',
-      c.tipo_cliente === 'sociedad' ? 'Sociedad' : 'Autónomo',
+      c.tipo_cliente === 'empresa' ? 'Empresa' : 'Autónomo',
       c.email || '',
       c.telefono || '',
       c.direccion || '',

@@ -185,10 +185,37 @@
             const type = hashParams.get('type') || params.get('type');
 
             if (errorCode) {
+              let isExpired = false;
+              if (errorDescription) {
+                let msg = decodeURIComponent(errorDescription.replace(/\+/g, ' '));
+                isExpired = msg.includes('expired') || msg.includes('expirado');
+              }
+
+              if (isExpired) {
+                // El enlace expiró, pero Supabase puede haber confirmado el email server-side
+                try {
+                  let att = 0;
+                  while (!window.supabaseClient && att < 50) {
+                    await new Promise(r => setTimeout(r, 100));
+                    att++;
+                  }
+                  if (window.supabaseClient) {
+                    const { data: { user } } = await window.supabaseClient.auth.getUser();
+                    if (user && user.email_confirmed_at) {
+                      await window.supabaseClient.auth.signOut();
+                      sessionStorage.removeItem('verify_email_address');
+                      showState(stateSuccess);
+                      setTimeout(() => { window.location.href = './signin.html?verified=true'; }, 2000);
+                      return;
+                    }
+                  }
+                } catch (e) { /* continuar al error */ }
+              }
+
               showState(stateError);
               if (errorDescription) {
                 let msg = decodeURIComponent(errorDescription.replace(/\+/g, ' '));
-                if (msg.includes('expired') || msg.includes('expirado')) {
+                if (isExpired) {
                   errorDetail.textContent = 'El enlace de verificación ha expirado. Solicita uno nuevo a continuación.';
                 } else {
                   errorDetail.textContent = msg;

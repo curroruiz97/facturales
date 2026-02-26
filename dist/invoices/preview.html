@@ -7,12 +7,14 @@
       content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
     />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Vista previa de factura</title>
+    <title>Vista previa de factura</title>
+
+
     <style>
       #pdf-viewer {
         width: 100%;
-        min-height: 500px;
-        height: calc(100vh - 320px);
+        min-height: 700px;
+        height: calc(100vh - 180px);
         border: none;
         border-radius: 0 0 12px 12px;
         background: #f3f4f6;
@@ -22,8 +24,8 @@
       }
       @media (max-width: 1023px) {
         #pdf-viewer {
-          min-height: 400px;
-          height: 60vh;
+          min-height: 500px;
+          height: 75vh;
         }
       }
     </style>
@@ -330,7 +332,8 @@
     <script src="../assets/js/invoice-data-handler.js"></script>
 
     <!-- Supabase + Auth + Módulos -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script src="../assets/js/user-header.js" defer></script>
     <script src="../assets/js/toast.js" defer></script>
     <script src="../assets/js/invoices.js" defer></script>

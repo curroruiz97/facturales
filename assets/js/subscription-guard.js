@@ -15,6 +15,7 @@
     '/signup.html',
     '/verify-email.html',
     '/confirm-email.html',
+    '/complete-profile.html',
     '/settings.html'
   ];
 

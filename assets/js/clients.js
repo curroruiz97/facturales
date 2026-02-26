@@ -58,8 +58,8 @@ async function createClient(clientData) {
     if (!data.identificador) {
       throw new Error('El identificador es obligatorio');
     }
-    if (!['autonomo', 'sociedad'].includes(data.tipo_cliente)) {
-      throw new Error('El tipo de cliente debe ser "autonomo" o "sociedad"');
+    if (!['autonomo', 'empresa'].includes(data.tipo_cliente)) {
+      throw new Error('El tipo de contacto debe ser "autonomo" o "empresa"');
     }
     
     // Insertar en Supabase
@@ -426,8 +426,8 @@ function validateClientData(data) {
   }
   
   // Tipo de cliente obligatorio
-  if (!data.tipo_cliente || !['autonomo', 'sociedad'].includes(data.tipo_cliente)) {
-    errors.tipo_cliente = 'El tipo de cliente es obligatorio (autónomo o sociedad)';
+  if (!data.tipo_cliente || !['autonomo', 'empresa'].includes(data.tipo_cliente)) {
+    errors.tipo_cliente = 'El tipo de contacto es obligatorio (autónomo o empresa)';
   }
 
   // Día de facturación válido

@@ -525,7 +525,7 @@ function collectFormData() {
     
     if (rawData && rawData.summary) {
       subtotal = parseFloat(rawData.summary.subtotal) || 0;
-      taxAmount = parseFloat(rawData.summary.tax) || 0;
+      taxAmount = parseFloat(rawData.summary.taxAmount) || parseFloat(rawData.summary.tax) || 0;
       totalAmount = parseFloat(rawData.summary.total) || 0;
     } else {
       // Fallback: obtener desde los elementos del DOM
@@ -608,12 +608,26 @@ function collectFormData() {
           discount: parseFloat(document.getElementById('discount')?.value) || 0,
           withholding: parseFloat(document.getElementById('withholding')?.value) || 0
         },
-        summary: {
+        summary: rawData && rawData.summary ? {
+          subtotal: parseFloat(rawData.summary.subtotal) || subtotal,
+          discount: parseFloat(rawData.summary.discount) || 0,
+          taxBase: parseFloat(rawData.summary.taxBase) || subtotal,
+          taxRate: parseFloat(rawData.summary.taxRate) || 0,
+          taxAmount: parseFloat(rawData.summary.taxAmount) || taxAmount,
+          reRate: parseFloat(rawData.summary.reRate) || 0,
+          reAmount: parseFloat(rawData.summary.reAmount) || 0,
+          retentionRate: parseFloat(rawData.summary.retentionRate) || 0,
+          retentionAmount: parseFloat(rawData.summary.retentionAmount) || 0,
+          expenses: parseFloat(rawData.summary.expenses) || 0,
+          total: parseFloat(rawData.summary.total) || totalAmount,
+          paid: parseFloat(rawData.summary.paid) || 0,
+          totalToPay: parseFloat(rawData.summary.totalToPay) || totalAmount
+        } : {
           subtotal: subtotal,
-          tax: taxAmount,
+          taxAmount: taxAmount,
           total: totalAmount,
-          paid: rawData?.summary?.paid || 0,
-          totalToPay: rawData?.summary?.totalToPay || totalAmount
+          paid: 0,
+          totalToPay: totalAmount
         }
       }
     };

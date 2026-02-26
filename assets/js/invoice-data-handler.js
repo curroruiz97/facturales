@@ -153,19 +153,17 @@ class InvoiceDataHandler {
     const checkbox = document.getElementById('gastos-suplidos');
     if (!checkbox?.checked) return expenses;
     
-    const container = checkbox.closest('.mb-4')?.querySelector('.mt-4');
+    const container = document.getElementById('gastos-suplidos-fields');
     if (!container || container.classList.contains('hidden')) return expenses;
     
-    const descInput = container.querySelectorAll('input[type="text"]');
-    const amountInputs = container.querySelectorAll('input[type="number"]');
+    const descInput = document.getElementById('gastos-suplidos-description');
+    const amountInput = document.getElementById('gastos-suplidos-amount');
     
-    for (let i = 0; i < Math.min(descInput.length, amountInputs.length); i++) {
-      const description = descInput[i]?.value || 'Gasto suplido';
-      const amount = parseFloat(amountInputs[i]?.value) || 0;
-      
-      if (amount > 0) {
-        expenses.push({ description, amount });
-      }
+    const description = descInput?.value || 'Gasto suplido';
+    const amount = parseFloat(amountInput?.value) || 0;
+    
+    if (amount > 0) {
+      expenses.push({ description, amount });
     }
     
     return expenses;
