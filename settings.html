@@ -320,6 +320,7 @@
                   <div
                     data-tab="tab7"
                     class="tab flex gap-x-4 rounded-lg p-4 transition-all"
+                    style="display:none"
                   >
                     <div
                       class="tab-icon inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-bgray-100 transition-all"
@@ -2321,7 +2322,23 @@
                 </div>
                 <!-- Contraseña de seguridad -->
                 <div id="tab6" class="tab-pane">
-                  <div class="flex flex-col gap-10 xl:flex-row xl:items-center">
+                  <!-- Aviso para usuarios Google-only (oculto por defecto) -->
+                  <div id="google-only-password-notice" class="hidden">
+                    <div class="flex flex-col items-center justify-center py-16 text-center max-w-md mx-auto">
+                      <div class="flex h-16 w-16 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-900/20 mb-6">
+                        <svg width="32" height="32" viewBox="0 0 23 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M20.8758 11.2137C20.8758 10.4224 20.8103 9.84485 20.6685 9.24597H11.4473V12.8179H16.8599C16.7508 13.7055 16.1615 15.0424 14.852 15.9406L14.8336 16.0602L17.7492 18.2737L17.9512 18.2935C19.8063 16.6144 20.8758 14.144 20.8758 11.2137Z" fill="#4285F4"/>
+                          <path d="M11.4467 20.625C14.0984 20.625 16.3245 19.7694 17.9506 18.2936L14.8514 15.9408C14.022 16.5076 12.9089 16.9033 11.4467 16.9033C8.84946 16.9033 6.64512 15.2243 5.85933 12.9036L5.74415 12.9131L2.7125 15.2125L2.67285 15.3205C4.28791 18.4647 7.60536 20.625 11.4467 20.625Z" fill="#34A853"/>
+                          <path d="M5.86006 12.9036C5.65272 12.3047 5.53273 11.663 5.53273 11C5.53273 10.3369 5.65272 9.69524 5.84915 9.09636L5.84366 8.96881L2.774 6.63257L2.67357 6.67938C2.00792 7.98412 1.62598 9.44929 1.62598 11C1.62598 12.5507 2.00792 14.0158 2.67357 15.3205L5.86006 12.9036Z" fill="#FBBC05"/>
+                          <path d="M11.4467 5.09664C13.2909 5.09664 14.5349 5.87733 15.2443 6.52974L18.0161 3.8775C16.3138 2.32681 14.0985 1.375 11.4467 1.375C7.60539 1.375 4.28792 3.53526 2.67285 6.6794L5.84844 9.09638C6.64514 6.77569 8.84949 5.09664 11.4467 5.09664Z" fill="#EB4335"/>
+                        </svg>
+                      </div>
+                      <h3 class="text-xl font-bold text-bgray-900 dark:text-white mb-3">Cuenta vinculada a Google</h3>
+                      <p class="text-sm text-bgray-600 dark:text-darkblack-300">Tu cuenta utiliza Google para iniciar sesión. La seguridad de tu cuenta está gestionada por Google. No necesitas establecer ni cambiar ninguna contraseña aquí.</p>
+                    </div>
+                  </div>
+                  <!-- Formulario de contraseña (solo para email/password) -->
+                  <div id="email-password-section" class="flex flex-col gap-10 xl:flex-row xl:items-center">
                     <div class="max-w-[614px] grow">
                       <h3
                         class="mb-3 text-2xl font-bold text-bgray-900 dark:text-white"
@@ -2490,105 +2507,6 @@
                         alt=""
                       />
                     </div>
-                  </div>
-                </div>
-                <!-- Términos y condiciones -->
-                <div id="tab7" class="tab-pane">
-                  <div>
-                    <h3
-                      class="mb-3 text-2xl font-bold text-bgray-900 dark:text-white"
-                    >
-                      Términos y condiciones
-                    </h3>
-                    <article class="mb-8">
-                      <h4
-                        class="mb-2 text-lg font-bold text-bgray-800 dark:text-white"
-                      >
-                        1. Definiciones
-                      </h4>
-                      <p class="text-base text-[#9AA2B1] dark:text-white">
-                        Lo que posees cuando compras son las claves de un token no fungible —quizá único—. Ese token es
-                        tuyo para comerciarlo, conservarlo o exhibirlo en Decentraland. Pero
-                        el archivo digital asociado a un NFT es tan fácil
-                        de copiar, pegar y descargar como cualquier otro. Finalmente, los
-                        jugadores a veces pierden sus NFTs según
-                        las reglas y regulaciones del juego de NFTs.
-                      </p>
-                    </article>
-                    <article class="mb-8">
-                      <h4
-                        class="mb-2 text-lg font-bold text-bgray-800 dark:text-white"
-                      >
-                        2. Aceptación
-                      </h4>
-                      <p class="text-base text-[#9AA2B1] dark:text-white">
-                        Texto de ejemplo para términos y aceptación. Confirmas que tienes la
-                        capacidad legal para recibir, conservar y utilizar el NFT
-                        conforme a la jurisdicción francesa y cualquier otra
-                        jurisdicción relevante. Al participar en la venta,
-                        aceptas estos términos y condiciones sin ninguna condición
-                        ni restricción. Si no estás de acuerdo con este contrato,
-                        no participarás en la venta realizada por la empresa.
-                        Confirmas que tienes la capacidad legal para recibir y
-                        conservar el NFT. No participarás en la venta realizada
-                        por la empresa.
-                      </p>
-                    </article>
-                    <blockquote
-                      class="mb-8 rounded-lg bg-bgray-100 px-7 py-5 text-lg text-bgray-800 dark:bg-darkblack-500 dark:text-white"
-                    >
-                      En realidad, el aspecto más importante de un buen panel es la parte
-                      que recibe menos atención: los datos subyacentes. Más que
-                      cualquier otro aspecto, los datos harán o desharán un panel.
-                      Dentro de esta definición, la administración exitosa parece
-                      descansar en tres habilidades básicas, que llamaremos
-                      técnicas y conceptuales.
-                    </blockquote>
-                    <article class="mb-8">
-                      <h4
-                        class="mb-2 text-lg font-bold text-bgray-800 dark:text-white"
-                      >
-                        3. La venta
-                      </h4>
-                      <p class="mb-6 text-base text-[#9AA2B1] dark:text-white">
-                        La empresa ofrece contenidos del universo Betonyou. Los
-                        titulares de uno o más NFTs podrán ganar criptos
-                        mientras juegan videojuegos. En el futuro, la empresa
-                        planea desarrollar sus propios juegos y un metaverso en
-                        torno al universo Betonyou (“Proyecto”).
-                      </p>
-                      <p class="text-base text-[#9AA2B1] dark:text-white">
-                        Para lanzar los NFTs y financiar el proyecto, la empresa
-                        ofrece NFTs desde un sitio web dedicado (“Venta”). La
-                        dirección web de este sitio se proporcionará en el
-                        momento del mint. La adquisición del NFT no confiere
-                        ningún derecho sobre la empresa ni sobre desarrollos
-                        futuros.
-                      </p>
-                    </article>
-                    <article>
-                      <h4
-                        class="mb-2 text-lg font-bold text-bgray-800 dark:text-white"
-                      >
-                        4. Obligaciones del comprador
-                      </h4>
-                      <p class="mb-6 text-base text-[#9AA2B1] dark:text-white">
-                        En la máxima medida permitida por la ley aplicable, te
-                        comprometes a indemnizar, defender y mantener indemne a
-                        la empresa frente a toda reclamación, demanda, acción,
-                        daño, pérdida, costo y gasto (incluidos los honorarios
-                        de abogados) que surjan de o se relacionen con (i) tu
-                        suscripción o uso de los NFTs; (ii) tus
-                        responsabilidades u obligaciones bajo este contrato; y
-                        (iii) tu incumplimiento de este contrato.
-                      </p>
-                      <p class="text-base text-[#9AA2B1] dark:text-white">
-                        La empresa se compromete a actuar con el cuidado que
-                        normalmente se espera de un profesional en su campo y a
-                        cumplir con las mejores prácticas vigentes. La obligación
-                        de mejores esfuerzos solo vincula a la empresa.
-                      </p>
-                    </article>
                   </div>
                 </div>
                 <!-- Series y numeración -->
@@ -4081,6 +3999,26 @@
             errorMsg.classList.add('hidden');
             errorMsg.textContent = '';
           }
+
+          // Detectar provider y ocultar formulario si es Google-only
+          (async function() {
+            try {
+              var attempts = 0;
+              while (!window.getUserProvider && attempts < 50) {
+                await new Promise(function(r) { setTimeout(r, 100); });
+                attempts++;
+              }
+              if (typeof window.getUserProvider === 'function') {
+                var provider = await window.getUserProvider();
+                if (provider === 'google') {
+                  var emailSection = document.getElementById('email-password-section');
+                  var googleNotice = document.getElementById('google-only-password-notice');
+                  if (emailSection) emailSection.classList.add('hidden');
+                  if (googleNotice) googleNotice.classList.remove('hidden');
+                }
+              }
+            } catch(e) { console.error('Error detectando provider:', e); }
+          })();
 
           saveBtn.addEventListener('click', async function() {
             hidePasswordError();

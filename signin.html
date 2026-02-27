@@ -47,7 +47,7 @@
               <h2 class="text-bgray-900 dark:text-white font-semibold font-poppins">Inicia sesión en Facturales.</h2>
               <p class="si-sub font-medium text-bgray-600 dark:text-bgray-50">Envía, gasta y ahorra de forma inteligente</p>
             </header>
-            <a href="#" class="si-btn inline-flex w-full justify-center items-center gap-x-2 border border-bgray-300 dark:border-darkblack-400 text-bgray-900 dark:text-white font-medium" style="border-radius:8px;">
+            <button type="button" id="google-signin-btn" class="si-btn inline-flex w-full justify-center items-center gap-x-2 border border-bgray-300 dark:border-darkblack-400 text-bgray-900 dark:text-white font-medium cursor-pointer" style="border-radius:8px;background:transparent;">
               <svg width="20" height="20" viewBox="0 0 23 22" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M20.8758 11.2137C20.8758 10.4224 20.8103 9.84485 20.6685 9.24597H11.4473V12.8179H16.8599C16.7508 13.7055 16.1615 15.0424 14.852 15.9406L14.8336 16.0602L17.7492 18.2737L17.9512 18.2935C19.8063 16.6144 20.8758 14.144 20.8758 11.2137Z" fill="#4285F4"/>
                 <path d="M11.4467 20.625C14.0984 20.625 16.3245 19.7694 17.9506 18.2936L14.8514 15.9408C14.022 16.5076 12.9089 16.9033 11.4467 16.9033C8.84946 16.9033 6.64512 15.2243 5.85933 12.9036L5.74415 12.9131L2.7125 15.2125L2.67285 15.3205C4.28791 18.4647 7.60536 20.625 11.4467 20.625Z" fill="#34A853"/>
@@ -55,7 +55,7 @@
                 <path d="M11.4467 5.09664C13.2909 5.09664 14.5349 5.87733 15.2443 6.52974L18.0161 3.8775C16.3138 2.32681 14.0985 1.375 11.4467 1.375C7.60539 1.375 4.28792 3.53526 2.67285 6.6794L5.84844 9.09638C6.64514 6.77569 8.84949 5.09664 11.4467 5.09664Z" fill="#EB4335"/>
               </svg>
               <span>Iniciar sesión con Google</span>
-            </a>
+            </button>
             <div class="relative" style="margin:clamp(2px,0.3vh,4px) 0;">
               <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-300 dark:border-darkblack-400"></div></div>
               <div class="relative flex justify-center"><span class="bg-white dark:bg-darkblack-500 px-2 text-bgray-600" style="font-size:clamp(0.75rem,1.3vh,0.875rem);">O continúa con</span></div>
@@ -139,9 +139,10 @@
           </div>
           <div class="si-footer flex-shrink-0">
             <nav>
-              <a href="#" class="text-bgray-700 dark:text-bgray-50" style="white-space:nowrap;">Términos y condiciones</a>
-              <a href="#" class="text-bgray-700 dark:text-bgray-50" style="white-space:nowrap;">Política de privacidad</a>
-              <a href="#" class="text-bgray-700 dark:text-bgray-50" style="white-space:nowrap;">Ayuda</a>
+              <a href="condiciones-legales.html" class="text-bgray-700 dark:text-bgray-50" style="white-space:nowrap;">Condiciones Legales</a>
+              <a href="politica-de-privacidad.html" class="text-bgray-700 dark:text-bgray-50" style="white-space:nowrap;">Política de Privacidad</a>
+              <a href="aviso-legal.html" class="text-bgray-700 dark:text-bgray-50" style="white-space:nowrap;">Aviso Legal</a>
+              <a href="politica-de-cookies.html" class="text-bgray-700 dark:text-bgray-50" style="white-space:nowrap;">Política de Cookies</a>
             </nav>
             <p class="text-bgray-600 dark:text-darkblack-300">© 2026 Facturales. Todos los derechos reservados.</p>
           </div>
@@ -606,6 +607,93 @@
             successMessage.classList.add('hidden');
           }
 
+          // Manejar errores OAuth en query params (Supabase redirige con error/error_description)
+          (function handleOAuthErrors() {
+            var url = new URL(window.location.href);
+            var errorParam = url.searchParams.get('error_description') || url.searchParams.get('error');
+            if (errorParam) {
+              window.history.replaceState({}, document.title, window.location.pathname);
+              var msg = decodeURIComponent(errorParam);
+              if (msg.indexOf('correo y contraseña') !== -1 || msg.indexOf('No se puede vincular') !== -1) {
+                showError('Esta cuenta está registrada con correo y contraseña. Inicia sesión con ese método.');
+              } else if (msg.indexOf('Google') !== -1 && msg.indexOf('vincular') !== -1) {
+                showError('Esta cuenta es de Google. Inicia sesión con Google.');
+              } else {
+                showError(msg);
+              }
+            }
+          })();
+
+          // Intercambiar código OAuth si viene de Google
+          (async function handleOAuthCode() {
+            var url = new URL(window.location.href);
+            var code = url.searchParams.get('code');
+            if (code) {
+              console.log('🔑 Código OAuth detectado, intercambiando por sesión...');
+              // Limpiar URL inmediatamente para evitar re-uso del código
+              window.history.replaceState({}, document.title, window.location.pathname);
+              try {
+                var attempts = 0;
+                while (!window.supabaseClient && attempts < 50) {
+                  await new Promise(function(r) { setTimeout(r, 100); });
+                  attempts++;
+                }
+                if (!window.supabaseClient) throw new Error('Supabase no disponible');
+                var { data, error } = await window.supabaseClient.auth.exchangeCodeForSession(code);
+                if (error) {
+                  console.error('❌ Error intercambiando código OAuth:', error);
+                  var errMsg = error.message || '';
+                  if (errMsg.indexOf('correo y contraseña') !== -1 || errMsg.indexOf('No se puede vincular') !== -1) {
+                    showError('Esta cuenta está registrada con correo y contraseña. Inicia sesión con ese método.');
+                  } else if (errMsg.indexOf('Google') !== -1) {
+                    showError('Esta cuenta es de Google. Inicia sesión con Google.');
+                  } else {
+                    showError('Error al completar el inicio de sesión con Google. Inténtalo de nuevo.');
+                  }
+                  return;
+                }
+                console.log('✅ Sesión OAuth establecida:', data.user.email);
+                showSuccess('¡Inicio de sesión con Google exitoso! Redirigiendo...');
+                setTimeout(async function() {
+                  try { await redirectAfterLogin(); } catch(e) { window.location.href = './index.html'; }
+                }, 800);
+              } catch(e) {
+                console.error('❌ Error en flujo OAuth:', e);
+                var catchMsg = e.message || '';
+                if (catchMsg.indexOf('correo y contraseña') !== -1) {
+                  showError('Esta cuenta está registrada con correo y contraseña. Inicia sesión con ese método.');
+                } else {
+                  showError('Error al completar el inicio de sesión con Google.');
+                }
+              }
+              return;
+            }
+          })();
+
+          // Google Sign-In
+          var googleBtn = document.getElementById('google-signin-btn');
+          if (googleBtn) {
+            googleBtn.addEventListener('click', async function() {
+              var attempts = 0;
+              while (!window.signInWithGoogle && attempts < 50) {
+                await new Promise(function(r) { setTimeout(r, 100); });
+                attempts++;
+              }
+              if (typeof window.signInWithGoogle !== 'function') {
+                showError('Error: Sistema de autenticación no disponible. Recarga la página.');
+                return;
+              }
+              googleBtn.disabled = true;
+              googleBtn.querySelector('span').textContent = 'Redirigiendo...';
+              var result = await window.signInWithGoogle();
+              if (!result.success) {
+                showError(result.error || 'Error al iniciar sesión con Google');
+                googleBtn.disabled = false;
+                googleBtn.querySelector('span').textContent = 'Iniciar sesión con Google';
+              }
+            });
+          }
+
           // Manejar mensajes de verificación de email desde query params
           const urlParams = new URLSearchParams(window.location.search);
           if (urlParams.get('verified') === 'true') {
@@ -1040,7 +1128,12 @@
                 showStep(4);
               } catch (e) {
                 console.error('Error updating password:', e);
-                showStepError(3, e.message || 'Error al actualizar la contrase\u00F1a');
+                var errMsg = e.message || '';
+                if (errMsg.indexOf('Google') !== -1 || errMsg.indexOf('google') !== -1) {
+                  showStepError(3, 'Esta cuenta es de Google. No se puede establecer una contrase\u00F1a. Inicia sesi\u00F3n con Google.');
+                } else {
+                  showStepError(3, errMsg || 'Error al actualizar la contrase\u00F1a');
+                }
               } finally {
                 updateBtn.disabled = false;
                 updateBtn.textContent = 'Confirmar contrase\u00F1a';

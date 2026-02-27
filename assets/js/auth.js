@@ -116,7 +116,14 @@ async function signIn(email, password) {
       if (error.message.includes('Email not confirmed')) {
         throw new Error('Debes confirmar tu email antes de iniciar sesión');
       }
-      
+      // Hook de exclusividad de providers
+      if (error.message.includes('Google') || error.message.includes('google')) {
+        throw new Error('Esta cuenta es de Google. Inicia sesión con Google.');
+      }
+      if (error.message.includes('correo y contraseña')) {
+        throw new Error('Esta cuenta está registrada con correo y contraseña. Inicia sesión con ese método.');
+      }
+
       throw new Error(error.message || 'Error al iniciar sesión');
     }
 
@@ -322,6 +329,34 @@ async function updateProfile(updates) {
 }
 
 /**
+ * Iniciar sesión con Google (OAuth)
+ * @param {string} redirectTo - URL de redirección tras autenticarse (opcional)
+ * @returns {Promise<Object>} Resultado de la operación
+ */
+async function signInWithGoogle(redirectTo) {
+  try {
+    const supabase = getSupabaseForAuth();
+
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: redirectTo || window.location.origin + '/signin.html'
+      }
+    });
+
+    if (error) {
+      console.error('Error al iniciar sesión con Google:', error);
+      throw new Error(error.message || 'Error al iniciar sesión con Google');
+    }
+
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error en signInWithGoogle:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
  * Reenviar email de verificación
  * @param {string} email - Email del usuario
  * @returns {Promise<Object>} Resultado de la operación
@@ -360,10 +395,43 @@ async function resendVerificationEmail(email) {
   }
 }
 
+/**
+ * Obtener el provider principal del usuario actual
+ * @returns {Promise<string>} 'google', 'email', o 'unknown'
+ */
+async function getUserProvider() {
+  try {
+    const supabase = getSupabaseForAuth();
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error || !user) return 'unknown';
+
+    // Check identities array (most reliable)
+    if (user.identities && user.identities.length > 0) {
+      var providers = user.identities.map(function(i) { return i.provider; });
+      if (providers.indexOf('google') !== -1) return 'google';
+      if (providers.indexOf('email') !== -1) return 'email';
+      return providers[0] || 'unknown';
+    }
+
+    // Fallback: app_metadata.providers
+    if (user.app_metadata && user.app_metadata.providers) {
+      var p = user.app_metadata.providers;
+      if (p.indexOf('google') !== -1) return 'google';
+      if (p.indexOf('email') !== -1) return 'email';
+    }
+
+    return 'unknown';
+  } catch (error) {
+    console.error('Error en getUserProvider:', error);
+    return 'unknown';
+  }
+}
+
 // Exportar funciones globalmente
 window.auth = {
   signUp,
   signIn,
+  signInWithGoogle,
   signOut,
   getCurrentUser,
   getCurrentSession,
@@ -373,11 +441,13 @@ window.auth = {
   updatePassword,
   updateProfile,
   resendVerificationEmail,
+  getUserProvider,
 };
 
 // Exportar también las funciones individuales
 window.signUp = signUp;
 window.signIn = signIn;
+window.signInWithGoogle = signInWithGoogle;
 window.signOut = signOut;
 window.getCurrentUser = getCurrentUser;
 window.getCurrentSession = getCurrentSession;
@@ -387,5 +457,6 @@ window.resetPassword = resetPassword;
 window.updatePassword = updatePassword;
 window.updateProfile = updateProfile;
 window.resendVerificationEmail = resendVerificationEmail;
+window.getUserProvider = getUserProvider;
 
 console.log('✅ Auth module loaded successfully');

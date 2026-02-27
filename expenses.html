@@ -525,8 +525,9 @@
                     <div class="grid grid-cols-3 gap-2 sm:gap-3">
                       <!-- A&ntilde;adir contacto -->
                       <button
+                        id="qa-contact"
                         onclick="window.location.href='users.html'"
-                        class="group flex flex-col items-center justify-center p-2 sm:p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-blue-400 hover:bg-white dark:bg-darkblack-500 dark:hover:bg-darkblack-400 dark:hover:border-blue-400 transition-all duration-300 hover:shadow-md active:scale-95"
+                        class="group flex flex-col items-center justify-center p-2 sm:p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:bg-white dark:bg-darkblack-500 dark:hover:bg-darkblack-400 transition-all duration-300 hover:shadow-md active:scale-95"
                       >
                         <div class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 mb-2 sm:mb-3 rounded-full bg-blue-50 group-hover:bg-blue-100 transition-colors duration-300">
                           <svg
@@ -571,8 +572,9 @@
 
                       <!-- Crear factura (MOVIDO AQU&Iacute;) -->
                       <button
+                        id="qa-invoice"
                         onclick="window.location.href='invoices/new.html'"
-                        class="group flex flex-col items-center justify-center p-2 sm:p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-green-400 hover:bg-white dark:bg-darkblack-500 dark:hover:bg-darkblack-400 dark:hover:border-green-400 transition-all duration-300 hover:shadow-md active:scale-95"
+                        class="group flex flex-col items-center justify-center p-2 sm:p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:bg-white dark:bg-darkblack-500 dark:hover:bg-darkblack-400 transition-all duration-300 hover:shadow-md active:scale-95"
                       >
                         <div class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 mb-2 sm:mb-3 rounded-full bg-green-50 group-hover:bg-green-100 transition-colors duration-300">
                           <svg
@@ -610,8 +612,9 @@
 
                       <!-- Crear un presupuesto -->
                       <button
+                        id="qa-quote"
                         onclick="window.location.href='invoices/quote.html'"
-                        class="group flex flex-col items-center justify-center p-2 sm:p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:border-purple-400 hover:bg-white dark:bg-darkblack-500 dark:hover:bg-darkblack-400 dark:hover:border-purple-400 transition-all duration-300 hover:shadow-md active:scale-95"
+                        class="group flex flex-col items-center justify-center p-2 sm:p-4 rounded-xl bg-bgray-50 border-2 border-transparent hover:bg-white dark:bg-darkblack-500 dark:hover:bg-darkblack-400 transition-all duration-300 hover:shadow-md active:scale-95"
                       >
                         <div class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 mb-2 sm:mb-3 rounded-full transition-colors duration-300" style="background-color: rgba(139,92,246,0.1);" onmouseover="this.style.backgroundColor='rgba(139,92,246,0.25)'" onmouseout="this.style.backgroundColor='rgba(139,92,246,0.1)'">
                           <svg
@@ -1012,6 +1015,10 @@
 
     <!-- Estilos adicionales para animaciones del modal -->
     <style>
+      #qa-contact:hover { border-color: #60A5FA; }
+      #qa-invoice:hover  { border-color: #4ADE80; }
+      #qa-quote:hover    { border-color: #C084FC; }
+
       .modal.flex {
         animation: fadeIn 0.2s ease-out;
       }

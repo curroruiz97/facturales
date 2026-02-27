@@ -25,42 +25,38 @@
 
       <!-- Contenido centrado -->
       <div class="flex-1 flex items-center justify-center px-5">
-        <div class="max-w-[480px] w-full">
-          <div class="rounded-lg bg-white dark:bg-darkblack-600 border border-bgray-200 dark:border-darkblack-400 p-8 text-center shadow-sm">
+        <div style="max-width: 460px; width: 100%;">
+          <div class="rounded-2xl bg-white dark:bg-darkblack-600 border border-bgray-200 dark:border-darkblack-400 p-8 text-center shadow-md">
 
             <!-- Icono de cancelación -->
             <div class="mx-auto mb-6">
-              <div class="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center mx-auto">
-                <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              <div class="w-16 h-16 rounded-full bg-bgray-100 dark:bg-darkblack-500 flex items-center justify-center mx-auto">
+                <svg class="w-9 h-9 text-bgray-500 dark:text-bgray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="9" stroke-width="1.8"></circle>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 9l-6 6M9 9l6 6"></path>
                 </svg>
               </div>
             </div>
 
-            <h1 class="text-bgray-900 dark:text-white text-2xl font-semibold font-poppins mb-3">
-              Compra cancelada
+            <h1 class="text-bgray-900 dark:text-white text-2xl font-bold font-poppins mb-3">
+              Pago cancelado
             </h1>
-            <p class="text-bgray-600 dark:text-bgray-50 text-base font-medium mb-8">
-              No se ha realizado ningún cargo. Puedes volver a intentarlo cuando quieras.
+            <p class="text-bgray-500 dark:text-bgray-300 text-sm mb-8 leading-relaxed">
+              No te preocupes, no se ha realizado ningún cargo.<br>
+              Puedes volver a seleccionar un plan cuando estés listo.
             </p>
 
-            <!-- Botones -->
-            <div class="space-y-3">
-              <a
-                id="btn-back-plans"
-                href="../subscribe.html"
-                class="py-3.5 flex items-center justify-center text-white font-bold bg-success-300 hover:bg-success-400 transition-all rounded-lg w-full text-base"
-              >
-                Volver a planes
-              </a>
-              <a
-                id="btn-back-home"
-                href="../index.html"
-                class="py-3.5 flex items-center justify-center text-bgray-900 dark:text-white font-bold bg-bgray-100 dark:bg-darkblack-500 hover:bg-bgray-200 dark:hover:bg-darkblack-400 transition-all rounded-lg w-full text-base border border-bgray-200 dark:border-darkblack-400"
-              >
-                Volver al inicio
-              </a>
-            </div>
+            <!-- Botón -->
+            <a
+              id="btn-back-plans"
+              href="../subscribe.html"
+              class="py-3.5 flex items-center justify-center gap-2 text-white font-bold bg-success-300 hover:bg-success-400 transition-all rounded-xl w-full text-base"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+              </svg>
+              Ver planes de nuevo
+            </a>
 
           </div>
         </div>
@@ -88,13 +84,10 @@
         var validPlans = ['starter', 'pro', 'business'];
 
         var btnBackPlans = document.getElementById('btn-back-plans');
-        var btnBackHome  = document.getElementById('btn-back-home');
 
         if (plan && validPlans.indexOf(plan) !== -1) {
           btnBackPlans.href = '../subscribe.html?plan=' + plan;
         }
-
-        btnBackHome.href = APP_HOME_ROUTE;
       })();
     </script>
   </body>

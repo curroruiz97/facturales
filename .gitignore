@@ -7,7 +7,7 @@
 .env.*.local
 
 .docx
-
+.pdf
 # misc
 .DS_Store
 .idea

@@ -47,7 +47,7 @@
               <p class="su-sub font-medium text-bgray-600 dark:text-darkblack-300">Envía, gasta y ahorra de forma inteligente</p>
             </header>
             <!-- Google Button -->
-            <a href="#" class="su-btn inline-flex w-full justify-center items-center gap-x-2 border border-bgray-300 dark:border-darkblack-400 text-bgray-900 dark:text-white font-medium" style="border-radius:8px;">
+            <button type="button" id="google-signup-btn" class="su-btn inline-flex w-full justify-center items-center gap-x-2 border border-bgray-300 dark:border-darkblack-400 text-bgray-900 dark:text-white font-medium cursor-pointer" style="border-radius:8px;background:transparent;">
               <svg width="20" height="20" viewBox="0 0 23 22" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M20.8758 11.2137C20.8758 10.4224 20.8103 9.84485 20.6685 9.24597H11.4473V12.8179H16.8599C16.7508 13.7055 16.1615 15.0424 14.852 15.9406L14.8336 16.0602L17.7492 18.2737L17.9512 18.2935C19.8063 16.6144 20.8758 14.144 20.8758 11.2137Z" fill="#4285F4"/>
                 <path d="M11.4467 20.625C14.0984 20.625 16.3245 19.7694 17.9506 18.2936L14.8514 15.9408C14.022 16.5076 12.9089 16.9033 11.4467 16.9033C8.84946 16.9033 6.64512 15.2243 5.85933 12.9036L5.74415 12.9131L2.7125 15.2125L2.67285 15.3205C4.28791 18.4647 7.60536 20.625 11.4467 20.625Z" fill="#34A853"/>
@@ -55,7 +55,7 @@
                 <path d="M11.4467 5.09664C13.2909 5.09664 14.5349 5.87733 15.2443 6.52974L18.0161 3.8775C16.3138 2.32681 14.0985 1.375 11.4467 1.375C7.60539 1.375 4.28792 3.53526 2.67285 6.6794L5.84844 9.09638C6.64514 6.77569 8.84949 5.09664 11.4467 5.09664Z" fill="#EB4335"/>
               </svg>
               <span>Registrarse con Google</span>
-            </a>
+            </button>
             <div class="relative" style="margin:clamp(2px,0.4vh,6px) 0;">
               <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-300 dark:border-darkblack-400"></div></div>
               <div class="relative flex justify-center"><span class="bg-white dark:bg-darkblack-500 px-2 text-bgray-600" style="font-size:clamp(0.7rem,1.2vh,0.8125rem);">O continúa con</span></div>
@@ -201,9 +201,10 @@
 
           <div class="su-footer flex-shrink-0">
             <nav>
-              <a href="#" class="text-bgray-700 dark:text-bgray-50" style="font-size:clamp(0.7rem,1.2vh,0.8125rem);white-space:nowrap;">Términos y condiciones</a>
-              <a href="#" class="text-bgray-700 dark:text-bgray-50" style="font-size:clamp(0.7rem,1.2vh,0.8125rem);white-space:nowrap;">Política de privacidad</a>
-              <a href="#" class="text-bgray-700 dark:text-bgray-50" style="font-size:clamp(0.7rem,1.2vh,0.8125rem);white-space:nowrap;">Ayuda</a>
+              <a href="condiciones-legales.html" class="text-bgray-700 dark:text-bgray-50" style="font-size:clamp(0.7rem,1.2vh,0.8125rem);white-space:nowrap;">Condiciones Legales</a>
+              <a href="politica-de-privacidad.html" class="text-bgray-700 dark:text-bgray-50" style="font-size:clamp(0.7rem,1.2vh,0.8125rem);white-space:nowrap;">Política de Privacidad</a>
+              <a href="aviso-legal.html" class="text-bgray-700 dark:text-bgray-50" style="font-size:clamp(0.7rem,1.2vh,0.8125rem);white-space:nowrap;">Aviso Legal</a>
+              <a href="politica-de-cookies.html" class="text-bgray-700 dark:text-bgray-50" style="font-size:clamp(0.7rem,1.2vh,0.8125rem);white-space:nowrap;">Política de Cookies</a>
             </nav>
             <p class="text-bgray-600 dark:text-darkblack-300">© 2026 Facturales. Todos los derechos reservados.</p>
           </div>
@@ -401,6 +402,30 @@
           function hideMessages() {
             errorMessage.classList.add('hidden');
             successMessage.classList.add('hidden');
+          }
+
+          // Google Sign-Up (usa el mismo OAuth de Google)
+          var googleSignupBtn = document.getElementById('google-signup-btn');
+          if (googleSignupBtn) {
+            googleSignupBtn.addEventListener('click', async function() {
+              var attempts = 0;
+              while (!window.signInWithGoogle && attempts < 50) {
+                await new Promise(function(r) { setTimeout(r, 100); });
+                attempts++;
+              }
+              if (typeof window.signInWithGoogle !== 'function') {
+                showError('Error: Sistema de autenticación no disponible. Recarga la página.');
+                return;
+              }
+              googleSignupBtn.disabled = true;
+              googleSignupBtn.querySelector('span').textContent = 'Redirigiendo...';
+              var result = await window.signInWithGoogle();
+              if (!result.success) {
+                showError(result.error || 'Error al registrarse con Google');
+                googleSignupBtn.disabled = false;
+                googleSignupBtn.querySelector('span').textContent = 'Registrarse con Google';
+              }
+            });
           }
 
           // Funcionalidad de mostrar/ocultar contraseña - PRIMERA CONTRASEÑA
