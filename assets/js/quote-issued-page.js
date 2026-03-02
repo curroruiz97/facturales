@@ -11,6 +11,7 @@ function escapeHtml(str) {
 
 let allIssuedQuotes = [];
 let currentCancelId = null;
+let emailStatusMap = {}; // { quoteId: { status, to_email } }
 
 /**
  * Cargar y renderizar todos los presupuestos emitidos
@@ -55,12 +56,59 @@ async function loadIssuedQuotes() {
       counterElement.textContent = resultIssued.data?.length || 0;
     }
     
+    // Cargar estado de envío por email desde document_email_log
+    await loadEmailStatuses(allIssuedQuotes.map(q => q.id));
+
     // Renderizar tabla
     renderIssuedTable(allIssuedQuotes);
     
   } catch (error) {
     console.error('❌ Error en loadIssuedQuotes:', error);
     showQuoteToast('Error al cargar presupuestos', 'error');
+  }
+}
+
+/**
+ * Cargar estados de envío por email consultando document_email_log
+ * @param {Array<string>} quoteIds - IDs de los presupuestos
+ */
+async function loadEmailStatuses(quoteIds) {
+  emailStatusMap = {};
+  if (!quoteIds.length) return;
+
+  try {
+    let attempts = 0;
+    while (!window.supabaseClient && attempts < 50) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      attempts++;
+    }
+    if (!window.supabaseClient) return;
+
+    const supabase = window.supabaseClient;
+
+    const { data, error } = await supabase
+      .from('document_email_log')
+      .select('document_id, status, to_email')
+      .eq('document_type', 'quote')
+      .in('document_id', quoteIds);
+
+    if (error) {
+      console.error('❌ Error al consultar document_email_log:', error);
+      return;
+    }
+
+    // Para cada presupuesto, guardar el mejor estado (sent > queued > failed)
+    const priority = { sent: 3, queued: 2, failed: 1 };
+    (data || []).forEach(row => {
+      const current = emailStatusMap[row.document_id];
+      if (!current || (priority[row.status] || 0) > (priority[current.status] || 0)) {
+        emailStatusMap[row.document_id] = { status: row.status, to_email: row.to_email };
+      }
+    });
+
+    console.log(`✅ Estados de email cargados para ${Object.keys(emailStatusMap).length} presupuestos`);
+  } catch (err) {
+    console.error('❌ Error en loadEmailStatuses:', err);
   }
 }
 
@@ -136,13 +184,32 @@ function createIssuedRow(quote) {
     `;
   } else {
     paymentBadge = `
-      <button 
-        onclick="togglePaymentStatus('${quote.id}', ${!isPaid})" 
-        class="inline-flex items-center rounded-lg ${isPaid ? 'bg-success-50 text-success-300 hover:bg-success-100' : 'text-error-300 hover:opacity-80'} px-3 py-1 text-xs font-semibold dark:bg-darkblack-500 transition-colors cursor-pointer"
+      <button
+        onclick="togglePaymentStatus('${quote.id}', ${!isPaid})"
+        class="inline-flex items-center rounded-lg ${isPaid ? 'bg-green-100 text-green-600 hover:bg-green-200 dark:bg-green-900/20 dark:text-green-400' : 'text-error-300 hover:opacity-80 dark:bg-darkblack-500'} px-3 py-1 text-xs font-semibold transition-colors cursor-pointer"
         ${isPaid ? '' : 'style="background-color: rgba(221,51,51,0.1);"'}
       >
         ${isPaid ? 'Pagado' : 'No pagado'}
       </button>
+    `;
+  }
+
+  // Badge de estado de envío por email
+  const emailInfo = emailStatusMap[quote.id] || null;
+  const emailStatus = emailInfo ? emailInfo.status : null;
+  const emailTo = emailInfo ? emailInfo.to_email : '';
+  let emailBadge;
+  if (emailStatus === 'sent') {
+    emailBadge = `
+      <span class="inline-flex items-center rounded-lg bg-green-100 px-3 py-1 text-xs font-semibold text-green-600 dark:bg-green-900/20 dark:text-green-400 cursor-default" title="Enviado a: ${escapeHtml(emailTo)}">
+        Enviado
+      </span>
+    `;
+  } else {
+    emailBadge = `
+      <span class="inline-flex items-center rounded-lg px-3 py-1 text-xs font-semibold text-error-300 dark:bg-darkblack-500" style="background-color: rgba(221,51,51,0.1);">
+        No enviado
+      </span>
     `;
   }
   
@@ -231,9 +298,12 @@ function createIssuedRow(quote) {
         <p class="text-sm font-semibold text-bgray-900 dark:text-white">${totalAmount}</p>
       </td>
       
-      <!-- Columna: Estado Pago -->
+      <!-- Columna: Estado -->
       <td class="px-6 py-5">
-        ${paymentBadge}
+        <div class="inline-flex flex-col gap-1.5 items-start">
+          ${paymentBadge}
+          ${emailBadge}
+        </div>
       </td>
       
       <!-- Columna: Acciones -->

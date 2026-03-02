@@ -264,7 +264,7 @@ function renderClientsTable(clients) {
             <p class="text-xs font-medium text-bgray-600 dark:text-bgray-50">${escapeHtml(client.identificador)}</p>
             ${client.tipo_cliente === 'empresa'
               ? '<span class="inline-block mt-1 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-600 dark:bg-blue-900/20 dark:text-blue-400">Empresa</span>'
-              : '<span class="inline-block mt-1 rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-bold text-orange-600 dark:bg-orange-900/20 dark:text-orange-400">Aut\u00f3nomo</span>'
+              : '<span class="inline-block mt-1 rounded-full px-2 py-0.5 text-[10px] font-bold" style="background-color:#fef9c3;color:#a16207;">Aut\u00f3nomo</span>'
             }
           </div>
         </div>

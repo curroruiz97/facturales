@@ -27,8 +27,8 @@ async function signUp(email, password, metadata = {}) {
     if (!email || !email.trim()) {
       throw new Error('El email es obligatorio');
     }
-    if (!password || password.length < 6) {
-      throw new Error('La contraseña debe tener al menos 6 caracteres');
+    if (!password || password.length < 8) {
+      throw new Error('La contraseña debe tener al menos 8 caracteres');
     }
 
     const { data, error } = await supabase.auth.signUp({
@@ -247,13 +247,21 @@ function onAuthStateChange(callback) {
 async function resetPassword(email) {
   try {
     const supabase = getSupabaseForAuth();
-    
+
     if (!email || !email.trim()) {
       throw new Error('El email es obligatorio');
     }
 
+    const normalizedEmail = email.trim().toLowerCase();
+
+    // Verificar si la cuenta es de Google antes de enviar el email
+    const { data: provider } = await supabase.rpc('check_email_provider', { p_email: normalizedEmail });
+    if (provider === 'google') {
+      throw new Error('Esta cuenta está vinculada a Google. Inicia sesión con el botón de Google. No es posible restablecer la contraseña.');
+    }
+
     const { error } = await supabase.auth.resetPasswordForEmail(
-      email.trim().toLowerCase(),
+      normalizedEmail,
       {
         redirectTo: `${window.location.origin}/reset-password.html`,
       }
@@ -264,7 +272,6 @@ async function resetPassword(email) {
       throw new Error('Error al enviar email de recuperación');
     }
 
-    console.log('✅ Email de recuperación enviado a:', email);
     return { success: true };
   } catch (error) {
     console.error('Error en resetPassword:', error);
@@ -281,8 +288,8 @@ async function updatePassword(newPassword) {
   try {
     const supabase = getSupabaseForAuth();
     
-    if (!newPassword || newPassword.length < 6) {
-      throw new Error('La contraseña debe tener al menos 6 caracteres');
+    if (!newPassword || newPassword.length < 8) {
+      throw new Error('La contraseña debe tener al menos 8 caracteres');
     }
 
     const { data, error } = await supabase.auth.updateUser({

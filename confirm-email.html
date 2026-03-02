@@ -140,6 +140,19 @@
     <script src="./assets/js/jquery-3.6.0.min.js"></script>
     <script src="./assets/js/main.js"></script>
 
+    <!-- Capturar parámetros ANTES de que Supabase los consuma (PKCE auto-detection) -->
+    <script>
+      window.__confirmEmailParams = {
+        hash: window.location.hash,
+        search: window.location.search,
+        code: new URLSearchParams(window.location.search).get('code'),
+        error: new URLSearchParams(window.location.search).get('error') || new URLSearchParams(window.location.hash.substring(1)).get('error'),
+        errorDescription: new URLSearchParams(window.location.search).get('error_description') || new URLSearchParams(window.location.hash.substring(1)).get('error_description'),
+        accessToken: new URLSearchParams(window.location.hash.substring(1)).get('access_token'),
+        type: new URLSearchParams(window.location.search).get('type') || new URLSearchParams(window.location.hash.substring(1)).get('type'),
+      };
+    </script>
+
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script type="module">
@@ -153,16 +166,16 @@
     <script>
       (function() {
         function initConfirmEmail() {
-          const stateLoading = document.getElementById('state-loading');
-          const stateSuccess = document.getElementById('state-success');
-          const stateError = document.getElementById('state-error');
-          const errorDetail = document.getElementById('error-detail');
-          const resendButton = document.getElementById('resend-button');
-          const resendEmail = document.getElementById('resend-email');
-          const resendError = document.getElementById('resend-error');
-          const resendSuccess = document.getElementById('resend-success');
+          var stateLoading = document.getElementById('state-loading');
+          var stateSuccess = document.getElementById('state-success');
+          var stateError = document.getElementById('state-error');
+          var errorDetail = document.getElementById('error-detail');
+          var resendButton = document.getElementById('resend-button');
+          var resendEmail = document.getElementById('resend-email');
+          var resendError = document.getElementById('resend-error');
+          var resendSuccess = document.getElementById('resend-success');
 
-          const storedEmail = sessionStorage.getItem('verify_email_address');
+          var storedEmail = sessionStorage.getItem('verify_email_address');
           if (storedEmail && resendEmail) {
             resendEmail.value = storedEmail;
           }
@@ -174,38 +187,37 @@
             state.classList.remove('hidden');
           }
 
+          function handleSuccess() {
+            sessionStorage.removeItem('verify_email_address');
+            showState(stateSuccess);
+            setTimeout(function() { window.location.href = './signin.html?verified=true'; }, 2000);
+          }
+
           async function processVerification() {
-            const hash = window.location.hash;
-            const params = new URLSearchParams(window.location.search);
+            // Usar los parámetros capturados ANTES de que Supabase los consumiera
+            var p = window.__confirmEmailParams || {};
+            var hadCode = !!p.code;
+            var hadAccessToken = !!p.accessToken;
+            var hadType = !!p.type;
+            var hadError = !!p.error;
 
-            const hashParams = new URLSearchParams(hash.substring(1));
-            const accessToken = hashParams.get('access_token');
-            const errorCode = hashParams.get('error') || params.get('error');
-            const errorDescription = hashParams.get('error_description') || params.get('error_description');
-            const type = hashParams.get('type') || params.get('type');
-
-            if (errorCode) {
-              let isExpired = false;
-              if (errorDescription) {
-                let msg = decodeURIComponent(errorDescription.replace(/\+/g, ' '));
-                isExpired = msg.includes('expired') || msg.includes('expirado');
+            // 1) Si hubo un error explícito en la URL
+            if (hadError) {
+              var isExpired = false;
+              if (p.errorDescription) {
+                var msg = decodeURIComponent(p.errorDescription.replace(/\+/g, ' '));
+                isExpired = msg.indexOf('expired') !== -1 || msg.indexOf('expirado') !== -1;
               }
 
+              // Aunque el enlace "expiró", Supabase puede haberlo verificado server-side
               if (isExpired) {
-                // El enlace expiró, pero Supabase puede haber confirmado el email server-side
                 try {
-                  let att = 0;
-                  while (!window.supabaseClient && att < 50) {
-                    await new Promise(r => setTimeout(r, 100));
-                    att++;
-                  }
-                  if (window.supabaseClient) {
-                    const { data: { user } } = await window.supabaseClient.auth.getUser();
-                    if (user && user.email_confirmed_at) {
-                      await window.supabaseClient.auth.signOut();
-                      sessionStorage.removeItem('verify_email_address');
-                      showState(stateSuccess);
-                      setTimeout(() => { window.location.href = './signin.html?verified=true'; }, 2000);
+                  var sb = await waitForSupabaseAuth();
+                  if (sb) {
+                    var res = await sb.auth.getUser();
+                    if (res.data && res.data.user && res.data.user.email_confirmed_at) {
+                      await sb.auth.signOut();
+                      handleSuccess();
                       return;
                     }
                   }
@@ -213,46 +225,33 @@
               }
 
               showState(stateError);
-              if (errorDescription) {
-                let msg = decodeURIComponent(errorDescription.replace(/\+/g, ' '));
-                if (isExpired) {
-                  errorDetail.textContent = 'El enlace de verificación ha expirado. Solicita uno nuevo a continuación.';
-                } else {
-                  errorDetail.textContent = msg;
-                }
+              if (p.errorDescription) {
+                var errMsg = decodeURIComponent(p.errorDescription.replace(/\+/g, ' '));
+                errorDetail.textContent = isExpired
+                  ? 'El enlace de verificación ha expirado. Solicita uno nuevo a continuación.'
+                  : errMsg;
               }
               return;
             }
 
-            if (accessToken || type === 'signup' || type === 'email') {
+            // 2) Si había ?code= o #access_token= (verificación normal)
+            //    Supabase JS v2 auto-consume el code y crea sesión internamente.
+            //    Esperamos a que termine y comprobamos el resultado.
+            if (hadCode || hadAccessToken || hadType) {
               try {
-                let attempts = 0;
-                while (!window.supabaseClient && attempts < 50) {
-                  await new Promise(resolve => setTimeout(resolve, 100));
-                  attempts++;
-                }
-
-                if (!window.supabaseClient) {
+                var sb = await waitForSupabaseAuth();
+                if (!sb) {
                   showState(stateError);
                   errorDetail.textContent = 'Error al conectar con el servicio. Recarga la página.';
                   return;
                 }
 
-                const { data: { user }, error } = await window.supabaseClient.auth.getUser();
-
-                if (error) {
-                  showState(stateError);
-                  return;
-                }
+                var userRes = await sb.auth.getUser();
+                var user = userRes.data ? userRes.data.user : null;
 
                 if (user && user.email_confirmed_at) {
-                  await window.supabaseClient.auth.signOut();
-                  sessionStorage.removeItem('verify_email_address');
-
-                  showState(stateSuccess);
-                  setTimeout(() => {
-                    window.location.href = './signin.html?verified=true';
-                  }, 2000);
+                  await sb.auth.signOut();
+                  handleSuccess();
                   return;
                 }
 
@@ -263,25 +262,58 @@
                   return;
                 }
 
-                showState(stateSuccess);
-                setTimeout(() => {
-                  window.location.href = './signin.html?verified=true';
-                }, 2000);
+                // No hay user pero sí había code/token → posible error silencioso
+                showState(stateError);
+                errorDetail.textContent = 'No se pudo verificar la cuenta. Solicita un nuevo enlace de confirmación.';
+                return;
 
               } catch (err) {
                 console.error('Error procesando verificación:', err);
                 showState(stateError);
+                errorDetail.textContent = 'Error al procesar la verificación. Inténtalo de nuevo.';
               }
               return;
             }
+
+            // 3) Sin parámetros: comprobar si el usuario ya tiene sesión activa con email confirmado
+            //    (puede pasar si el navegador recargó la página sin params)
+            try {
+              var sb = await waitForSupabaseAuth();
+              if (sb) {
+                var sessionRes = await sb.auth.getSession();
+                var session = sessionRes.data ? sessionRes.data.session : null;
+                if (session && session.user && session.user.email_confirmed_at) {
+                  await sb.auth.signOut();
+                  handleSuccess();
+                  return;
+                }
+              }
+            } catch (e) { /* ignorar */ }
 
             showState(stateError);
             errorDetail.textContent = 'No se encontró información de verificación. Si ya verificaste tu cuenta, inicia sesión.';
           }
 
+          // Esperar a que Supabase esté listo Y haya procesado la sesión inicial (incluido PKCE)
+          async function waitForSupabaseAuth() {
+            var attempts = 0;
+            while (!window.supabaseClient && attempts < 60) {
+              await new Promise(function(r) { setTimeout(r, 100); });
+              attempts++;
+            }
+            if (!window.supabaseClient) return null;
+
+            // Esperar a que Supabase termine de procesar el código PKCE
+            if (window.supabaseAuthReady) {
+              await window.supabaseAuthReady;
+            }
+
+            return window.supabaseClient;
+          }
+
           if (resendButton) {
             resendButton.addEventListener('click', async function() {
-              const email = resendEmail.value.trim();
+              var email = resendEmail.value.trim();
               if (!email) {
                 resendError.textContent = 'Introduce tu email';
                 resendError.classList.remove('hidden');
@@ -289,9 +321,9 @@
                 return;
               }
 
-              let attempts = 0;
+              var attempts = 0;
               while (!window.resendVerificationEmail && attempts < 50) {
-                await new Promise(resolve => setTimeout(resolve, 100));
+                await new Promise(function(r) { setTimeout(r, 100); });
                 attempts++;
               }
 
@@ -305,14 +337,14 @@
               resendButton.textContent = 'Enviando...';
 
               try {
-                const result = await window.resendVerificationEmail(email);
+                var result = await window.resendVerificationEmail(email);
                 if (result.success) {
                   resendSuccess.textContent = 'Email reenviado. Revisa tu bandeja de entrada.';
                   resendSuccess.classList.remove('hidden');
                   resendError.classList.add('hidden');
 
                   sessionStorage.setItem('verify_email_address', email);
-                  setTimeout(() => {
+                  setTimeout(function() {
                     window.location.href = './verify-email.html';
                   }, 2000);
                 } else {
@@ -331,7 +363,7 @@
             });
           }
 
-          setTimeout(processVerification, 500);
+          processVerification();
         }
 
         if (document.readyState === 'loading') {

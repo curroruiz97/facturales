@@ -11,6 +11,7 @@ function escapeHtml(str) {
 
 let allIssuedInvoices = [];
 let currentCancelId = null;
+let emailStatusMap = {}; // { invoiceId: { status, to_email } }
 
 /**
  * Cargar y renderizar todas las facturas emitidas
@@ -48,19 +49,66 @@ async function loadIssuedInvoices() {
     ];
     
     console.log(`✅ ${allIssuedInvoices.length} facturas cargadas`);
-    
+
     // Actualizar contador (solo emitidas activas)
     const counterElement = document.getElementById('issued-count');
     if (counterElement) {
       counterElement.textContent = resultIssued.data?.length || 0;
     }
-    
+
+    // Cargar estado de envío por email desde document_email_log
+    await loadEmailStatuses(allIssuedInvoices.map(inv => inv.id));
+
     // Renderizar tabla
     renderIssuedTable(allIssuedInvoices);
     
   } catch (error) {
     console.error('❌ Error en loadIssuedInvoices:', error);
     _showIssuedToast('Error al cargar facturas', 'error');
+  }
+}
+
+/**
+ * Cargar estados de envío por email consultando document_email_log
+ * @param {Array<string>} invoiceIds - IDs de las facturas
+ */
+async function loadEmailStatuses(invoiceIds) {
+  emailStatusMap = {};
+  if (!invoiceIds.length) return;
+
+  try {
+    let attempts = 0;
+    while (!window.supabaseClient && attempts < 50) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      attempts++;
+    }
+    if (!window.supabaseClient) return;
+
+    const supabase = window.supabaseClient;
+
+    const { data, error } = await supabase
+      .from('document_email_log')
+      .select('document_id, status, to_email')
+      .eq('document_type', 'invoice')
+      .in('document_id', invoiceIds);
+
+    if (error) {
+      console.error('❌ Error al consultar document_email_log:', error);
+      return;
+    }
+
+    // Para cada factura, guardar el mejor estado (sent > queued > failed)
+    const priority = { sent: 3, queued: 2, failed: 1 };
+    (data || []).forEach(row => {
+      const current = emailStatusMap[row.document_id];
+      if (!current || (priority[row.status] || 0) > (priority[current.status] || 0)) {
+        emailStatusMap[row.document_id] = { status: row.status, to_email: row.to_email };
+      }
+    });
+
+    console.log(`✅ Estados de email cargados para ${Object.keys(emailStatusMap).length} facturas`);
+  } catch (err) {
+    console.error('❌ Error en loadEmailStatuses:', err);
   }
 }
 
@@ -146,6 +194,25 @@ function createIssuedRow(invoice) {
     `;
   }
   
+  // Badge de estado de envío por email
+  const emailInfo = emailStatusMap[invoice.id] || null;
+  const emailStatus = emailInfo ? emailInfo.status : null;
+  const emailTo = emailInfo ? emailInfo.to_email : '';
+  let emailBadge;
+  if (emailStatus === 'sent') {
+    emailBadge = `
+      <span class="inline-flex items-center rounded-lg bg-green-100 px-3 py-1 text-xs font-semibold text-green-600 dark:bg-green-900/20 dark:text-green-400 cursor-default" title="Enviada a: ${escapeHtml(emailTo)}">
+        Enviada
+      </span>
+    `;
+  } else {
+    emailBadge = `
+      <span class="inline-flex items-center rounded-lg px-3 py-1 text-xs font-semibold text-error-300 dark:bg-darkblack-500" style="background-color: rgba(221,51,51,0.1);">
+        No enviada
+      </span>
+    `;
+  }
+
   // Botones de acción
   let actionButtons;
   if (isCancelled) {
@@ -231,9 +298,12 @@ function createIssuedRow(invoice) {
         <p class="text-sm font-semibold text-bgray-900 dark:text-white">${totalAmount}</p>
       </td>
       
-      <!-- Columna: Estado Pago -->
+      <!-- Columna: Estado -->
       <td class="px-6 py-5">
-        ${paymentBadge}
+        <div class="inline-flex flex-col gap-1.5 items-start">
+          ${paymentBadge}
+          ${emailBadge}
+        </div>
       </td>
       
       <!-- Columna: Acciones -->

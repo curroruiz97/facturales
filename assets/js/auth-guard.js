@@ -256,6 +256,13 @@ async function initAuthGuard() {
     if (user) {
       displayUserInfo(user);
       setupLogoutButtons();
+
+      // Cargar access-logger para registrar el acceso
+      const loggerScript = document.createElement('script');
+      loggerScript.src = (window.location.pathname.includes('/invoices/') || window.location.pathname.includes('/billing/'))
+        ? '../assets/js/access-logger.js'
+        : './assets/js/access-logger.js';
+      document.body.appendChild(loggerScript);
     }
   }
 }

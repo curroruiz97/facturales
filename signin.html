@@ -501,13 +501,13 @@
                 <img src="assets/images/logo/logo-white.svg" class="hidden dark:block" alt="" />
               </a>
               <h3 class="text-2xl font-bold text-bgray-900 dark:text-white mb-3">Crear nueva contrase&ntilde;a</h3>
-              <p class="text-base font-medium text-bgray-600 dark:text-darkblack-300 mb-7">Introduce una nueva contrase&ntilde;a. Debe tener al menos 6 caracteres.</p>
+              <p class="text-base font-medium text-bgray-600 dark:text-darkblack-300 mb-7">Introduce una nueva contrase&ntilde;a. Debe tener al menos 8 caracteres.</p>
               <form id="recovery-password-form" onsubmit="return false;">
                 <div class="mb-6 relative">
-                  <input type="password" id="recovery-new-password" required minlength="6" class="text-bgray-800 text-base border border-bgray-300 h-14 w-full focus:border focus:border-success-300 focus:ring-0 rounded-lg px-4 py-3.5 placeholder:text-bgray-500 placeholder:text-base dark:text-white dark:bg-darkblack-500 dark:border-0" placeholder="Nueva contrase&ntilde;a" />
+                  <input type="password" id="recovery-new-password" required minlength="8" class="text-bgray-800 text-base border border-bgray-300 h-14 w-full focus:border focus:border-success-300 focus:ring-0 rounded-lg px-4 py-3.5 placeholder:text-bgray-500 placeholder:text-base dark:text-white dark:bg-darkblack-500 dark:border-0" placeholder="Nueva contrase&ntilde;a" />
                 </div>
                 <div class="mb-4 relative">
-                  <input type="password" id="recovery-confirm-password" required minlength="6" class="text-bgray-800 text-base border border-bgray-300 h-14 w-full focus:border-success-300 focus:ring-0 rounded-lg px-4 py-3.5 placeholder:text-bgray-500 placeholder:text-base dark:bg-darkblack-500 dark:text-white dark:border-0" placeholder="Confirmar nueva contrase&ntilde;a" />
+                  <input type="password" id="recovery-confirm-password" required minlength="8" class="text-bgray-800 text-base border border-bgray-300 h-14 w-full focus:border-success-300 focus:ring-0 rounded-lg px-4 py-3.5 placeholder:text-bgray-500 placeholder:text-base dark:bg-darkblack-500 dark:text-white dark:border-0" placeholder="Confirmar nueva contrase&ntilde;a" />
                 </div>
                 <div id="recovery-step3-error" class="hidden mb-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 rounded-lg text-sm"></div>
                 <button type="button" id="recovery-update-btn" class="flex w-full py-4 text-white bg-success-300 hover:bg-success-400 transition-all justify-center text-base font-medium rounded-lg disabled:opacity-50">Confirmar contrase&ntilde;a</button>
@@ -555,12 +555,13 @@
       // Importar módulos
       import './assets/js/supabaseClient.js';
       import './assets/js/auth.js';
-      
+      import './assets/js/businessInfo.js';
+
       // Esperar un momento para que se inicialice
       await new Promise(resolve => setTimeout(resolve, 100));
-      
+
       console.log('✅ Módulos de Supabase cargados');
-      
+
       // Marcar que está listo
       window.supabaseReady = true;
     </script>
@@ -978,6 +979,13 @@
                 }
                 if (!window.supabaseClient) throw new Error('No se pudo conectar con el servidor');
 
+                // Verificar si la cuenta es de Google antes de enviar el email
+                var providerCheck = await window.supabaseClient.rpc('check_email_provider', { p_email: email.toLowerCase() });
+                if (providerCheck.data === 'google') {
+                  showStepError(1, 'Esta cuenta est\u00E1 vinculada a Google. Inicia sesi\u00F3n con el bot\u00F3n de Google. No es posible restablecer la contrase\u00F1a.');
+                  return;
+                }
+
                 var result = await window.supabaseClient.auth.resetPasswordForEmail(email.toLowerCase(), {
                   redirectTo: window.location.origin + '/reset-password.html'
                 });
@@ -1106,8 +1114,8 @@
               var newPw = document.getElementById('recovery-new-password').value;
               var confirmPw = document.getElementById('recovery-confirm-password').value;
 
-              if (!newPw || newPw.length < 6) {
-                showStepError(3, 'La contrase\u00F1a debe tener al menos 6 caracteres');
+              if (!newPw || newPw.length < 8) {
+                showStepError(3, 'La contrase\u00F1a debe tener al menos 8 caracteres');
                 return;
               }
               if (newPw !== confirmPw) {
