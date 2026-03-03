@@ -12,6 +12,14 @@
     <link rel="stylesheet" href="./assets/css/aos.css" />
     <link rel="stylesheet" href="./assets/css/output.css" />
     <link rel="stylesheet" href="./assets/css/style.css" />
+    <style>
+      @keyframes integrationSpin {
+        to { transform: rotate(360deg); }
+      }
+      .integration-spinner {
+        animation: integrationSpin 0.8s linear infinite;
+      }
+    </style>
   </head>
   <body>
     <!-- layout start -->
@@ -31,28 +39,21 @@
             </div>
 
             <div class="grid gap-4 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-              <!-- Microsoft Excel -->
-              <div class="relative rounded-lg bg-white p-6 dark:bg-darkblack-600">
+
+              <!-- Microsoft Excel (conectado) -->
+              <div class="relative rounded-lg bg-white p-6 dark:bg-darkblack-600 flex flex-col">
                 <div class="flex items-center space-x-4 mb-4">
-                  <div class="shrink-0">
-                    <img
-                      src="assets/images/integrations/ms_excel.svg"
-                      alt="Microsoft Excel"
-                      class="w-12 h-12"
-                    />
+                  <div class="shrink-0 w-12 h-12">
+                    <img src="assets/images/integrations/ms_excel.svg" alt="Microsoft Excel" class="w-12 h-12" />
                   </div>
                   <div>
-                    <h3 class="text-xl font-bold text-bgray-900 dark:text-white">
-                      Microsoft Excel
-                    </h3>
-                    <span class="text-sm text-bgray-600 dark:text-bgray-50">Datos y hojas de calculo</span>
+                    <h3 class="text-lg font-bold text-bgray-900 dark:text-white">Microsoft Excel</h3>
+                    <span class="text-xs text-bgray-500 dark:text-bgray-400">Datos y hojas de calculo</span>
                   </div>
                 </div>
-
-                <p class="text-sm text-bgray-600 dark:text-bgray-50 leading-relaxed mb-6">
-                  Excel esta integrado automaticamente en la importacion y exportacion de contactos. Puedes descargar y subir tu lista de clientes en formato .xlsx desde la seccion de Clientes.
+                <p class="text-sm text-bgray-600 dark:text-bgray-50 leading-relaxed mb-6 flex-1">
+                  Excel esta integrado automaticamente en la importacion y exportacion de contactos desde la seccion de Clientes.
                 </p>
-
                 <div class="flex items-center gap-2 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 px-4 py-3">
                   <svg class="w-5 h-5 text-green-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -60,6 +61,83 @@
                   <span class="text-sm font-medium text-green-700 dark:text-green-300">Conectado automaticamente</span>
                 </div>
               </div>
+
+              <!-- Slack -->
+              <div class="relative rounded-lg bg-white p-6 dark:bg-darkblack-600 flex flex-col">
+                <div class="flex items-center space-x-4 mb-4">
+                  <div class="shrink-0 w-12 h-12">
+                    <img src="assets/images/integrations/slack.svg" alt="Slack" class="w-12 h-12" />
+                  </div>
+                  <div>
+                    <h3 class="text-lg font-bold text-bgray-900 dark:text-white">Slack</h3>
+                    <span class="text-xs text-bgray-500 dark:text-bgray-400">Comunicacion y notificaciones</span>
+                  </div>
+                </div>
+                <p class="text-sm text-bgray-600 dark:text-bgray-50 leading-relaxed mb-6 flex-1">
+                  Recibe notificaciones en tu canal de Slack cuando se emita una factura, se registre un pago o venza una fecha de cobro.
+                </p>
+                <button onclick="fakeConnect(this)" class="integration-btn h-11 w-full rounded-lg border-2 border-success-300 text-sm font-semibold text-success-300 transition-all duration-300 hover:bg-success-300 hover:text-white">
+                  Conectar
+                </button>
+              </div>
+
+              <!-- Gmail -->
+              <div class="relative rounded-lg bg-white p-6 dark:bg-darkblack-600 flex flex-col">
+                <div class="flex items-center space-x-4 mb-4">
+                  <div class="shrink-0 w-12 h-12">
+                    <img src="assets/images/integrations/gmail.svg" alt="Gmail" class="w-12 h-12" />
+                  </div>
+                  <div>
+                    <h3 class="text-lg font-bold text-bgray-900 dark:text-white">Gmail</h3>
+                    <span class="text-xs text-bgray-500 dark:text-bgray-400">Correo electronico</span>
+                  </div>
+                </div>
+                <p class="text-sm text-bgray-600 dark:text-bgray-50 leading-relaxed mb-6 flex-1">
+                  Envia facturas y presupuestos directamente desde tu cuenta de Gmail. Sincroniza los correos enviados con el historial de cada cliente.
+                </p>
+                <button onclick="fakeConnect(this)" class="integration-btn h-11 w-full rounded-lg border-2 border-success-300 text-sm font-semibold text-success-300 transition-all duration-300 hover:bg-success-300 hover:text-white">
+                  Conectar
+                </button>
+              </div>
+
+              <!-- Outlook -->
+              <div class="relative rounded-lg bg-white p-6 dark:bg-darkblack-600 flex flex-col">
+                <div class="flex items-center space-x-4 mb-4">
+                  <div class="shrink-0 w-12 h-12">
+                    <img src="assets/images/integrations/outlook.svg" alt="Outlook" class="w-12 h-12" />
+                  </div>
+                  <div>
+                    <h3 class="text-lg font-bold text-bgray-900 dark:text-white">Outlook</h3>
+                    <span class="text-xs text-bgray-500 dark:text-bgray-400">Correo y calendario</span>
+                  </div>
+                </div>
+                <p class="text-sm text-bgray-600 dark:text-bgray-50 leading-relaxed mb-6 flex-1">
+                  Conecta tu cuenta de Outlook para enviar documentos y sincronizar vencimientos de facturas con tu calendario.
+                </p>
+                <button onclick="fakeConnect(this)" class="integration-btn h-11 w-full rounded-lg border-2 border-success-300 text-sm font-semibold text-success-300 transition-all duration-300 hover:bg-success-300 hover:text-white">
+                  Conectar
+                </button>
+              </div>
+
+              <!-- HubSpot -->
+              <div class="relative rounded-lg bg-white p-6 dark:bg-darkblack-600 flex flex-col">
+                <div class="flex items-center space-x-4 mb-4">
+                  <div class="shrink-0 w-12 h-12">
+                    <img src="assets/images/integrations/hubspot.svg" alt="HubSpot" class="w-12 h-12" />
+                  </div>
+                  <div>
+                    <h3 class="text-lg font-bold text-bgray-900 dark:text-white">HubSpot</h3>
+                    <span class="text-xs text-bgray-500 dark:text-bgray-400">CRM y ventas</span>
+                  </div>
+                </div>
+                <p class="text-sm text-bgray-600 dark:text-bgray-50 leading-relaxed mb-6 flex-1">
+                  Sincroniza tus contactos y facturas con HubSpot CRM. Crea automaticamente deals cuando emitas presupuestos o facturas.
+                </p>
+                <button onclick="fakeConnect(this)" class="integration-btn h-11 w-full rounded-lg border-2 border-success-300 text-sm font-semibold text-success-300 transition-all duration-300 hover:bg-success-300 hover:text-white">
+                  Conectar
+                </button>
+              </div>
+
             </div>
           </main>
         </div>
@@ -88,5 +166,33 @@
 
     <!-- User header y logout -->
     <script src="./assets/js/user-header.js"></script>
+
+    <script>
+      function fakeConnect(btn) {
+        if (btn.disabled) return;
+        btn.disabled = true;
+
+        // Fase 1: Spinner "Conectando..."
+        var originalText = btn.textContent;
+        btn.innerHTML = '<svg class="integration-spinner inline-block w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>Conectando...';
+        btn.classList.add('bg-success-300', 'text-white');
+        btn.classList.remove('hover:bg-success-300', 'hover:text-white');
+
+        // Fase 2: Check "Conectado"
+        setTimeout(function() {
+          btn.innerHTML = '<svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>Conectado';
+          btn.classList.remove('border-success-300', 'bg-success-300');
+          btn.classList.add('border-green-500', 'bg-green-500', 'cursor-default');
+        }, 2000);
+
+        // Fase 3: Volver al estado original
+        setTimeout(function() {
+          btn.innerHTML = originalText;
+          btn.classList.remove('bg-green-500', 'border-green-500', 'bg-success-300', 'text-white', 'cursor-default');
+          btn.classList.add('border-success-300', 'text-success-300', 'hover:bg-success-300', 'hover:text-white');
+          btn.disabled = false;
+        }, 4500);
+      }
+    </script>
   </body>
 </html>

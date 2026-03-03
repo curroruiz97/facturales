@@ -334,10 +334,20 @@ function createQuoteLine(concept, isFirst) {
   
   // Determinar el valor del select según el tax
   let selectedTaxOption = 'IVA_21';
-  if (concept.tax === 0) selectedTaxOption = 'IVA_0';
-  else if (concept.tax === 4) selectedTaxOption = 'IVA_4';
-  else if (concept.tax === 10) selectedTaxOption = 'IVA_10';
-  else if (concept.tax === 21) selectedTaxOption = 'IVA_21';
+  if (concept.taxLabel) {
+    // Si tenemos la etiqueta guardada (ej: "IVA_21", "IGIC_7", "IPSI_4", "IRPF_-2", "EXENTO")
+    selectedTaxOption = concept.taxLabel;
+  } else if (concept.tax === 0) {
+    selectedTaxOption = 'IVA_0';
+  } else if (concept.tax !== undefined && concept.tax !== null) {
+    // Intentar reconstruir desde el valor numérico
+    var absVal = Math.abs(concept.tax);
+    if (concept.tax < 0) selectedTaxOption = 'IRPF_' + concept.tax;
+    else if ([21, 10, 4].indexOf(absVal) !== -1) selectedTaxOption = 'IVA_' + absVal;
+    else if ([20, 13.5, 9.5, 7, 3].indexOf(absVal) !== -1) selectedTaxOption = 'IGIC_' + absVal;
+    else if ([0.5, 1, 2, 8].indexOf(absVal) !== -1) selectedTaxOption = 'IPSI_' + absVal;
+    else selectedTaxOption = 'IVA_' + absVal;
+  }
   
   line.innerHTML = `
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
@@ -398,12 +408,23 @@ function createQuoteLine(concept, isFirst) {
             <option value="IVA_0" ${selectedTaxOption === 'IVA_0' ? 'selected' : ''}>IVA 0%</option>
           </optgroup>
           <optgroup label="IGIC — Canarias">
-            <option value="IGIC_7">IGIC 7%</option>
-            <option value="IGIC_3">IGIC 3%</option>
-            <option value="IGIC_0">IGIC 0%</option>
+            <option value="IGIC_20" ${selectedTaxOption === 'IGIC_20' ? 'selected' : ''}>IGIC 20%</option>
+            <option value="IGIC_13.5" ${selectedTaxOption === 'IGIC_13.5' ? 'selected' : ''}>IGIC 13,5%</option>
+            <option value="IGIC_9.5" ${selectedTaxOption === 'IGIC_9.5' ? 'selected' : ''}>IGIC 9,5%</option>
+            <option value="IGIC_7" ${selectedTaxOption === 'IGIC_7' ? 'selected' : ''}>IGIC 7%</option>
+            <option value="IGIC_3" ${selectedTaxOption === 'IGIC_3' ? 'selected' : ''}>IGIC 3%</option>
+            <option value="IGIC_0" ${selectedTaxOption === 'IGIC_0' ? 'selected' : ''}>IGIC 0%</option>
+          </optgroup>
+          <optgroup label="IPSI — Ceuta y Melilla">
+            <option value="IPSI_10" ${selectedTaxOption === 'IPSI_10' ? 'selected' : ''}>IPSI 10%</option>
+            <option value="IPSI_8" ${selectedTaxOption === 'IPSI_8' ? 'selected' : ''}>IPSI 8%</option>
+            <option value="IPSI_4" ${selectedTaxOption === 'IPSI_4' ? 'selected' : ''}>IPSI 4%</option>
+            <option value="IPSI_2" ${selectedTaxOption === 'IPSI_2' ? 'selected' : ''}>IPSI 2%</option>
+            <option value="IPSI_1" ${selectedTaxOption === 'IPSI_1' ? 'selected' : ''}>IPSI 1%</option>
+            <option value="IPSI_0.5" ${selectedTaxOption === 'IPSI_0.5' ? 'selected' : ''}>IPSI 0,5%</option>
           </optgroup>
           <optgroup label="Exenciones">
-            <option value="EXENTO">Exento</option>
+            <option value="EXENTO" ${selectedTaxOption === 'EXENTO' ? 'selected' : ''}>Exento</option>
           </optgroup>
         </select>
         <div class="re-info mt-1 text-xs text-bgray-500 dark:text-bgray-400">R.E 5,2% incluido</div>
