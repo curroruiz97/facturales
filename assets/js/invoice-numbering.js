@@ -2,56 +2,143 @@
  * invoice-numbering.js
  * Sistema profesional de numeración de facturas.
  * Consulta Supabase para obtener el siguiente número disponible por serie.
+ * Soporta: start_number, counter_reset (yearly/monthly/never),
+ *          formatos (common, monthly, simple, slash, compact, custom)
  */
 
 (function () {
   'use strict';
 
   /**
+   * Obtener la configuración de una serie desde invoice_series
+   */
+  async function getSeriesConfig(seriesCode) {
+    try {
+      if (!window.supabaseClient) return null;
+      var supabase = window.supabaseClient;
+      var userResult = await supabase.auth.getUser();
+      if (!userResult.data || !userResult.data.user) return null;
+
+      var result = await supabase
+        .from('invoice_series')
+        .select('invoice_number_format, counter_reset, start_number, custom_format, current_number, current_number_period')
+        .eq('user_id', userResult.data.user.id)
+        .eq('code', seriesCode)
+        .limit(1)
+        .single();
+
+      if (result.error || !result.data) return null;
+      return result.data;
+    } catch (e) {
+      console.warn('Error obteniendo config de serie:', e);
+      return null;
+    }
+  }
+
+  /**
+   * Formatear un número de factura según la configuración de la serie
+   */
+  function formatInvoiceNumber(seriesCode, format, counterReset, seq, customFormat) {
+    var now = new Date();
+    var year = String(now.getFullYear());
+    var shortYear = year.slice(2);
+    var month = String(now.getMonth() + 1).padStart(2, '0');
+
+    switch (format) {
+      case 'common':
+        if (counterReset === 'monthly') {
+          return seriesCode + '-' + year + '-' + month + '-' + String(seq).padStart(4, '0');
+        }
+        return seriesCode + '-' + year + '-' + String(seq).padStart(4, '0');
+
+      case 'monthly':
+        return year + '-' + month + '-' + String(seq).padStart(3, '0');
+
+      case 'simple':
+        if (counterReset === 'monthly') {
+          return year + month + String(seq).padStart(4, '0');
+        }
+        return year + String(seq).padStart(4, '0');
+
+      case 'slash':
+        if (counterReset === 'monthly') {
+          return seriesCode + '/' + year + '/' + month + '/' + String(seq).padStart(4, '0');
+        }
+        return seriesCode + '/' + year + '/' + String(seq).padStart(4, '0');
+
+      case 'compact':
+        if (counterReset === 'monthly') {
+          return seriesCode + '-' + shortYear + '-' + month + '-' + String(seq).padStart(3, '0');
+        }
+        return seriesCode + '-' + shortYear + '-' + String(seq).padStart(3, '0');
+
+      case 'custom':
+        var result = customFormat || '{SERIE}-{YYYY}-{NNNN}';
+        result = result.replace('{SERIE}', seriesCode);
+        result = result.replace('{YYYY}', year);
+        result = result.replace('{YY}', shortYear);
+        result = result.replace('{MM}', month);
+        result = result.replace('{NNNNN}', String(seq).padStart(5, '0'));
+        result = result.replace('{NNNN}', String(seq).padStart(4, '0'));
+        result = result.replace('{NNN}', String(seq).padStart(3, '0'));
+        return result;
+
+      default:
+        return seriesCode + '-' + year + '-' + String(seq).padStart(4, '0');
+    }
+  }
+
+  /**
    * Obtener el siguiente número de factura para una serie dada.
    * Consulta la BD para encontrar el máximo actual y devuelve el siguiente.
    * @param {string} series - Serie de factura (ej: 'A', 'B', 'R')
-   * @returns {Promise<string>} Siguiente número (ej: 'A-2026-00003')
+   * @returns {Promise<string>} Siguiente número (ej: 'A-2026-0003')
    */
   async function getNextInvoiceNumber(series) {
     try {
+      var seriesCode = series || 'A';
+
       if (!window.supabaseClient) {
-        return (series || 'A') + '-' + new Date().getFullYear() + '-XXXXX';
+        return seriesCode + '-' + new Date().getFullYear() + '-XXXXX';
       }
 
-      const supabase = window.supabaseClient;
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return series + '-' + new Date().getFullYear() + '-XXXXX';
-
-      const currentYear = String(new Date().getFullYear());
-      const prefix = (series || 'A') + '-' + currentYear + '-';
-
-      // Buscar la factura con el número más alto para esta serie/año/usuario
-      const { data, error } = await supabase
-        .from('invoices')
-        .select('invoice_number')
-        .eq('user_id', user.id)
-        .eq('invoice_series', series || 'A')
-        .like('invoice_number', prefix + '%')
-        .order('invoice_number', { ascending: false })
-        .limit(1);
-
-      if (error) {
-        console.error('Error consultando números:', error);
-        return prefix + '00001';
+      var supabase = window.supabaseClient;
+      var userResult = await supabase.auth.getUser();
+      if (!userResult.data || !userResult.data.user) {
+        return seriesCode + '-' + new Date().getFullYear() + '-XXXXX';
       }
 
-      if (!data || data.length === 0) {
-        return prefix + '00001';
+      // Obtener configuración de la serie
+      var config = await getSeriesConfig(seriesCode);
+      var format = (config && config.invoice_number_format) || 'common';
+      var counterReset = (config && config.counter_reset) || 'yearly';
+      var startNumber = (config && config.start_number) || 1;
+      var customFormat = (config && config.custom_format) || null;
+      var currentNumber = (config && config.current_number) || 0;
+      var currentPeriod = (config && config.current_number_period) || '';
+
+      // Determinar periodo actual
+      var now = new Date();
+      var year = String(now.getFullYear());
+      var month = String(now.getMonth() + 1).padStart(2, '0');
+      var period;
+      switch (counterReset) {
+        case 'monthly': period = year + '-' + month; break;
+        case 'never': period = 'all'; break;
+        default: period = year; break;
       }
 
-      // Extraer el número de la última factura
-      var lastNumber = data[0].invoice_number;
-      var parts = lastNumber.split('-');
-      var lastNum = parseInt(parts[parts.length - 1], 10) || 0;
-      var nextNum = String(lastNum + 1).padStart(5, '0');
+      // Calcular siguiente número
+      var nextSeq;
+      if (currentPeriod !== period) {
+        // Periodo nuevo: empezar desde start_number
+        nextSeq = startNumber;
+      } else {
+        // Mismo periodo: incrementar
+        nextSeq = Math.max(currentNumber + 1, startNumber);
+      }
 
-      return (series || 'A') + '-' + currentYear + '-' + nextNum;
+      return formatInvoiceNumber(seriesCode, format, counterReset, nextSeq, customFormat);
     } catch (e) {
       console.error('Error en getNextInvoiceNumber:', e);
       return (series || 'A') + '-' + new Date().getFullYear() + '-XXXXX';
@@ -72,7 +159,6 @@
 
       var userId = userResult.data.user.id;
 
-      // Obtener todas las facturas del usuario agrupadas por serie
       var { data, error } = await supabase
         .from('invoices')
         .select('invoice_series, invoice_number, status')
@@ -81,7 +167,6 @@
 
       if (error || !data) return [];
 
-      // Agrupar por serie
       var seriesMap = {};
       data.forEach(function (inv) {
         var s = inv.invoice_series || 'A';
@@ -109,7 +194,7 @@
    */
   async function updateInvoiceNumberPreview(series) {
     var input = document.getElementById('invoice-number');
-    if (!input || !input.disabled) return; // Solo si está en modo automático
+    if (!input || !input.disabled) return;
 
     input.value = '';
     input.placeholder = 'Calculando...';
@@ -123,4 +208,5 @@
   window.getNextInvoiceNumber = getNextInvoiceNumber;
   window.getInvoiceSeriesStats = getInvoiceSeriesStats;
   window.updateInvoiceNumberPreview = updateInvoiceNumberPreview;
+  window.formatInvoiceNumber = formatInvoiceNumber;
 })();

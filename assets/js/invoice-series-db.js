@@ -78,7 +78,7 @@ async function getUserSeries() {
 /**
  * Crear una nueva serie
  */
-async function createSeries(code, description) {
+async function createSeries(code, description, extraData) {
   try {
     var supabase = window.supabaseClient;
     if (!supabase) return { success: false, error: 'Supabase no disponible' };
@@ -89,9 +89,17 @@ async function createSeries(code, description) {
     }
     var userId = userResult.data.user.id;
 
+    var insertData = { user_id: userId, code: code, description: description || '' };
+    if (extraData) {
+      if (extraData.invoice_number_format) insertData.invoice_number_format = extraData.invoice_number_format;
+      if (extraData.counter_reset) insertData.counter_reset = extraData.counter_reset;
+      if (extraData.start_number != null) insertData.start_number = extraData.start_number;
+      if (extraData.custom_format !== undefined) insertData.custom_format = extraData.custom_format;
+    }
+
     var result = await supabase
       .from('invoice_series')
-      .insert({ user_id: userId, code: code, description: description || '' })
+      .insert(insertData)
       .select()
       .single();
 
@@ -113,14 +121,22 @@ async function createSeries(code, description) {
 /**
  * Actualizar una serie existente
  */
-async function updateSeries(seriesId, code, description) {
+async function updateSeries(seriesId, code, description, extraData) {
   try {
     var supabase = window.supabaseClient;
     if (!supabase) return { success: false, error: 'Supabase no disponible' };
 
+    var updateData = { code: code, description: description || '' };
+    if (extraData) {
+      if (extraData.invoice_number_format) updateData.invoice_number_format = extraData.invoice_number_format;
+      if (extraData.counter_reset) updateData.counter_reset = extraData.counter_reset;
+      if (extraData.start_number != null) updateData.start_number = extraData.start_number;
+      if (extraData.custom_format !== undefined) updateData.custom_format = extraData.custom_format;
+    }
+
     var result = await supabase
       .from('invoice_series')
-      .update({ code: code, description: description || '' })
+      .update(updateData)
       .eq('id', seriesId)
       .select()
       .single();
