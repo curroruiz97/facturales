@@ -186,30 +186,42 @@ class QuoteDataHandler {
    */
   capturePaymentMethods() {
     const methods = [];
-    const methodBadges = document.querySelectorAll('#payment-methods-list > div');
-    
+    const methodBadges = document.querySelectorAll('#payment-methods-list > .payment-method-badge, #payment-methods-list > div');
+
     methodBadges.forEach(badge => {
-      const text = badge.textContent.trim();
-      
-      if (text.includes('Transferencia')) {
-        const ibanMatch = text.match(/ES\d{2}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}/);
-        methods.push({
-          type: 'transferencia',
-          iban: ibanMatch ? ibanMatch[0] : ''
-        });
-      } else if (text.includes('Bizum')) {
-        const phoneMatch = text.match(/\d{3}\s?\d{3}\s?\d{3}/);
-        methods.push({
-          type: 'bizum',
-          phone: phoneMatch ? phoneMatch[0] : ''
-        });
-      } else if (text.includes('Efectivo')) {
-        methods.push({ type: 'efectivo' });
-      } else if (text.includes('Domiciliación')) {
-        methods.push({ type: 'domiciliacion' });
+      // Preferir data-attributes (fiables) sobre regex de texto
+      const type = badge.getAttribute('data-type');
+      const iban = badge.getAttribute('data-iban');
+      const phone = badge.getAttribute('data-phone');
+
+      if (type) {
+        const method = { type: type };
+        if (iban) method.iban = iban;
+        if (phone) method.phone = phone;
+        methods.push(method);
+      } else {
+        // Fallback: análisis de texto para badges legacy
+        const text = badge.textContent.trim();
+        if (text.includes('Transferencia')) {
+          const infoEl = badge.querySelector('.text-xs');
+          const ibanText = infoEl ? infoEl.textContent.trim() : '';
+          methods.push({ type: 'transferencia', iban: ibanText });
+        } else if (text.includes('Bizum')) {
+          const infoEl = badge.querySelector('.text-xs');
+          const phoneText = infoEl ? infoEl.textContent.trim() : '';
+          methods.push({ type: 'bizum', phone: phoneText });
+        } else if (text.includes('Efectivo')) {
+          methods.push({ type: 'efectivo' });
+        } else if (text.includes('Domiciliación')) {
+          methods.push({ type: 'domiciliacion' });
+        } else if (text.includes('Contrareembolso')) {
+          methods.push({ type: 'contrareembolso' });
+        } else if (text.includes('Otro')) {
+          methods.push({ type: 'otro' });
+        }
       }
     });
-    
+
     return methods;
   }
 

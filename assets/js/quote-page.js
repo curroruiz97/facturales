@@ -606,7 +606,11 @@ function collectFormData() {
           series: document.getElementById('invoice-series')?.value || 'P'
         },
         payment: {
-          terms: document.getElementById('payment-terms')?.value || ''
+          terms: document.getElementById('payment-terms')?.value || '',
+          termsLabel: (function() {
+            var sel = document.getElementById('payment-terms');
+            return sel ? sel.options[sel.selectedIndex]?.text || '' : '';
+          })()
         },
         dates: {
           issue: issueDate,
@@ -620,18 +624,39 @@ function collectFormData() {
         options: {
           recargoEquivalencia: document.getElementById('recargo-equivalencia')?.checked || false,
           gastosSuplidos: parseFloat(document.getElementById('gastos-suplidos-amount')?.value) || 0,
-          observaciones: document.getElementById('observaciones')?.value || null
+          observaciones: (function() {
+            var cb = document.getElementById('observaciones');
+            if (!cb || !cb.checked) return null;
+            var field = document.getElementById('observaciones-field');
+            if (!field || field.classList.contains('hidden')) return null;
+            var ta = field.querySelector('textarea');
+            return ta && ta.value.trim() ? ta.value.trim() : null;
+          })()
         },
         adjustments: {
           discount: parseFloat(document.getElementById('discount')?.value) || 0,
           withholding: parseFloat(document.getElementById('withholding')?.value) || 0
         },
-        summary: {
+        summary: rawData && rawData.summary ? {
+          subtotal: parseFloat(rawData.summary.subtotal) || subtotal,
+          discount: parseFloat(rawData.summary.discount) || 0,
+          taxBase: parseFloat(rawData.summary.taxBase) || subtotal,
+          taxRate: parseFloat(rawData.summary.taxRate) || 0,
+          taxAmount: parseFloat(rawData.summary.taxAmount) || taxAmount,
+          reRate: parseFloat(rawData.summary.reRate) || 0,
+          reAmount: parseFloat(rawData.summary.reAmount) || 0,
+          retentionRate: parseFloat(rawData.summary.retentionRate) || 0,
+          retentionAmount: parseFloat(rawData.summary.retentionAmount) || 0,
+          expenses: parseFloat(rawData.summary.expenses) || 0,
+          total: parseFloat(rawData.summary.total) || totalAmount,
+          paid: parseFloat(rawData.summary.paid) || 0,
+          totalToPay: parseFloat(rawData.summary.totalToPay) || totalAmount
+        } : {
           subtotal: subtotal,
-          tax: taxAmount,
+          taxAmount: taxAmount,
           total: totalAmount,
-          paid: rawData?.summary?.paid || 0,
-          totalToPay: rawData?.summary?.totalToPay || totalAmount
+          paid: 0,
+          totalToPay: totalAmount
         }
       }
     };

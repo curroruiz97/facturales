@@ -42,6 +42,17 @@ class QuotePDFGenerator {
   loadInvoiceLogo() {
     try {
       var data = localStorage.getItem('invoice_logo_data') || null;
+      // Si no hay logo en cache directo, intentar desde business_info_cache
+      if (!data) {
+        var cached = localStorage.getItem('business_info_cache');
+        if (cached) {
+          var info = JSON.parse(cached);
+          if (info.invoice_image_url) {
+            data = info.invoice_image_url;
+            localStorage.setItem('invoice_logo_data', data);
+          }
+        }
+      }
       if (data) {
         var dims = localStorage.getItem('invoice_logo_dimensions');
         if (dims) try { this.logoDimensions = JSON.parse(dims); } catch (e) {}
@@ -121,14 +132,24 @@ class QuotePDFGenerator {
     this.drawHeader(quoteData.issuer);
     this.drawClientAndQuoteInfo(quoteData.client, quoteData.quote);
 
-    // Tabla de conceptos (con paginación)
-    this.drawConceptsTable(quoteData.concepts);
-
-    // Gastos suplidos
+    // Combinar conceptos + gastos suplidos como líneas de la misma tabla
+    var allConcepts = (quoteData.concepts || []).slice();
     if (quoteData.expenses && quoteData.expenses.length > 0) {
-      this.checkPageBreak(20);
-      this.drawExpensesTable(quoteData.expenses);
+      quoteData.expenses.forEach(function(exp) {
+        allConcepts.push({
+          description: 'Gastos suplidos: ' + (exp.description || 'Gasto suplido'),
+          quantity: 1,
+          unitPrice: exp.amount || 0,
+          tax: 0,
+          re: 0,
+          discount: 0,
+          total: exp.amount || 0
+        });
+      });
     }
+
+    // Tabla de conceptos (con paginación)
+    this.drawConceptsTable(allConcepts);
 
     // Resumen financiero
     this.checkPageBreak(60);
@@ -370,22 +391,31 @@ class QuotePDFGenerator {
     var items = [];
     if (summary.discount && summary.discount > 0) {
       items.push({ l: 'Subtotal', v: summary.subtotal });
-      items.push({ l: 'Descuento', v: -summary.discount });
+      items.push({ l: 'Descuento', v: -summary.discount, color: 'red' });
     }
-    items.push({ l: 'Base imponible', v: summary.taxBase });
-    if (summary.taxAmount && summary.taxAmount > 0) items.push({ l: 'IVA ' + (summary.taxRate || 21) + '%', v: summary.taxAmount });
-    if (summary.reAmount && summary.reAmount > 0) items.push({ l: 'R.E. ' + (summary.reRate || 5.2) + '%', v: summary.reAmount });
-    if (summary.retentionAmount && summary.retentionAmount > 0) items.push({ l: 'Retención ' + summary.retentionRate + '%', v: -summary.retentionAmount });
+    items.push({ l: 'Base imponible', v: summary.taxBase || summary.subtotal || 0 });
+    var totalTaxes = (parseFloat(summary.taxAmount) || 0) + (parseFloat(summary.reAmount) || 0);
+    if (totalTaxes > 0) items.push({ l: 'Impuestos', v: totalTaxes });
+    if (summary.retentionAmount && summary.retentionAmount > 0) items.push({ l: 'Retención IRPF (' + (summary.retentionRate || 0) + '%)', v: -summary.retentionAmount, color: 'red' });
     if (summary.expenses && summary.expenses > 0) items.push({ l: 'Gastos suplidos', v: summary.expenses });
 
     items.forEach(function(item) {
-      this.doc.setFont(undefined, 'normal'); this.doc.setTextColor(100, 100, 100);
+      if (item.color === 'red') {
+        this.doc.setFont(undefined, 'normal'); this.doc.setTextColor(220, 38, 38);
+      } else {
+        this.doc.setFont(undefined, 'normal'); this.doc.setTextColor(100, 100, 100);
+      }
       this.doc.text(item.l, rx, this.currentY);
-      this.doc.setTextColor(0, 0, 0);
+      if (item.color === 'red') {
+        this.doc.setTextColor(220, 38, 38);
+      } else {
+        this.doc.setTextColor(0, 0, 0);
+      }
       this.doc.text(this.formatCurrency(item.v), vx, this.currentY, { align: 'right' });
       this.currentY += 5.5;
     }.bind(this));
 
+    // Línea
     this.doc.setDrawColor(lightGray.r, lightGray.g, lightGray.b);
     this.doc.line(rx, this.currentY, vx, this.currentY);
     this.currentY += 6;

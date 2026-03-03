@@ -693,6 +693,32 @@
           await new Promise(function(r) { document.addEventListener('DOMContentLoaded', r); });
         }
 
+        // Precargar logo de empresa en localStorage si no existe
+        try {
+          if (!localStorage.getItem('invoice_logo_data')) {
+            // Esperar a que supabaseClient y auth estén listos
+            if (window.supabaseAuthReady) await window.supabaseAuthReady;
+            var user = window.supabaseClient ? (await window.supabaseClient.auth.getUser()).data.user : null;
+            if (user) {
+              var biRes = await window.supabaseClient.from('business_info').select('invoice_image_url, brand_color').eq('user_id', user.id).single();
+              if (biRes.data) {
+                if (biRes.data.invoice_image_url) localStorage.setItem('invoice_logo_data', biRes.data.invoice_image_url);
+                if (biRes.data.brand_color) {
+                  var existingCache = localStorage.getItem('business_info_cache');
+                  if (existingCache) {
+                    var parsed = JSON.parse(existingCache);
+                    parsed.invoice_image_url = biRes.data.invoice_image_url;
+                    parsed.brand_color = biRes.data.brand_color;
+                    localStorage.setItem('business_info_cache', JSON.stringify(parsed));
+                  } else {
+                    localStorage.setItem('business_info_cache', JSON.stringify(biRes.data));
+                  }
+                }
+              }
+            }
+          }
+        } catch (e) { console.warn('No se pudo precargar logo:', e); }
+
         // Cargar datos (espera internamente a que los módulos estén listos)
         currentInvoiceData = await loadInvoiceData();
         if (!currentInvoiceData) return;

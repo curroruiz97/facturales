@@ -42,6 +42,17 @@ class InvoicePDFGenerator {
   loadInvoiceLogo() {
     try {
       var data = localStorage.getItem('invoice_logo_data') || null;
+      // Si no hay logo en cache directo, intentar desde business_info_cache
+      if (!data) {
+        var cached = localStorage.getItem('business_info_cache');
+        if (cached) {
+          var info = JSON.parse(cached);
+          if (info.invoice_image_url) {
+            data = info.invoice_image_url;
+            localStorage.setItem('invoice_logo_data', data);
+          }
+        }
+      }
       if (data) {
         var dims = localStorage.getItem('invoice_logo_dimensions');
         if (dims) try { this.logoDimensions = JSON.parse(dims); } catch (e) {}
