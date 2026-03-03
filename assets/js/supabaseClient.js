@@ -24,9 +24,35 @@
   var client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   window.supabaseClient = client;
 
+  // Rastrear el usuario actual para detectar cambios de cuenta
+  var _lastUserId = null;
+
+  function clearUserCache() {
+    try {
+      localStorage.removeItem('invoice_logo_data');
+      localStorage.removeItem('invoice_logo_dimensions');
+      localStorage.removeItem('business_info_cache');
+      localStorage.removeItem('invoice_draft_data');
+      localStorage.removeItem('quote_draft_data');
+    } catch (e) {}
+  }
+
+  client.auth.onAuthStateChange(function (event, session) {
+    var newUserId = session && session.user ? session.user.id : null;
+    if (event === 'SIGNED_IN' && _lastUserId && newUserId && _lastUserId !== newUserId) {
+      // Cambio de usuario: limpiar caché del anterior
+      clearUserCache();
+    }
+    if (event === 'SIGNED_OUT') {
+      clearUserCache();
+    }
+    _lastUserId = newUserId;
+  });
+
   window.supabaseAuthReady = new Promise(function (resolve) {
     var sub = client.auth.onAuthStateChange(function (event, session) {
       if (event === 'INITIAL_SESSION') {
+        _lastUserId = session && session.user ? session.user.id : null;
         resolve(session);
         sub.data.subscription.unsubscribe();
       }

@@ -150,6 +150,15 @@ async function signOut() {
       throw new Error('Error al cerrar sesión');
     }
 
+    // Limpiar datos cacheados del usuario en localStorage
+    try {
+      localStorage.removeItem('invoice_logo_data');
+      localStorage.removeItem('invoice_logo_dimensions');
+      localStorage.removeItem('business_info_cache');
+      localStorage.removeItem('invoice_draft_data');
+      localStorage.removeItem('quote_draft_data');
+    } catch (e) {}
+
     console.log('✅ Sesión cerrada exitosamente');
     return { success: true };
   } catch (error) {
