@@ -87,16 +87,17 @@ class InvoiceDataHandler {
       const unitPrice = parseFloat(inputs[2]?.value) || 0;
       const discount = parseFloat(inputs[3]?.value) || 0;
       
-      // Extraer tasa de impuestos del select
+      // Extraer tasa de impuestos del select (formato: TIPO_VALOR, ej: IVA_21, IGIC_9.5, IPSI_0.5, IRPF_-2)
       const taxSelect = selects[0];
       const taxValue = taxSelect?.value || 'IVA_21';
-      let tax = 21; // Por defecto
-      if (taxValue.includes('21')) tax = 21;
-      else if (taxValue.includes('10')) tax = 10;
-      else if (taxValue.includes('4')) tax = 4;
-      else if (taxValue.includes('7')) tax = 7;
-      else if (taxValue.includes('3')) tax = 3;
-      else if (taxValue.includes('0')) tax = 0;
+      let tax = 0;
+      let taxLabel = taxValue; // Guardar label original para el PDF
+      if (taxValue === 'EXENTO') {
+        tax = 0;
+      } else {
+        const parts = taxValue.split('_');
+        tax = parseFloat(parts[1]) || 0;
+      }
       
       // Verificar si el recargo de equivalencia está activado
       const reCheckbox = document.getElementById('recargo-equivalencia');
@@ -123,6 +124,8 @@ class InvoiceDataHandler {
           unitPrice,
           discount,
           tax,
+          taxLabel,
+          taxRate: Math.abs(tax),
           re,
           total
         });

@@ -321,28 +321,13 @@
             </div>
           </div>
 
-          <!-- IVA por defecto -->
+          <!-- Tipo impositivo por defecto (dinámico según IVA/IGIC/IPSI) -->
           <div class="mb-6">
             <label class="text-sm font-medium text-bgray-700 dark:text-bgray-50 mb-3 block">
               <span id="tax-rate-label">IVA</span> por defecto<span class="text-red-500">*</span>
             </label>
-            <div class="grid grid-cols-2 gap-2">
-              <div class="option-card iva-option rounded-lg border-2 border-bgray-200 dark:border-darkblack-400 p-3 text-center" data-value="0" onclick="selectIVA(0)">
-                <span class="text-lg font-bold text-bgray-900 dark:text-white">0%</span>
-                <p class="text-[10px] text-bgray-500 dark:text-bgray-400">IVA Exento</p>
-              </div>
-              <div class="option-card iva-option rounded-lg border-2 border-bgray-200 dark:border-darkblack-400 p-3 text-center" data-value="4" onclick="selectIVA(4)">
-                <span class="text-lg font-bold text-bgray-900 dark:text-white">4%</span>
-                <p class="text-[10px] text-bgray-500 dark:text-bgray-400">IVA Superreducido</p>
-              </div>
-              <div class="option-card iva-option rounded-lg border-2 border-bgray-200 dark:border-darkblack-400 p-3 text-center" data-value="10" onclick="selectIVA(10)">
-                <span class="text-lg font-bold text-bgray-900 dark:text-white">10%</span>
-                <p class="text-[10px] text-bgray-500 dark:text-bgray-400">IVA Reducido</p>
-              </div>
-              <div class="option-card iva-option selected rounded-lg border-2 border-success-300 bg-success-300/5 p-3 text-center" data-value="21" onclick="selectIVA(21)">
-                <span class="text-lg font-bold text-bgray-900 dark:text-white">21%</span>
-                <p class="text-[10px] text-bgray-500 dark:text-bgray-400">IVA General</p>
-              </div>
+            <div id="tax-rates-container" class="grid grid-cols-2 gap-2">
+              <!-- Se genera dinámicamente por JS -->
             </div>
           </div>
 
@@ -850,6 +835,53 @@
           }
         };
 
+        // Tipos impositivos por régimen fiscal
+        var CP_TAX_RATES = {
+          iva: [
+            { value: 0, label: '0%', desc: 'Exento' },
+            { value: 4, label: '4%', desc: 'Superreducido' },
+            { value: 10, label: '10%', desc: 'Reducido' },
+            { value: 21, label: '21%', desc: 'General' }
+          ],
+          igic: [
+            { value: 0, label: '0%', desc: 'Exento' },
+            { value: 3, label: '3%', desc: 'Reducido' },
+            { value: 7, label: '7%', desc: 'General' },
+            { value: 9.5, label: '9,5%', desc: 'Incrementado' },
+            { value: 13.5, label: '13,5%', desc: 'Especial incrementado' },
+            { value: 20, label: '20%', desc: 'Especial' }
+          ],
+          ipsi: [
+            { value: 0.5, label: '0,5%', desc: 'Mínimo' },
+            { value: 1, label: '1%', desc: 'Superreducido' },
+            { value: 2, label: '2%', desc: 'Reducido' },
+            { value: 4, label: '4%', desc: 'Intermedio' },
+            { value: 8, label: '8%', desc: 'Normal' },
+            { value: 10, label: '10%', desc: 'Incrementado' }
+          ]
+        };
+
+        function renderTaxRates(type) {
+          var container = document.getElementById('tax-rates-container');
+          if (!container) return;
+          var rates = CP_TAX_RATES[type] || CP_TAX_RATES.iva;
+          container.innerHTML = '';
+          rates.forEach(function(r) {
+            var isSelected = (r.value === defaultIVA);
+            var card = document.createElement('div');
+            card.className = 'option-card iva-option cursor-pointer rounded-lg border-2 p-3 text-center transition ' +
+              (isSelected ? 'selected border-success-300 bg-success-300/5' : 'border-bgray-200 dark:border-darkblack-400');
+            card.setAttribute('data-value', r.value);
+            card.onclick = function() { selectIVA(r.value); };
+            card.innerHTML = '<span class="text-lg font-bold text-bgray-900 dark:text-white">' + r.label + '</span>' +
+              '<p class="text-[10px] text-bgray-500 dark:text-bgray-400">' + r.desc + '</p>';
+            container.appendChild(card);
+          });
+        }
+
+        // Renderizar tarjetas IVA por defecto al cargar
+        renderTaxRates('iva');
+
         window.selectTaxType = function (type) {
           taxType = type;
           ['iva', 'igic', 'ipsi'].forEach(function (t) {
@@ -866,12 +898,16 @@
           // Actualizar label
           var labels = { iva: 'IVA', igic: 'IGIC', ipsi: 'IPSI' };
           document.getElementById('tax-rate-label').textContent = labels[type];
+          // Valor por defecto del nuevo tipo
+          var defaults = { iva: 21, igic: 7, ipsi: 4 };
+          defaultIVA = defaults[type] || 21;
+          renderTaxRates(type);
         };
 
         window.selectIVA = function (value) {
           defaultIVA = value;
           document.querySelectorAll('.iva-option').forEach(function (card) {
-            var v = parseInt(card.getAttribute('data-value'));
+            var v = parseFloat(card.getAttribute('data-value'));
             if (v === value) {
               card.classList.add('selected');
               card.classList.remove('border-bgray-200', 'dark:border-darkblack-400');

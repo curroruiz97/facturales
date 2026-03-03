@@ -465,155 +465,85 @@
                       </h3>
                       <div class="mt-8">
                         <form id="business-info-form">
+                          <!-- Tipo de entidad (indicador simple, no editable) -->
+                          <div class="mb-6 flex items-center gap-3">
+                            <span class="text-sm font-medium text-bgray-500 dark:text-bgray-400">Tipo de entidad:</span>
+                            <span id="settings-entity-badge" class="inline-flex items-center gap-1.5 rounded-full bg-success-300/10 border border-success-300/30 px-3 py-1">
+                              <span id="settings-entity-icon" class="text-sm">👤</span>
+                              <span id="settings-entity-text" class="text-sm font-semibold text-success-300">Autónomo</span>
+                            </span>
+                          </div>
+
                           <div class="grid grid-cols-1 gap-6 2xl:grid-cols-2">
+                            <!-- Nombre fiscal (label dinámica según tipo) -->
                             <div class="flex flex-col gap-2">
-                              <label
-                                for="nombre-fiscal"
-                                class="text-base font-medium text-bgray-600 dark:text-bgray-50"
-                                >Nombre fiscal</label
-                              >
-                              <input
-                                type="text"
-                                id="nombre-fiscal"
-                                disabled
-                                class="h-14 rounded-lg border-0 bg-bgray-200 dark:bg-darkblack-400 p-4 text-bgray-600 dark:text-bgray-300 cursor-not-allowed"
-                                name="nombre-fiscal"
-                              />
+                              <label id="label-nombre-fiscal" for="nombre-fiscal" class="text-base font-medium text-bgray-600 dark:text-bgray-50">Nombre fiscal</label>
+                              <input type="text" id="nombre-fiscal" disabled class="h-14 rounded-lg border-0 bg-bgray-200 dark:bg-darkblack-400 p-4 text-bgray-600 dark:text-bgray-300 cursor-not-allowed" />
                             </div>
+                            <!-- NIF/CIF (label dinámica según tipo) -->
                             <div class="flex flex-col gap-2">
-                              <label
-                                for="nif-cif"
-                                class="text-base font-medium text-bgray-600 dark:text-bgray-50"
-                                >NIF/CIF</label
-                              >
-                              <input
-                                type="text"
-                                id="nif-cif"
-                                disabled
-                                class="h-14 rounded-lg border-0 bg-bgray-200 dark:bg-darkblack-400 p-4 text-bgray-600 dark:text-bgray-300 cursor-not-allowed"
-                                name="nif-cif"
-                              />
+                              <label id="label-nif-cif" for="nif-cif" class="text-base font-medium text-bgray-600 dark:text-bgray-50">NIF/CIF</label>
+                              <input type="text" id="nif-cif" disabled class="h-14 rounded-lg border-0 bg-bgray-200 dark:bg-darkblack-400 p-4 text-bgray-600 dark:text-bgray-300 cursor-not-allowed" />
                             </div>
-                            <div class="flex flex-col gap-2">
-                              <label
-                                for="email"
-                                class="text-base font-medium text-bgray-600 dark:text-bgray-50"
-                                >Correo electrónico</label
-                              >
-                              <input
-                                type="text"
-                                id="email"
-                                disabled
-                                class="h-14 rounded-lg border-0 bg-bgray-200 dark:bg-darkblack-400 p-4 text-bgray-600 dark:text-bgray-300 cursor-not-allowed"
-                                name="email"
-                              />
+                            <!-- Forma jurídica (solo empresa, no editable) -->
+                            <div id="settings-forma-juridica-wrapper" class="flex flex-col gap-2 hidden">
+                              <label for="forma-juridica" class="text-base font-medium text-bgray-600 dark:text-bgray-50">Forma jurídica</label>
+                              <input type="text" id="forma-juridica" disabled class="h-14 rounded-lg border-0 bg-bgray-200 dark:bg-darkblack-400 p-4 text-bgray-600 dark:text-bgray-300 cursor-not-allowed" />
                             </div>
+                            <!-- Nombre comercial (editable, opcional) -->
                             <div class="flex flex-col gap-2">
-                              <label
-                                for="telefono"
-                                class="text-base font-medium text-bgray-600 dark:text-bgray-50"
-                                >Teléfono</label
-                              >
-                              <input
-                                type="tel"
-                                id="telefono"
-                                class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white"
-                                name="telefono"
-                              />
+                              <label for="nombre-comercial" class="text-base font-medium text-bgray-600 dark:text-bgray-50">Nombre comercial <span class="text-bgray-400 font-normal text-sm">(opcional)</span></label>
+                              <input type="text" id="nombre-comercial" class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white" placeholder="Ej: Mi Marca" />
+                            </div>
+                            <!-- Email (no editable) -->
+                            <div class="flex flex-col gap-2">
+                              <label for="email" class="text-base font-medium text-bgray-600 dark:text-bgray-50">Correo electrónico</label>
+                              <input type="text" id="email" disabled class="h-14 rounded-lg border-0 bg-bgray-200 dark:bg-darkblack-400 p-4 text-bgray-600 dark:text-bgray-300 cursor-not-allowed" />
+                            </div>
+                            <!-- Teléfono -->
+                            <div class="flex flex-col gap-2">
+                              <label for="telefono" class="text-base font-medium text-bgray-600 dark:text-bgray-50">Teléfono</label>
+                              <input type="tel" id="telefono" class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white" />
                             </div>
                           </div>
-                          <h4
-                            class="pb-6 pt-8 text-xl font-bold text-bgray-900 dark:text-white"
-                          >
-                            Dirección de facturación
-                          </h4>
+
+                          <h4 class="pb-6 pt-8 text-xl font-bold text-bgray-900 dark:text-white">Dirección de facturación</h4>
                           <div class="grid grid-cols-1 gap-6 2xl:grid-cols-2">
-                            <div class="flex flex-col gap-2 2xl:col-span-2">
-                              <label
-                                for="direccion-facturacion"
-                                class="text-base font-medium text-bgray-600 dark:text-bgray-50"
-                                >Dirección</label
-                              >
-                              <input
-                                type="text"
-                                id="direccion-facturacion"
-                                class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white"
-                                name="direccion-facturacion"
-                              />
+                            <!-- Calle + Número -->
+                            <div class="flex flex-col gap-2">
+                              <label for="settings-calle" class="text-base font-medium text-bgray-600 dark:text-bgray-50">Calle</label>
+                              <input type="text" id="settings-calle" class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white" placeholder="Ej: Calle Mayor" />
                             </div>
                             <div class="flex flex-col gap-2">
-                              <label
-                                for="ciudad"
-                                class="text-base font-medium text-bgray-600 dark:text-bgray-50"
-                                >Ciudad</label
-                              >
-                              <input
-                                type="text"
-                                id="ciudad"
-                                class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white"
-                                name="ciudad"
-                              />
+                              <label for="settings-numero" class="text-base font-medium text-bgray-600 dark:text-bgray-50">Número</label>
+                              <input type="text" id="settings-numero" class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white" placeholder="5, 2º A" />
                             </div>
                             <div class="flex flex-col gap-2">
-                              <label
-                                for="codigo-postal"
-                                class="text-base font-medium text-bgray-600 dark:text-bgray-50"
-                                >Código postal</label
-                              >
-                              <input
-                                type="text"
-                                id="codigo-postal"
-                                class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white"
-                                name="codigo-postal"
-                              />
+                              <label for="codigo-postal" class="text-base font-medium text-bgray-600 dark:text-bgray-50">Código postal</label>
+                              <input type="text" id="codigo-postal" class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white" />
                             </div>
                             <div class="flex flex-col gap-2">
-                              <label
-                                for="provincia"
-                                class="text-base font-medium text-bgray-600 dark:text-bgray-50"
-                                >Provincia</label
-                              >
-                              <input
-                                type="text"
-                                id="provincia"
-                                class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white"
-                                name="provincia"
-                              />
+                              <label for="ciudad" class="text-base font-medium text-bgray-600 dark:text-bgray-50">Población</label>
+                              <input type="text" id="ciudad" class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white" />
                             </div>
                             <div class="flex flex-col gap-2">
-                              <label
-                                for="pais"
-                                class="text-base font-medium text-bgray-600 dark:text-bgray-50"
-                                >País</label
-                              >
-                              <input
-                                type="text"
-                                id="pais"
-                                class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white"
-                                name="pais"
-                              />
+                              <label for="provincia" class="text-base font-medium text-bgray-600 dark:text-bgray-50">Provincia</label>
+                              <input type="text" id="provincia" class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white" />
+                            </div>
+                            <div class="flex flex-col gap-2">
+                              <label for="pais" class="text-base font-medium text-bgray-600 dark:text-bgray-50">País</label>
+                              <input type="text" id="pais" class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white" />
                             </div>
                           </div>
-                          <h4
-                            class="pb-6 pt-8 text-xl font-bold text-bgray-900 dark:text-white"
-                          >
-                            Información del negocio
-                          </h4>
+
+                          <h4 class="pb-6 pt-8 text-xl font-bold text-bgray-900 dark:text-white">Información del negocio</h4>
                           <div class="grid grid-cols-1 gap-6 2xl:grid-cols-2">
                             <div class="flex flex-col gap-2">
-                              <label
-                                for="sector"
-                                class="text-base font-medium text-bgray-600 dark:text-bgray-50"
-                                >Sector</label
-                              >
-                              <select
-                                id="sector"
-                                class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white"
-                                name="sector"
-                              >
+                              <label for="sector" class="text-base font-medium text-bgray-600 dark:text-bgray-50">Sector</label>
+                              <select id="sector" class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white">
                                 <option value="">Selecciona sector</option>
                                 <option value="actividades lúdicas y viajes">Actividades lúdicas y viajes</option>
-                                <option value="agricultura ganaderia">Agricultura ganadería</option>
+                                <option value="agricultura ganaderia">Agricultura y ganadería</option>
                                 <option value="asociaciones">Asociaciones</option>
                                 <option value="comercio">Comercio</option>
                                 <option value="formacion">Formación</option>
@@ -627,21 +557,69 @@
                                 <option value="transporte">Transporte</option>
                               </select>
                             </div>
-                            <div class="flex flex-col gap-2">
-                              <label
-                                for="business-type"
-                                class="text-base font-medium text-bgray-600 dark:text-bgray-50"
-                                >Tipo de negocio</label
-                              >
-                              <select
-                                id="business-type"
-                                class="h-14 rounded-lg border-0 bg-bgray-50 p-4 focus:border focus:border-success-300 focus:ring-0 dark:bg-darkblack-500 dark:text-white"
-                                name="business_type"
-                              >
-                                <option value="">Selecciona tipo</option>
-                                <option value="autonomo">Aut&oacute;nomo</option>
-                                <option value="empresa">Empresa</option>
-                              </select>
+                          </div>
+
+                          <!-- Configuración de impuestos -->
+                          <h4 class="pb-6 pt-8 text-xl font-bold text-bgray-900 dark:text-white">Configuración de impuestos</h4>
+
+                          <!-- Tipo de impuesto -->
+                          <div class="mb-6">
+                            <label class="text-sm font-medium text-bgray-700 dark:text-bgray-50 mb-3 block">Tipo de impuesto</label>
+                            <div class="grid grid-cols-3 gap-3">
+                              <div id="settings-tax-iva" class="settings-tax-card cursor-pointer rounded-lg border-2 border-success-300 bg-success-300/5 p-3 text-center transition" data-value="iva" onclick="selectSettingsTaxType('iva')">
+                                <span class="text-2xl block mb-1">&#127963;&#65039;</span>
+                                <span class="text-sm font-bold text-bgray-900 dark:text-white">IVA</span>
+                                <p class="text-[10px] text-bgray-500 dark:text-bgray-400">Península e Islas Baleares</p>
+                              </div>
+                              <div id="settings-tax-igic" class="settings-tax-card cursor-pointer rounded-lg border-2 border-bgray-200 dark:border-darkblack-400 p-3 text-center transition" data-value="igic" onclick="selectSettingsTaxType('igic')">
+                                <span class="text-2xl block mb-1">&#127796;</span>
+                                <span class="text-sm font-bold text-bgray-900 dark:text-white">IGIC</span>
+                                <p class="text-[10px] text-bgray-500 dark:text-bgray-400">Islas Canarias</p>
+                              </div>
+                              <div id="settings-tax-ipsi" class="settings-tax-card cursor-pointer rounded-lg border-2 border-bgray-200 dark:border-darkblack-400 p-3 text-center transition" data-value="ipsi" onclick="selectSettingsTaxType('ipsi')">
+                                <span class="text-2xl block mb-1">&#9973;</span>
+                                <span class="text-sm font-bold text-bgray-900 dark:text-white">IPSI</span>
+                                <p class="text-[10px] text-bgray-500 dark:text-bgray-400">Ceuta y Melilla</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- Tipo impositivo por defecto (dinámico según IVA/IGIC/IPSI) -->
+                          <div class="mb-6">
+                            <label class="text-sm font-medium text-bgray-700 dark:text-bgray-50 mb-3 block"><span id="settings-tax-rate-label">IVA</span> por defecto</label>
+                            <div id="settings-tax-rates-container" class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                              <!-- Se genera dinámicamente por JS -->
+                            </div>
+                          </div>
+
+                          <!-- IRPF por defecto -->
+                          <div class="mb-6">
+                            <label class="text-sm font-medium text-bgray-700 dark:text-bgray-50 mb-3 block">Retención de IRPF por defecto</label>
+                            <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                              <div class="settings-irpf-card cursor-pointer rounded-lg border-2 border-bgray-200 dark:border-darkblack-400 p-3 text-center transition" data-value="0" onclick="selectSettingsIRPF(0)">
+                                <span class="text-lg font-bold text-bgray-900 dark:text-white">0%</span>
+                                <p class="text-[10px] text-bgray-500 dark:text-bgray-400">Exento</p>
+                              </div>
+                              <div class="settings-irpf-card cursor-pointer rounded-lg border-2 border-bgray-200 dark:border-darkblack-400 p-3 text-center transition" data-value="2" onclick="selectSettingsIRPF(2)">
+                                <span class="text-lg font-bold text-bgray-900 dark:text-white">2%</span>
+                                <p class="text-[10px] text-bgray-500 dark:text-bgray-400">Módulos</p>
+                              </div>
+                              <div class="settings-irpf-card cursor-pointer rounded-lg border-2 border-bgray-200 dark:border-darkblack-400 p-3 text-center transition" data-value="7" onclick="selectSettingsIRPF(7)">
+                                <span class="text-lg font-bold text-bgray-900 dark:text-white">7%</span>
+                                <p class="text-[10px] text-bgray-500 dark:text-bgray-400">Nuevo autónomo</p>
+                              </div>
+                              <div class="settings-irpf-card cursor-pointer rounded-lg border-2 border-success-300 bg-success-300/5 p-3 text-center transition" data-value="15" onclick="selectSettingsIRPF(15)">
+                                <span class="text-lg font-bold text-bgray-900 dark:text-white">15%</span>
+                                <p class="text-[10px] text-bgray-500 dark:text-bgray-400">General</p>
+                              </div>
+                              <div class="settings-irpf-card cursor-pointer rounded-lg border-2 border-bgray-200 dark:border-darkblack-400 p-3 text-center transition" data-value="19" onclick="selectSettingsIRPF(19)">
+                                <span class="text-lg font-bold text-bgray-900 dark:text-white">19%</span>
+                                <p class="text-[10px] text-bgray-500 dark:text-bgray-400">Específicas</p>
+                              </div>
+                              <div class="settings-irpf-card cursor-pointer rounded-lg border-2 border-bgray-200 dark:border-darkblack-400 p-3 text-center transition" data-value="24" onclick="selectSettingsIRPF(24)">
+                                <span class="text-lg font-bold text-bgray-900 dark:text-white">24%</span>
+                                <p class="text-[10px] text-bgray-500 dark:text-bgray-400">No residentes</p>
+                              </div>
                             </div>
                           </div>
                           <div id="error-message" class="hidden mt-6 p-3 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 rounded-lg text-sm"></div>
@@ -3594,6 +3572,112 @@
     <!-- Business Info Logic -->
     <script type="module">
       document.addEventListener('DOMContentLoaded', async () => {
+        // ============================================
+        // Selectores de impuestos (settings)
+        // ============================================
+        var _settingsTaxType = 'iva';
+        var _settingsDefaultIVA = 21;
+        var _settingsDefaultIRPF = 15;
+
+        // Tipos impositivos por régimen fiscal
+        var TAX_RATES = {
+          iva: [
+            { value: 0, label: '0%', desc: 'Exento' },
+            { value: 4, label: '4%', desc: 'Superreducido' },
+            { value: 10, label: '10%', desc: 'Reducido' },
+            { value: 21, label: '21%', desc: 'General' }
+          ],
+          igic: [
+            { value: 0, label: '0%', desc: 'Exento' },
+            { value: 3, label: '3%', desc: 'Reducido' },
+            { value: 7, label: '7%', desc: 'General' },
+            { value: 9.5, label: '9,5%', desc: 'Incrementado' },
+            { value: 13.5, label: '13,5%', desc: 'Especial incrementado' },
+            { value: 20, label: '20%', desc: 'Especial' }
+          ],
+          ipsi: [
+            { value: 0.5, label: '0,5%', desc: 'Mínimo' },
+            { value: 1, label: '1%', desc: 'Superreducido' },
+            { value: 2, label: '2%', desc: 'Reducido' },
+            { value: 4, label: '4%', desc: 'Intermedio' },
+            { value: 8, label: '8%', desc: 'Normal' },
+            { value: 10, label: '10%', desc: 'Incrementado' }
+          ]
+        };
+
+        function renderSettingsTaxRates(type) {
+          var container = document.getElementById('settings-tax-rates-container');
+          if (!container) return;
+          var rates = TAX_RATES[type] || TAX_RATES.iva;
+          var cols = rates.length <= 4 ? 'sm:grid-cols-4' : (rates.length <= 6 ? 'sm:grid-cols-3' : 'sm:grid-cols-4');
+          container.className = 'grid grid-cols-2 gap-2 ' + cols;
+          container.innerHTML = '';
+          rates.forEach(function(r) {
+            var isSelected = (r.value === _settingsDefaultIVA);
+            var card = document.createElement('div');
+            card.className = 'settings-iva-card cursor-pointer rounded-lg border-2 p-3 text-center transition ' +
+              (isSelected ? 'border-success-300 bg-success-300/5' : 'border-bgray-200 dark:border-darkblack-400');
+            card.setAttribute('data-value', r.value);
+            card.onclick = function() { selectSettingsIVA(r.value); };
+            card.innerHTML = '<span class="text-lg font-bold text-bgray-900 dark:text-white">' + r.label + '</span>' +
+              '<p class="text-[10px] text-bgray-500 dark:text-bgray-400">' + r.desc + '</p>';
+            container.appendChild(card);
+          });
+        }
+
+        window.selectSettingsTaxType = function(type) {
+          _settingsTaxType = type;
+          ['iva', 'igic', 'ipsi'].forEach(function(t) {
+            var card = document.getElementById('settings-tax-' + t);
+            if (!card) return;
+            if (t === type) {
+              card.classList.add('border-success-300', 'bg-success-300/5');
+              card.classList.remove('border-bgray-200', 'dark:border-darkblack-400');
+            } else {
+              card.classList.remove('border-success-300', 'bg-success-300/5');
+              card.classList.add('border-bgray-200', 'dark:border-darkblack-400');
+            }
+          });
+          var labels = { iva: 'IVA', igic: 'IGIC', ipsi: 'IPSI' };
+          var labelEl = document.getElementById('settings-tax-rate-label');
+          if (labelEl) labelEl.textContent = labels[type] || 'IVA';
+          // Obtener valor por defecto del nuevo tipo
+          var defaults = { iva: 21, igic: 7, ipsi: 4 };
+          _settingsDefaultIVA = defaults[type] || 21;
+          renderSettingsTaxRates(type);
+        };
+
+        window.selectSettingsIVA = function(value) {
+          _settingsDefaultIVA = value;
+          document.querySelectorAll('.settings-iva-card').forEach(function(card) {
+            var v = parseFloat(card.getAttribute('data-value'));
+            if (v === value) {
+              card.classList.add('border-success-300', 'bg-success-300/5');
+              card.classList.remove('border-bgray-200', 'dark:border-darkblack-400');
+            } else {
+              card.classList.remove('border-success-300', 'bg-success-300/5');
+              card.classList.add('border-bgray-200', 'dark:border-darkblack-400');
+            }
+          });
+        };
+
+        window.selectSettingsIRPF = function(value) {
+          _settingsDefaultIRPF = value;
+          document.querySelectorAll('.settings-irpf-card').forEach(function(card) {
+            var v = parseInt(card.getAttribute('data-value'));
+            if (v === value) {
+              card.classList.add('border-success-300', 'bg-success-300/5');
+              card.classList.remove('border-bgray-200', 'dark:border-darkblack-400');
+            } else {
+              card.classList.remove('border-success-300', 'bg-success-300/5');
+              card.classList.add('border-bgray-200', 'dark:border-darkblack-400');
+            }
+          });
+        };
+
+        // Renderizar tarjetas IVA por defecto al cargar
+        renderSettingsTaxRates('iva');
+
         const form = document.getElementById('business-info-form');
         const saveButton = document.getElementById('save-button');
         const errorMessage = document.getElementById('error-message');
@@ -3690,22 +3774,68 @@
         // Cargar datos de negocio
         try {
           const businessResult = await window.getBusinessInfo(currentUser.id);
-          
+
           if (businessResult.success && businessResult.data) {
             const data = businessResult.data;
-            
+
+            // Configurar tipo de entidad (indicador simple)
+            var btype = data.business_type || 'autonomo';
+            var entityIcon = document.getElementById('settings-entity-icon');
+            var entityText = document.getElementById('settings-entity-text');
+            if (btype === 'empresa') {
+              if (entityIcon) entityIcon.textContent = '🏢';
+              if (entityText) entityText.textContent = 'Empresa';
+              document.getElementById('label-nombre-fiscal').textContent = 'Razón social';
+              document.getElementById('label-nif-cif').textContent = 'CIF';
+              document.getElementById('settings-forma-juridica-wrapper').classList.remove('hidden');
+              document.getElementById('forma-juridica').value = data.forma_juridica || '';
+            } else {
+              if (entityIcon) entityIcon.textContent = '👤';
+              if (entityText) entityText.textContent = 'Autónomo';
+              document.getElementById('label-nombre-fiscal').textContent = 'Nombre completo';
+              document.getElementById('label-nif-cif').textContent = 'NIF';
+            }
+
             // Llenar formulario con datos existentes
             document.getElementById('nombre-fiscal').value = data.nombre_fiscal || '';
             document.getElementById('nif-cif').value = data.nif_cif || '';
+            document.getElementById('nombre-comercial').value = data.nombre_comercial || '';
             document.getElementById('email').value = currentUser.email || '';
             document.getElementById('telefono').value = data.telefono || '';
-            document.getElementById('direccion-facturacion').value = data.direccion_facturacion || '';
+
+            // Parsear dirección: "Calle, Número" → campos separados
+            var dirParts = (data.direccion_facturacion || '').split(',');
+            document.getElementById('settings-calle').value = (dirParts[0] || '').trim();
+            document.getElementById('settings-numero').value = (dirParts.slice(1).join(',') || '').trim();
+
             document.getElementById('ciudad').value = data.ciudad || '';
             document.getElementById('codigo-postal').value = data.codigo_postal || '';
             document.getElementById('provincia').value = data.provincia || '';
             document.getElementById('pais').value = data.pais || '';
             document.getElementById('sector').value = data.sector || '';
-            document.getElementById('business-type').value = data.business_type || '';
+
+            // Configurar impuestos
+            var loadedTaxType = data.default_tax_type || 'iva';
+            var loadedIVA = data.default_iva != null ? data.default_iva : (loadedTaxType === 'igic' ? 7 : loadedTaxType === 'ipsi' ? 4 : 21);
+            _settingsTaxType = loadedTaxType;
+            _settingsDefaultIVA = loadedIVA;
+            // Activar visualmente el tipo de impuesto sin resetear el valor guardado
+            ['iva', 'igic', 'ipsi'].forEach(function(t) {
+              var card = document.getElementById('settings-tax-' + t);
+              if (!card) return;
+              if (t === loadedTaxType) {
+                card.classList.add('border-success-300', 'bg-success-300/5');
+                card.classList.remove('border-bgray-200', 'dark:border-darkblack-400');
+              } else {
+                card.classList.remove('border-success-300', 'bg-success-300/5');
+                card.classList.add('border-bgray-200', 'dark:border-darkblack-400');
+              }
+            });
+            var labelEl = document.getElementById('settings-tax-rate-label');
+            if (labelEl) labelEl.textContent = { iva: 'IVA', igic: 'IGIC', ipsi: 'IPSI' }[loadedTaxType] || 'IVA';
+            renderSettingsTaxRates(loadedTaxType);
+            selectSettingsIVA(loadedIVA);
+            selectSettingsIRPF(data.default_irpf != null ? data.default_irpf : 15);
             
             // Cargar color de marca si existe
             if (data.brand_color) {
@@ -3759,51 +3889,26 @@
           hideMessages();
 
           const telefono = document.getElementById('telefono').value.trim();
-          const direccionFacturacion = document.getElementById('direccion-facturacion').value.trim();
+          const calle = document.getElementById('settings-calle').value.trim();
+          const numero = document.getElementById('settings-numero').value.trim();
+          const direccionFacturacion = calle + (numero ? ', ' + numero : '');
           const ciudad = document.getElementById('ciudad').value.trim();
           const codigoPostal = document.getElementById('codigo-postal').value.trim();
           const provincia = document.getElementById('provincia').value.trim();
           const pais = document.getElementById('pais').value.trim();
           const sector = document.getElementById('sector').value;
-          const businessType = document.getElementById('business-type').value;
+          const nombreComercial = document.getElementById('nombre-comercial').value.trim();
           const brandColor = brandColorHexInput.value.trim();
 
-          if (!telefono) {
-            showError('El teléfono es obligatorio');
-            return;
-          }
+          if (!telefono) { showError('El teléfono es obligatorio'); return; }
+          if (!calle) { showError('La calle es obligatoria'); return; }
+          if (!numero) { showError('El número es obligatorio'); return; }
+          if (!ciudad) { showError('La población es obligatoria'); return; }
+          if (!codigoPostal) { showError('El código postal es obligatorio'); return; }
+          if (!provincia) { showError('La provincia es obligatoria'); return; }
+          if (!pais) { showError('El país es obligatorio'); return; }
+          if (!sector) { showError('El sector es obligatorio'); return; }
 
-          if (!direccionFacturacion) {
-            showError('La dirección de facturación es obligatoria');
-            return;
-          }
-
-          if (!ciudad) {
-            showError('La ciudad es obligatoria');
-            return;
-          }
-
-          if (!codigoPostal) {
-            showError('El código postal es obligatorio');
-            return;
-          }
-
-          if (!provincia) {
-            showError('La provincia es obligatoria');
-            return;
-          }
-
-          if (!pais) {
-            showError('El país es obligatorio');
-            return;
-          }
-
-          if (!sector) {
-            showError('El sector es obligatorio');
-            return;
-          }
-
-          // Validar formato de color HEX
           if (brandColor && !/^#[0-9A-Fa-f]{6}$/.test(brandColor)) {
             showError('El código de color debe estar en formato HEX válido (ejemplo: #FF5733)');
             return;
@@ -3822,7 +3927,10 @@
               provincia: provincia,
               pais: pais,
               sector: sector,
-              business_type: businessType || null,
+              nombre_comercial: nombreComercial || null,
+              default_tax_type: _settingsTaxType,
+              default_iva: _settingsDefaultIVA,
+              default_irpf: _settingsDefaultIRPF,
               brand_color: brandColor || '#000000'
             };
 
