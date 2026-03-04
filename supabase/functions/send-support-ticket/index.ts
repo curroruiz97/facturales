@@ -31,6 +31,41 @@ function escapeHtml(str: string): string {
     .replace(/"/g, "&quot;");
 }
 
+/**
+ * Sanitize HTML from Quill editor: only allow safe formatting tags.
+ * Strips all attributes except href on <a> tags (validated as http/https).
+ */
+function sanitizeHtml(html: string): string {
+  const ALLOWED_TAGS = new Set([
+    "p", "br", "strong", "b", "em", "i", "u", "ol", "ul", "li", "a",
+  ]);
+
+  return html.replace(/<\/?([a-zA-Z][a-zA-Z0-9]*)\b([^>]*)>/g, (_match, tag, attrs) => {
+    const lowerTag = tag.toLowerCase();
+    if (!ALLOWED_TAGS.has(lowerTag)) return "";
+
+    // For <a> tags, only keep safe href attributes
+    if (lowerTag === "a" && !_match.startsWith("</")) {
+      const hrefMatch = attrs.match(/href\s*=\s*"([^"]*)"/i) ||
+        attrs.match(/href\s*=\s*'([^']*)'/i);
+      if (hrefMatch) {
+        const href = hrefMatch[1];
+        // Only allow http/https URLs — block javascript: and data: schemes
+        if (/^https?:\/\//i.test(href)) {
+          const safeHref = href
+            .replace(/&/g, "&amp;")
+            .replace(/"/g, "&quot;");
+          return `<a href="${safeHref}" rel="noopener noreferrer" target="_blank">`;
+        }
+      }
+      return "<a>";
+    }
+
+    // All other allowed tags: strip all attributes
+    return _match.startsWith("</") ? `</${lowerTag}>` : `<${lowerTag}>`;
+  });
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -56,13 +91,18 @@ Deno.serve(async (req: Request) => {
     }
 
     const payload: TicketPayload = await req.json();
-    const { nombre, apellido, email, telefono, titulo, descripcion } = payload;
+    const nombre = (payload.nombre || "").replace(/[\r\n\x00]/g, "").trim().substring(0, 100);
+    const apellido = (payload.apellido || "").replace(/[\r\n\x00]/g, "").trim().substring(0, 100);
+    const email = (payload.email || "").trim().toLowerCase();
+    const telefono = payload.telefono ? payload.telefono.replace(/[\r\n\x00]/g, "").trim() : undefined;
+    const titulo = (payload.titulo || "").replace(/[\r\n\x00]/g, "").trim().substring(0, 200);
+    const descripcion = (payload.descripcion || "").substring(0, 20_000);
 
     if (!nombre || !apellido || !email || !titulo || !descripcion) {
       return jsonResponse({ error: "Faltan campos obligatorios" }, 400);
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
     if (!emailRegex.test(email)) {
       return jsonResponse({ error: "Correo electrónico no válido" }, 400);
     }
@@ -108,7 +148,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const userEmail = user.email || "No disponible";
-    const emailSubject = `[SOPORTE FACTURALES] - ${titulo}`;
+    const emailSubject = `[SOPORTE FACTURALES] - ${titulo.replace(/[<>"]/g, "")}`;
 
     const emailHtml = `<!DOCTYPE html>
 <html lang="es">
@@ -149,7 +189,7 @@ Deno.serve(async (req: Request) => {
           </table>
           <h3 style="margin:0 0 12px;font-size:16px;color:#333;">Descripci\u00f3n:</h3>
           <div style="background:#f8f8f8;border-radius:6px;padding:16px;font-size:14px;color:#333;line-height:1.6;">
-            ${descripcion}
+            ${sanitizeHtml(descripcion)}
           </div>
         </td></tr>
         <tr><td style="padding:0 40px;"><hr style="border:none;border-top:1px solid #e8e8e8;margin:0;"></td></tr>
@@ -164,20 +204,36 @@ Deno.serve(async (req: Request) => {
 </body>
 </html>`;
 
-    const resendResponse = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${resendApiKey}`,
-      },
-      body: JSON.stringify({
-        from: resendFrom,
-        to: [supportEmail],
-        subject: emailSubject,
-        html: emailHtml,
-        reply_to: email,
-      }),
-    });
+    const resendCtrl = new AbortController();
+    const resendTimer = setTimeout(() => resendCtrl.abort(), 15_000);
+
+    let resendResponse: Response;
+    try {
+      resendResponse = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${resendApiKey}`,
+        },
+        body: JSON.stringify({
+          from: resendFrom,
+          to: [supportEmail],
+          subject: emailSubject,
+          html: emailHtml,
+          reply_to: email,
+        }),
+        signal: resendCtrl.signal,
+      });
+    } catch (e) {
+      const isTimeout = e instanceof DOMException && e.name === "AbortError";
+      return jsonResponse({
+        error: isTimeout
+          ? "El servicio de email no respondió a tiempo. Inténtalo de nuevo."
+          : "Error de conexión con el servicio de email",
+      }, 504);
+    } finally {
+      clearTimeout(resendTimer);
+    }
 
     const resendResult = await resendResponse.json();
 

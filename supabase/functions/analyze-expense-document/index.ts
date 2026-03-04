@@ -14,6 +14,15 @@ const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const RATE_LIMIT_MAX = 10;
 const RATE_LIMIT_WINDOW_MIN = 5;
 const AZURE_TIMEOUT_MS = 45_000;
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+const ALLOWED_MIME_TYPES = new Set([
+  "application/pdf",
+  "image/jpeg",
+  "image/png",
+  "image/tiff",
+  "image/bmp",
+]);
+const MAX_POLL_ATTEMPTS = 20;
 
 interface OcrResult {
   vendorName: string | null;
@@ -88,8 +97,26 @@ Deno.serve(async (req) => {
       return jsonError("No se pudo descargar el archivo", 404);
     }
 
-    const fileBytes = new Uint8Array(await fileData.arrayBuffer());
+    // Validar tipo MIME
     const contentType = fileData.type || "application/octet-stream";
+    if (!ALLOWED_MIME_TYPES.has(contentType)) {
+      await deleteFile(admin, filePath);
+      return jsonError(
+        `Tipo de archivo no soportado (${contentType}). Usa PDF, JPEG, PNG, TIFF o BMP.`,
+        400,
+      );
+    }
+
+    // Validar tamaño antes de cargar en memoria
+    if (fileData.size > MAX_FILE_SIZE_BYTES) {
+      await deleteFile(admin, filePath);
+      return jsonError(
+        `El archivo excede el tamaño máximo permitido (${MAX_FILE_SIZE_BYTES / (1024 * 1024)} MB)`,
+        413,
+      );
+    }
+
+    const fileBytes = new Uint8Array(await fileData.arrayBuffer());
 
     let ocrResult: OcrResult;
     try {
@@ -162,7 +189,7 @@ async function analyzeWithAzure(
     if (!operationUrl) throw new Error("Sin Operation-Location");
 
     let result: Record<string, unknown> | null = null;
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < MAX_POLL_ATTEMPTS; i++) {
       await new Promise((r) => setTimeout(r, 1500));
       const pollRes = await fetch(operationUrl, {
         headers: { "Ocp-Apim-Subscription-Key": AZURE_KEY },

@@ -227,7 +227,8 @@
 
   /**
    * Incrementa un campo de billing_usage para el periodo actual.
-   * Intenta RPC primero; si falla, hace upsert + update manual.
+   * Usa RPC SECURITY DEFINER que identifica al usuario via auth.uid().
+   * No se pasa user_id desde el cliente para evitar impersonación.
    */
   async function _incrementUsage(field) {
     var userId = await _getUserId();
@@ -236,43 +237,13 @@
     var sb = await _waitSb();
     if (!sb) return;
 
-    // Intentar RPC atómica
     var rpcResult = await sb.rpc('increment_billing_usage', {
-      p_user_id: userId,
       p_period_start: periodStart,
       p_field: field
     });
 
-    if (!rpcResult.error) return;
-
-    console.warn('[plan-limits] RPC falló, usando upsert manual:', rpcResult.error.message);
-
-    // Fallback: asegurar que la fila existe
-    await sb.from('billing_usage').upsert(
-      { user_id: userId, period_start: periodStart },
-      { onConflict: 'user_id,period_start', ignoreDuplicates: true }
-    );
-
-    // Leer valor actual
-    var readResult = await sb.from('billing_usage')
-      .select(field)
-      .eq('user_id', userId)
-      .eq('period_start', periodStart)
-      .single();
-
-    var currentVal = (readResult.data && readResult.data[field]) || 0;
-
-    var updateData = {};
-    updateData[field] = currentVal + 1;
-    updateData.updated_at = new Date().toISOString();
-
-    var updateResult = await sb.from('billing_usage')
-      .update(updateData)
-      .eq('user_id', userId)
-      .eq('period_start', periodStart);
-
-    if (updateResult.error) {
-      console.error('[plan-limits] Error actualizando uso:', updateResult.error);
+    if (rpcResult.error) {
+      console.error('[plan-limits] Error incrementando uso:', rpcResult.error.message);
     }
   }
 

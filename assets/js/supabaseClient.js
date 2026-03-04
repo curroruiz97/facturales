@@ -60,5 +60,5 @@
     setTimeout(function () { resolve(null); }, 5000);
   });
 
-  console.log('Supabase client initialized:', SUPABASE_URL);
+  // Initialization log removed — reduces information exposure in production
 })();

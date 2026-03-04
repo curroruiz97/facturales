@@ -37,6 +37,32 @@ interface EmailPayload {
 }
 
 // ============================================
+// Validación y sanitización
+// ============================================
+
+/** RFC 5322 simplified — covers real-world addresses without allowing injection */
+const EMAIL_RE = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+
+const MAX_SUBJECT_LENGTH = 200;
+const MAX_BODY_LENGTH = 2000;
+const MAX_FILENAME_LENGTH = 100;
+
+/** Strip characters that could enable header injection (newlines, null bytes) */
+function sanitizeOneLine(str: string): string {
+  return str.replace(/[\r\n\x00]/g, "").trim();
+}
+
+/** Allow only safe filename characters — letters, digits, dots, hyphens, underscores, spaces */
+function sanitizeFilename(name: string): string {
+  return name
+    .replace(/[\r\n\x00]/g, "")
+    .replace(/[^a-zA-Z0-9áéíóúñÁÉÍÓÚÑ._\- ]/g, "_")
+    .replace(/\.{2,}/g, ".")
+    .trim()
+    .substring(0, MAX_FILENAME_LENGTH) || "documento.pdf";
+}
+
+// ============================================
 // Utilidades
 // ============================================
 async function sha256(message: string): Promise<string> {
@@ -145,19 +171,23 @@ Deno.serve(async (req: Request) => {
   try {
     // ── 1. Parsear y validar payload ──────────────────────────
     const payload: EmailPayload = await req.json();
-    const { documentType, documentId, to, subject, body, pdfBase64, pdfFilename } = payload;
+    const { documentType, documentId, pdfBase64 } = payload;
+    // Normalize inputs early — strip injection vectors
+    const to = typeof payload.to === "string" ? payload.to.trim().toLowerCase() : "";
+    const subject = payload.subject ? sanitizeOneLine(payload.subject).substring(0, MAX_SUBJECT_LENGTH) : undefined;
+    const body = payload.body ? payload.body.substring(0, MAX_BODY_LENGTH) : undefined;
+    const pdfFilename = payload.pdfFilename ? sanitizeFilename(payload.pdfFilename) : undefined;
 
     if (!documentType || !["invoice", "quote"].includes(documentType)) {
       return jsonResponse({ success: false, error: "documentType debe ser 'invoice' o 'quote'" }, 400);
     }
-    if (!documentId) {
+    if (!documentId || typeof documentId !== "string") {
       return jsonResponse({ success: false, error: "documentId es obligatorio" }, 400);
     }
-    if (!to || !to.includes("@")) {
+    if (!to || !EMAIL_RE.test(to.trim())) {
       return jsonResponse({ success: false, error: "to debe ser un email válido" }, 400);
     }
-    // FIX #5: pdfBase64 es obligatorio
-    if (!pdfBase64) {
+    if (!pdfBase64 || typeof pdfBase64 !== "string") {
       return jsonResponse({ success: false, error: "pdfBase64 es obligatorio (PDF del documento)" }, 400);
     }
 
@@ -246,11 +276,11 @@ Deno.serve(async (req: Request) => {
       currency: "EUR",
     }).format(parseFloat(docData.total_amount) || 0);
 
-    const emailSubject = subject || (
+    const emailSubject = sanitizeOneLine(subject || (
       documentType === "invoice"
         ? `Factura ${docNumber} de ${issuerName}`
         : `Presupuesto ${docNumber} de ${issuerName}`
-    );
+    ));
 
     // ── 7. Insertar log con status = queued ──────────────────
     const { data: logEntry, error: logError } = await supabaseAdmin
@@ -284,11 +314,40 @@ Deno.serve(async (req: Request) => {
 
     const logId = logEntry.id;
 
-    // ── 8. Subir PDF a Storage ───────────────────────────────
+    // ── 8. Validar y subir PDF a Storage ──────────────────────
+    // Límite: 10 MB en base64 ≈ 7.5 MB de PDF real (más que suficiente para facturas)
+    const MAX_BASE64_LENGTH = 10 * 1024 * 1024;
+    if (pdfBase64.length > MAX_BASE64_LENGTH) {
+      await supabaseAdmin
+        .from("document_email_log")
+        .update({ status: "failed", error_message: "PDF excede el tamaño máximo permitido (7.5 MB)" })
+        .eq("id", logId);
+      return jsonResponse({ success: false, error: "El PDF excede el tamaño máximo permitido (7.5 MB)" }, 413);
+    }
+
     const fileName = pdfFilename || `documento_${docNumber}.pdf`;
     const storagePath = `${userId}/${documentType}/${documentId}/${fileName}`;
 
-    const binaryStr = atob(pdfBase64);
+    let binaryStr: string;
+    try {
+      binaryStr = atob(pdfBase64);
+    } catch {
+      await supabaseAdmin
+        .from("document_email_log")
+        .update({ status: "failed", error_message: "pdfBase64 no es base64 válido" })
+        .eq("id", logId);
+      return jsonResponse({ success: false, error: "El contenido de pdfBase64 no es base64 válido" }, 400);
+    }
+
+    // Validar magic bytes de PDF (%PDF-)
+    if (!binaryStr.startsWith("%PDF-")) {
+      await supabaseAdmin
+        .from("document_email_log")
+        .update({ status: "failed", error_message: "El archivo no es un PDF válido" })
+        .eq("id", logId);
+      return jsonResponse({ success: false, error: "El archivo adjunto no es un PDF válido" }, 400);
+    }
+
     const bytes = new Uint8Array(binaryStr.length);
     for (let i = 0; i < binaryStr.length; i++) {
       bytes[i] = binaryStr.charCodeAt(i);
@@ -345,15 +404,34 @@ Deno.serve(async (req: Request) => {
     }
 
     // FIX #3: Enviar Idempotency-Key a Resend como seguridad extra
-    const resendResponse = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${resendApiKey}`,
-        "Idempotency-Key": idempotencyKey,
-      },
-      body: JSON.stringify(resendBody),
-    });
+    const resendCtrl = new AbortController();
+    const resendTimer = setTimeout(() => resendCtrl.abort(), 30_000);
+
+    let resendResponse: Response;
+    try {
+      resendResponse = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${resendApiKey}`,
+          "Idempotency-Key": idempotencyKey,
+        },
+        body: JSON.stringify(resendBody),
+        signal: resendCtrl.signal,
+      });
+    } catch (e) {
+      const isTimeout = e instanceof DOMException && e.name === "AbortError";
+      const errorMsg = isTimeout
+        ? "Timeout: el servicio de email no respondió en 30s"
+        : "Error de conexión con el servicio de email";
+      await supabaseAdmin
+        .from("document_email_log")
+        .update({ status: "failed", error_message: errorMsg })
+        .eq("id", logId);
+      return jsonResponse({ success: false, error: errorMsg }, 504);
+    } finally {
+      clearTimeout(resendTimer);
+    }
 
     const resendResult = await resendResponse.json();
 
