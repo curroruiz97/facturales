@@ -174,17 +174,22 @@ async function handleCheckoutCompleted(
 }
 
 async function handleSubscriptionChange(
-  subscription: Stripe.Subscription,
+  eventSub: Stripe.Subscription,
+  stripe: Stripe,
   supabase: ReturnType<typeof createClient>,
 ) {
-  console.log(`handleSubscriptionChange: sub=${subscription.id}, status=${subscription.status}, period_start=${subscription.current_period_start}, period_end=${subscription.current_period_end}`);
+  console.log(`handleSubscriptionChange: sub=${eventSub.id}, status=${eventSub.status}, period_start=${eventSub.current_period_start}, period_end=${eventSub.current_period_end}`);
+
+  // The webhook event payload (API 2024-12-18.acacia) may omit period dates.
+  // Always retrieve the full subscription from Stripe API to get accurate dates.
+  const subscription = await stripe.subscriptions.retrieve(eventSub.id);
+  console.log(`handleSubscriptionChange (retrieved): period_start=${subscription.current_period_start}, period_end=${subscription.current_period_end}`);
 
   const userId = await resolveUserId(subscription.metadata, subscription.id, supabase);
 
   const { plan, interval } = extractPlanInfo(subscription.metadata);
   const status = mapStripeStatus(subscription.status);
 
-  // Build update payload, only including non-null date fields
   const updatePayload: Record<string, unknown> = {
     plan,
     interval,
@@ -192,14 +197,11 @@ async function handleSubscriptionChange(
     cancel_at_period_end: subscription.cancel_at_period_end,
     pending_downgrade_plan: null,
     pending_downgrade_interval: null,
+    current_period_start: toISO(subscription.current_period_start),
+    current_period_end: toISO(subscription.current_period_end),
+    trial_start: toISO(subscription.trial_start),
+    trial_end: toISO(subscription.trial_end),
   };
-
-  const periodStart = toISO(subscription.current_period_start);
-  const periodEnd = toISO(subscription.current_period_end);
-  if (periodStart) updatePayload.current_period_start = periodStart;
-  if (periodEnd) updatePayload.current_period_end = periodEnd;
-  updatePayload.trial_start = toISO(subscription.trial_start);
-  updatePayload.trial_end = toISO(subscription.trial_end);
 
   const { error } = await supabase
     .from("billing_subscriptions")
@@ -380,7 +382,7 @@ Deno.serve(async (req: Request) => {
       case "customer.subscription.created":
       case "customer.subscription.updated": {
         const subscription = event.data.object as Stripe.Subscription;
-        await handleSubscriptionChange(subscription, supabase);
+        await handleSubscriptionChange(subscription, stripe, supabase);
         break;
       }
 
