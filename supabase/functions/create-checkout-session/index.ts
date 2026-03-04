@@ -117,6 +117,7 @@ Deno.serve(async (req: Request) => {
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: stripeCustomerId,
       mode: "subscription",
+      allow_promotion_codes: true,
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: `${appUrl}/billing/success.html?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}/billing/cancel.html?plan=${plan}`,
