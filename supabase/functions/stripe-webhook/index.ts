@@ -40,6 +40,16 @@ function extractPlanInfo(metadata: Record<string, string> | null): { plan: strin
   return { plan, interval };
 }
 
+// Safely convert a Stripe unix timestamp to ISO string
+function toISO(ts: number | null | undefined): string | null {
+  if (!ts || typeof ts !== "number") return null;
+  try {
+    return new Date(ts * 1000).toISOString();
+  } catch {
+    return null;
+  }
+}
+
 // ============================================
 // Helpers: resolve user_id
 // ============================================
@@ -146,15 +156,11 @@ async function handleCheckoutCompleted(
         plan,
         interval,
         status,
-        current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-        current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+        current_period_start: toISO(subscription.current_period_start),
+        current_period_end: toISO(subscription.current_period_end),
         cancel_at_period_end: subscription.cancel_at_period_end,
-        trial_start: subscription.trial_start
-          ? new Date(subscription.trial_start * 1000).toISOString()
-          : null,
-        trial_end: subscription.trial_end
-          ? new Date(subscription.trial_end * 1000).toISOString()
-          : null,
+        trial_start: toISO(subscription.trial_start),
+        trial_end: toISO(subscription.trial_end),
       },
       { onConflict: "stripe_subscription_id" },
     );
@@ -171,31 +177,33 @@ async function handleSubscriptionChange(
   subscription: Stripe.Subscription,
   supabase: ReturnType<typeof createClient>,
 ) {
+  console.log(`handleSubscriptionChange: sub=${subscription.id}, status=${subscription.status}, period_start=${subscription.current_period_start}, period_end=${subscription.current_period_end}`);
+
   const userId = await resolveUserId(subscription.metadata, subscription.id, supabase);
 
   const { plan, interval } = extractPlanInfo(subscription.metadata);
   const status = mapStripeStatus(subscription.status);
 
-  // When the plan changes (e.g. downgrade schedule applied),
-  // clear pending_downgrade fields
+  // Build update payload, only including non-null date fields
+  const updatePayload: Record<string, unknown> = {
+    plan,
+    interval,
+    status,
+    cancel_at_period_end: subscription.cancel_at_period_end,
+    pending_downgrade_plan: null,
+    pending_downgrade_interval: null,
+  };
+
+  const periodStart = toISO(subscription.current_period_start);
+  const periodEnd = toISO(subscription.current_period_end);
+  if (periodStart) updatePayload.current_period_start = periodStart;
+  if (periodEnd) updatePayload.current_period_end = periodEnd;
+  updatePayload.trial_start = toISO(subscription.trial_start);
+  updatePayload.trial_end = toISO(subscription.trial_end);
+
   const { error } = await supabase
     .from("billing_subscriptions")
-    .update({
-      plan,
-      interval,
-      status,
-      current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-      current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-      cancel_at_period_end: subscription.cancel_at_period_end,
-      pending_downgrade_plan: null,
-      pending_downgrade_interval: null,
-      trial_start: subscription.trial_start
-        ? new Date(subscription.trial_start * 1000).toISOString()
-        : null,
-      trial_end: subscription.trial_end
-        ? new Date(subscription.trial_end * 1000).toISOString()
-        : null,
-    })
+    .update(updatePayload)
     .eq("stripe_subscription_id", subscription.id);
 
   if (error) {
@@ -274,8 +282,8 @@ async function handleInvoicePaymentSucceeded(
       status,
       pending_downgrade_plan: null,
       pending_downgrade_interval: null,
-      current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-      current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+      current_period_start: toISO(subscription.current_period_start),
+      current_period_end: toISO(subscription.current_period_end),
     })
     .eq("stripe_subscription_id", subscriptionId);
 
@@ -398,7 +406,7 @@ Deno.serve(async (req: Request) => {
         console.log(`Unhandled event type: ${event.type}`);
     }
   } catch (err) {
-    console.error(`Error processing ${event.type}:`, err);
+    console.error(`Error processing ${event.type} (${event.id}):`, err?.message || err, err?.stack || "");
     return jsonResponse({ error: "Error processing event" }, 500);
   }
 
