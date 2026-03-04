@@ -31,7 +31,7 @@ type Plan = (typeof VALID_PLANS)[number];
 type Interval = (typeof VALID_INTERVALS)[number];
 
 // Plans that qualify for free trial
-const TRIAL_PLANS: ReadonlySet<string> = new Set(["pro", "business"]);
+const TRIAL_PLANS: ReadonlySet<string> = new Set(["starter", "pro", "business"]);
 const TRIAL_DAYS = 14;
 
 // ============================================
