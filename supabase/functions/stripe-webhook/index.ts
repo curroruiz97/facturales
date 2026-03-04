@@ -41,6 +41,38 @@ function extractPlanInfo(metadata: Record<string, string> | null): { plan: strin
 }
 
 // ============================================
+// Helpers: resolve user_id
+// ============================================
+
+/**
+ * Resolves user_id from subscription metadata, falling back to
+ * looking it up in billing_subscriptions by stripe_subscription_id.
+ * This is critical for Stripe-initiated events (expiration, payment
+ * failure) where metadata.user_id may be absent.
+ */
+async function resolveUserId(
+  metadata: Record<string, string> | null,
+  stripeSubscriptionId: string,
+  supabase: ReturnType<typeof createClient>,
+): Promise<string | null> {
+  if (metadata?.user_id) return metadata.user_id;
+
+  const { data } = await supabase
+    .from("billing_subscriptions")
+    .select("user_id")
+    .eq("stripe_subscription_id", stripeSubscriptionId)
+    .maybeSingle();
+
+  if (data?.user_id) {
+    console.log(`Resolved user_id ${data.user_id} from billing_subscriptions for ${stripeSubscriptionId}`);
+    return data.user_id;
+  }
+
+  console.error(`Cannot resolve user_id for subscription ${stripeSubscriptionId}`);
+  return null;
+}
+
+// ============================================
 // Event handlers
 // ============================================
 
@@ -139,11 +171,7 @@ async function handleSubscriptionChange(
   subscription: Stripe.Subscription,
   supabase: ReturnType<typeof createClient>,
 ) {
-  const userId = subscription.metadata?.user_id;
-  if (!userId) {
-    console.error("subscription event: missing user_id in metadata");
-    return;
-  }
+  const userId = await resolveUserId(subscription.metadata, subscription.id, supabase);
 
   const { plan, interval } = extractPlanInfo(subscription.metadata);
   const status = mapStripeStatus(subscription.status);
@@ -174,11 +202,13 @@ async function handleSubscriptionChange(
     console.error("Error updating billing_subscriptions:", error);
   }
 
-  // Sync business_info
-  if (status === "canceled") {
-    await syncBusinessInfo(supabase, userId, null, null);
-  } else {
-    await syncBusinessInfo(supabase, userId, plan, interval);
+  // Sync business_info (requires user_id)
+  if (userId) {
+    if (status === "canceled") {
+      await syncBusinessInfo(supabase, userId, null, null);
+    } else {
+      await syncBusinessInfo(supabase, userId, plan, interval);
+    }
   }
 }
 
@@ -186,7 +216,7 @@ async function handleSubscriptionDeleted(
   subscription: Stripe.Subscription,
   supabase: ReturnType<typeof createClient>,
 ) {
-  const userId = subscription.metadata?.user_id;
+  const userId = await resolveUserId(subscription.metadata, subscription.id, supabase);
 
   const { error } = await supabase
     .from("billing_subscriptions")
@@ -253,7 +283,7 @@ async function handleInvoicePaymentSucceeded(
     console.error("Error updating subscription after payment:", error);
   }
 
-  const userId = subscription.metadata?.user_id;
+  const userId = await resolveUserId(subscription.metadata, subscriptionId, supabase);
   if (userId) {
     await syncBusinessInfo(supabase, userId, plan, interval);
   }
@@ -328,19 +358,9 @@ Deno.serve(async (req: Request) => {
     return jsonResponse({ received: true, duplicate: true });
   }
 
-  const { error: insertError } = await supabase
-    .from("billing_events")
-    .insert({ stripe_event_id: event.id, event_type: event.type });
-
-  if (insertError) {
-    // Race condition: another instance already processed this event
-    if (insertError.code === "23505") {
-      return jsonResponse({ received: true, duplicate: true });
-    }
-    console.error("Error inserting billing_event:", insertError);
-  }
-
   // ── 3. Route event ──────────────────────────────────────
+  // Process FIRST, then mark as processed. This way if the handler
+  // throws, Stripe will retry and the event won't be blocked.
   try {
     switch (event.type) {
       case "checkout.session.completed": {
@@ -380,6 +400,15 @@ Deno.serve(async (req: Request) => {
   } catch (err) {
     console.error(`Error processing ${event.type}:`, err);
     return jsonResponse({ error: "Error processing event" }, 500);
+  }
+
+  // ── 4. Mark event as processed (after successful handling) ──
+  const { error: insertError } = await supabase
+    .from("billing_events")
+    .insert({ stripe_event_id: event.id, event_type: event.type });
+
+  if (insertError && insertError.code !== "23505") {
+    console.error("Error inserting billing_event:", insertError);
   }
 
   return jsonResponse({ received: true });
