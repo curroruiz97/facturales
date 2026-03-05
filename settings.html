@@ -2924,7 +2924,7 @@
                     <div class="flex items-center justify-center mb-8">
                       <div class="relative inline-flex items-center rounded-full p-1 bg-bgray-100 dark:bg-darkblack-400">
                         <button id="pricing-monthly-btn" type="button" onclick="setPricingInterval('monthly')" class="relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-bgray-600 dark:text-bgray-300">Mensual</button>
-                        <button id="pricing-yearly-btn" type="button" onclick="setPricingInterval('yearly')" class="relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-white bg-success-300">Anual <span class="ml-1 text-[10px] font-bold text-orange-200">20% dto.</span></button>
+                        <button id="pricing-yearly-btn" type="button" onclick="setPricingInterval('yearly')" class="relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-white bg-success-300">Anual <span class="ml-1 text-[10px] font-bold text-orange-200">-30% dto.</span></button>
                       </div>
                     </div>
 
@@ -2937,9 +2937,9 @@
                           <span class="inline-flex items-center rounded-full bg-bgray-100 dark:bg-darkblack-400 px-3 py-1 text-xs font-bold text-bgray-700 dark:text-bgray-200 uppercase tracking-wider">Starter</span>
                         </div>
                         <div class="mb-5">
-                          <span id="price-starter" class="text-4xl font-extrabold text-bgray-900 dark:text-white">4,16&euro;</span>
+                          <span id="price-starter" class="text-4xl font-extrabold text-bgray-900 dark:text-white">4,95&euro;</span>
                           <span id="interval-starter" class="text-sm text-bgray-500 dark:text-bgray-400">/mes + IVA</span>
-                          <p id="yearly-total-starter" class="text-xs text-bgray-500 dark:text-bgray-400 mt-1">49,90 &euro; facturados anualmente</p>
+                          <p id="yearly-total-starter" class="text-xs text-bgray-500 dark:text-bgray-400 mt-1">59,40 &euro; facturados anualmente</p>
                         </div>
                         <p class="mb-6 text-sm text-bgray-500 dark:text-bgray-400">Probar y empezar a facturar.</p>
                         <button type="button" onclick="selectPlan('starter')" class="mb-6 w-full rounded-xl border-2 border-bgray-200 dark:border-darkblack-400 py-3 text-sm font-bold text-bgray-700 dark:text-bgray-200 transition-all hover:border-success-300 hover:text-success-300">Plan actual</button>
@@ -2960,9 +2960,9 @@
                           <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white bg-success-300">M&aacute;s popular</span>
                         </div>
                         <div class="mb-5">
-                          <span id="price-pro" class="text-4xl font-extrabold text-bgray-900 dark:text-white">8,33&euro;</span>
+                          <span id="price-pro" class="text-4xl font-extrabold text-bgray-900 dark:text-white">8,95&euro;</span>
                           <span id="interval-pro" class="text-sm text-bgray-500 dark:text-bgray-400">/mes + IVA</span>
-                          <p id="yearly-total-pro" class="text-xs text-bgray-500 dark:text-bgray-400 mt-1">99,90 &euro; facturados anualmente</p>
+                          <p id="yearly-total-pro" class="text-xs text-bgray-500 dark:text-bgray-400 mt-1">107,40 &euro; facturados anualmente</p>
                         </div>
                         <p class="mb-6 text-sm text-bgray-500 dark:text-bgray-400">Automatizar cobros y recurrentes.</p>
                         <button type="button" onclick="selectPlan('pro')" class="mb-6 w-full rounded-xl border-2 border-bgray-200 dark:border-darkblack-400 py-3 text-sm font-bold text-bgray-700 dark:text-bgray-200 transition-all hover:border-success-300 hover:text-success-300">Cambiar a Pro</button>
@@ -3006,9 +3006,9 @@
                           <span class="badge-gold-shimmer inline-flex items-center rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider text-white">Ilimitado</span>
                         </div>
                         <div class="mb-5">
-                          <span id="price-business" class="text-4xl font-extrabold text-bgray-900 dark:text-white">14,99&euro;</span>
+                          <span id="price-business" class="text-4xl font-extrabold text-bgray-900 dark:text-white">17,95&euro;</span>
                           <span id="interval-business" class="text-sm text-bgray-500 dark:text-bgray-400">/mes + IVA</span>
-                          <p id="yearly-total-business" class="text-xs text-bgray-500 dark:text-bgray-400 mt-1">179,90 &euro; facturados anualmente</p>
+                          <p id="yearly-total-business" class="text-xs text-bgray-500 dark:text-bgray-400 mt-1">215,40 &euro; facturados anualmente</p>
                         </div>
                         <p class="mb-6 text-sm text-bgray-500 dark:text-bgray-400">Equipos, asesor&iacute;as y alto volumen.</p>
                         <button type="button" onclick="selectPlan('business')" class="btn-gold-border mb-6 w-full rounded-xl py-3 text-sm font-bold transition-all">Cambiar a Ilimitado</button>
@@ -4883,9 +4883,9 @@
       (function() {
         var currentInterval = 'yearly';
         var prices = {
-          starter:  { monthly: '4,99',  yearly: '49,90' },
-          pro:      { monthly: '9,99',  yearly: '99,90' },
-          business: { monthly: '17,99', yearly: '179,90' }
+          starter:  { monthly: '6,45',  yearly: '59,40' },
+          pro:      { monthly: '11,95', yearly: '107,40' },
+          business: { monthly: '23,95', yearly: '215,40' }
         };
         var planNames = { starter: 'Starter', pro: 'Pro', business: 'Ilimitado' };
 
@@ -4904,11 +4904,11 @@
             mBtn.className = 'relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-white bg-success-300';
             yBtn.style.background = 'transparent';
             yBtn.className = 'relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-bgray-600 dark:text-bgray-300';
-            yBtn.innerHTML = 'Anual <span class="ml-1 text-[10px] font-bold text-success-300">20% dto.</span>';
+            yBtn.innerHTML = 'Anual <span class="ml-1 text-[10px] font-bold text-success-300">-30% dto.</span>';
           } else {
             yBtn.style.background = '';
             yBtn.className = 'relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-white bg-success-300';
-            yBtn.innerHTML = 'Anual <span class="ml-1 text-[10px] font-bold text-orange-200">20% dto.</span>';
+            yBtn.innerHTML = 'Anual <span class="ml-1 text-[10px] font-bold text-orange-200">-30% dto.</span>';
             mBtn.style.background = 'transparent';
             mBtn.className = 'relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 text-bgray-600 dark:text-bgray-300';
           }

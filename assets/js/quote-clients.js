@@ -235,7 +235,8 @@ async function handleQuoteSaveClient(event) {
       ciudad: document.getElementById('new-client-city')?.value.trim() || null,
       pais: document.getElementById('new-client-country')?.value.trim() || null,
       dia_facturacion: document.getElementById('new-client-billing-day')?.value || null,
-      estado: document.getElementById('new-client-status')?.value === 'active' ? 'activo' : 'inactivo'
+      tipo_cliente: document.getElementById('new-client-tipo')?.value || 'autonomo',
+      estado: document.getElementById('new-client-status')?.value || 'recurrente'
     };
     
     // Validaciones básicas
