@@ -10,7 +10,7 @@
   var LIMITS = {
     none:     { clients: 0,        products: 0,        invoices_month: 0,        ocr_month: 0 },
     starter:  { clients: 10,       products: 30,       invoices_month: 10,       ocr_month: 10 },
-    pro:      { clients: 100,      products: 150,      invoices_month: Infinity, ocr_month: 75 },
+    pro:      { clients: 150,      products: 150,      invoices_month: Infinity, ocr_month: 75 },
     business: { clients: Infinity, products: Infinity,  invoices_month: Infinity, ocr_month: 300 }
   };
 

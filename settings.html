@@ -559,8 +559,14 @@
                             </div>
                           </div>
 
-                          <!-- Configuración de impuestos -->
-                          <h4 class="pb-6 pt-8 text-xl font-bold text-bgray-900 dark:text-white">Configuración de impuestos</h4>
+                          <!-- Configuración de impuestos (colapsable) -->
+                          <button type="button" onclick="var c=document.getElementById('tax-config-content');var ic=document.getElementById('tax-config-chevron');c.classList.toggle('hidden');ic.classList.toggle('rotate-180');" class="flex w-full items-center justify-between pb-4 pt-8">
+                            <h4 class="text-xl font-bold text-bgray-900 dark:text-white">Configuracion de impuestos</h4>
+                            <svg id="tax-config-chevron" class="w-5 h-5 text-bgray-500 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                          </button>
+                          <div id="tax-config-content" class="hidden">
 
                           <!-- Tipo de impuesto -->
                           <div class="mb-6">
@@ -622,6 +628,7 @@
                               </div>
                             </div>
                           </div>
+                          </div><!-- /tax-config-content -->
                           <div id="error-message" class="hidden mt-6 p-3 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 rounded-lg text-sm"></div>
                           <div id="success-message" class="hidden mt-6 p-3 bg-green-100 dark:bg-green-900/30 border border-green-400 dark:border-green-800 text-green-700 dark:text-green-300 rounded-lg text-sm"></div>
                           <div class="flex justify-end">
@@ -2967,7 +2974,7 @@
                         <p class="mb-6 text-sm text-bgray-500 dark:text-bgray-400">Automatizar cobros y recurrentes.</p>
                         <button type="button" onclick="selectPlan('pro')" class="mb-6 w-full rounded-xl border-2 border-bgray-200 dark:border-darkblack-400 py-3 text-sm font-bold text-bgray-700 dark:text-bgray-200 transition-all hover:border-success-300 hover:text-success-300">Cambiar a Pro</button>
                         <ul class="space-y-3">
-                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>Hasta 100 clientes</li>
+                          <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>Hasta 150 clientes</li>
                           <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>Hasta 3 usuarios</li>
                           <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>Hasta 150 productos/servicios</li>
                           <li class="flex items-start gap-2.5 text-sm text-bgray-700 dark:text-bgray-300"><svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg><strong>Facturas ilimitadas</strong></li>

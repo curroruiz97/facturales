@@ -17,6 +17,7 @@ let _usersInvoiceTotals = {}; // { client_id: totalAmount }
 let _usersExpenseTotals = {}; // { client_id: totalGastos }
 let _usersCurrentPage = 1;
 let _usersPerPage = 10;
+let _selectedClientIds = new Set();
 
 /**
  * Inicializar la página al cargar
@@ -145,6 +146,7 @@ async function loadClients(searchTerm = '') {
       });
       allClients = result.data;
       _usersCurrentPage = 1;
+      _selectedClientIds.clear();
       renderPage();
       updateClientsCount(result.data.length);
     } else {
@@ -215,6 +217,8 @@ function renderPage() {
 
   renderClientsTable(pageClients);
   renderPagination(totalPages);
+  syncSelectAllCheckbox(pageClients);
+  updateBulkDeleteUI();
 }
 
 /**
@@ -236,7 +240,7 @@ function renderClientsTable(clients) {
   }
 
   if (clients.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" class="py-12 text-center"><p class="text-sm text-bgray-600 dark:text-bgray-50">No hay contactos en esta página</p></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="py-12 text-center"><p class="text-sm text-bgray-600 dark:text-bgray-50">No hay contactos en esta página</p></td></tr>';
     return;
   }
   
@@ -253,7 +257,11 @@ function renderClientsTable(clients) {
     const totalFacturado = client._totalFacturado || 0;
     const totalGastos = client._totalGastos || 0;
     
+    const isChecked = _selectedClientIds.has(client.id);
     row.innerHTML = `
+      <td class="py-5 pr-3 w-10">
+        <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleSelectClient('${client.id}', this.checked)" class="client-checkbox h-4 w-4 rounded border-bgray-300 text-success-300 focus:ring-success-300 cursor-pointer" />
+      </td>
       <td class="py-5 pr-6">
         <div class="flex items-center gap-3">
           <div class="flex h-10 w-10 items-center justify-center rounded-full bg-bgray-100 text-sm font-bold text-bgray-700 dark:bg-darkblack-500 dark:text-white">
@@ -924,6 +932,145 @@ function initImportListeners() {
 }
 
 document.addEventListener('DOMContentLoaded', initImportListeners);
+
+// ============================================================
+// Selección múltiple y eliminación masiva
+// ============================================================
+
+function toggleSelectAll(checked) {
+  var start = (_usersCurrentPage - 1) * _usersPerPage;
+  var end = start + _usersPerPage;
+  var pageClients = allClients.slice(start, end);
+
+  pageClients.forEach(function(c) {
+    if (checked) {
+      _selectedClientIds.add(c.id);
+    } else {
+      _selectedClientIds.delete(c.id);
+    }
+  });
+
+  // Actualizar checkboxes visibles
+  var checkboxes = document.querySelectorAll('.client-checkbox');
+  checkboxes.forEach(function(cb) { cb.checked = checked; });
+
+  updateBulkDeleteUI();
+}
+
+function toggleSelectClient(clientId, checked) {
+  if (checked) {
+    _selectedClientIds.add(clientId);
+  } else {
+    _selectedClientIds.delete(clientId);
+  }
+  syncSelectAllCheckbox();
+  updateBulkDeleteUI();
+}
+
+function syncSelectAllCheckbox(pageClients) {
+  var selectAll = document.getElementById('select-all-clients');
+  if (!selectAll) return;
+
+  if (!pageClients) {
+    var start = (_usersCurrentPage - 1) * _usersPerPage;
+    var end = start + _usersPerPage;
+    pageClients = allClients.slice(start, end);
+  }
+
+  if (pageClients.length === 0) {
+    selectAll.checked = false;
+    selectAll.indeterminate = false;
+    return;
+  }
+
+  var selectedOnPage = pageClients.filter(function(c) { return _selectedClientIds.has(c.id); }).length;
+
+  if (selectedOnPage === 0) {
+    selectAll.checked = false;
+    selectAll.indeterminate = false;
+  } else if (selectedOnPage === pageClients.length) {
+    selectAll.checked = true;
+    selectAll.indeterminate = false;
+  } else {
+    selectAll.checked = false;
+    selectAll.indeterminate = true;
+  }
+}
+
+function updateBulkDeleteUI() {
+  var btn = document.getElementById('bulk-delete-btn');
+  var countEl = document.getElementById('bulk-delete-count');
+  if (!btn) return;
+
+  var count = _selectedClientIds.size;
+  if (count > 0) {
+    btn.classList.remove('hidden');
+    btn.classList.add('inline-flex');
+    if (countEl) countEl.textContent = count;
+  } else {
+    btn.classList.add('hidden');
+    btn.classList.remove('inline-flex');
+  }
+}
+
+function openBulkDeleteModal() {
+  var count = _selectedClientIds.size;
+  if (count === 0) return;
+
+  var summary = document.getElementById('bulk-delete-summary');
+  if (summary) {
+    summary.textContent = 'Se eliminarán ' + count + ' cliente' + (count !== 1 ? 's' : '') + ' permanentemente.';
+  }
+
+  var modal = document.getElementById('bulk-delete-modal');
+  if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
+}
+
+function closeBulkDeleteModal() {
+  var modal = document.getElementById('bulk-delete-modal');
+  if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+}
+
+async function confirmBulkDelete() {
+  var ids = Array.from(_selectedClientIds);
+  if (ids.length === 0) return;
+
+  var confirmBtn = document.getElementById('bulk-delete-confirm-btn');
+  if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.textContent = 'Eliminando...'; }
+
+  var successCount = 0;
+  var errorCount = 0;
+
+  for (var i = 0; i < ids.length; i++) {
+    try {
+      var result = await deleteClient(ids[i]);
+      if (result.success) successCount++;
+      else errorCount++;
+    } catch (e) {
+      errorCount++;
+    }
+  }
+
+  _selectedClientIds.clear();
+  closeBulkDeleteModal();
+
+  if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = 'Eliminar todos'; }
+
+  if (successCount > 0) {
+    showToast(successCount + ' cliente' + (successCount !== 1 ? 's' : '') + ' eliminado' + (successCount !== 1 ? 's' : '') + ' correctamente', 'success');
+  }
+  if (errorCount > 0) {
+    showToast(errorCount + ' cliente' + (errorCount !== 1 ? 's' : '') + ' no se pudieron eliminar', 'error');
+  }
+
+  loadClients();
+}
+
+window.toggleSelectAll = toggleSelectAll;
+window.toggleSelectClient = toggleSelectClient;
+window.openBulkDeleteModal = openBulkDeleteModal;
+window.closeBulkDeleteModal = closeBulkDeleteModal;
+window.confirmBulkDelete = confirmBulkDelete;
 
 // Hacer funciones globales
 window.handleSearchClients = handleSearchClients;

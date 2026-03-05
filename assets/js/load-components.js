@@ -73,8 +73,8 @@ async function loadComponents() {
     // Vincular theme toggle del sidebar (móvil) al mismo comportamiento que el del header
     initSidebarThemeToggle();
     
-    // Vincular buscador global del header
-    initHeaderSearch();
+    // Cargar buscador global (Ctrl+K)
+    loadGlobalSearchScript();
     
     console.log('✅ Componentes de layout cargados correctamente');
     
@@ -157,64 +157,15 @@ function updatePageTitle() {
 }
 
 /**
- * Buscador global del header: filtra listas en la página actual o navega a Transacciones/Contactos
+ * Carga el script global-search.js dinámicamente tras inyectar el header
  */
-function initHeaderSearch() {
-  const searchInput = document.getElementById('search');
-  if (!searchInput) return;
-
-  searchInput.addEventListener('keydown', function (e) {
-    if (e.key !== 'Enter') return;
-    e.preventDefault();
-    const query = searchInput.value.trim().toLowerCase();
-    if (!query) return;
-
-    const path = window.location.pathname;
-
-    // En Transacciones: usar el buscador local
-    if (path.includes('expenses')) {
-      const localSearch = document.getElementById('transactionSearch');
-      if (localSearch) {
-        localSearch.value = query;
-        localSearch.dispatchEvent(new Event('input', { bubbles: true }));
-      }
-      if (typeof window.handleSearchTransactions === 'function') window.handleSearchTransactions();
-      return;
-    }
-
-    // En Contactos: usar el buscador local si existe
-    if (path.includes('users')) {
-      const localSearch = document.getElementById('users-search');
-      if (localSearch) {
-        localSearch.value = query;
-        localSearch.dispatchEvent(new Event('input', { bubbles: true }));
-        return;
-      }
-    }
-
-    // En Borradores
-    if (path.includes('drafts')) {
-      const localSearch = document.getElementById('drafts-search');
-      if (localSearch) {
-        localSearch.value = query;
-        if (typeof window.handleSearchDrafts === 'function') window.handleSearchDrafts(query);
-        return;
-      }
-    }
-
-    // En Facturas emitidas
-    if (path.includes('issued')) {
-      const localSearch = document.getElementById('issued-search');
-      if (localSearch) {
-        localSearch.value = query;
-        if (typeof window.handleSearchIssued === 'function') window.handleSearchIssued(query);
-        return;
-      }
-    }
-
-    // Desde cualquier otra página: navegar a Transacciones con parámetro de búsqueda
-    window.location.href = (path.includes('/invoices/') ? '../' : './') + 'expenses.html?search=' + encodeURIComponent(query);
-  });
+function loadGlobalSearchScript() {
+  if (document.getElementById('gs-script')) return;
+  const basePath = getBasePath();
+  const script = document.createElement('script');
+  script.id = 'gs-script';
+  script.src = basePath + 'assets/js/global-search.js';
+  document.body.appendChild(script);
 }
 
 /**
