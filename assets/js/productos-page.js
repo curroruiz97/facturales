@@ -92,26 +92,51 @@
   function renderRecentProducts(products) {
     var container = document.getElementById('recent-products');
     if (!container) return;
-    var recent = products.slice(0, 4);
+
+    // Destroy previous slick instance if any
+    try { if ($(container).hasClass('slick-initialized')) $(container).slick('unslick'); } catch(_){}
+
+    var recent = products.slice(0, 12); // show up to 12 in slider
     if (recent.length === 0) {
       container.innerHTML = '<p class="text-sm text-bgray-500 dark:text-bgray-400">No hay productos todavía.</p>';
       return;
     }
-    var html = '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">';
+    var html = '';
     recent.forEach(function (p) {
       var pvp = window.productosDB.calcPVP(p.precio_venta, p.impuesto);
-      html += '<div class="rounded-lg border border-bgray-200 bg-white p-4 dark:border-darkblack-400 dark:bg-darkblack-600">';
+      html += '<div>';
+      html += '<div class="rp-card rounded-xl bg-white p-5 dark:bg-darkblack-600">';
       html += '<h4 class="text-sm font-bold text-bgray-900 dark:text-white truncate">' + escapeHtml(p.nombre) + '</h4>';
-      html += '<p class="text-xs text-bgray-500 dark:text-bgray-400 mt-0.5">REF ' + escapeHtml(p.referencia || '—') + '</p>';
-      html += '<p class="text-xs text-bgray-500 dark:text-bgray-400 mt-0.5">PVP</p>';
-      html += '<p class="text-base font-bold text-bgray-900 dark:text-white">' + fmtEUR(pvp) + '</p>';
-      html += '<div class="flex items-center gap-2 mt-3">';
+      html += '<p class="text-xs text-bgray-500 dark:text-bgray-400 mt-1">REF ' + escapeHtml(p.referencia || '—') + '</p>';
+      html += '<p class="text-[10px] uppercase tracking-wider text-bgray-400 dark:text-bgray-500 mt-2">PVP</p>';
+      html += '<p class="text-lg font-bold text-bgray-900 dark:text-white">' + fmtEUR(pvp) + '</p>';
+      html += '<div class="flex items-center gap-2 mt-3 pt-3 border-t border-bgray-100 dark:border-darkblack-400">';
       html += '<button onclick="window._productosPage.openEdit(\'' + p.id + '\')" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-bgray-200 text-bgray-500 hover:border-success-300 hover:text-success-300 dark:border-darkblack-400 transition" title="Editar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>';
       html += '<button onclick="window._productosPage.openDelete(\'' + p.id + '\')" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-bgray-200 text-bgray-500 hover:border-red-300 hover:text-red-500 dark:border-darkblack-400 transition" title="Eliminar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7M10 11v6M14 11v6M15 7V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>';
       html += '</div></div>';
+      html += '</div>';
     });
-    html += '</div>';
     container.innerHTML = html;
+
+    // Init Slick slider
+    if (typeof $ !== 'undefined' && $.fn.slick && recent.length > 1) {
+      $(container).slick({
+        slidesToShow: 4,
+        slidesToScroll: 1,
+        dots: true,
+        arrows: true,
+        prevArrow: '#rp-prev',
+        nextArrow: '#rp-next',
+        infinite: recent.length > 4,
+        speed: 400,
+        cssEase: 'cubic-bezier(0.25, 0.1, 0.25, 1)',
+        responsive: [
+          { breakpoint: 1280, settings: { slidesToShow: 3 } },
+          { breakpoint: 1024, settings: { slidesToShow: 2 } },
+          { breakpoint: 640,  settings: { slidesToShow: 1, dots: true } }
+        ]
+      });
+    }
   }
 
   // ========== Table ==========
@@ -126,7 +151,7 @@
     if (!tbody) return;
     var page = getPageProducts(products);
     if (page.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" class="py-8 text-center text-sm text-bgray-500 dark:text-bgray-400">No se encontraron productos</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" class="py-8 text-center text-sm text-bgray-500 dark:text-bgray-400">No se encontraron productos</td></tr>';
       return;
     }
     var html = '';
@@ -134,6 +159,7 @@
       var pvp = window.productosDB.calcPVP(p.precio_venta, p.impuesto);
       var margen = window.productosDB.calcMargen(p.precio_compra, p.precio_venta);
       html += '<tr class="border-b border-bgray-300 dark:border-darkblack-400">';
+      html += '<td class="whitespace-nowrap py-4 pr-3 w-10"><label class="text-center"><input type="checkbox" data-product-id="' + p.id + '" class="prod-row-cb h-5 w-5 cursor-pointer rounded-full border border-bgray-400 bg-transparent text-success-300 focus:outline-none focus:ring-0" /></label></td>';
       html += '<td class="whitespace-nowrap py-4 pr-6"><div><span class="text-sm font-semibold text-bgray-900 dark:text-white">' + escapeHtml(p.nombre) + '</span>';
       if (p.descripcion) html += '<p class="text-xs text-bgray-500 dark:text-bgray-400 truncate max-w-[200px]">' + escapeHtml(p.descripcion) + '</p>';
       html += '</div></td>';
@@ -150,6 +176,11 @@
       html += '</tr>';
     });
     tbody.innerHTML = html;
+
+    // Reset select-all
+    var selectAllCb = document.getElementById('select-all-products');
+    if (selectAllCb) { selectAllCb.checked = false; selectAllCb.indeterminate = false; }
+    updateProductsBulkBar();
   }
 
   // ========== Pagination ==========
@@ -327,6 +358,103 @@
     }
   }
 
+  // ========== Bulk selection ==========
+
+  var _bulkProductIds = [];
+
+  function updateProductsBulkBar() {
+    var cbs = document.querySelectorAll('.prod-row-cb:checked');
+    var bar = document.getElementById('products-bulk-bar');
+    var countEl = document.getElementById('products-bulk-count');
+    if (!bar) return;
+    if (cbs.length > 0) {
+      bar.classList.remove('hidden');
+      bar.classList.add('flex');
+      if (countEl) countEl.textContent = cbs.length;
+    } else {
+      bar.classList.add('hidden');
+      bar.classList.remove('flex');
+    }
+  }
+
+  function clearBulkSelection() {
+    document.querySelectorAll('.prod-row-cb').forEach(function(cb) { cb.checked = false; });
+    var selectAllCb = document.getElementById('select-all-products');
+    if (selectAllCb) { selectAllCb.checked = false; selectAllCb.indeterminate = false; }
+    updateProductsBulkBar();
+  }
+
+  function handleBulkDelete() {
+    var cbs = document.querySelectorAll('.prod-row-cb:checked');
+    var ids = [];
+    cbs.forEach(function(cb) {
+      var id = cb.getAttribute('data-product-id');
+      if (id) ids.push(id);
+    });
+    if (ids.length === 0) {
+      if (window.showToast) window.showToast('No hay productos seleccionados', 'error');
+      return;
+    }
+    _bulkProductIds = ids;
+    var text = document.getElementById('products-bulk-delete-text');
+    if (text) text.textContent = 'Se eliminarán ' + ids.length + ' producto' + (ids.length > 1 ? 's' : '');
+    var modal = document.getElementById('bulk-delete-products-modal');
+    if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
+  }
+
+  function closeBulkDeleteModal() {
+    var modal = document.getElementById('bulk-delete-products-modal');
+    if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+  }
+
+  async function confirmBulkDelete() {
+    if (_bulkProductIds.length === 0) return;
+    var btn = document.getElementById('btn-confirm-bulk-delete-products');
+    if (btn) { btn.disabled = true; btn.textContent = 'Eliminando...'; }
+
+    await waitForDB();
+    var ok = 0, fail = 0;
+    for (var i = 0; i < _bulkProductIds.length; i++) {
+      try {
+        var result = await window.productosDB.deleteProduct(_bulkProductIds[i]);
+        if (result.success) ok++; else fail++;
+      } catch (_) { fail++; }
+    }
+
+    if (btn) { btn.disabled = false; btn.textContent = 'Eliminar'; }
+    closeBulkDeleteModal();
+    if (ok > 0) { if (window.showToast) window.showToast(ok + ' producto' + (ok > 1 ? 's eliminados' : ' eliminado'), 'success'); }
+    if (fail > 0) { if (window.showToast) window.showToast(fail + ' no se pudieron eliminar', 'error'); }
+
+    _bulkProductIds = [];
+    clearBulkSelection();
+    loadProducts();
+  }
+
+  function initSelectAllProducts() {
+    var selectAllCb = document.getElementById('select-all-products');
+    if (!selectAllCb) return;
+
+    selectAllCb.addEventListener('change', function() {
+      document.querySelectorAll('.prod-row-cb').forEach(function(cb) { cb.checked = selectAllCb.checked; });
+      updateProductsBulkBar();
+    });
+
+    var table = document.getElementById('products-table');
+    if (table) {
+      table.addEventListener('change', function(e) {
+        if (e.target === selectAllCb) return;
+        if (!e.target.classList.contains('prod-row-cb')) return;
+        var all = table.querySelectorAll('.prod-row-cb');
+        var checked = 0;
+        all.forEach(function(cb) { if (cb.checked) checked++; });
+        selectAllCb.checked = checked === all.length && all.length > 0;
+        selectAllCb.indeterminate = checked > 0 && checked < all.length;
+        updateProductsBulkBar();
+      });
+    }
+  }
+
   // ========== Init ==========
 
   function init() {
@@ -363,6 +491,9 @@
     var searchInput = document.getElementById('products-search');
     if (searchInput) searchInput.addEventListener('input', function () { handleSearch(this.value); });
 
+    // Bulk selection
+    initSelectAllProducts();
+
     // Load data
     loadProducts();
   }
@@ -372,7 +503,11 @@
     openEdit: openEditModal,
     openDelete: openDeleteModal,
     goPage: goPage,
-    reload: loadProducts
+    reload: loadProducts,
+    clearBulkSelection: clearBulkSelection,
+    handleBulkDelete: handleBulkDelete,
+    closeBulkDeleteModal: closeBulkDeleteModal,
+    confirmBulkDelete: confirmBulkDelete
   };
 
   if (document.readyState === 'loading') {

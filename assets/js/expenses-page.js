@@ -346,6 +346,113 @@ window.sortTransactions = function(column) {
 };
 
 /**
+ * Actualizar barra de acciones masivas
+ */
+function updateBulkBar() {
+  var cbs = document.querySelectorAll('.tx-row-cb:checked');
+  var bar = document.getElementById('bulk-actions-bar');
+  var countEl = document.getElementById('bulk-count');
+  if (!bar) return;
+  if (cbs.length > 0) {
+    bar.classList.remove('hidden');
+    bar.classList.add('flex');
+    if (countEl) countEl.textContent = cbs.length;
+  } else {
+    bar.classList.add('hidden');
+    bar.classList.remove('flex');
+  }
+}
+
+/**
+ * Limpiar seleccion masiva
+ */
+function clearBulkSelection() {
+  document.querySelectorAll('.tx-row-cb').forEach(function(cb) { cb.checked = false; });
+  var selectAllCb = document.getElementById('select-all-transactions');
+  if (selectAllCb) { selectAllCb.checked = false; selectAllCb.indeterminate = false; }
+  updateBulkBar();
+}
+
+// IDs pendientes de eliminación masiva
+var _bulkDeleteIds = [];
+
+/**
+ * Recopilar IDs y abrir modal de confirmación masiva
+ */
+function handleBulkDelete() {
+  var cbs = document.querySelectorAll('.tx-row-cb:checked');
+  var ids = [];
+  cbs.forEach(function(cb) {
+    var id = cb.getAttribute('data-transaction-id');
+    if (id) {
+      var t = allTransactions.find(function(tx) { return tx.id === id; });
+      if (t && !t.invoice_id && t.categoria !== 'factura') {
+        ids.push(id);
+      }
+    }
+  });
+
+  if (ids.length === 0) {
+    showToast('No hay transacciones válidas seleccionadas', 'error');
+    return;
+  }
+
+  _bulkDeleteIds = ids;
+
+  // Actualizar texto del modal
+  var countText = document.getElementById('bulk-delete-count-text');
+  if (countText) {
+    countText.textContent = 'Se eliminarán ' + ids.length + ' transacción' + (ids.length > 1 ? 'es' : '');
+  }
+
+  // Abrir modal
+  var modal = document.getElementById('bulk-delete-modal');
+  if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
+}
+
+/**
+ * Cerrar modal de eliminación masiva
+ */
+function closeBulkDeleteModal() {
+  var modal = document.getElementById('bulk-delete-modal');
+  if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+}
+
+/**
+ * Confirmar y ejecutar eliminación masiva
+ */
+async function confirmBulkDelete() {
+  if (_bulkDeleteIds.length === 0) return;
+
+  var btn = document.getElementById('btn-confirm-bulk-delete');
+  if (btn) { btn.disabled = true; btn.textContent = 'Eliminando...'; }
+
+  var successCount = 0;
+  var errorCount = 0;
+  for (var i = 0; i < _bulkDeleteIds.length; i++) {
+    try {
+      var result = await window.deleteTransaction(_bulkDeleteIds[i]);
+      if (result.success) { successCount++; } else { errorCount++; }
+    } catch (_) { errorCount++; }
+  }
+
+  if (btn) { btn.disabled = false; btn.textContent = 'Eliminar'; }
+
+  closeBulkDeleteModal();
+
+  if (successCount > 0) {
+    showToast(successCount + ' transacción' + (successCount > 1 ? 'es eliminadas' : ' eliminada'), 'success');
+  }
+  if (errorCount > 0) {
+    showToast(errorCount + ' no se pudieron eliminar', 'error');
+  }
+
+  _bulkDeleteIds = [];
+  clearBulkSelection();
+  loadTransactions();
+}
+
+/**
  * Inicializar checkbox "seleccionar todo"
  */
 function initSelectAll() {
@@ -354,9 +461,10 @@ function initSelectAll() {
 
   selectAllCb.addEventListener('change', function() {
     var checked = selectAllCb.checked;
-    document.querySelectorAll('.table-content table tr td:first-child input[type="checkbox"]').forEach(function(cb) {
-      if (cb !== selectAllCb) cb.checked = checked;
+    document.querySelectorAll('.tx-row-cb:not(:disabled)').forEach(function(cb) {
+      cb.checked = checked;
     });
+    updateBulkBar();
   });
 
   // Delegación de eventos para checkboxes individuales
@@ -364,12 +472,13 @@ function initSelectAll() {
   if (tableEl) {
     tableEl.addEventListener('change', function(e) {
       if (e.target === selectAllCb) return;
-      if (e.target.type !== 'checkbox') return;
-      var allCbs = tableEl.querySelectorAll('tr td:first-child input[type="checkbox"]:not(#select-all-transactions)');
+      if (!e.target.classList.contains('tx-row-cb')) return;
+      var allCbs = tableEl.querySelectorAll('.tx-row-cb:not(:disabled)');
       var checkedCount = 0;
       allCbs.forEach(function(cb) { if (cb.checked) checkedCount++; });
       selectAllCb.checked = checkedCount === allCbs.length && allCbs.length > 0;
       selectAllCb.indeterminate = checkedCount > 0 && checkedCount < allCbs.length;
+      updateBulkBar();
     });
   }
 }
@@ -432,7 +541,9 @@ function renderTransactions(transactions) {
         <label class="text-center">
           <input
             type="checkbox"
-            class="h-5 w-5 cursor-pointer rounded-full border border-bgray-400 bg-transparent text-success-300 focus:outline-none focus:ring-0"
+            data-transaction-id="${transaction.id}"
+            class="tx-row-cb h-5 w-5 cursor-pointer rounded-full border border-bgray-400 bg-transparent text-success-300 focus:outline-none focus:ring-0"
+            ${transaction.categoria === 'factura' || transaction.invoice_id ? 'disabled title="Las transacciones de factura no se pueden eliminar"' : ''}
           />
         </label>
       </td>
@@ -1103,6 +1214,10 @@ function toggleExpensesFilters() {
   if (panel) panel.classList.toggle('hidden');
 }
 window.toggleExpensesFilters = toggleExpensesFilters;
+window.handleBulkDelete = handleBulkDelete;
+window.clearBulkSelection = clearBulkSelection;
+window.closeBulkDeleteModal = closeBulkDeleteModal;
+window.confirmBulkDelete = confirmBulkDelete;
 
 // Cargar transacciones al iniciar la página
 document.addEventListener('DOMContentLoaded', () => {
