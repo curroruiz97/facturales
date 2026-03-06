@@ -299,6 +299,13 @@
             Emitir y enviar por email
           </button>
           <button
+            onclick="openScheduleModal()"
+            class="w-full rounded-lg border border-success-300 px-4 py-3 text-sm font-semibold text-success-300 transition hover:bg-success-50 flex items-center justify-center gap-2"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 8V12L15 15M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Programar envío
+          </button>
+          <button
             onclick="confirmEmitInvoice(false)"
             class="w-full rounded-lg border border-success-300 px-4 py-3 text-sm font-semibold text-success-300 transition hover:bg-success-50 flex items-center justify-center gap-2"
           >
@@ -308,6 +315,93 @@
           <button
             onclick="closeEmitModal()"
             class="w-full rounded-lg border border-bgray-300 px-4 py-3 text-sm font-semibold text-bgray-900 transition hover:bg-bgray-100 dark:border-darkblack-400 dark:text-white dark:hover:bg-darkblack-500"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Programar envío -->
+    <style>
+      #schedule-modal { display:none; }
+      .sch-days-strip { display:flex; gap:6px; overflow-x:auto; padding:4px 2px 8px; scrollbar-width:thin; scrollbar-color:#ddd transparent; }
+      .sch-days-strip::-webkit-scrollbar { height:4px; }
+      .sch-days-strip::-webkit-scrollbar-thumb { background:#ddd; border-radius:4px; }
+      .sch-day-card { flex-shrink:0; width:54px; padding:8px 0; border-radius:10px; border:2px solid #e5e7eb; background:#fff; cursor:pointer; text-align:center; transition:all 0.15s; user-select:none; }
+      .sch-day-card:hover { border-color:#f5a623; background:#fef8f0; }
+      .sch-day-card.sch-sel { border-color:#ec8228; background:#ec8228; color:#fff; box-shadow:0 2px 10px rgba(236,130,40,0.3); }
+      .sch-day-card.sch-sel .sch-dc-day,.sch-day-card.sch-sel .sch-dc-num,.sch-day-card.sch-sel .sch-dc-mon { color:#fff; }
+      .sch-dc-day { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:#9ca3af; line-height:1; margin-bottom:2px; }
+      .sch-dc-num { font-size:18px; font-weight:700; color:#1f2937; line-height:1.2; }
+      .sch-dc-mon { font-size:10px; font-weight:600; color:#9ca3af; line-height:1; margin-top:1px; }
+      .sch-today-badge { display:inline-block; width:4px; height:4px; border-radius:50%; background:#ec8228; margin:2px auto 0; }
+      .sch-day-card.sch-sel .sch-today-badge { background:#fff; }
+      .dark .sch-day-card { border-color:#374151; background:#1e1e2f; }
+      .dark .sch-day-card:hover { border-color:#f59e0b; background:#2a2a3a; }
+      .dark .sch-dc-num { color:#f3f4f6; }
+      .dark .sch-dc-day,.dark .sch-dc-mon { color:#6b7280; }
+      .sch-time-input { width:64px; border-radius:8px; border:1px solid #e5e7eb; background:#f9fafb; padding:8px; font-size:16px; font-weight:600; color:#1f2937; text-align:center; transition:border-color 0.2s; -moz-appearance:textfield; }
+      .sch-time-input::-webkit-outer-spin-button,.sch-time-input::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+      .sch-time-input:focus { outline:none; border-color:#ec8228; box-shadow:0 0 0 3px rgba(236,130,40,0.15); }
+      .dark .sch-time-input { background:#1e1e2f; border-color:#374151; color:#f3f4f6; }
+    </style>
+    <div id="schedule-modal" class="fixed inset-0 z-[10000] items-center justify-center overflow-y-auto" style="background:rgba(0,0,0,0.55);">
+      <div class="relative mx-auto w-full rounded-xl bg-white shadow-2xl dark:bg-darkblack-600" style="max-width:520px;margin:24px auto;border:1px solid #e5e7eb;padding:24px;">
+
+        <!-- Header -->
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
+          <div style="width:38px;height:38px;border-radius:50%;background:#fef3e2;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="color:#ec8228;"><path d="M12 8V12L15 15M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div>
+            <h3 style="font-size:18px;font-weight:700;margin:0;" class="text-bgray-900 dark:text-white">Programar envío</h3>
+            <p style="font-size:13px;margin:2px 0 0;" class="text-bgray-500 dark:text-bgray-400">Selecciona fecha y hora. Máximo 30 días.</p>
+          </div>
+        </div>
+
+        <!-- Días: tira horizontal -->
+        <div style="margin:16px 0 14px;">
+          <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;" class="text-bgray-500 dark:text-bgray-400">Fecha</label>
+          <div id="sch-days-container" class="sch-days-strip"></div>
+        </div>
+
+        <!-- Hora -->
+        <div style="margin-bottom:16px;">
+          <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;" class="text-bgray-500 dark:text-bgray-400">Hora</label>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <input type="number" id="schedule-hour" class="sch-time-input" min="0" max="23" value="09" />
+            <span style="font-size:22px;font-weight:700;color:#9ca3af;line-height:1;">:</span>
+            <input type="number" id="schedule-minute" class="sch-time-input" min="0" max="59" value="00" />
+            <span style="font-size:13px;font-weight:500;margin-left:4px;" class="text-bgray-400 dark:text-bgray-500">h</span>
+          </div>
+        </div>
+
+        <!-- Resumen -->
+        <div id="schedule-summary" style="display:none;border-radius:8px;background:#fef8f0;border:1px solid #fcd9a8;padding:10px 14px;margin-bottom:14px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="color:#ec8228;flex-shrink:0;"><path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <p style="font-size:12px;font-weight:500;color:#92400e;margin:0;">
+              Envío: <span id="schedule-summary-text" style="font-weight:700;"></span>
+            </p>
+          </div>
+        </div>
+
+        <p id="schedule-error" style="display:none;font-size:12px;color:#ef4444;margin-bottom:10px;"></p>
+
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <button
+            onclick="confirmScheduledEmit()"
+            class="rounded-lg bg-success-300 hover:bg-success-400 text-white transition"
+            style="width:100%;padding:12px;font-size:14px;font-weight:600;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;border-radius:8px;"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Emitir y programar envío
+          </button>
+          <button
+            onclick="closeScheduleModal()"
+            style="width:100%;padding:10px;font-size:14px;font-weight:600;border:1px solid #e5e7eb;background:none;cursor:pointer;border-radius:8px;transition:background 0.15s;"
+            class="text-bgray-900 dark:text-white dark:border-darkblack-400 hover:bg-bgray-100 dark:hover:bg-darkblack-500"
           >
             Cancelar
           </button>
@@ -606,7 +700,7 @@
         }
       }
 
-      async function confirmEmitInvoice(sendEmail) {
+      async function confirmEmitInvoice(sendEmail, scheduledAt) {
         closeEmitModal();
         for (var i = 0; i < 50 && !window.emitInvoice; i++) await new Promise(function(r){setTimeout(r,100);});
         if (!window.emitInvoice) { alert('El sistema aún está cargando.'); return; }
@@ -634,18 +728,25 @@
                   var issuerName = currentInvoiceData.issuer ? (currentInvoiceData.issuer.name || '') : '';
                   var emailSubject = 'Factura ' + invoiceNum + ' de ' + issuerName;
 
-                  var emailResult = await window.sendDocumentEmail({
+                  var emailPayload = {
                     documentType: 'invoice',
                     documentId: currentInvoiceId,
                     to: clientEmail,
                     subject: emailSubject,
                     pdfBase64: cachedPdfBase64,
                     pdfFilename: pdfFilename
-                  });
+                  };
+                  if (scheduledAt) emailPayload.scheduledAt = scheduledAt;
+
+                  var emailResult = await window.sendDocumentEmail(emailPayload);
 
                   if (emailResult.success) {
                     if (emailResult.alreadySent) {
                       if (window.showToast) window.showToast('Factura emitida. El email ya fue enviado anteriormente.', 'success');
+                    } else if (scheduledAt) {
+                      var d = new Date(scheduledAt);
+                      var fmtDate = String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear() + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+                      if (window.showToast) window.showToast('Factura emitida. Email programado para ' + fmtDate, 'success');
                     } else {
                       if (window.showToast) window.showToast('Factura emitida y enviada por email', 'success');
                     }
@@ -666,6 +767,134 @@
 
           setTimeout(function() { window.location.href = 'issued.html'; }, 2000);
         } catch (error) { alert(error.message || 'Error'); setLoadingAll(false); }
+      }
+
+      // ============================================
+      // Programar envío
+      // ============================================
+      var schSelectedDate = null;
+      var SCH_DAY_NAMES = ['Do','Lu','Ma','Mi','Ju','Vi','Sá'];
+      var SCH_MONTH_NAMES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+      var SCH_MONTH_FULL = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+      var SCH_DAY_FULL = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+
+      function renderDaysStrip() {
+        var container = document.getElementById('sch-days-container');
+        container.innerHTML = '';
+        var today = new Date(); today.setHours(0,0,0,0);
+        for (var i = 0; i < 30; i++) {
+          var d = new Date(today);
+          d.setDate(d.getDate() + i);
+          var card = document.createElement('button');
+          card.type = 'button';
+          card.className = 'sch-day-card';
+          if (schSelectedDate && d.getTime() === schSelectedDate.getTime()) card.className += ' sch-sel';
+          var isToday = (i === 0);
+          card.innerHTML =
+            '<div class="sch-dc-day">' + SCH_DAY_NAMES[d.getDay()] + '</div>' +
+            '<div class="sch-dc-num">' + d.getDate() + '</div>' +
+            '<div class="sch-dc-mon">' + SCH_MONTH_NAMES[d.getMonth()] + '</div>' +
+            (isToday ? '<div class="sch-today-badge"></div>' : '');
+          (function(date) {
+            card.onclick = function() {
+              schSelectedDate = date;
+              renderDaysStrip();
+              updateScheduleSummary();
+            };
+          })(d);
+          container.appendChild(card);
+        }
+        // Scroll al seleccionado
+        if (schSelectedDate) {
+          var diff = Math.round((schSelectedDate - today) / 86400000);
+          var target = container.children[diff];
+          if (target) target.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+        }
+      }
+
+      function clampTimeInput(el, min, max) {
+        el.addEventListener('input', function() {
+          var v = parseInt(el.value);
+          if (isNaN(v)) return;
+          if (v < min) el.value = String(min).padStart(2, '0');
+          if (v > max) el.value = String(max).padStart(2, '0');
+          updateScheduleSummary();
+        });
+        el.addEventListener('blur', function() {
+          var v = parseInt(el.value);
+          if (isNaN(v) || v < min) v = min;
+          if (v > max) v = max;
+          el.value = String(v).padStart(2, '0');
+          updateScheduleSummary();
+        });
+      }
+
+      function updateScheduleSummary() {
+        var summaryEl = document.getElementById('schedule-summary');
+        var summaryText = document.getElementById('schedule-summary-text');
+        if (!schSelectedDate) { summaryEl.style.display = 'none'; return; }
+        var h = document.getElementById('schedule-hour').value;
+        var m = document.getElementById('schedule-minute').value;
+        var dayName = SCH_DAY_FULL[schSelectedDate.getDay()];
+        var dateStr = dayName + ' ' + schSelectedDate.getDate() + ' de ' + SCH_MONTH_FULL[schSelectedDate.getMonth()] + ', ' + String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + 'h';
+        summaryText.textContent = dateStr;
+        summaryEl.style.display = 'block';
+      }
+
+      function blurPage(blur) {
+        var lw = document.querySelector('.layout-wrapper');
+        if (lw) lw.style.filter = blur ? 'blur(6px)' : '';
+      }
+
+      function openScheduleModal() {
+        closeEmitModal();
+        var modal = document.getElementById('schedule-modal');
+        if (!modal) return;
+
+        var tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(0,0,0,0);
+        schSelectedDate = tomorrow;
+
+        document.getElementById('schedule-hour').value = '09';
+        document.getElementById('schedule-minute').value = '00';
+        clampTimeInput(document.getElementById('schedule-hour'), 0, 23);
+        clampTimeInput(document.getElementById('schedule-minute'), 0, 59);
+
+        renderDaysStrip();
+        updateScheduleSummary();
+        document.getElementById('schedule-error').style.display = 'none';
+        blurPage(true);
+        modal.style.display = 'flex';
+      }
+
+      function closeScheduleModal() {
+        var modal = document.getElementById('schedule-modal');
+        if (modal) modal.style.display = 'none';
+        blurPage(false);
+      }
+
+      function getScheduledDate() {
+        if (!schSelectedDate) return null;
+        var h = parseInt(document.getElementById('schedule-hour').value) || 0;
+        var m = parseInt(document.getElementById('schedule-minute').value) || 0;
+        var d = new Date(schSelectedDate);
+        d.setHours(h, m, 0, 0);
+        return d;
+      }
+
+      async function confirmScheduledEmit() {
+        var errorEl = document.getElementById('schedule-error');
+        function showErr(msg) { errorEl.textContent = msg; errorEl.style.display = 'block'; }
+        if (!schSelectedDate) { showErr('Selecciona un día.'); return; }
+        var scheduled = getScheduledDate();
+        if (!scheduled || isNaN(scheduled.getTime())) { showErr('Selecciona una fecha y hora válidas.'); return; }
+        if (scheduled.getTime() <= Date.now()) { showErr('La fecha y hora deben ser posteriores al momento actual.'); return; }
+        var maxDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+        if (scheduled.getTime() > maxDate.getTime()) { showErr('La fecha no puede superar los 30 días desde ahora.'); return; }
+        errorEl.style.display = 'none';
+        closeScheduleModal();
+        await confirmEmitInvoice(true, scheduled.toISOString());
       }
 
       async function handleSaveDraft() {

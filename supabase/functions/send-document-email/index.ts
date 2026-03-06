@@ -34,6 +34,7 @@ interface EmailPayload {
   body?: string;
   pdfBase64: string;   // obligatorio
   pdfFilename?: string;
+  scheduledAt?: string; // ISO 8601 — si se envía, Resend programa el envío para esa fecha
 }
 
 // ============================================
@@ -73,7 +74,7 @@ async function sha256(message: string): Promise<string> {
 }
 
 // arriba de buildEmailHtml, o dentro, como constantes:
-const POWERED_BY_URL = "https://facturaldigital.com";
+const POWERED_BY_URL = "https://facturales.es/";
 const POWERED_BY_LOGO = "https://nukslmpdwjqlepacukul.supabase.co/storage/v1/object/public/email-assets/logo-color.png";
 
 function buildEmailHtml(params: {
@@ -177,6 +178,22 @@ Deno.serve(async (req: Request) => {
     const subject = payload.subject ? sanitizeOneLine(payload.subject).substring(0, MAX_SUBJECT_LENGTH) : undefined;
     const body = payload.body ? payload.body.substring(0, MAX_BODY_LENGTH) : undefined;
     const pdfFilename = payload.pdfFilename ? sanitizeFilename(payload.pdfFilename) : undefined;
+    const scheduledAt = payload.scheduledAt ? sanitizeOneLine(payload.scheduledAt) : undefined;
+
+    // Validar scheduledAt si se proporciona: debe ser ISO 8601, futuro y máximo 30 días
+    if (scheduledAt) {
+      const scheduledDate = new Date(scheduledAt);
+      if (isNaN(scheduledDate.getTime())) {
+        return jsonResponse({ success: false, error: "scheduledAt debe ser una fecha ISO 8601 válida" }, 400);
+      }
+      if (scheduledDate.getTime() <= Date.now()) {
+        return jsonResponse({ success: false, error: "scheduledAt debe ser una fecha futura" }, 400);
+      }
+      const maxMs = 30 * 24 * 60 * 60 * 1000;
+      if (scheduledDate.getTime() > Date.now() + maxMs) {
+        return jsonResponse({ success: false, error: "scheduledAt no puede superar los 30 días desde ahora" }, 400);
+      }
+    }
 
     if (!documentType || !["invoice", "quote"].includes(documentType)) {
       return jsonResponse({ success: false, error: "documentType debe ser 'invoice' o 'quote'" }, 400);
@@ -403,6 +420,10 @@ Deno.serve(async (req: Request) => {
       resendBody.reply_to = mailReplyTo;
     }
 
+    if (scheduledAt) {
+      resendBody.scheduled_at = scheduledAt;
+    }
+
     // FIX #3: Enviar Idempotency-Key a Resend como seguridad extra
     const resendCtrl = new AbortController();
     const resendTimer = setTimeout(() => resendCtrl.abort(), 30_000);
@@ -440,14 +461,16 @@ Deno.serve(async (req: Request) => {
       await supabaseAdmin
         .from("document_email_log")
         .update({
-          status: "sent",
+          status: scheduledAt ? "scheduled" : "sent",
           provider_message_id: resendResult.id,
-          sent_at: new Date().toISOString(),
+          sent_at: scheduledAt ? null : new Date().toISOString(),
         })
         .eq("id", logId);
 
       return jsonResponse({
         success: true,
+        scheduled: !!scheduledAt,
+        scheduledAt: scheduledAt || null,
         data: {
           logId,
           providerMessageId: resendResult.id,
