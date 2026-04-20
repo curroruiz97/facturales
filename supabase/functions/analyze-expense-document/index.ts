@@ -1,11 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
+import { getCorsHeaders, handleCorsOptions, jsonResponse } from "../_shared/cors.ts";
 
 const AZURE_ENDPOINT = Deno.env.get("AZURE_DI_ENDPOINT")!;
 const AZURE_KEY = Deno.env.get("AZURE_DI_KEY")!;
@@ -37,21 +31,21 @@ interface OcrResult {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return handleCorsOptions(req);
   }
 
   try {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
-      return jsonError("No autorizado: falta header Authorization", 401);
+      return jsonError(req,"No autorizado: falta header Authorization", 401);
     }
 
     if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
-      return jsonError("Config error: faltan SUPABASE_URL o SERVICE_ROLE_KEY", 500);
+      return jsonError(req,"Config error: faltan SUPABASE_URL o SERVICE_ROLE_KEY", 500);
     }
 
     if (!AZURE_ENDPOINT || !AZURE_KEY) {
-      return jsonError("Config error: faltan AZURE_DI_ENDPOINT o AZURE_DI_KEY", 500);
+      return jsonError(req,"Config error: faltan AZURE_DI_ENDPOINT o AZURE_DI_KEY", 500);
     }
 
     const token = authHeader.replace("Bearer ", "");
@@ -59,7 +53,7 @@ Deno.serve(async (req) => {
     const { data: { user: authedUser }, error: authErr } = await userClient.auth.getUser(token);
 
     if (authErr || !authedUser) {
-      return jsonError("Token inválido: " + (authErr?.message || "usuario no encontrado"), 401);
+      return jsonError(req,"Token inválido: " + (authErr?.message || "usuario no encontrado"), 401);
     }
 
     const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
@@ -74,7 +68,7 @@ Deno.serve(async (req) => {
       .gte("created_at", withinWindow);
 
     if ((count ?? 0) >= RATE_LIMIT_MAX) {
-      return jsonError(
+      return jsonError(req,
         `Límite alcanzado: ${RATE_LIMIT_MAX} escaneos cada ${RATE_LIMIT_WINDOW_MIN} min`,
         429,
       );
@@ -82,26 +76,26 @@ Deno.serve(async (req) => {
 
     const { filePath } = await req.json();
     if (!filePath || typeof filePath !== "string") {
-      return jsonError("filePath requerido", 400);
+      return jsonError(req,"filePath requerido", 400);
     }
 
     const pathParts = filePath.split("/");
     if (pathParts[0] !== authedUser.id) {
-      return jsonError("Acceso denegado al archivo", 403);
+      return jsonError(req,"Acceso denegado al archivo", 403);
     }
 
     const { data: fileData, error: dlErr } = await admin.storage
       .from("expense-ocr-temp")
       .download(filePath);
     if (dlErr || !fileData) {
-      return jsonError("No se pudo descargar el archivo", 404);
+      return jsonError(req,"No se pudo descargar el archivo", 404);
     }
 
     // Validar tipo MIME
     const contentType = fileData.type || "application/octet-stream";
     if (!ALLOWED_MIME_TYPES.has(contentType)) {
       await deleteFile(admin, filePath);
-      return jsonError(
+      return jsonError(req,
         `Tipo de archivo no soportado (${contentType}). Usa PDF, JPEG, PNG, TIFF o BMP.`,
         400,
       );
@@ -110,7 +104,7 @@ Deno.serve(async (req) => {
     // Validar tamaño antes de cargar en memoria
     if (fileData.size > MAX_FILE_SIZE_BYTES) {
       await deleteFile(admin, filePath);
-      return jsonError(
+      return jsonError(req,
         `El archivo excede el tamaño máximo permitido (${MAX_FILE_SIZE_BYTES / (1024 * 1024)} MB)`,
         413,
       );
@@ -125,7 +119,7 @@ Deno.serve(async (req) => {
       const errorMsg = e instanceof Error ? e.message : String(e);
       await logOcr(admin, authedUser.id, "error", null, null, null, null, null, null, errorMsg);
       await deleteFile(admin, filePath);
-      return jsonError(`Error OCR: ${errorMsg}`, 502);
+      return jsonError(req,`Error OCR: ${errorMsg}`, 502);
     }
 
     const status = ocrResult.confidence < 0.65 ? "low_confidence" : "success";
@@ -145,11 +139,11 @@ Deno.serve(async (req) => {
     await deleteFile(admin, filePath);
 
     return new Response(JSON.stringify(ocrResult), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
     });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
-    return jsonError(`Error interno: ${msg}`, 500);
+    return jsonError(req,`Error interno: ${msg}`, 500);
   }
 });
 
@@ -318,9 +312,9 @@ async function deleteFile(
   }
 }
 
-function jsonError(message: string, status: number) {
+function jsonError(req: Request, message: string, status: number) {
   return new Response(JSON.stringify({ error: message }), {
     status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
   });
 }

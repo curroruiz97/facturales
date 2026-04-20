@@ -1,0 +1,1932 @@
+import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from "react";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { useAuth } from "../../../app/providers/AuthProvider";
+import { accessLogService, type AccessLogEntry } from "../../../services/access-log/access-log.service";
+import { authService } from "../../../services/auth/auth.service";
+import { billingLimitsService } from "../../../services/billing-limits/billing-limits.service";
+import { businessInfoService, type BusinessInfoInput, type BusinessTaxType } from "../../../services/business/business-info.service";
+import {
+  invoiceSeriesService,
+  type InvoiceSeriesCounterReset,
+  type InvoiceSeriesFormat,
+  type InvoiceSeriesInput,
+  type InvoiceSeriesRecord,
+} from "../../../services/invoice-series/invoice-series.service";
+import {
+  subscriptionManagementService,
+  type BillingPaymentMethod,
+  type SubscriptionSnapshot,
+} from "../../../services/subscription/subscription-management.service";
+import { getSupabaseClient } from "../../../services/supabase/client";
+import type { BillingInterval, BillingPlan } from "../../../shared/types/domain";
+
+type TabId = "business" | "series" | "faq" | "security" | "logs" | "users" | "subscription";
+type TeamRole = "propietario" | "gestor" | "lector";
+type NoticeKind = "error" | "success";
+type SelectablePlan = Exclude<BillingPlan, "none">;
+
+interface NoticeState {
+  kind: NoticeKind;
+  message: string;
+}
+
+interface TeamUser {
+  id: string;
+  name: string;
+  email: string;
+  role: TeamRole;
+}
+
+interface TabDefinition {
+  id: TabId;
+  title: string;
+  subtitle: string;
+}
+
+interface PlanCardDefinition {
+  id: SelectablePlan;
+  label: string;
+  monthlyPrice: number;
+  yearlyPrice: number;
+  tagline: string;
+  badge?: string;
+  features: string[];
+}
+
+const TABS: TabDefinition[] = [
+  { id: "business", title: "Datos de negocio", subtitle: "Información fiscal y de facturación" },
+  { id: "series", title: "Series y numeración", subtitle: "Gestiona series de facturación" },
+  { id: "faq", title: "Preguntas frecuentes", subtitle: "Resuelve tus dudas rápidamente" },
+  { id: "security", title: "Seguridad", subtitle: "Protege tu cuenta y datos" },
+  { id: "logs", title: "Registro", subtitle: "Logs de acceso a la aplicación" },
+  { id: "users", title: "Usuarios", subtitle: "Controla los usuarios de tu empresa" },
+  { id: "subscription", title: "Suscripción", subtitle: "Gestiona tu plan y facturación" },
+];
+
+const EMPTY_FORM: BusinessInfoInput = {
+  nombreFiscal: "",
+  nifCif: "",
+  nombreComercial: "",
+  telefono: "",
+  direccionFacturacion: "",
+  ciudad: "",
+  codigoPostal: "",
+  provincia: "",
+  pais: "España",
+  sector: "comercio",
+  businessType: "autonomo",
+  brandColor: "#000000",
+  formaJuridica: "",
+  defaultTaxType: "iva",
+  defaultIva: 21,
+  defaultIrpf: 15,
+  profileImageUrl: null,
+  invoiceImageUrl: null,
+};
+
+const TAX_RATE_OPTIONS: Record<BusinessTaxType, Array<{ value: number; label: string }>> = {
+  iva: [
+    { value: 4, label: "Superreducido" },
+    { value: 10, label: "Reducido" },
+    { value: 21, label: "General" },
+  ],
+  igic: [
+    { value: 0, label: "Exento" },
+    { value: 3, label: "Reducido" },
+    { value: 7, label: "General" },
+    { value: 9.5, label: "Incrementado" },
+    { value: 15, label: "Especial" },
+  ],
+  ipsi: [
+    { value: 0.5, label: "Mínimo" },
+    { value: 1, label: "Reducido" },
+    { value: 4, label: "General" },
+    { value: 10, label: "Servicios" },
+  ],
+};
+
+const IRPF_OPTIONS: Array<{ value: number; label: string }> = [
+  { value: 0, label: "Exento" },
+  { value: 2, label: "Módulos" },
+  { value: 7, label: "Nuevo autónomo" },
+  { value: 15, label: "General" },
+  { value: 19, label: "Específicas" },
+  { value: 24, label: "No residentes" },
+];
+
+const SECTOR_OPTIONS: Array<{ value: string; label: string }> = [
+  { value: "actividades lúdicas y viajes", label: "Actividades Lúdicas y Viajes" },
+  { value: "agricultura y ganadería", label: "Agricultura y Ganadería" },
+  { value: "asociaciones", label: "Asociaciones" },
+  { value: "comercio", label: "Comercio" },
+  { value: "formación", label: "Formación" },
+  { value: "hostelería", label: "Hostelería" },
+  { value: "inmobiliario", label: "Inmobiliario" },
+  { value: "reformas y reparaciones", label: "Reformas y Reparaciones" },
+  { value: "salud y bienestar", label: "Salud y Bienestar" },
+  { value: "servicios artísticos y marketing", label: "Servicios Artísticos y Marketing" },
+  { value: "servicios profesionales", label: "Servicios Profesionales" },
+  { value: "servicios tecnológicos it", label: "Servicios Tecnológicos IT" },
+  { value: "transporte", label: "Transporte" },
+];
+
+const FAQ_ENTRIES: Array<{ question: string; answer: string }> = [
+  {
+    question: "¿Cuál es la parte más importante de un panel?",
+    answer:
+      "En realidad, el aspecto más importante de un buen panel es la parte que recibe menos atención: los datos subyacentes. Más que cualquier otro aspecto, los datos harán o desharán un panel. Dentro de esta definición, la administración exitosa parece descansar en tres habilidades básicas, que llamaremos técnicas, humanas y conceptuales. Los paneles son inteligencia de negocios.",
+  },
+  {
+    question: "¿Cuáles son los tres tipos de panel?",
+    answer:
+      "Los tres tipos principales de panel son: estratégico, táctico y operativo. El panel estratégico ofrece una visión de alto nivel orientada a la toma de decisiones a largo plazo, como objetivos anuales de facturación y crecimiento. El panel táctico se enfoca en el rendimiento a medio plazo, permitiendo a los responsables de área monitorizar KPIs departamentales y detectar tendencias. Por último, el panel operativo proporciona datos en tiempo real sobre las actividades diarias, como facturas emitidas hoy, cobros pendientes o gastos recientes, facilitando la gestión del día a día con agilidad.",
+  },
+  {
+    question: "¿Cuáles son ejemplos de administración?",
+    answer:
+      "La administración abarca múltiples disciplinas orientadas a optimizar los recursos de una organización. Algunos ejemplos comunes incluyen: la administración financiera, que se encarga del control de cobros, pagos y flujo de caja; la administración de clientes, que gestiona las relaciones comerciales y el seguimiento de presupuestos; la administración fiscal, que asegura el cumplimiento de las obligaciones tributarias como IVA, IRPF y declaraciones trimestrales; y la administración operativa, que supervisa procesos internos, facturación, inventario y objetivos de crecimiento.",
+  },
+  {
+    question: "¿Cuáles son 5 beneficios de los paneles?",
+    answer:
+      "Los paneles de control ofrecen cinco beneficios clave para cualquier negocio: 1) Visibilidad total, al centralizar métricas de ingresos, gastos y beneficios en un solo lugar. 2) Mejor control financiero, permitiendo detectar desviaciones antes de que se conviertan en problemas. 3) Rapidez en la toma de decisiones, gracias a datos actualizados y gráficos intuitivos. 4) Reducción de errores, al automatizar cálculos y eliminar la dependencia de hojas de cálculo manuales. 5) Mejor coordinación del equipo, ya que todos los miembros pueden acceder a la misma información en tiempo real.",
+  },
+  {
+    question: "¿Qué hace que un panel sea bueno?",
+    answer:
+      "Un buen panel combina varios elementos esenciales: una jerarquía visual clara que destaque las métricas más importantes, métricas accionables que permitan tomar decisiones inmediatas, datos actualizados en tiempo real para reflejar la situación actual del negocio, y un diseño limpio que evite la sobrecarga de información. Además, debe ser personalizable para adaptarse a las necesidades específicas de cada usuario y ofrecer la posibilidad de filtrar por períodos, categorías o clientes.",
+  },
+  {
+    question: "¿Cuáles son las 3 habilidades básicas de un administrador?",
+    answer:
+      "Según la teoría clásica de gestión empresarial, las tres habilidades básicas de un administrador son: habilidades técnicas, que incluyen el dominio de herramientas, procesos y conocimientos específicos del área como software de facturación, contabilidad o gestión de proyectos; habilidades humanas, que se refieren a la capacidad de comunicarse, motivar y liderar equipos de forma efectiva; y habilidades conceptuales, que permiten analizar situaciones complejas, identificar patrones y tomar decisiones estratégicas con visión global del negocio.",
+  },
+];
+
+const SERIES_DEFAULT: InvoiceSeriesInput = {
+  code: "",
+  description: "",
+  invoiceNumberFormat: "common",
+  counterReset: "yearly",
+  startNumber: 1,
+  customFormat: "",
+};
+
+const PLAN_CARDS: PlanCardDefinition[] = [
+  {
+    id: "starter",
+    label: "Starter",
+    monthlyPrice: 6.45,
+    yearlyPrice: 4.95,
+    tagline: "Probar y empezar a facturar.",
+    features: [
+      "Hasta 10 clientes",
+      "1 usuario",
+      "Hasta 30 productos/servicios",
+      "10 facturas / mes",
+      "Escaneado: 10 docs/mes",
+      "Soporte: Email",
+    ],
+  },
+  {
+    id: "pro",
+    label: "Pro",
+    monthlyPrice: 11.95,
+    yearlyPrice: 8.95,
+    tagline: "Automatizar cobros y recurrentes.",
+    badge: "Más popular",
+    features: [
+      "Hasta 150 clientes",
+      "Hasta 3 usuarios",
+      "Hasta 150 productos/servicios",
+      "Facturas ilimitadas",
+      "Escaneado: 75 docs/mes",
+      "Soporte: Chat + email",
+    ],
+  },
+  {
+    id: "business",
+    label: "Ilimitado",
+    monthlyPrice: 23.95,
+    yearlyPrice: 17.95,
+    tagline: "Equipos, asesorías y alto volumen.",
+    badge: "Ilimitado",
+    features: [
+      "Clientes ilimitados",
+      "Usuarios ilimitados*",
+      "Productos/servicios ilimitados",
+      "Facturas ilimitadas",
+      "Escaneado: 300 docs/mes",
+      "Soporte prioritario (chat, email y teléfono)",
+    ],
+  },
+];
+
+const BACKUP_ITEMS: Array<{ date: string; size: string }> = [
+  { date: "4 mar 2026 08:00", size: "2.4 MB" },
+  { date: "1 mar 2026 08:00", size: "2.3 MB" },
+  { date: "22 feb 2026 08:00", size: "2.1 MB" },
+  { date: "15 feb 2026 08:00", size: "2.0 MB" },
+  { date: "8 feb 2026 08:00", size: "1.9 MB" },
+];
+
+const STORAGE_LIMITS: Record<BillingPlan, number> = {
+  none: 0,
+  starter: 1024 ** 3,
+  pro: 5 * 1024 ** 3,
+  business: Number.POSITIVE_INFINITY,
+};
+
+const TEAM_LIMIT_BY_PLAN: Record<BillingPlan, number> = {
+  none: 5,
+  starter: 1,
+  pro: 3,
+  business: Number.POSITIVE_INFINITY,
+};
+
+const TEAM_STORAGE_KEY = "facturales_team_users";
+
+function IconBusiness(): import("react").JSX.Element {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden>
+      <ellipse cx="12" cy="17.5" rx="7" ry="3.5" fill="none" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="12" cy="7" r="4" fill="none" stroke="currentColor" strokeWidth="1.5" />
+    </svg>
+  );
+}
+
+function IconSeries(): import("react").JSX.Element {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden>
+      <path d="M9 7h6M9 11h3M3 5.5A2.5 2.5 0 0 1 5.5 3h13A2.5 2.5 0 0 1 21 5.5v13a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 18.5z" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="m7 15 3 3 7-7" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function IconFaq(): import("react").JSX.Element {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden>
+      <path
+        d="M12 21.25a9.25 9.25 0 1 0 0-18.5 9.25 9.25 0 0 0 0 18.5ZM9.25 9a2.75 2.75 0 1 1 4.77 1.87c-.97.98-1.27 1.36-1.27 2.13v.5M12 16.9v.1"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function IconSecurity(): import("react").JSX.Element {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden>
+      <path
+        d="M6 11V9a6 6 0 1 1 12 0v2m-9 10h6a3 3 0 0 0 3-3v-4a3 3 0 0 0-3-3H9a3 3 0 0 0-3 3v4a3 3 0 0 0 3 3Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function IconLogs(): import("react").JSX.Element {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden>
+      <path d="M12 8v4l2 2M6.5 3.5A9 9 0 1 0 12 3m0 0V1.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function IconUsers(): import("react").JSX.Element {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden>
+      <path d="M15.5 20c0-3-2.5-5-5.5-5s-5.5 2-5.5 5M10 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8M18.5 8.5v7M22 12h-7" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function IconSubscription(): import("react").JSX.Element {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden>
+      <path
+        d="M3.5 7.5A2.5 2.5 0 0 1 6 5h12a2.5 2.5 0 0 1 2.5 2.5v9A2.5 2.5 0 0 1 18 19H6a2.5 2.5 0 0 1-2.5-2.5zM3.5 10h17M8 14.5h3"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function TabIcon({ tab }: { tab: TabId }): import("react").JSX.Element {
+  if (tab === "business") return <IconBusiness />;
+  if (tab === "series") return <IconSeries />;
+  if (tab === "faq") return <IconFaq />;
+  if (tab === "security") return <IconSecurity />;
+  if (tab === "logs") return <IconLogs />;
+  if (tab === "users") return <IconUsers />;
+  return <IconSubscription />;
+}
+
+function isTab(value: string | null): value is TabId {
+  return value !== null && TABS.some((tab) => tab.id === value);
+}
+
+function normalizeHex(value: string): string {
+  const normalized = value.trim().toUpperCase();
+  return /^#[0-9A-F]{6}$/.test(normalized) ? normalized : "#000000";
+}
+
+function splitAddress(value: string): { street: string; number: string } {
+  const input = value.trim();
+  if (!input) return { street: "", number: "" };
+  const commaIndex = input.indexOf(",");
+  if (commaIndex === -1) return { street: input, number: "" };
+  return {
+    street: input.slice(0, commaIndex).trim(),
+    number: input.slice(commaIndex + 1).trim(),
+  };
+}
+
+function joinAddress(street: string, number: string): string {
+  const cleanStreet = street.trim();
+  const cleanNumber = number.trim();
+  if (!cleanStreet && !cleanNumber) return "";
+  if (!cleanNumber) return cleanStreet;
+  if (!cleanStreet) return cleanNumber;
+  return `${cleanStreet}, ${cleanNumber}`;
+}
+
+function formatDate(value: string | null): string {
+  if (!value) return "-";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "-";
+  return `${String(date.getDate()).padStart(2, "0")}/${String(date.getMonth() + 1).padStart(2, "0")}/${date.getFullYear()}`;
+}
+
+function formatDateTime(value: string | null): string {
+  if (!value) return "-";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "-";
+  return `${formatDate(value)} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+}
+
+function formatCurrency(value: number): string {
+  return new Intl.NumberFormat("es-ES", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value) + "€";
+}
+
+function formatStorage(bytes: number): string {
+  if (!Number.isFinite(bytes)) return "Ilimitado";
+  if (bytes <= 0) return "0 B";
+  const units = ["B", "KB", "MB", "GB"];
+  let unitIndex = 0;
+  let value = bytes;
+  while (value >= 1024 && unitIndex < units.length - 1) {
+    value /= 1024;
+    unitIndex += 1;
+  }
+  return `${value.toFixed(unitIndex >= 2 ? 2 : 0)} ${units[unitIndex]}`;
+}
+
+function formatSeriesFormat(value: InvoiceSeriesFormat): string {
+  if (value === "common") return "Común";
+  if (value === "monthly") return "Mensual";
+  if (value === "simple") return "Simple";
+  if (value === "slash") return "Barra";
+  if (value === "compact") return "Compacto";
+  return "Personalizado";
+}
+
+function buildSeriesPreview(input: InvoiceSeriesInput): string {
+  const code = (input.code || "A").toUpperCase();
+  const start = String(input.startNumber ?? 1).padStart(4, "0");
+  const year = "2026";
+  if (input.invoiceNumberFormat === "monthly") return `${year}-03-${start.slice(-3)}`;
+  if (input.invoiceNumberFormat === "simple") return `${year}${start}`;
+  if (input.invoiceNumberFormat === "slash") return `${code}/${year}/${start}`;
+  if (input.invoiceNumberFormat === "compact") return `${code}-26-${start.slice(-3)}`;
+  if (input.invoiceNumberFormat === "custom") return input.customFormat?.trim() || `${code}-{YYYY}-{####}`;
+  return `${code}-${year}-${start}`;
+}
+
+async function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result ?? ""));
+    reader.onerror = () => reject(new Error("No se pudo leer el archivo seleccionado."));
+    reader.readAsDataURL(file);
+  });
+}
+
+function readTeamUsers(): TeamUser[] {
+  try {
+    const raw = localStorage.getItem(TEAM_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as TeamUser[];
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((item) => typeof item.name === "string" && typeof item.email === "string");
+  } catch {
+    return [];
+  }
+}
+
+function writeTeamUsers(users: TeamUser[]): void {
+  localStorage.setItem(TEAM_STORAGE_KEY, JSON.stringify(users));
+}
+
+function normalizeEmail(value: string): string {
+  return value.trim().toLowerCase();
+}
+
+function getTeamRoleLabel(role: TeamRole): string {
+  if (role === "propietario") return "Propietario";
+  if (role === "gestor") return "Gestor";
+  return "Lector";
+}
+
+function formatPaymentMethod(method: BillingPaymentMethod | null): { title: string; subtitle: string } {
+  if (!method) {
+    return { title: "Sin método de pago", subtitle: "Añade un método para gestionar la suscripción." };
+  }
+  const brand = method.brand ? method.brand.toUpperCase() : "TARJETA";
+  const ending = method.last4 ? `**** ${method.last4}` : "";
+  const expires = method.expMonth && method.expYear ? `Caduca ${String(method.expMonth).padStart(2, "0")}/${method.expYear}` : "Caducidad no disponible";
+  return { title: `${brand} ${ending}`.trim(), subtitle: expires };
+}
+
+function getSubscriptionStatusLabel(snapshot: SubscriptionSnapshot | null): string {
+  if (!snapshot?.status) return "Sin suscripción activa";
+  if (snapshot.cancelAtPeriodEnd) return "Cancelación programada";
+  if (snapshot.status === "active") return "Activa";
+  if (snapshot.status === "trialing") return "En prueba";
+  return snapshot.status;
+}
+
+export function SettingsPage(): import("react").JSX.Element {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { user } = useAuth();
+
+  const VALID_TABS: TabId[] = ["business", "series", "faq", "security", "logs", "users", "subscription"];
+  const paramTab = searchParams.get("tab") as TabId | null;
+  const initialTab: TabId = paramTab && VALID_TABS.includes(paramTab) ? paramTab : "business";
+  const [activeTab, setActiveTab] = useState<TabId>(initialTab);
+  const [notice, setNotice] = useState<NoticeState | null>(null);
+
+  const [form, setForm] = useState<BusinessInfoInput>(EMPTY_FORM);
+  const [street, setStreet] = useState("");
+  const [streetNumber, setStreetNumber] = useState("");
+  const [businessLoading, setBusinessLoading] = useState(true);
+  const [businessSaving, setBusinessSaving] = useState(false);
+  const [taxPanelOpen, setTaxPanelOpen] = useState(false);
+
+  const [seriesItems, setSeriesItems] = useState<InvoiceSeriesRecord[]>([]);
+  const [seriesLoading, setSeriesLoading] = useState(false);
+  const [seriesForm, setSeriesForm] = useState<InvoiceSeriesInput>(SERIES_DEFAULT);
+  const [seriesEditingId, setSeriesEditingId] = useState<string | null>(null);
+  const [seriesFormOpen, setSeriesFormOpen] = useState(false);
+
+  const [faqOpenIndex, setFaqOpenIndex] = useState(0);
+
+  const [provider, setProvider] = useState<"google" | "email" | "unknown">("unknown");
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [passwordSaving, setPasswordSaving] = useState(false);
+  const [storagePlanLabel, setStoragePlanLabel] = useState("Sin plan");
+  const [storageLimit, setStorageLimit] = useState(0);
+  const [storageUsed, setStorageUsed] = useState(0);
+
+  const [logsItems, setLogsItems] = useState<AccessLogEntry[]>([]);
+  const [logsLoading, setLogsLoading] = useState(false);
+  const [logsPage, setLogsPage] = useState(0);
+  const [logsTotal, setLogsTotal] = useState(0);
+  const [logsHasPrevious, setLogsHasPrevious] = useState(false);
+  const [logsHasNext, setLogsHasNext] = useState(false);
+
+  const [teamUsers, setTeamUsers] = useState<TeamUser[]>([]);
+  const [teamLimit, setTeamLimit] = useState<number>(5);
+  const [teamFormOpen, setTeamFormOpen] = useState(false);
+  const [teamName, setTeamName] = useState("");
+  const [teamEmail, setTeamEmail] = useState("");
+  const [teamRole, setTeamRole] = useState<TeamRole>("gestor");
+
+  const [subscription, setSubscription] = useState<SubscriptionSnapshot | null>(null);
+  const [subscriptionLoading, setSubscriptionLoading] = useState(false);
+  const [subscriptionBusy, setSubscriptionBusy] = useState(false);
+  const [billingInterval, setBillingInterval] = useState<BillingInterval>("yearly");
+
+  const taxType: BusinessTaxType = (form.defaultTaxType ?? "iva") as BusinessTaxType;
+  const selectedTaxRate = Number(form.defaultIva ?? 21);
+  const selectedIrpfRate = Number(form.defaultIrpf ?? 15);
+  const seriesPreview = useMemo(() => buildSeriesPreview(seriesForm), [seriesForm]);
+  const hasBusinessIdentityLocked = Boolean(form.nombreFiscal?.trim()) && Boolean(form.nifCif?.trim());
+  const storagePercent = useMemo(() => {
+    if (!Number.isFinite(storageLimit) || storageLimit <= 0) return 0;
+    return Math.min(100, Math.round((storageUsed / storageLimit) * 100));
+  }, [storageLimit, storageUsed]);
+  const teamLimitLabel = Number.isFinite(teamLimit) ? String(teamLimit) : "Ilimitado";
+  const paymentMethod = formatPaymentMethod(subscription?.paymentMethod ?? null);
+
+  const setError = (message: string): void => {
+    setNotice({ kind: "error", message });
+  };
+
+  const setSuccess = (message: string): void => {
+    setNotice({ kind: "success", message });
+  };
+
+  const loadBusiness = async (): Promise<void> => {
+    setBusinessLoading(true);
+    setNotice(null);
+    const result = await businessInfoService.getMine();
+    if (!result.success) {
+      setBusinessLoading(false);
+      setError(result.error.message);
+      return;
+    }
+
+    const merged = result.data ? { ...EMPTY_FORM, ...result.data } : { ...EMPTY_FORM };
+    merged.brandColor = normalizeHex(merged.brandColor ?? "#000000");
+    setForm(merged);
+    const address = splitAddress(merged.direccionFacturacion ?? "");
+    setStreet(address.street);
+    setStreetNumber(address.number);
+    setTeamUsers(readTeamUsers());
+    setBusinessLoading(false);
+  };
+
+  const loadSeries = async (): Promise<void> => {
+    setSeriesLoading(true);
+    const result = await invoiceSeriesService.listMine();
+    setSeriesLoading(false);
+    if (!result.success) {
+      setError(result.error.message);
+      return;
+    }
+    setSeriesItems(result.data);
+  };
+
+  const loadSecurity = async (): Promise<void> => {
+    const providerResult = await authService.getUserProvider();
+    if (providerResult.success) {
+      setProvider(providerResult.data);
+    }
+
+    const usageResult = await billingLimitsService.getUsage();
+    if (usageResult.success && usageResult.data) {
+      setStoragePlanLabel(usageResult.data.planName);
+      setStorageLimit(STORAGE_LIMITS[usageResult.data.plan] ?? 0);
+    }
+
+    const rpcResult = await getSupabaseClient().rpc("get_user_storage_bytes");
+    if (!rpcResult.error) {
+      setStorageUsed(Number(rpcResult.data ?? 0));
+    }
+  };
+
+  const loadLogs = async (page: number): Promise<void> => {
+    setLogsLoading(true);
+    const result = await accessLogService.listMine({ page, pageSize: 20 });
+    setLogsLoading(false);
+    if (!result.success) {
+      setError(result.error.message);
+      return;
+    }
+    setLogsItems(result.data.items);
+    setLogsPage(result.data.page);
+    setLogsTotal(result.data.total);
+    setLogsHasPrevious(result.data.hasPreviousPage);
+    setLogsHasNext(result.data.hasNextPage);
+  };
+
+  const loadUsersMeta = async (): Promise<void> => {
+    const usageResult = await billingLimitsService.getUsage();
+    if (usageResult.success && usageResult.data) {
+      setTeamLimit(TEAM_LIMIT_BY_PLAN[usageResult.data.plan]);
+    } else {
+      setTeamLimit(5);
+    }
+  };
+
+  const loadSubscription = async (): Promise<void> => {
+    setSubscriptionLoading(true);
+    const result = await subscriptionManagementService.getSnapshot();
+    setSubscriptionLoading(false);
+    if (!result.success) {
+      setError(result.error.message);
+      return;
+    }
+    setSubscription(result.data);
+    setBillingInterval(result.data.interval);
+  };
+
+  useEffect(() => {
+    void loadBusiness();
+  }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tab = params.get("tab");
+    if (isTab(tab)) {
+      setActiveTab(tab);
+    }
+    if (params.get("payment_updated") === "true") {
+      setActiveTab("subscription");
+      setSuccess("Método de pago actualizado.");
+    }
+  }, [location.search]);
+
+  useEffect(() => {
+    if (activeTab === "series") void loadSeries();
+    if (activeTab === "security") void loadSecurity();
+    if (activeTab === "logs") void loadLogs(0);
+    if (activeTab === "users") void loadUsersMeta();
+    if (activeTab === "subscription") void loadSubscription();
+  }, [activeTab]);
+
+  const onBusinessSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
+    event.preventDefault();
+    setBusinessSaving(true);
+    setNotice(null);
+
+    const payload: BusinessInfoInput = {
+      ...form,
+      direccionFacturacion: joinAddress(street, streetNumber),
+      brandColor: normalizeHex(form.brandColor ?? "#000000"),
+      defaultTaxType: taxType,
+      defaultIva: selectedTaxRate,
+      defaultIrpf: selectedIrpfRate,
+    };
+
+    const result = await businessInfoService.saveMine(payload);
+    setBusinessSaving(false);
+    if (!result.success) {
+      setError(result.error.message);
+      return;
+    }
+
+    setForm((previous) => ({ ...previous, ...result.data }));
+    setSuccess("Perfil guardado correctamente.");
+  };
+
+  const onUploadImage = async (
+    event: ChangeEvent<HTMLInputElement>,
+    target: "profileImageUrl" | "invoiceImageUrl",
+    maxBytes: number,
+  ): Promise<void> => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (file.size > maxBytes) {
+      setError(`Archivo demasiado grande. Máximo: ${Math.round(maxBytes / 1024)} KB.`);
+      event.target.value = "";
+      return;
+    }
+
+    try {
+      const encoded = await fileToBase64(file);
+      setForm((previous) => ({ ...previous, [target]: encoded }));
+      setSuccess("Archivo cargado. Guarda para aplicar los cambios.");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "No se pudo leer el archivo.";
+      setError(message);
+    } finally {
+      event.target.value = "";
+    }
+  };
+
+  const onStartCreateSeries = (): void => {
+    setSeriesEditingId(null);
+    setSeriesForm({ ...SERIES_DEFAULT });
+    setSeriesFormOpen(true);
+  };
+
+  const onStartEditSeries = (record: InvoiceSeriesRecord): void => {
+    setSeriesEditingId(record.id);
+    setSeriesForm({
+      code: record.code,
+      description: record.description,
+      invoiceNumberFormat: record.invoiceNumberFormat,
+      counterReset: record.counterReset,
+      startNumber: record.startNumber,
+      customFormat: record.customFormat ?? "",
+    });
+    setSeriesFormOpen(true);
+  };
+
+  const onSaveSeries = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
+    event.preventDefault();
+    setNotice(null);
+
+    const result = seriesEditingId
+      ? await invoiceSeriesService.update(seriesEditingId, seriesForm)
+      : await invoiceSeriesService.create(seriesForm);
+
+    if (!result.success) {
+      setError(result.error.message);
+      return;
+    }
+
+    await loadSeries();
+    setSeriesForm({ ...SERIES_DEFAULT });
+    setSeriesEditingId(null);
+    setSeriesFormOpen(false);
+    setSuccess(seriesEditingId ? "Serie actualizada." : "Serie creada.");
+  };
+
+  const onDeleteSeries = async (id: string): Promise<void> => {
+    const accepted = window.confirm("Esta acción eliminará la serie. ¿Quieres continuar?");
+    if (!accepted) return;
+    const result = await invoiceSeriesService.remove(id);
+    if (!result.success) {
+      setError(result.error.message);
+      return;
+    }
+    await loadSeries();
+    setSuccess("Serie eliminada.");
+  };
+
+  const onChangePassword = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
+    event.preventDefault();
+    if (provider !== "email") {
+      setError("Tu cuenta usa Google. Gestiona la contraseña desde Google.");
+      return;
+    }
+
+    if (!user?.email) {
+      setError("No se pudo resolver el email de la sesión.");
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      setError("La nueva contraseña debe tener al menos 8 caracteres.");
+      return;
+    }
+
+    setPasswordSaving(true);
+    setNotice(null);
+    const login = await getSupabaseClient().auth.signInWithPassword({
+      email: user.email,
+      password: currentPassword,
+    });
+    if (login.error) {
+      setPasswordSaving(false);
+      setError("Contraseña actual incorrecta.");
+      return;
+    }
+
+    const update = await getSupabaseClient().auth.updateUser({ password: newPassword });
+    setPasswordSaving(false);
+    if (update.error) {
+      setError(update.error.message);
+      return;
+    }
+
+    setCurrentPassword("");
+    setNewPassword("");
+    setSuccess("Contraseña actualizada.");
+  };
+
+  const onAddTeamUser = (event: FormEvent<HTMLFormElement>): void => {
+    event.preventDefault();
+    const normalizedName = teamName.trim();
+    const normalizedMail = normalizeEmail(teamEmail);
+    if (!normalizedName || !normalizedMail) {
+      setError("Nombre y email son obligatorios.");
+      return;
+    }
+    if (teamUsers.some((member) => member.email === normalizedMail)) {
+      setError("Ya existe un usuario con ese email.");
+      return;
+    }
+    if (Number.isFinite(teamLimit) && teamUsers.length >= teamLimit) {
+      setError(`Has alcanzado el límite de ${teamLimit} usuarios para tu plan.`);
+      return;
+    }
+
+    const nextUsers: TeamUser[] = [
+      ...teamUsers,
+      {
+        id: String(Date.now()),
+        name: normalizedName,
+        email: normalizedMail,
+        role: teamRole,
+      },
+    ];
+    setTeamUsers(nextUsers);
+    writeTeamUsers(nextUsers);
+    setTeamName("");
+    setTeamEmail("");
+    setTeamRole("gestor");
+    setTeamFormOpen(false);
+    setSuccess("Usuario añadido.");
+  };
+
+  const onRemoveTeamUser = (id: string): void => {
+    const accepted = window.confirm("Eliminar este usuario del equipo?");
+    if (!accepted) return;
+    const nextUsers = teamUsers.filter((row) => row.id !== id);
+    setTeamUsers(nextUsers);
+    writeTeamUsers(nextUsers);
+    setSuccess("Usuario eliminado.");
+  };
+
+  const onSelectPlan = async (plan: SelectablePlan): Promise<void> => {
+    if (subscription?.plan === plan && !subscription.pendingDowngradePlan) {
+      setSuccess("Ese plan ya está activo.");
+      return;
+    }
+
+    setSubscriptionBusy(true);
+    setNotice(null);
+    const hasActive = Boolean(subscription?.status) && subscription?.plan !== "none";
+    const result = hasActive
+      ? await subscriptionManagementService.changePlan(plan, billingInterval)
+      : await subscriptionManagementService.createCheckoutSession(plan, billingInterval);
+    setSubscriptionBusy(false);
+
+    if (!result.success) {
+      setError(result.error.message);
+      return;
+    }
+
+    if ("url" in result.data && result.data.url) {
+      window.location.href = result.data.url;
+      return;
+    }
+
+    await loadSubscription();
+    setSuccess("Plan actualizado.");
+  };
+
+  const onCancelSubscription = async (): Promise<void> => {
+    setSubscriptionBusy(true);
+    const result = await subscriptionManagementService.cancel();
+    setSubscriptionBusy(false);
+    if (!result.success) {
+      setError(result.error.message);
+      return;
+    }
+    await loadSubscription();
+    setSuccess(`Cancelación programada para ${formatDate(result.data.current_period_end ?? null)}.`);
+  };
+
+  const onReactivateSubscription = async (): Promise<void> => {
+    setSubscriptionBusy(true);
+    const result = await subscriptionManagementService.reactivate();
+    setSubscriptionBusy(false);
+    if (!result.success) {
+      setError(result.error.message);
+      return;
+    }
+    await loadSubscription();
+    setSuccess("Suscripción reactivada.");
+  };
+
+  const onOpenPaymentMethod = async (): Promise<void> => {
+    setSubscriptionBusy(true);
+    const result = await subscriptionManagementService.openPaymentMethodSession();
+    setSubscriptionBusy(false);
+    if (!result.success) {
+      setError(result.error.message);
+      return;
+    }
+    window.location.href = result.data.url;
+  };
+
+  return (
+    <div className="settings-legacy">
+      <aside className="settings-legacy__tabs">
+        <div className="settings-tabs-list">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              className={`settings-tab ${activeTab === tab.id ? "settings-tab--active" : ""}`}
+              onClick={() => {
+                setNotice(null);
+                setActiveTab(tab.id);
+              }}
+            >
+              <span className="settings-tab__icon">
+                <TabIcon tab={tab.id} />
+              </span>
+              <span className="settings-tab__text">
+                <strong>{tab.title}</strong>
+                <small>{tab.subtitle}</small>
+              </span>
+            </button>
+          ))}
+        </div>
+
+        <div className="settings-progress">
+          <span className="settings-progress__ring">100%</span>
+          <div>
+            <h4>Completa el perfil</h4>
+            <p>Completa tu perfil para desbloquear todas las funciones</p>
+            <button
+              type="button"
+              className="settings-btn settings-btn--primary settings-progress__btn"
+              onClick={() => navigate("/soporte?subject=Verificación%20de%20identidad")}
+            >
+              Verificar identidad
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <section className="settings-legacy__content">
+        {notice ? (
+          <p className={`settings-alert ${notice.kind === "error" ? "settings-alert--error" : "settings-alert--success"}`}>
+            {notice.message}
+          </p>
+        ) : null}
+
+        {activeTab === "business" ? (
+          <form className="settings-business" onSubmit={(event) => void onBusinessSubmit(event)}>
+            {businessLoading ? (
+              <p className="settings-muted">Cargando configuración...</p>
+            ) : (
+              <>
+                <div className="settings-business__grid">
+                  <div>
+                    <h2>Datos de negocio</h2>
+                    <div className="settings-divider" />
+
+                    <div className="settings-entity-row">
+                      <span className="settings-muted">Tipo de entidad:</span>
+                      <span className="settings-entity-badge">
+                        {form.businessType === "empresa" ? "Empresa" : "Autónomo"}
+                      </span>
+                    </div>
+
+                    <div className="settings-form-grid">
+                      <label className="settings-field">
+                        Nombre fiscal
+                        <input
+                          className={`settings-input ${hasBusinessIdentityLocked ? "settings-input--disabled" : ""}`}
+                          value={form.nombreFiscal}
+                          disabled={hasBusinessIdentityLocked}
+                          onChange={(event) => setForm((previous) => ({ ...previous, nombreFiscal: event.target.value }))}
+                        />
+                      </label>
+                      <label className="settings-field">
+                        NIF / CIF
+                        <input
+                          className={`settings-input ${hasBusinessIdentityLocked ? "settings-input--disabled" : ""}`}
+                          value={form.nifCif}
+                          disabled={hasBusinessIdentityLocked}
+                          onChange={(event) => setForm((previous) => ({ ...previous, nifCif: event.target.value.toUpperCase() }))}
+                        />
+                      </label>
+                      {form.businessType === "empresa" ? (
+                        <label className="settings-field">
+                          Forma jurídica
+                          <input className="settings-input settings-input--disabled" value={form.formaJuridica ?? ""} disabled />
+                        </label>
+                      ) : null}
+                      <label className="settings-field">
+                        Nombre comercial (opcional)
+                        <input
+                          className="settings-input"
+                          value={form.nombreComercial ?? ""}
+                          onChange={(event) => setForm((previous) => ({ ...previous, nombreComercial: event.target.value }))}
+                        />
+                      </label>
+                      <label className="settings-field">
+                        Correo electrónico
+                        <input className="settings-input settings-input--disabled" value={user?.email ?? ""} disabled />
+                      </label>
+                      <label className="settings-field">
+                        Teléfono
+                        <input
+                          className="settings-input"
+                          value={form.telefono}
+                          onChange={(event) => setForm((previous) => ({ ...previous, telefono: event.target.value }))}
+                        />
+                      </label>
+                    </div>
+
+                    <h3 className="settings-section-title">Dirección de facturación</h3>
+                    <div className="settings-form-grid">
+                      <label className="settings-field">
+                        Calle
+                        <input className="settings-input" value={street} onChange={(event) => setStreet(event.target.value)} />
+                      </label>
+                      <label className="settings-field">
+                        Número
+                        <input className="settings-input" value={streetNumber} onChange={(event) => setStreetNumber(event.target.value)} />
+                      </label>
+                      <label className="settings-field">
+                        Código postal
+                        <input
+                          className="settings-input"
+                          value={form.codigoPostal}
+                          onChange={(event) => setForm((previous) => ({ ...previous, codigoPostal: event.target.value }))}
+                        />
+                      </label>
+                      <label className="settings-field">
+                        Población
+                        <input
+                          className="settings-input"
+                          value={form.ciudad}
+                          onChange={(event) => setForm((previous) => ({ ...previous, ciudad: event.target.value }))}
+                        />
+                      </label>
+                      <label className="settings-field">
+                        Provincia
+                        <input
+                          className="settings-input"
+                          value={form.provincia}
+                          onChange={(event) => setForm((previous) => ({ ...previous, provincia: event.target.value }))}
+                        />
+                      </label>
+                      <label className="settings-field">
+                        País
+                        <input
+                          className="settings-input"
+                          value={form.pais}
+                          onChange={(event) => setForm((previous) => ({ ...previous, pais: event.target.value }))}
+                        />
+                      </label>
+                    </div>
+
+                    <h3 className="settings-section-title">Información del negocio</h3>
+                    <div className="settings-form-grid">
+                      <label className="settings-field">
+                        Sector
+                        <select
+                          className="settings-input"
+                          value={form.sector}
+                          onChange={(event) => setForm((previous) => ({ ...previous, sector: event.target.value }))}
+                        >
+                          {SECTOR_OPTIONS.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="settings-accordion-trigger"
+                      onClick={() => setTaxPanelOpen((previous) => !previous)}
+                    >
+                      <span>Configuración de impuestos</span>
+                      <span className={`settings-chevron ${taxPanelOpen ? "settings-chevron--open" : ""}`}>⌄</span>
+                    </button>
+
+                    {taxPanelOpen ? (
+                      <div className="settings-tax-panel">
+                        <p className="settings-muted">Tipo de impuesto</p>
+                        <div className="settings-tax-choices">
+                          {(["iva", "igic", "ipsi"] as BusinessTaxType[]).map((option) => (
+                            <button
+                              key={option}
+                              type="button"
+                              className={`settings-choice-card ${taxType === option ? "settings-choice-card--active" : ""}`}
+                              onClick={() => setForm((previous) => ({ ...previous, defaultTaxType: option }))}
+                            >
+                              {option.toUpperCase()}
+                            </button>
+                          ))}
+                        </div>
+
+                        <p className="settings-muted">{taxType.toUpperCase()} por defecto</p>
+                        <div className="settings-tax-choices">
+                          {TAX_RATE_OPTIONS[taxType].map((rate) => (
+                            <button
+                              key={rate.value}
+                              type="button"
+                              className={`settings-choice-card ${selectedTaxRate === rate.value ? "settings-choice-card--active" : ""}`}
+                              onClick={() => setForm((previous) => ({ ...previous, defaultIva: rate.value }))}
+                            >
+                              {rate.value}% <small>{rate.label}</small>
+                            </button>
+                          ))}
+                        </div>
+
+                        <p className="settings-muted">Retención IRPF por defecto</p>
+                        <div className="settings-tax-choices">
+                          {IRPF_OPTIONS.map((rate) => (
+                            <button
+                              key={rate.value}
+                              type="button"
+                              className={`settings-choice-card ${selectedIrpfRate === rate.value ? "settings-choice-card--active" : ""}`}
+                              onClick={() => setForm((previous) => ({ ...previous, defaultIrpf: rate.value }))}
+                            >
+                              {rate.value}% <small>{rate.label}</small>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+
+                  <aside className="settings-business__aside">
+                    <div className="settings-card">
+                      <h3>Actualizar perfil</h3>
+                      <p className="settings-muted">Perfil mínimo 300x300. Máximo 1 MB.</p>
+                      <div className="settings-image-preview">
+                        {form.profileImageUrl ? (
+                          <img src={form.profileImageUrl} alt="Perfil" />
+                        ) : (
+                          <span>{(form.nombreFiscal?.trim() || "FA").slice(0, 2).toUpperCase()}</span>
+                        )}
+                      </div>
+                      <label className="settings-btn settings-btn--ghost" htmlFor="profile-image-input">
+                        Cambiar imagen
+                      </label>
+                      <input
+                        id="profile-image-input"
+                        type="file"
+                        hidden
+                        accept="image/png,image/jpeg,image/jpg,image/gif,image/webp"
+                        onChange={(event) => void onUploadImage(event, "profileImageUrl", 1024 * 1024)}
+                      />
+                    </div>
+
+                    <div className="settings-card">
+                      <h3>Color de marca</h3>
+                      <p className="settings-muted">Se usa como color principal en facturas PDF.</p>
+                      <div className="settings-color-swatches">
+                        {["#ec8228", "#3b82f6", "#22c55e", "#ef4444", "#8b5cf6", "#e11d48", "#0891b2", "#000000"].map((c) => (
+                          <button
+                            key={c}
+                            type="button"
+                            className={`settings-color-swatch${normalizeHex(form.brandColor ?? "#000000") === c ? " settings-color-swatch--active" : ""}`}
+                            style={{ background: c }}
+                            onClick={() => setForm((previous) => ({ ...previous, brandColor: c }))}
+                            aria-label={`Color ${c}`}
+                          />
+                        ))}
+                      </div>
+                      <div className="settings-color-row">
+                        <input
+                          type="color"
+                          className="settings-color-preview"
+                          value={normalizeHex(form.brandColor ?? "#000000")}
+                          onChange={(event) =>
+                            setForm((previous) => ({ ...previous, brandColor: normalizeHex(event.target.value) }))
+                          }
+                        />
+                        <input
+                          className="settings-input"
+                          value={normalizeHex(form.brandColor ?? "#000000")}
+                          onChange={(event) =>
+                            setForm((previous) => ({ ...previous, brandColor: normalizeHex(event.target.value) }))
+                          }
+                          placeholder="#000000"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="settings-card">
+                      <h3>Logo factura</h3>
+                      <p className="settings-muted">PNG, JPG o WebP. Máximo 500 KB.</p>
+                      <label className="settings-logo-dropzone" htmlFor="invoice-logo-input">
+                        {form.invoiceImageUrl ? (
+                          <img src={form.invoiceImageUrl} alt="Logo factura" />
+                        ) : (
+                          <span>Arrastra tu logo o haz clic para subir</span>
+                        )}
+                      </label>
+                      <input
+                        id="invoice-logo-input"
+                        type="file"
+                        hidden
+                        accept="image/png,image/jpeg,image/jpg,image/webp"
+                        onChange={(event) => void onUploadImage(event, "invoiceImageUrl", 500 * 1024)}
+                      />
+                      {form.invoiceImageUrl ? (
+                        <button
+                          type="button"
+                          className="settings-btn settings-btn--danger-sm"
+                          onClick={() => setForm((previous) => ({ ...previous, invoiceImageUrl: null }))}
+                        >
+                          Eliminar logo
+                        </button>
+                      ) : null}
+                    </div>
+                  </aside>
+                </div>
+
+                <div className="settings-business__footer">
+                  <button type="submit" className="settings-btn settings-btn--primary" disabled={businessSaving}>
+                    {businessSaving ? "Guardando..." : "Guardar perfil"}
+                  </button>
+                </div>
+              </>
+            )}
+          </form>
+        ) : null}
+
+        {activeTab === "series" ? (
+          <section className="settings-panel">
+            <header className="settings-panel__header">
+              <div>
+                <h2>Series y numeración</h2>
+                <p>Gestiona las series de facturación y su numeración automática.</p>
+              </div>
+              <button type="button" className="settings-btn settings-btn--primary" onClick={onStartCreateSeries}>
+                + Nueva serie
+              </button>
+            </header>
+
+            <div className="settings-table-wrap">
+              <table className="settings-table">
+                <thead>
+                  <tr>
+                    <th>Código</th>
+                    <th>Nombre</th>
+                    <th>Formato</th>
+                    <th>Última factura</th>
+                    <th>Total</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {seriesLoading ? (
+                    <tr>
+                      <td colSpan={6} className="settings-table__empty">
+                        Cargando series...
+                      </td>
+                    </tr>
+                  ) : null}
+
+                  {!seriesLoading && seriesItems.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="settings-table__empty">
+                        No hay series creadas todavía.
+                      </td>
+                    </tr>
+                  ) : null}
+
+                  {!seriesLoading
+                    ? seriesItems.map((row) => (
+                        <tr key={row.id}>
+                          <td>
+                            <span className="settings-code-pill">{row.code}</span>
+                          </td>
+                          <td>{row.description}</td>
+                          <td>{formatSeriesFormat(row.invoiceNumberFormat)}</td>
+                          <td>{row.lastInvoiceNumber ?? "-"}</td>
+                          <td>{row.totalIssued}</td>
+                          <td>
+                            <div className="settings-inline-actions">
+                              <button type="button" className="settings-btn settings-btn--ghost" onClick={() => onStartEditSeries(row)}>
+                                Editar
+                              </button>
+                              <button
+                                type="button"
+                                className="settings-btn settings-btn--danger-ghost"
+                                onClick={() => void onDeleteSeries(row.id)}
+                              >
+                                Eliminar
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    : null}
+                </tbody>
+              </table>
+            </div>
+
+            {seriesFormOpen ? (
+              <div className="settings-modal-overlay" onClick={(event) => { if (event.target === event.currentTarget) { setSeriesFormOpen(false); setSeriesEditingId(null); setSeriesForm({ ...SERIES_DEFAULT }); } }}>
+              <form className="settings-modal" onSubmit={(event) => void onSaveSeries(event)}>
+                <div className="settings-modal__header">
+                  <h3>{seriesEditingId ? "Editar serie" : "Nueva serie"}</h3>
+                  <button type="button" className="settings-modal__close" onClick={() => { setSeriesFormOpen(false); setSeriesEditingId(null); setSeriesForm({ ...SERIES_DEFAULT }); }} aria-label="Cerrar">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+                  </button>
+                </div>
+                <div className="settings-form-grid">
+                  <label className="settings-field">
+                    Nombre de la serie
+                    <input
+                      className="settings-input"
+                      value={seriesForm.description}
+                      onChange={(event) => setSeriesForm((previous) => ({ ...previous, description: event.target.value }))}
+                    />
+                  </label>
+                  <label className="settings-field">
+                    Código
+                    <input
+                      className="settings-input"
+                      maxLength={10}
+                      value={seriesForm.code}
+                      onChange={(event) =>
+                        setSeriesForm((previous) => ({ ...previous, code: event.target.value.toUpperCase() }))
+                      }
+                    />
+                  </label>
+                  <label className="settings-field">
+                    Formato
+                    <select
+                      className="settings-input"
+                      value={seriesForm.invoiceNumberFormat}
+                      onChange={(event) =>
+                        setSeriesForm((previous) => ({
+                          ...previous,
+                          invoiceNumberFormat: event.target.value as InvoiceSeriesFormat,
+                        }))
+                      }
+                    >
+                      <option value="common">Común</option>
+                      <option value="monthly">Mensual</option>
+                      <option value="simple">Simple</option>
+                      <option value="slash">Barra</option>
+                      <option value="compact">Compacto</option>
+                      <option value="custom">Personalizado</option>
+                    </select>
+                  </label>
+                  <label className="settings-field">
+                    Reinicio
+                    <select
+                      className="settings-input"
+                      value={seriesForm.counterReset}
+                      onChange={(event) =>
+                        setSeriesForm((previous) => ({
+                          ...previous,
+                          counterReset: event.target.value as InvoiceSeriesCounterReset,
+                        }))
+                      }
+                    >
+                      <option value="never">Nunca</option>
+                      <option value="yearly">Anual</option>
+                      <option value="monthly">Mensual</option>
+                    </select>
+                  </label>
+                  <label className="settings-field">
+                    Número inicial
+                    <input
+                      className="settings-input"
+                      type="number"
+                      min={1}
+                      value={seriesForm.startNumber ?? 1}
+                      onChange={(event) =>
+                        setSeriesForm((previous) => ({ ...previous, startNumber: Number(event.target.value) || 1 }))
+                      }
+                    />
+                  </label>
+                  {seriesForm.invoiceNumberFormat === "custom" ? (
+                    <label className="settings-field">
+                      Formato personalizado
+                      <input
+                        className="settings-input"
+                        placeholder="{SERIE}-{YYYY}-{####}"
+                        value={seriesForm.customFormat ?? ""}
+                        onChange={(event) =>
+                          setSeriesForm((previous) => ({ ...previous, customFormat: event.target.value }))
+                        }
+                      />
+                    </label>
+                  ) : null}
+                </div>
+
+                <p className="settings-muted">Vista previa: {seriesPreview}</p>
+                <div className="settings-inline-actions">
+                  <button type="submit" className="settings-btn settings-btn--primary">
+                    {seriesEditingId ? "Guardar cambios" : "Crear serie"}
+                  </button>
+                  <button
+                    type="button"
+                    className="settings-btn settings-btn--ghost"
+                    onClick={() => {
+                      setSeriesFormOpen(false);
+                      setSeriesEditingId(null);
+                      setSeriesForm({ ...SERIES_DEFAULT });
+                    }}
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+              </div>
+            ) : null}
+
+            <div className="settings-card">
+              <h3>Cómo funciona la numeración</h3>
+              <ul className="settings-numbering-list">
+                <li><span className="settings-numbering-dot settings-numbering-dot--orange" />Cada serie tiene su propio formato de numeración configurable (Común, Mensual, Simple, etc.)</li>
+                <li><span className="settings-numbering-dot settings-numbering-dot--blue" />La numeración se asigna automáticamente al emitir la factura</li>
+                <li><span className="settings-numbering-dot settings-numbering-dot--green" />Cada serie tiene su propia secuencia numérica independiente</li>
+                <li><span className="settings-numbering-dot settings-numbering-dot--red" />El contador puede resetearse anualmente, mensualmente, o nunca</li>
+                <li><span className="settings-numbering-dot settings-numbering-dot--purple" />También puedes asignar un número manual al crear la factura</li>
+              </ul>
+            </div>
+          </section>
+        ) : null}
+
+        {activeTab === "faq" ? (
+          <section className="settings-panel">
+            <h2>Preguntas frecuentes</h2>
+            <div className="settings-faq">
+              {FAQ_ENTRIES.map((faq, index) => (
+                <article key={faq.question} className={`settings-faq__item ${faqOpenIndex === index ? "settings-faq__item--open" : ""}`}>
+                  <button
+                    type="button"
+                    className="settings-faq__trigger"
+                    onClick={() => setFaqOpenIndex((previous) => (previous === index ? -1 : index))}
+                  >
+                    <span className="settings-faq__icon">{faqOpenIndex === index ? "−" : "+"}</span>
+                    <span className="settings-faq__question-text">{faq.question}</span>
+                  </button>
+                  {faqOpenIndex === index ? (
+                    <div className="settings-faq__content">
+                      <div className="settings-faq__answer-bar" />
+                      <p className="settings-faq__answer-text">{faq.answer}</p>
+                    </div>
+                  ) : null}
+                </article>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {activeTab === "security" ? (
+          <section className="settings-panel">
+            <div className="settings-security-grid">
+              <div>
+                <h2>Contraseña</h2>
+                <p className="settings-muted">Cambia o consulta tu contraseña.</p>
+
+                {provider === "google" ? (
+                  <div className="settings-notice">
+                    Cuenta vinculada a Google. La contraseña se gestiona directamente desde Google.
+                  </div>
+                ) : (
+                  <form className="settings-form-grid" onSubmit={(event) => void onChangePassword(event)}>
+                    <label className="settings-field">
+                      Contraseña anterior
+                      <div className="settings-password">
+                        <input
+                          className="settings-input"
+                          type={showCurrentPassword ? "text" : "password"}
+                          value={currentPassword}
+                          onChange={(event) => setCurrentPassword(event.target.value)}
+                        />
+                        <button
+                          type="button"
+                          className="settings-password__toggle"
+                          onClick={() => setShowCurrentPassword((previous) => !previous)}
+                        >
+                          {showCurrentPassword ? "Ocultar" : "Mostrar"}
+                        </button>
+                      </div>
+                    </label>
+
+                    <label className="settings-field">
+                      Nueva contraseña
+                      <div className="settings-password">
+                        <input
+                          className="settings-input"
+                          type={showNewPassword ? "text" : "password"}
+                          value={newPassword}
+                          onChange={(event) => setNewPassword(event.target.value)}
+                        />
+                        <button
+                          type="button"
+                          className="settings-password__toggle"
+                          onClick={() => setShowNewPassword((previous) => !previous)}
+                        >
+                          {showNewPassword ? "Ocultar" : "Mostrar"}
+                        </button>
+                      </div>
+                      <small className="settings-muted">Mínimo 8 caracteres</small>
+                    </label>
+
+                    <div>
+                      <button type="submit" className="settings-btn settings-btn--primary" disabled={passwordSaving}>
+                        {passwordSaving ? "Guardando..." : "Guardar cambios"}
+                      </button>
+                    </div>
+                  </form>
+                )}
+
+                <hr className="settings-divider" />
+
+                <div className="settings-panel">
+                  <div className="settings-panel__header">
+                    <div>
+                      <h2>Copia de seguridad y almacenamiento</h2>
+                    </div>
+                  </div>
+
+                  <div className="settings-card">
+                    <h3>Tus datos están protegidos</h3>
+                    <p className="settings-muted">
+                      Los datos se almacenan con redundancia para garantizar integridad y disponibilidad del servicio.
+                    </p>
+                    <ul className="settings-list">
+                      <li>Copias de seguridad periódicas sobre las bases de datos.</li>
+                      <li>Replicación en varias zonas para minimizar pérdida de información.</li>
+                    </ul>
+                  </div>
+
+                  <div className="settings-storage-card">
+                    <div className="settings-storage-card__head">
+                      <strong>Almacenamiento</strong>
+                      <span className="settings-chip">{storagePlanLabel}</span>
+                    </div>
+                    <p>
+                      {formatStorage(storageUsed)} / {formatStorage(storageLimit)}
+                    </p>
+                    <div className="settings-progress-bar">
+                      <span style={{ width: `${storagePercent}%` }} />
+                    </div>
+                    <small className="settings-muted">
+                      {formatStorage(storageUsed)} utilizados de {formatStorage(storageLimit)}
+                    </small>
+                  </div>
+
+                  <div className="settings-card">
+                    <h3>Copias de seguridad disponibles</h3>
+                    <div className="settings-archive-list">
+                      {BACKUP_ITEMS.map((backup) => (
+                        <div key={backup.date} className="settings-archive-item">
+                          <div className="settings-stack">
+                            <strong>Copia completa</strong>
+                            <small>
+                              {backup.date} · {backup.size}
+                            </small>
+                          </div>
+                          <button type="button" className="settings-btn settings-btn--ghost">
+                            Descargar
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <aside className="settings-security-illustration" aria-hidden>
+                <div className="settings-security-illustration__circle">
+                  <span>***</span>
+                  <span>***</span>
+                </div>
+              </aside>
+            </div>
+          </section>
+        ) : null}
+
+        {activeTab === "logs" ? (
+          <section className="settings-panel">
+            <div className="settings-panel__header">
+              <div>
+                <h2>Registro de accesos</h2>
+                <p>Historial de todos los inicios de sesión en tu cuenta.</p>
+              </div>
+            </div>
+
+            <div className="settings-table-wrap">
+              <table className="settings-table">
+                <thead>
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Usuario</th>
+                    <th>IP</th>
+                    <th>Ubicación</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {logsLoading ? (
+                    <tr>
+                      <td colSpan={4} className="settings-table__empty">
+                        Cargando registros...
+                      </td>
+                    </tr>
+                  ) : null}
+
+                  {!logsLoading && logsItems.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="settings-table__empty">
+                        No hay registros de acceso.
+                      </td>
+                    </tr>
+                  ) : null}
+
+                  {!logsLoading
+                    ? logsItems.map((row) => (
+                        <tr key={row.id}>
+                          <td>{formatDateTime(row.createdAt)}</td>
+                          <td>{row.email ?? "-"}</td>
+                          <td>{row.ipAddress ?? "-"}</td>
+                          <td>{[row.city, row.country].filter(Boolean).join(", ") || "-"}</td>
+                        </tr>
+                      ))
+                    : null}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="settings-pagination">
+              <p className="settings-muted">{logsTotal} registros</p>
+              <div className="settings-inline-actions">
+                <button
+                  type="button"
+                  className="settings-btn settings-btn--ghost"
+                  disabled={!logsHasPrevious}
+                  onClick={() => void loadLogs(logsPage - 1)}
+                >
+                  Anterior
+                </button>
+                <button
+                  type="button"
+                  className="settings-btn settings-btn--ghost"
+                  disabled={!logsHasNext}
+                  onClick={() => void loadLogs(logsPage + 1)}
+                >
+                  Siguiente
+                </button>
+              </div>
+            </div>
+          </section>
+        ) : null}
+
+        {activeTab === "users" ? (
+          <section className="settings-panel">
+            <div className="settings-panel__header">
+              <div>
+                <h2>Usuarios de tu empresa</h2>
+                <p>Gestiona qué personas de tu equipo pueden acceder a la plataforma.</p>
+              </div>
+            </div>
+
+            <div className="settings-card">
+              <div className="settings-stack">
+                <small>DATOS DEL NEGOCIO</small>
+                <strong>{form.nombreFiscal || "-"}</strong>
+                <span>{form.nifCif || "-"}</span>
+                <span>{joinAddress(street, streetNumber) || "-"}</span>
+              </div>
+            </div>
+
+            <div className="settings-users-top">
+              <div>
+                <h3>Miembros del equipo</h3>
+                <p className="settings-muted">
+                  {teamUsers.length} / {teamLimitLabel} usuarios
+                </p>
+              </div>
+              <button type="button" className="settings-btn settings-btn--primary" onClick={() => setTeamFormOpen((previous) => !previous)}>
+                + Añadir usuario
+              </button>
+            </div>
+
+            {teamFormOpen ? (
+              <form className="settings-users-inline-form" onSubmit={onAddTeamUser}>
+                <label className="settings-field">
+                  Nombre
+                  <input className="settings-input" value={teamName} onChange={(event) => setTeamName(event.target.value)} />
+                </label>
+                <label className="settings-field">
+                  Email
+                  <input
+                    className="settings-input"
+                    type="email"
+                    value={teamEmail}
+                    onChange={(event) => setTeamEmail(event.target.value)}
+                  />
+                </label>
+                <label className="settings-field">
+                  Permisos
+                  <select
+                    className="settings-input"
+                    value={teamRole}
+                    onChange={(event) => setTeamRole(event.target.value as TeamRole)}
+                  >
+                    <option value="propietario">Propietario</option>
+                    <option value="gestor">Gestor</option>
+                    <option value="lector">Lector</option>
+                  </select>
+                </label>
+                <button type="submit" className="settings-btn settings-btn--primary">
+                  Guardar
+                </button>
+              </form>
+            ) : null}
+
+            <div className="settings-table-wrap">
+              <table className="settings-table">
+                <thead>
+                  <tr>
+                    <th>Usuario</th>
+                    <th>Email</th>
+                    <th>Permisos</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {teamUsers.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="settings-table__empty">
+                        No hay usuarios añadidos. Haz clic en "Añadir usuario" para empezar.
+                      </td>
+                    </tr>
+                  ) : null}
+                  {teamUsers.map((row) => (
+                    <tr key={row.id}>
+                      <td>{row.name}</td>
+                      <td>{row.email}</td>
+                      <td>{getTeamRoleLabel(row.role)}</td>
+                      <td>
+                        <button type="button" className="settings-btn settings-btn--danger-ghost" onClick={() => onRemoveTeamUser(row.id)}>
+                          Eliminar
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <p className="settings-muted">Los cambios del equipo se guardan localmente en este navegador.</p>
+          </section>
+        ) : null}
+
+        {activeTab === "subscription" ? (
+          <section className="settings-panel">
+            <div className="settings-panel__header">
+              <div>
+                <h2>Tu suscripción</h2>
+                <p>Elige el plan que mejor se adapte a tu negocio. Puedes cambiar o cancelar en cualquier momento.</p>
+              </div>
+            </div>
+
+            {subscriptionLoading ? <p className="settings-muted">Cargando suscripción...</p> : null}
+
+            <div className="settings-pricing-toggle-wrap">
+              <div className="settings-pricing-toggle">
+                <button
+                  type="button"
+                  className={`settings-pricing-toggle__btn ${billingInterval === "monthly" ? "settings-pricing-toggle__btn--active" : ""}`}
+                  onClick={() => setBillingInterval("monthly")}
+                >
+                  Mensual
+                </button>
+                <button
+                  type="button"
+                  className={`settings-pricing-toggle__btn ${billingInterval === "yearly" ? "settings-pricing-toggle__btn--active" : ""}`}
+                  onClick={() => setBillingInterval("yearly")}
+                >
+                  Anual <span className="settings-pricing-toggle__discount">-30% dto.</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="settings-plan-grid">
+              {PLAN_CARDS.map((plan) => {
+                const isCurrent = subscription?.plan === plan.id && !subscription?.pendingDowngradePlan;
+                const shownPrice = billingInterval === "yearly" ? plan.yearlyPrice : plan.monthlyPrice;
+                const cardClass = [
+                  "settings-plan-card",
+                  isCurrent ? "settings-plan-card--current" : "",
+                  plan.id === "business" ? "settings-plan-card--business" : "",
+                  plan.id === "pro" ? "settings-plan-card--popular" : "",
+                ].filter(Boolean).join(" ");
+                return (
+                  <article key={plan.id} className={cardClass}>
+                    <div className="settings-plan-header">
+                      {plan.badge ? (
+                        <>
+                          {plan.id !== "business" ? (
+                            <span className={`settings-plan-badge settings-plan-badge--${plan.id}`}>
+                              {plan.label.toUpperCase()}
+                            </span>
+                          ) : null}
+                          <span className={`settings-chip settings-chip--${plan.id}`}>{plan.badge.toUpperCase()}</span>
+                        </>
+                      ) : (
+                        <span className={`settings-plan-badge settings-plan-badge--${plan.id}`}>
+                          {plan.label.toUpperCase()}
+                        </span>
+                      )}
+                    </div>
+                    <p className="settings-plan-price">
+                      {formatCurrency(shownPrice)} <small>/mes + IVA</small>
+                    </p>
+                    {billingInterval === "yearly" ? (
+                      <p className="settings-plan-yearly-note">{formatCurrency(shownPrice * 12)} facturados anualmente</p>
+                    ) : null}
+                    <p className="settings-plan-tagline">{plan.tagline}</p>
+                    <button
+                      type="button"
+                      className={`settings-plan-btn ${isCurrent ? "settings-plan-btn--current" : ""}`}
+                      onClick={() => void onSelectPlan(plan.id)}
+                      disabled={subscriptionBusy}
+                    >
+                      {isCurrent ? "Plan actual" : `Cambiar a ${plan.label}`}
+                    </button>
+                    <ul className="settings-plan-features">
+                      {plan.features.map((feature) => (
+                        <li key={feature}>
+                          <svg className="settings-plan-check" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                            <path d="M3.5 8.5L6.5 11.5L12.5 4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                  </article>
+                );
+              })}
+            </div>
+
+            <div className="settings-subscription-summary">
+              <div>
+                <small>Plan actual</small>
+                <p>
+                  {subscription?.plan ? subscription.plan.toUpperCase() : "SIN PLAN"} · {getSubscriptionStatusLabel(subscription)}
+                </p>
+                <p className="settings-muted">Renovación: {formatDate(subscription?.currentPeriodEnd ?? null)}</p>
+              </div>
+              <div className="settings-inline-actions">
+                <button
+                  type="button"
+                  className="settings-btn settings-btn--ghost"
+                  onClick={() => void onOpenPaymentMethod()}
+                  disabled={subscriptionBusy}
+                >
+                  Método de pago
+                </button>
+                {subscription?.cancelAtPeriodEnd ? (
+                  <button
+                    type="button"
+                    className="settings-btn settings-btn--ghost"
+                    onClick={() => void onReactivateSubscription()}
+                    disabled={subscriptionBusy}
+                  >
+                    Reactivar suscripción
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="settings-btn settings-btn--danger-ghost"
+                    onClick={() => void onCancelSubscription()}
+                    disabled={subscriptionBusy || !subscription?.status}
+                  >
+                    Cancelar suscripción
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="settings-card">
+              <h3>Método de pago</h3>
+              <div className="settings-stack">
+                <strong>{paymentMethod.title}</strong>
+                <small>{paymentMethod.subtitle}</small>
+              </div>
+            </div>
+
+            <div className="settings-card">
+              <div className="settings-panel__header">
+                <h3>Uso de tu plan</h3>
+                <small className="settings-muted">
+                  {subscription?.currentPeriodStart ? `Período iniciado ${formatDate(subscription.currentPeriodStart)}` : ""}
+                </small>
+              </div>
+              <div className="settings-usage-grid">
+                {[
+                  { label: "Clientes", used: subscription?.usage?.usage.clients ?? 0, limit: subscription?.usage?.limits.clients ?? 0 },
+                  { label: "Productos", used: subscription?.usage?.usage.products ?? 0, limit: subscription?.usage?.limits.products ?? 0 },
+                  { label: "Facturas / Presup.", used: subscription?.usage?.usage.invoicesMonth ?? 0, limit: subscription?.usage?.limits.invoicesMonth ?? 0 },
+                  { label: "Escaneos OCR", used: subscription?.usage?.usage.ocrMonth ?? 0, limit: subscription?.usage?.limits.ocrMonth ?? 0 },
+                ].map((item) => {
+                  const pct = item.limit === Infinity || item.limit === 0 ? 0 : Math.min((item.used / item.limit) * 100, 100);
+                  return (
+                    <div className="settings-usage-row" key={item.label}>
+                      <span>{item.label}</span>
+                      <strong>{item.used} / {subscription?.usage ? billingLimitsService.formatLimit(item.limit) : "0"}</strong>
+                      <div className="settings-usage-bar">
+                        <div
+                          className={`settings-usage-bar__fill${pct >= 90 ? " settings-usage-bar__fill--warn" : ""}`}
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+        ) : null}
+      </section>
+    </div>
+  );
+}

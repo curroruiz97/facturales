@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" fill="none">
+  <!-- Top-left: cyan bubble + bar -->
+  <circle cx="26" cy="14" r="8" fill="#36C5F0"/>
+  <rect x="18" y="26" width="28" height="16" rx="8" fill="#36C5F0"/>
+  <!-- Top-right: green bar + bubble -->
+  <rect x="46" y="10" width="16" height="28" rx="8" fill="#2EB67D"/>
+  <circle cx="70" cy="26" r="8" fill="#2EB67D"/>
+  <!-- Bottom-left: pink bar + bubble -->
+  <rect x="14" y="50" width="28" height="16" rx="8" fill="#E01E5A"/>
+  <circle cx="26" cy="74" r="8" fill="#E01E5A"/>
+  <!-- Bottom-right: yellow bubble + bar -->
+  <circle cx="70" cy="82" r="8" fill="#ECB22E"/>
+  <rect x="46" y="50" width="16" height="28" rx="8" fill="#ECB22E"/>
+  <!-- Center cross pieces -->
+  <rect x="30" y="26" width="16" height="16" fill="#2EB67D"/>
+  <rect x="46" y="26" width="16" height="16" fill="#36C5F0"/>
+  <rect x="30" y="50" width="16" height="16" fill="#ECB22E"/>
+  <rect x="46" y="50" width="16" height="16" fill="#E01E5A"/>
+  <!-- Correction: swap bottom center -->
+  <rect x="30" y="50" width="16" height="16" fill="#E01E5A"/>
+  <rect x="46" y="50" width="16" height="16" fill="#ECB22E"/>
+  <rect x="30" y="26" width="16" height="16" fill="#36C5F0"/>
+  <rect x="46" y="26" width="16" height="16" fill="#2EB67D"/>
+</svg>

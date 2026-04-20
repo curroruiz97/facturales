@@ -4,24 +4,11 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import Stripe from "https://esm.sh/stripe@17?target=deno";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
-
-function jsonResponse(body: Record<string, unknown>, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
-}
+import { getCorsHeaders, handleCorsOptions, jsonResponse } from "../_shared/cors.ts";
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return handleCorsOptions(req);
   }
 
   try {
@@ -42,7 +29,7 @@ Deno.serve(async (req: Request) => {
       error: authError,
     } = await supabaseUser.auth.getUser();
     if (authError || !user) {
-      return jsonResponse({ error: "No autenticado" }, 401);
+      return jsonResponse(req, { error: "No autenticado" }, 401);
     }
 
     // ── 2. Get active subscription from DB ─────────────────
@@ -57,17 +44,17 @@ Deno.serve(async (req: Request) => {
 
     if (subError) {
       console.error("Error fetching subscription:", subError);
-      return jsonResponse({ error: "Error consultando suscripción" }, 500);
+      return jsonResponse(req, { error: "Error consultando suscripción" }, 500);
     }
 
     if (!sub || !sub.stripe_subscription_id) {
-      return jsonResponse({ error: "No tienes una suscripción activa" }, 404);
+      return jsonResponse(req, { error: "No tienes una suscripción activa" }, 404);
     }
 
     // ── 3. Call Stripe to set cancel_at_period_end ─────────
     const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeSecretKey) {
-      return jsonResponse({ error: "Stripe no configurado" }, 500);
+      return jsonResponse(req, { error: "Stripe no configurado" }, 500);
     }
 
     const stripe = new Stripe(stripeSecretKey, {
@@ -96,7 +83,7 @@ Deno.serve(async (req: Request) => {
       updatedSub.current_period_end * 1000,
     ).toISOString();
 
-    return jsonResponse({
+    return jsonResponse(req, {
       success: true,
       cancel_at_period_end: true,
       current_period_end: periodEnd,
@@ -105,6 +92,7 @@ Deno.serve(async (req: Request) => {
   } catch (error) {
     console.error("cancel-subscription error:", error);
     return jsonResponse(
+      req,
       { error: error.message || "Error interno" },
       500,
     );

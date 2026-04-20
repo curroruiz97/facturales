@@ -1033,6 +1033,109 @@ html.dark{ background: var(--dm-app); }
   background-color: var(--dm-elevated);
 }
 
+/* ── Global select/dropdown styling ── */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 8px 36px 8px 14px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #1e293b;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9l6 6 6-6' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 14px;
+}
+
+select:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+select option {
+  background: #ffffff;
+  color: #1e293b;
+  font-weight: 500;
+  padding: 8px 12px;
+}
+
+select option:checked {
+  background: #fff7ed;
+  color: #ec8228;
+}
+
+.dark select {
+  background-color: #1d1e24;
+  border-color: #2a313c;
+  color: #f1f5f9;
+  background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9l6 6 6-6' stroke='%23cbd5e1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.dark select:hover {
+  border-color: #3a4250;
+}
+
+.dark select option {
+  background: #1d1e24;
+  color: #f1f5f9;
+}
+
+.dark select option:checked {
+  background: rgba(236, 130, 40, 0.15);
+  color: #ec8228;
+}
+
+/* ── Global focus ring override: orange instead of blue ── */
+input:focus,
+select:focus,
+textarea:focus,
+[type='text']:focus,
+[type='email']:focus,
+[type='url']:focus,
+[type='password']:focus,
+[type='number']:focus,
+[type='date']:focus,
+[type='datetime-local']:focus,
+[type='month']:focus,
+[type='search']:focus,
+[type='tel']:focus,
+[type='time']:focus,
+[type='week']:focus,
+[multiple]:focus {
+  --tw-ring-color: rgba(236, 130, 40, 0.45) !important;
+  border-color: var(--fd-brand) !important;
+  outline: 2px solid transparent !important;
+  box-shadow: 0 0 0 2px rgba(236, 130, 40, 0.18) !important;
+}
+
+[type='checkbox']:focus,
+[type='radio']:focus {
+  --tw-ring-color: transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus,
+.form-multiselect:focus {
+  --tw-ring-color: rgba(236, 130, 40, 0.45) !important;
+  border-color: var(--fd-brand) !important;
+  box-shadow: 0 0 0 2px rgba(236, 130, 40, 0.18) !important;
+}
+
+.form-checkbox:focus,
+.form-radio:focus {
+  --tw-ring-color: transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 /* Focus ring for inputs & buttons in dark mode */
 .dark input:focus,
 .dark select:focus,

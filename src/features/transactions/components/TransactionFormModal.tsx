@@ -1,0 +1,264 @@
+import { useEffect, useMemo, useState, type FormEvent } from "react";
+import type { TransactionCategory, TransactionType } from "../../../shared/types/domain";
+import type { TransactionClientOption } from "../adapters/transactions.adapter";
+import { TRANSACTION_CATEGORY_LABELS } from "../domain/transactions-domain";
+
+const MANUAL_TRANSACTION_CATEGORIES: Array<Exclude<TransactionCategory, "factura">> = [
+  "material_oficina",
+  "servicios_profesionales",
+  "suministros",
+  "alquiler",
+  "transporte",
+  "marketing",
+  "otros",
+];
+
+export interface TransactionFormValues {
+  clienteId: string;
+  concepto: string;
+  categoria: Exclude<TransactionCategory, "factura">;
+  tipo: TransactionType;
+  importe: string;
+  ivaPorcentaje: string;
+  irpfPorcentaje: string;
+  fecha: string;
+  observaciones: string;
+}
+
+interface TransactionFormModalProps {
+  open: boolean;
+  mode: "create" | "edit";
+  initialValues: TransactionFormValues;
+  clients: TransactionClientOption[];
+  clientsLoading: boolean;
+  saving: boolean;
+  error: string | null;
+  onClose: () => void;
+  onSubmit: (values: TransactionFormValues) => Promise<void>;
+}
+
+function resolveTitle(mode: "create" | "edit"): string {
+  return mode === "create" ? "Nueva transaccion" : "Editar transaccion";
+}
+
+function resolveSubmitLabel(mode: "create" | "edit", saving: boolean): string {
+  if (saving) return mode === "create" ? "Guardando..." : "Actualizando...";
+  return mode === "create" ? "Guardar transaccion" : "Actualizar transaccion";
+}
+
+function parsePercent(value: string): number | null {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  const parsed = Number.parseFloat(trimmed);
+  return Number.isFinite(parsed) ? parsed : Number.NaN;
+}
+
+export function TransactionFormModal({
+  open,
+  mode,
+  initialValues,
+  clients,
+  clientsLoading,
+  saving,
+  error,
+  onClose,
+  onSubmit,
+}: TransactionFormModalProps): import("react").JSX.Element | null {
+  const [values, setValues] = useState<TransactionFormValues>(initialValues);
+  const [localError, setLocalError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    setValues(initialValues);
+    setLocalError(null);
+  }, [initialValues, open]);
+
+  const amount = useMemo(() => Number.parseFloat(values.importe), [values.importe]);
+  const iva = useMemo(() => parsePercent(values.ivaPorcentaje), [values.ivaPorcentaje]);
+  const irpf = useMemo(() => parsePercent(values.irpfPorcentaje), [values.irpfPorcentaje]);
+
+  if (!open) return null;
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!values.concepto.trim()) {
+      setLocalError("El concepto es obligatorio.");
+      return;
+    }
+    if (!Number.isFinite(amount) || amount <= 0) {
+      setLocalError("El importe debe ser mayor que 0.");
+      return;
+    }
+    if (!values.fecha.trim()) {
+      setLocalError("La fecha es obligatoria.");
+      return;
+    }
+    if (values.observaciones.length > 150) {
+      setLocalError("Las observaciones no pueden superar 150 caracteres.");
+      return;
+    }
+    if (iva !== null && (!Number.isFinite(iva) || iva < 0 || iva > 100)) {
+      setLocalError("El IVA debe estar entre 0 y 100.");
+      return;
+    }
+    if (irpf !== null && (!Number.isFinite(irpf) || irpf < 0 || irpf > 100)) {
+      setLocalError("El IRPF debe estar entre 0 y 100.");
+      return;
+    }
+
+    setLocalError(null);
+    await onSubmit(values);
+  };
+
+  return (
+    <div className="pilot-modal" role="dialog" aria-modal="true" aria-labelledby="transaction-modal-title">
+      <div className="pilot-modal__overlay" onClick={onClose} />
+      <div className="pilot-modal__content">
+        <header className="pilot-modal__header">
+          <h3 id="transaction-modal-title" className="text-lg font-bold">
+            {resolveTitle(mode)}
+          </h3>
+          <button type="button" className="pilot-btn" onClick={onClose} disabled={saving}>
+            Cerrar
+          </button>
+        </header>
+
+        <form className="pilot-grid" onSubmit={handleSubmit}>
+          <div className="pilot-grid pilot-grid--two">
+            <label className="pilot-field">
+              Contacto
+              <select
+                className="pilot-input"
+                value={values.clienteId}
+                onChange={(event) => setValues((prev) => ({ ...prev, clienteId: event.target.value }))}
+                disabled={clientsLoading}
+              >
+                <option value="">Sin contacto</option>
+                {clients.map((client) => (
+                  <option key={client.id} value={client.id}>
+                    {client.name} ({client.identifier})
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="pilot-field">
+              Fecha *
+              <input
+                className="pilot-input"
+                type="date"
+                value={values.fecha}
+                onChange={(event) => setValues((prev) => ({ ...prev, fecha: event.target.value }))}
+              />
+            </label>
+          </div>
+
+          <label className="pilot-field">
+            Concepto *
+            <input
+              className="pilot-input"
+              value={values.concepto}
+              onChange={(event) => setValues((prev) => ({ ...prev, concepto: event.target.value }))}
+              placeholder="Ej: Compra de material de oficina"
+            />
+          </label>
+
+          <div className="pilot-grid pilot-grid--two">
+            <label className="pilot-field">
+              Categoria *
+              <select
+                className="pilot-input"
+                value={values.categoria}
+                onChange={(event) =>
+                  setValues((prev) => ({ ...prev, categoria: event.target.value as Exclude<TransactionCategory, "factura"> }))
+                }
+              >
+                {MANUAL_TRANSACTION_CATEGORIES.map((category) => (
+                  <option key={category} value={category}>
+                    {TRANSACTION_CATEGORY_LABELS[category]}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="pilot-field">
+              Tipo *
+              <select
+                className="pilot-input"
+                value={values.tipo}
+                onChange={(event) => setValues((prev) => ({ ...prev, tipo: event.target.value as TransactionType }))}
+              >
+                <option value="gasto">Gasto</option>
+                <option value="ingreso">Ingreso</option>
+              </select>
+            </label>
+          </div>
+
+          <div className="pilot-grid pilot-grid--two">
+            <label className="pilot-field">
+              Importe *
+              <input
+                className="pilot-input"
+                type="number"
+                min="0"
+                step="0.01"
+                value={values.importe}
+                onChange={(event) => setValues((prev) => ({ ...prev, importe: event.target.value }))}
+                placeholder="0.00"
+              />
+            </label>
+            <label className="pilot-field">
+              IVA (%)
+              <input
+                className="pilot-input"
+                type="number"
+                min="0"
+                max="100"
+                step="0.01"
+                value={values.ivaPorcentaje}
+                onChange={(event) => setValues((prev) => ({ ...prev, ivaPorcentaje: event.target.value }))}
+                placeholder="21"
+              />
+            </label>
+          </div>
+
+          <div className="pilot-grid pilot-grid--two">
+            <label className="pilot-field">
+              IRPF (%)
+              <input
+                className="pilot-input"
+                type="number"
+                min="0"
+                max="100"
+                step="0.01"
+                value={values.irpfPorcentaje}
+                onChange={(event) => setValues((prev) => ({ ...prev, irpfPorcentaje: event.target.value }))}
+                placeholder="15"
+              />
+            </label>
+            <label className="pilot-field">
+              Observaciones
+              <textarea
+                className="pilot-input pilot-textarea"
+                maxLength={150}
+                value={values.observaciones}
+                onChange={(event) => setValues((prev) => ({ ...prev, observaciones: event.target.value }))}
+                placeholder="Notas opcionales (max. 150 caracteres)"
+              />
+            </label>
+          </div>
+
+          {localError ? <p className="pilot-error-text">{localError}</p> : null}
+          {error ? <p className="pilot-error-text">{error}</p> : null}
+
+          <div className="pilot-modal__footer">
+            <button type="button" className="pilot-btn" onClick={onClose} disabled={saving}>
+              Cancelar
+            </button>
+            <button type="submit" className="pilot-btn pilot-btn--primary" disabled={saving}>
+              {resolveSubmitLabel(mode, saving)}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

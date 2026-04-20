@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" fill="none">
+  <!-- Background sheet -->
+  <rect x="30" y="8" width="58" height="80" rx="4" fill="#185C37"/>
+  <!-- Grid right column -->
+  <rect x="59" y="8" width="29" height="20" rx="0" fill="#33C481"/>
+  <rect x="30" y="8" width="29" height="20" fill="#21A366"/>
+  <rect x="59" y="28" width="29" height="20" fill="#21A366"/>
+  <rect x="30" y="28" width="29" height="20" fill="#107C41"/>
+  <rect x="59" y="48" width="29" height="20" fill="#33C481"/>
+  <rect x="30" y="48" width="29" height="20" fill="#21A366"/>
+  <rect x="59" y="68" width="29" height="20" fill="#21A366"/>
+  <rect x="30" y="68" width="29" height="20" fill="#107C41"/>
+  <!-- Top-right rounded -->
+  <path d="M84 8h0a4 4 0 0 1 4 4v0H59V8h25z" fill="#33C481"/>
+  <!-- Bottom-right rounded -->
+  <path d="M88 84v0a4 4 0 0 1-4 4H59V68h29v16z" fill="#21A366"/>
+  <!-- Front green panel -->
+  <rect x="6" y="20" width="44" height="56" rx="5" fill="#107C41"/>
+  <!-- X letter -->
+  <path d="M19 33l9.5 15L19 63" stroke="#fff" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+  <path d="M38 33l-9.5 15L38 63" stroke="#fff" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+</svg>

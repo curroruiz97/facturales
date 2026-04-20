@@ -4,24 +4,7 @@
 // Sin reintentos: cada combinación documentType+documentId+to se envía una sola vez.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-// ============================================
-// CORS headers (incluye Access-Control-Allow-Methods)
-// ============================================
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
-
-/** Respuesta JSON con CORS */
-function jsonResponse(body: Record<string, unknown>, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
-}
+import { getCorsHeaders, handleCorsOptions, jsonResponse } from "../_shared/cors.ts";
 
 // ============================================
 // Tipos
@@ -166,7 +149,7 @@ function buildEmailHtml(params: {
 Deno.serve(async (req: Request) => {
   // Manejar preflight CORS
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return handleCorsOptions(req);
   }
 
   try {
@@ -184,28 +167,28 @@ Deno.serve(async (req: Request) => {
     if (scheduledAt) {
       const scheduledDate = new Date(scheduledAt);
       if (isNaN(scheduledDate.getTime())) {
-        return jsonResponse({ success: false, error: "scheduledAt debe ser una fecha ISO 8601 válida" }, 400);
+        return jsonResponse(req, { success: false, error: "scheduledAt debe ser una fecha ISO 8601 válida" }, 400);
       }
       if (scheduledDate.getTime() <= Date.now()) {
-        return jsonResponse({ success: false, error: "scheduledAt debe ser una fecha futura" }, 400);
+        return jsonResponse(req, { success: false, error: "scheduledAt debe ser una fecha futura" }, 400);
       }
       const maxMs = 30 * 24 * 60 * 60 * 1000;
       if (scheduledDate.getTime() > Date.now() + maxMs) {
-        return jsonResponse({ success: false, error: "scheduledAt no puede superar los 30 días desde ahora" }, 400);
+        return jsonResponse(req, { success: false, error: "scheduledAt no puede superar los 30 días desde ahora" }, 400);
       }
     }
 
     if (!documentType || !["invoice", "quote"].includes(documentType)) {
-      return jsonResponse({ success: false, error: "documentType debe ser 'invoice' o 'quote'" }, 400);
+      return jsonResponse(req, { success: false, error: "documentType debe ser 'invoice' o 'quote'" }, 400);
     }
     if (!documentId || typeof documentId !== "string") {
-      return jsonResponse({ success: false, error: "documentId es obligatorio" }, 400);
+      return jsonResponse(req, { success: false, error: "documentId es obligatorio" }, 400);
     }
     if (!to || !EMAIL_RE.test(to.trim())) {
-      return jsonResponse({ success: false, error: "to debe ser un email válido" }, 400);
+      return jsonResponse(req, { success: false, error: "to debe ser un email válido" }, 400);
     }
     if (!pdfBase64 || typeof pdfBase64 !== "string") {
-      return jsonResponse({ success: false, error: "pdfBase64 es obligatorio (PDF del documento)" }, 400);
+      return jsonResponse(req, { success: false, error: "pdfBase64 es obligatorio (PDF del documento)" }, 400);
     }
 
     // ── 2. Crear clientes Supabase ───────────────────────────
@@ -222,7 +205,7 @@ Deno.serve(async (req: Request) => {
     // ── 3. Validar JWT ───────────────────────────────────────
     const { data: { user }, error: authError } = await supabaseUser.auth.getUser();
     if (authError || !user) {
-      return jsonResponse({ success: false, error: "No autenticado" }, 401);
+      return jsonResponse(req, { success: false, error: "No autenticado" }, 401);
     }
     const userId = user.id;
 
@@ -238,23 +221,23 @@ Deno.serve(async (req: Request) => {
       .single();
 
     if (docError || !docData) {
-      return jsonResponse({ success: false, error: "Documento no encontrado" }, 404);
+      return jsonResponse(req, { success: false, error: "Documento no encontrado" }, 404);
     }
     if (docData.user_id !== userId) {
-      return jsonResponse({ success: false, error: "No tienes permisos sobre este documento" }, 403);
+      return jsonResponse(req, { success: false, error: "No tienes permisos sobre este documento" }, 403);
     }
     if (docData.status !== "issued") {
-      return jsonResponse({ success: false, error: "El documento debe estar emitido para enviar email" }, 400);
+      return jsonResponse(req, { success: false, error: "El documento debe estar emitido para enviar email" }, 400);
     }
 
     // ── 4b. Validar que 'to' coincide con el email del cliente del documento ──
     const docJsonDataRaw = docData[dataField] || {};
     const clientEmailOnDoc = docJsonDataRaw.client?.email;
     if (!clientEmailOnDoc) {
-      return jsonResponse({ success: false, error: "El documento no tiene un email de cliente asociado" }, 400);
+      return jsonResponse(req, { success: false, error: "El documento no tiene un email de cliente asociado" }, 400);
     }
     if (to.trim().toLowerCase() !== clientEmailOnDoc.trim().toLowerCase()) {
-      return jsonResponse({ success: false, error: "El email de destino no coincide con el email del cliente del documento" }, 403);
+      return jsonResponse(req, { success: false, error: "El email de destino no coincide con el email del cliente del documento" }, 403);
     }
 
     // ── 5. Idempotencia ──────────────────────────────────────
@@ -268,9 +251,11 @@ Deno.serve(async (req: Request) => {
       .maybeSingle();
 
     if (existingLog) {
-      return jsonResponse({
-        success: existingLog.status === "sent",
+      const alreadySent = existingLog.status === "sent" || existingLog.status === "scheduled";
+      return jsonResponse(req, {
+        success: alreadySent,
         alreadyProcessed: true,
+        alreadySent,
         data: {
           logId: existingLog.id,
           status: existingLog.status,
@@ -320,13 +305,14 @@ Deno.serve(async (req: Request) => {
       console.error("Error insertando log:", logError);
       // Podría ser race condition con otra request concurrente → devolver como ya procesado
       if (logError?.code === "23505") {
-        return jsonResponse({
+        return jsonResponse(req, {
           success: false,
           alreadyProcessed: true,
+          alreadySent: false,
           error: "Envío ya en proceso por otra solicitud concurrente",
         });
       }
-      return jsonResponse({ success: false, error: "Error al registrar el envío" }, 500);
+      return jsonResponse(req, { success: false, error: "Error al registrar el envío" }, 500);
     }
 
     const logId = logEntry.id;
@@ -339,7 +325,7 @@ Deno.serve(async (req: Request) => {
         .from("document_email_log")
         .update({ status: "failed", error_message: "PDF excede el tamaño máximo permitido (7.5 MB)" })
         .eq("id", logId);
-      return jsonResponse({ success: false, error: "El PDF excede el tamaño máximo permitido (7.5 MB)" }, 413);
+      return jsonResponse(req, { success: false, error: "El PDF excede el tamaño máximo permitido (7.5 MB)" }, 413);
     }
 
     const fileName = pdfFilename || `documento_${docNumber}.pdf`;
@@ -353,7 +339,7 @@ Deno.serve(async (req: Request) => {
         .from("document_email_log")
         .update({ status: "failed", error_message: "pdfBase64 no es base64 válido" })
         .eq("id", logId);
-      return jsonResponse({ success: false, error: "El contenido de pdfBase64 no es base64 válido" }, 400);
+      return jsonResponse(req, { success: false, error: "El contenido de pdfBase64 no es base64 válido" }, 400);
     }
 
     // Validar magic bytes de PDF (%PDF-)
@@ -362,7 +348,7 @@ Deno.serve(async (req: Request) => {
         .from("document_email_log")
         .update({ status: "failed", error_message: "El archivo no es un PDF válido" })
         .eq("id", logId);
-      return jsonResponse({ success: false, error: "El archivo adjunto no es un PDF válido" }, 400);
+      return jsonResponse(req, { success: false, error: "El archivo adjunto no es un PDF válido" }, 400);
     }
 
     const bytes = new Uint8Array(binaryStr.length);
@@ -394,7 +380,7 @@ Deno.serve(async (req: Request) => {
 
     // ── 10. Enviar vía Resend ────────────────────────────────
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
-    const resendFrom = Deno.env.get("RESEND_FROM") || "Facturaldigital <noreply@facturaldigital.com>";
+    const resendFrom = Deno.env.get("RESEND_FROM") || "Facturales <noreply@facturales.es>";
     const mailReplyTo = Deno.env.get("MAIL_REPLY_TO");
 
     if (!resendApiKey) {
@@ -402,7 +388,7 @@ Deno.serve(async (req: Request) => {
         .from("document_email_log")
         .update({ status: "failed", error_message: "RESEND_API_KEY no configurada" })
         .eq("id", logId);
-      return jsonResponse({ success: false, error: "Servicio de email no configurado" }, 500);
+      return jsonResponse(req, { success: false, error: "Servicio de email no configurado" }, 500);
     }
 
     const resendBody: Record<string, unknown> = {
@@ -449,7 +435,7 @@ Deno.serve(async (req: Request) => {
         .from("document_email_log")
         .update({ status: "failed", error_message: errorMsg })
         .eq("id", logId);
-      return jsonResponse({ success: false, error: errorMsg }, 504);
+      return jsonResponse(req, { success: false, error: errorMsg }, 504);
     } finally {
       clearTimeout(resendTimer);
     }
@@ -463,11 +449,12 @@ Deno.serve(async (req: Request) => {
         .update({
           status: scheduledAt ? "scheduled" : "sent",
           provider_message_id: resendResult.id,
+          scheduled_at: scheduledAt || null,
           sent_at: scheduledAt ? null : new Date().toISOString(),
         })
         .eq("id", logId);
 
-      return jsonResponse({
+      return jsonResponse(req, {
         success: true,
         scheduled: !!scheduledAt,
         scheduledAt: scheduledAt || null,
@@ -489,10 +476,10 @@ Deno.serve(async (req: Request) => {
         })
         .eq("id", logId);
 
-      return jsonResponse({ success: false, error: `Error al enviar email: ${errorMsg}` }, 502);
+      return jsonResponse(req, { success: false, error: `Error al enviar email: ${errorMsg}` }, 502);
     }
   } catch (error) {
     console.error("Error inesperado:", error);
-    return jsonResponse({ success: false, error: error.message || "Error interno" }, 500);
+    return jsonResponse(req, { success: false, error: error.message || "Error interno" }, 500);
   }
 });

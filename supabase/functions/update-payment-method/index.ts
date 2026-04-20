@@ -1,23 +1,10 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import Stripe from "https://esm.sh/stripe@17?target=deno";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
-
-function jsonResponse(body: Record<string, unknown>, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
-}
+import { getCorsHeaders, handleCorsOptions, jsonResponse } from "../_shared/cors.ts";
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return handleCorsOptions(req);
   }
 
   try {
@@ -37,7 +24,7 @@ Deno.serve(async (req: Request) => {
       error: authError,
     } = await supabaseUser.auth.getUser();
     if (authError || !user) {
-      return jsonResponse({ error: "No autenticado" }, 401);
+      return jsonResponse(req, { error: "No autenticado" }, 401);
     }
 
     // Get the user's active subscription to find stripe_customer_id
@@ -52,6 +39,7 @@ Deno.serve(async (req: Request) => {
 
     if (!sub || !sub.stripe_customer_id) {
       return jsonResponse(
+        req,
         { error: "No se encontró una suscripción activa" },
         404,
       );
@@ -59,7 +47,7 @@ Deno.serve(async (req: Request) => {
 
     const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeSecretKey) {
-      return jsonResponse({ error: "Stripe no configurado" }, 500);
+      return jsonResponse(req, { error: "Stripe no configurado" }, 500);
     }
     const stripe = new Stripe(stripeSecretKey, {
       apiVersion: "2024-12-18.acacia",
@@ -71,17 +59,17 @@ Deno.serve(async (req: Request) => {
       mode: "setup",
       customer: sub.stripe_customer_id,
       payment_method_types: ["card"],
-      success_url: `${appUrl}/settings.html?payment_updated=true`,
-      cancel_url: `${appUrl}/settings.html`,
+      success_url: `${appUrl}/ajustes?payment_updated=true`,
+      cancel_url: `${appUrl}/ajustes`,
       metadata: {
         user_id: user.id,
         subscription_id: sub.stripe_subscription_id,
       },
     });
 
-    return jsonResponse({ url: session.url });
+    return jsonResponse(req, { url: session.url });
   } catch (error) {
     console.error("update-payment-method error:", error);
-    return jsonResponse({ error: error.message || "Error interno" }, 500);
+    return jsonResponse(req, { error: error.message || "Error interno" }, 500);
   }
 });

@@ -1,0 +1,87 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://nukslmpdwjqlepacukul.supabase.co wss://nukslmpdwjqlepacukul.supabase.co https://api.stripe.com https://api.resend.com; frame-src https://js.stripe.com https://hooks.stripe.com; worker-src 'self' blob:"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=31536000; includeSubDomains; preload"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=()"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    { "source": "/", "destination": "/dashboard", "permanent": true },
+    { "source": "/index.html", "destination": "/dashboard", "permanent": true },
+    { "source": "/home.html", "destination": "/dashboard", "permanent": true },
+    { "source": "/index-2.html", "destination": "/dashboard", "permanent": true },
+    { "source": "/coming-soon.html", "destination": "/dashboard", "permanent": true },
+    { "source": "/404.html", "destination": "/dashboard", "permanent": true },
+    { "source": "/pilot-dashboard.html", "destination": "/dashboard", "permanent": true },
+    { "source": "/productos.html", "destination": "/productos", "permanent": true },
+    { "source": "/pilot-products.html", "destination": "/productos", "permanent": true },
+    { "source": "/users.html", "destination": "/contactos", "permanent": true },
+    { "source": "/pilot-contacts.html", "destination": "/contactos", "permanent": true },
+    { "source": "/expenses.html", "destination": "/transacciones", "permanent": true },
+    { "source": "/pilot-transactions.html", "destination": "/transacciones", "permanent": true },
+    { "source": "/invoices/quote.html", "destination": "/presupuestos/emision", "permanent": true },
+    { "source": "/invoices/quote-drafts.html", "destination": "/presupuestos/borradores", "permanent": true },
+    { "source": "/invoices/quote-issued.html", "destination": "/presupuestos/emitidos", "permanent": true },
+    { "source": "/invoices/quote-preview.html", "destination": "/presupuestos/vista-previa", "permanent": true },
+    { "source": "/pilot-quotes.html", "destination": "/presupuestos/emision", "permanent": true },
+    { "source": "/invoices/new.html", "destination": "/facturas/emision", "permanent": true },
+    { "source": "/invoices/drafts.html", "destination": "/facturas/borradores", "permanent": true },
+    { "source": "/invoices/issued.html", "destination": "/facturas/emitidas", "permanent": true },
+    { "source": "/invoices/preview.html", "destination": "/facturas/vista-previa", "permanent": true },
+    { "source": "/invoices/facturas-recibidas.html", "destination": "/facturas/emitidas", "permanent": true },
+    { "source": "/pilot-invoices.html", "destination": "/facturas/emision", "permanent": true },
+    { "source": "/scan-ocr.html", "destination": "/ocr", "permanent": true },
+    { "source": "/pilot-ocr.html", "destination": "/ocr", "permanent": true },
+    { "source": "/support-ticket.html", "destination": "/soporte", "permanent": true },
+    { "source": "/pilot-support.html", "destination": "/soporte", "permanent": true },
+    { "source": "/settings.html", "destination": "/ajustes", "permanent": true },
+    { "source": "/integrations.html", "destination": "/integraciones", "permanent": true },
+    { "source": "/fiscal.html", "destination": "/fiscal", "permanent": true },
+    { "source": "/signin.html", "destination": "/signin", "permanent": true },
+    { "source": "/signup.html", "destination": "/signup", "permanent": true },
+    { "source": "/verify-email.html", "destination": "/verify-email", "permanent": true },
+    { "source": "/confirm-email.html", "destination": "/confirm-email", "permanent": true },
+    { "source": "/reset-password.html", "destination": "/reset-password", "permanent": true },
+    { "source": "/complete-profile.html", "destination": "/complete-profile", "permanent": true },
+    { "source": "/subscribe.html", "destination": "/subscribe", "permanent": true },
+    { "source": "/billing/success.html", "destination": "/billing/success", "permanent": true },
+    { "source": "/billing/cancel.html", "destination": "/billing/cancel", "permanent": true },
+    { "source": "/aviso-legal.html", "destination": "/aviso-legal", "permanent": true },
+    { "source": "/condiciones-legales.html", "destination": "/condiciones-legales", "permanent": true },
+    { "source": "/politica-de-cookies.html", "destination": "/politica-de-cookies", "permanent": true },
+    { "source": "/politica-de-privacidad.html", "destination": "/politica-de-privacidad", "permanent": true }
+  ],
+  "rewrites": [
+    { "source": "/:path((?!.*\\.).*)", "destination": "/index.html" }
+  ]
+}

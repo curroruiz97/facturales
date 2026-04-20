@@ -4,23 +4,7 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import Stripe from "https://esm.sh/stripe@17?target=deno";
-
-// ============================================
-// CORS
-// ============================================
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
-
-function jsonResponse(body: Record<string, unknown>, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
-}
+import { getCorsHeaders, handleCorsOptions, jsonResponse } from "../_shared/cors.ts";
 
 // ============================================
 // Allowlists
@@ -47,7 +31,7 @@ function getPriceId(plan: Plan, interval: Interval): string | null {
 // ============================================
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return handleCorsOptions(req);
   }
 
   try {
@@ -55,17 +39,17 @@ Deno.serve(async (req: Request) => {
     const { plan, interval } = await req.json() as { plan: string; interval: string };
 
     if (!plan || !VALID_PLANS.includes(plan as Plan)) {
-      return jsonResponse({ error: "plan inválido. Valores permitidos: starter, pro, business" }, 400);
+      return jsonResponse(req, { error: "plan inválido. Valores permitidos: starter, pro, business" }, 400);
     }
     if (!interval || !VALID_INTERVALS.includes(interval as Interval)) {
-      return jsonResponse({ error: "interval inválido. Valores permitidos: monthly, yearly" }, 400);
+      return jsonResponse(req, { error: "interval inválido. Valores permitidos: monthly, yearly" }, 400);
     }
 
     // ── 2. Resolve price ID ───────────────────────────────
     const priceId = getPriceId(plan as Plan, interval as Interval);
     if (!priceId) {
       console.error(`Missing env var: STRIPE_PRICE_${plan.toUpperCase()}_${interval.toUpperCase()}`);
-      return jsonResponse({ error: "Precio no configurado para este plan/intervalo" }, 500);
+      return jsonResponse(req, { error: "Precio no configurado para este plan/intervalo" }, 500);
     }
 
     // ── 3. Validate JWT ───────────────────────────────────
@@ -80,13 +64,13 @@ Deno.serve(async (req: Request) => {
 
     const { data: { user }, error: authError } = await supabaseUser.auth.getUser();
     if (authError || !user) {
-      return jsonResponse({ error: "No autenticado" }, 401);
+      return jsonResponse(req, { error: "No autenticado" }, 401);
     }
 
     // ── 4. Init Stripe ────────────────────────────────────
     const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeSecretKey) {
-      return jsonResponse({ error: "Stripe no configurado" }, 500);
+      return jsonResponse(req, { error: "Stripe no configurado" }, 500);
     }
     const stripe = new Stripe(stripeSecretKey, { apiVersion: "2024-12-18.acacia" });
 
@@ -119,8 +103,8 @@ Deno.serve(async (req: Request) => {
       mode: "subscription",
       allow_promotion_codes: true,
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${appUrl}/billing/success.html?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${appUrl}/billing/cancel.html?plan=${plan}`,
+      success_url: `${appUrl}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${appUrl}/billing/cancel?plan=${plan}`,
       metadata: { user_id: user.id, plan, interval },
       subscription_data: {
         metadata: { user_id: user.id, plan, interval },
@@ -133,9 +117,9 @@ Deno.serve(async (req: Request) => {
 
     const session = await stripe.checkout.sessions.create(sessionParams);
 
-    return jsonResponse({ url: session.url, sessionId: session.id });
+    return jsonResponse(req, { url: session.url, sessionId: session.id });
   } catch (error) {
     console.error("create-checkout-session error:", error);
-    return jsonResponse({ error: error.message || "Error interno" }, 500);
+    return jsonResponse(req, { error: error.message || "Error interno" }, 500);
   }
 });

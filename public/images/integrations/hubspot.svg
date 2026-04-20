@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" fill="none">
+  <!-- Central sprocket ring -->
+  <circle cx="56" cy="48" r="14" fill="none" stroke="#FF7A59" strokeWidth="5"/>
+  <!-- Top stem -->
+  <path d="M56 22v12" stroke="#FF7A59" strokeWidth="5" strokeLinecap="round"/>
+  <!-- Top circle -->
+  <circle cx="56" cy="16" r="7" fill="#FF7A59"/>
+  <!-- Bottom-left arm -->
+  <path d="M44 60l-10 10" stroke="#FF7A59" strokeWidth="5" strokeLinecap="round"/>
+  <!-- Bottom-left circle -->
+  <circle cx="30" cy="74" r="6" fill="#FF7A59"/>
+  <!-- Top-left arm -->
+  <path d="M44 36l-10-10" stroke="#FF7A59" strokeWidth="5" strokeLinecap="round"/>
+  <!-- Top-left circle -->
+  <circle cx="30" cy="22" r="6" fill="#FF7A59"/>
+</svg>

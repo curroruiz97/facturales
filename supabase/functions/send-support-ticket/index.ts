@@ -1,18 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
-
-function jsonResponse(body: Record<string, unknown>, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
-}
+import { getCorsHeaders, handleCorsOptions, jsonResponse } from "../_shared/cors.ts";
 
 interface TicketPayload {
   nombre: string;
@@ -68,7 +55,7 @@ function sanitizeHtml(html: string): string {
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return handleCorsOptions(req);
   }
 
   try {
@@ -87,7 +74,7 @@ Deno.serve(async (req: Request) => {
       error: authError,
     } = await supabaseUser.auth.getUser();
     if (authError || !user) {
-      return jsonResponse({ error: "No autenticado" }, 401);
+      return jsonResponse(req, { error: "No autenticado" }, 401);
     }
 
     const payload: TicketPayload = await req.json();
@@ -99,21 +86,21 @@ Deno.serve(async (req: Request) => {
     const descripcion = (payload.descripcion || "").substring(0, 20_000);
 
     if (!nombre || !apellido || !email || !titulo || !descripcion) {
-      return jsonResponse({ error: "Faltan campos obligatorios" }, 400);
+      return jsonResponse(req, { error: "Faltan campos obligatorios" }, 400);
     }
 
     const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
     if (!emailRegex.test(email)) {
-      return jsonResponse({ error: "Correo electrónico no válido" }, 400);
+      return jsonResponse(req, { error: "Correo electrónico no válido" }, 400);
     }
 
     if (telefono && !/^\+?[\d\s\-()]{6,20}$/.test(telefono)) {
-      return jsonResponse({ error: "Número de teléfono no válido" }, 400);
+      return jsonResponse(req, { error: "Número de teléfono no válido" }, 400);
     }
 
     const plainText = descripcion.replace(/<[^>]*>/g, "");
     if (plainText.length < 150) {
-      return jsonResponse({
+      return jsonResponse(req, {
         error: "La descripción debe tener al menos 150 caracteres",
       }, 400);
     }
@@ -129,7 +116,7 @@ Deno.serve(async (req: Request) => {
       .gte("created_at", oneHourAgo);
 
     if (count && count >= 1) {
-      return jsonResponse({
+      return jsonResponse(req, {
         error: "Solo puedes enviar 1 ticket por hora. Inténtalo más tarde.",
       }, 429);
     }
@@ -137,14 +124,14 @@ Deno.serve(async (req: Request) => {
     // Get support email from secrets
     const supportEmail = Deno.env.get("SUPPORT_EMAIL");
     if (!supportEmail) {
-      return jsonResponse({ error: "Email de soporte no configurado" }, 500);
+      return jsonResponse(req, { error: "Email de soporte no configurado" }, 500);
     }
 
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
     const resendFrom =
       Deno.env.get("RESEND_FROM") || "Facturales <noreply@facturales.es>";
     if (!resendApiKey) {
-      return jsonResponse({ error: "Servicio de email no configurado" }, 500);
+      return jsonResponse(req, { error: "Servicio de email no configurado" }, 500);
     }
 
     const userEmail = user.email || "No disponible";
@@ -226,7 +213,7 @@ Deno.serve(async (req: Request) => {
       });
     } catch (e) {
       const isTimeout = e instanceof DOMException && e.name === "AbortError";
-      return jsonResponse({
+      return jsonResponse(req, {
         error: isTimeout
           ? "El servicio de email no respondió a tiempo. Inténtalo de nuevo."
           : "Error de conexión con el servicio de email",
@@ -240,7 +227,7 @@ Deno.serve(async (req: Request) => {
     if (!resendResponse.ok || !resendResult.id) {
       const errorMsg = resendResult.message || resendResult.error || JSON.stringify(resendResult);
       console.error("Resend error:", errorMsg);
-      return jsonResponse({ error: "Error al enviar el ticket: " + errorMsg }, 502);
+      return jsonResponse(req, { error: "Error al enviar el ticket: " + errorMsg }, 502);
     }
 
     // Log the ticket
@@ -252,12 +239,12 @@ Deno.serve(async (req: Request) => {
       resend_message_id: resendResult.id,
     });
 
-    return jsonResponse({
+    return jsonResponse(req, {
       success: true,
       message: "Ticket enviado correctamente",
     });
   } catch (error) {
     console.error("send-support-ticket error:", error);
-    return jsonResponse({ error: error.message || "Error interno" }, 500);
+    return jsonResponse(req, { error: error.message || "Error interno" }, 500);
   }
 });

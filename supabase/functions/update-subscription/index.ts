@@ -1,19 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import Stripe from "https://esm.sh/stripe@17?target=deno";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
-
-function jsonResponse(body: Record<string, unknown>, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
-}
+import { getCorsHeaders, handleCorsOptions, jsonResponse } from "../_shared/cors.ts";
 
 const VALID_PLANS = ["starter", "pro", "business"] as const;
 const VALID_INTERVALS = ["monthly", "yearly"] as const;
@@ -29,7 +16,7 @@ function getPriceId(plan: Plan, interval: Interval): string | null {
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return handleCorsOptions(req);
   }
 
   try {
@@ -39,15 +26,15 @@ Deno.serve(async (req: Request) => {
     };
 
     if (!new_plan || !VALID_PLANS.includes(new_plan as Plan)) {
-      return jsonResponse({ error: "plan inválido" }, 400);
+      return jsonResponse(req, { error: "plan inválido" }, 400);
     }
     if (!new_interval || !VALID_INTERVALS.includes(new_interval as Interval)) {
-      return jsonResponse({ error: "interval inválido" }, 400);
+      return jsonResponse(req, { error: "interval inválido" }, 400);
     }
 
     const newPriceId = getPriceId(new_plan as Plan, new_interval as Interval);
     if (!newPriceId) {
-      return jsonResponse({ error: "Precio no configurado" }, 500);
+      return jsonResponse(req, { error: "Precio no configurado" }, 500);
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -66,7 +53,7 @@ Deno.serve(async (req: Request) => {
       error: authError,
     } = await supabaseUser.auth.getUser();
     if (authError || !user) {
-      return jsonResponse({ error: "No autenticado" }, 401);
+      return jsonResponse(req, { error: "No autenticado" }, 401);
     }
 
     const { data: sub } = await supabaseAdmin
@@ -79,16 +66,16 @@ Deno.serve(async (req: Request) => {
       .maybeSingle();
 
     if (!sub || !sub.stripe_subscription_id) {
-      return jsonResponse({ error: "No tienes una suscripción activa" }, 404);
+      return jsonResponse(req, { error: "No tienes una suscripción activa" }, 404);
     }
 
     if (sub.plan === new_plan) {
-      return jsonResponse({ error: "Ya tienes este plan" }, 400);
+      return jsonResponse(req, { error: "Ya tienes este plan" }, 400);
     }
 
     const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeSecretKey) {
-      return jsonResponse({ error: "Stripe no configurado" }, 500);
+      return jsonResponse(req, { error: "Stripe no configurado" }, 500);
     }
     const stripe = new Stripe(stripeSecretKey, {
       apiVersion: "2024-12-18.acacia",
@@ -144,7 +131,7 @@ Deno.serve(async (req: Request) => {
         })
         .eq("user_id", user.id);
 
-      return jsonResponse({
+      return jsonResponse(req, {
         success: true,
         type: "upgrade",
         plan: new_plan,
@@ -206,7 +193,7 @@ Deno.serve(async (req: Request) => {
         })
         .eq("stripe_subscription_id", sub.stripe_subscription_id);
 
-      return jsonResponse({
+      return jsonResponse(req, {
         success: true,
         type: "downgrade",
         current_plan: sub.plan,
@@ -216,6 +203,6 @@ Deno.serve(async (req: Request) => {
     }
   } catch (error) {
     console.error("update-subscription error:", error);
-    return jsonResponse({ error: error.message || "Error interno" }, 500);
+    return jsonResponse(req, { error: error.message || "Error interno" }, 500);
   }
 });

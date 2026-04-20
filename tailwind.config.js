@@ -1,8 +1,8 @@
-/** @type {import('tailwindcss').Config} */
-const plugin = require("tailwindcss/plugin");
+// Tailwind CSS configuration
+var plugin = require("tailwindcss/plugin");
 
 module.exports = {
-  content: ["./**/*.html", "./assets/js/**/*.js"],
+  content: ["./index.html", "./src/**/*.{ts,tsx}"],
   darkMode: "class",
   theme: {
     extend: {
@@ -27,25 +27,20 @@ module.exports = {
         "5xl": "48px",
       },
       colors: {
-        darkblack: {
-          300: "#747681",
-          400: "#2A313C",
-          500: "#23262B",
-          600: "#1D1E24",
-          700: "#151515",
-        },
+        // Brand color - Facturales orange
+        primary: "#ec8228",
+        "primary-hover": "#d47524",
 
-        // ✅ FACTURALES usa "success" como color de marca en toda la UI.
-        // Lo remapeamos a NARANJA (#ec8228).
+        // Semantic colors using brand orange as "success" in UI
         success: {
           50: "#FFF7ED",
           100: "#FFEDD5",
           200: "#FED7AA",
-          300: "#ec8228", // <- TU NARANJA (principal)
-          400: "#d47524", // hover un pelín más oscuro
+          300: "#ec8228",
+          400: "#d47524",
         },
 
-        // ✅ “Éxito real” en VERDE para usarlo cuando quieras (alerts, badges de éxito, etc.)
+        // True green for actual success states (payment confirmed, etc.)
         ok: {
           50: "#D9FBE6",
           100: "#B7FFD1",
@@ -65,6 +60,17 @@ module.exports = {
           200: "#FF4747",
           300: "#DD3333",
         },
+
+        // Dark theme palette
+        darkblack: {
+          300: "#747681",
+          400: "#2A313C",
+          500: "#23262B",
+          600: "#1D1E24",
+          700: "#151515",
+        },
+
+        // Neutral grays
         bgray: {
           50: "#FAFAFA",
           100: "#F7FAFC",
@@ -78,48 +84,22 @@ module.exports = {
           900: "#1A202C",
         },
 
-        // Unificamos naranjas
-        orange: "#ec8228",
-        othersOrange: "#ec8228",
-
-        bamber: {
-          50: "#FFFBEB",
-          100: "#FFC837",
-          500: "#F6A723",
+        orange: {
+          DEFAULT: "#ec8228",
+          50: "#fff7ed",
+          100: "#ffedd5",
+          200: "#fed7aa",
+          300: "#fdba74",
+          400: "#fb923c",
+          500: "#ec8228",
+          600: "#d47524",
+          700: "#c2410c",
+          800: "#9a3412",
+          900: "#7c2d12",
+          950: "#431407",
         },
         purple: "#936DFF",
 
-        // Antes estaba verde; lo pasamos a naranja suave para eliminar verdes residuales
-        primaryNew: "#FFEDD5",
-        "primary-new": "#FFEDD5",
-
-        // ya lo tenías en naranja
-        primary: "#ec8228",
-        primaryBase: "#ec8228",
-
-        portage: "#936DFF",
-        basicInterface: "#04091E",
-        basicInterface2: "#F5F5F5",
-        basicInterface3: "#747681",
-        basicWhite: "#747681",
-        lightGray: "#F3F7F8",
-        alertsWarningLight: "#FDE047",
-        alertsWarningBase: "#FACC15",
-        stockColor: "#CBCBCB",
-        alertsErrorBase: "#FF4747",
-
-        gray: {
-          50: "#FAFAFA",
-          200: "#EDF2F7",
-          300: "#E2E8F0",
-          600: "#718096",
-          700: "#2A313C",
-          800: "#232B38",
-          900: "#1A202C",
-        },
-
-        othersTeal: "#2DD4BF",
-        basicSecondary: "#1A202C",
         secondary: {
           100: "#F2F6FF",
           200: "#D8E3F8",
