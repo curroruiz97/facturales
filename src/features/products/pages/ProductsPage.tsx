@@ -4,10 +4,24 @@ import { EmptyState } from "../../../app/components/states/EmptyState";
 import { ErrorState } from "../../../app/components/states/ErrorState";
 import { LoadingSkeleton } from "../../../app/components/states/LoadingSkeleton";
 import { normalizeProductNumber } from "../domain/product-pricing";
+import { buildProductsCsv, processProductsImportFile, type ProductsImportPreview } from "../domain/products-import";
 import { useProductsCatalog } from "../hooks/use-products-catalog";
 import { ProductDeleteModal } from "../components/ProductDeleteModal";
 import { ProductFormModal, type ProductFormValues } from "../components/ProductFormModal";
+import { ProductsImportModal } from "../components/ProductsImportModal";
 import { ProductsTable } from "../components/ProductsTable";
+
+function downloadCsv(filename: string, csvContent: string): void {
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
 
 const DEFAULT_FORM_VALUES: ProductFormValues = {
   nombre: "",
@@ -52,6 +66,10 @@ export function ProductsPage(): import("react").JSX.Element {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteMode, setDeleteMode] = useState<DeleteMode>("single");
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
+  const [importFileName, setImportFileName] = useState<string | null>(null);
+  const [importPreview, setImportPreview] = useState<ProductsImportPreview | null>(null);
+  const [importParseError, setImportParseError] = useState<string | null>(null);
 
   const isUnlimited = useMemo(() => {
     return catalog.usageBadge?.limit === Number.POSITIVE_INFINITY;
@@ -155,6 +173,67 @@ export function ProductsPage(): import("react").JSX.Element {
     closeDelete();
   };
 
+  const openImportModal = () => {
+    setImportFileName(null);
+    setImportPreview(null);
+    setImportParseError(null);
+    setImportOpen(true);
+  };
+
+  const closeImportModal = () => {
+    setImportOpen(false);
+    setImportFileName(null);
+    setImportPreview(null);
+    setImportParseError(null);
+  };
+
+  const handleImportPickFile = async (file: File) => {
+    setImportFileName(file.name);
+    setImportParseError(null);
+    try {
+      const preview = await processProductsImportFile(file);
+      setImportPreview(preview);
+    } catch (error) {
+      setImportPreview(null);
+      setImportParseError(error instanceof Error ? error.message : "No se pudo procesar el archivo.");
+    }
+  };
+
+  const confirmImport = async () => {
+    if (!importPreview) return;
+    const summary = await catalog.importProducts(importPreview.validRows);
+    if (!summary) {
+      setFlash("No se pudo completar la importación.");
+      return;
+    }
+
+    closeImportModal();
+    setFlash(
+      `${summary.insertedCount} importados, ${summary.skippedDuplicates} duplicados omitidos, ${summary.errorRows.length} con error.`,
+    );
+  };
+
+  const exportCsv = () => {
+    if (catalog.products.length === 0) {
+      setFlash("No hay productos para exportar.");
+      return;
+    }
+
+    const csv = buildProductsCsv(
+      catalog.products.map((product) => ({
+        nombre: product.nombre,
+        referencia: product.referencia,
+        descripcion: product.descripcion,
+        precioCompra: product.precioCompra,
+        precioVenta: product.precioVenta,
+        impuesto: product.impuesto,
+        descuento: product.descuento,
+      })),
+    );
+    downloadCsv(`productos_${new Date().toISOString().slice(0, 10)}.csv`, csv);
+    setFlash("CSV exportado correctamente.");
+  };
+
   const pageSelectAllChecked = catalog.pageProducts.length > 0 && catalog.pageProducts.every((product) => catalog.selectedIds.has(product.id));
 
   return (
@@ -202,6 +281,17 @@ export function ProductsPage(): import("react").JSX.Element {
               placeholder="Buscar por nombre o referencia"
             />
           </div>
+        </div>
+        <div className="pilot-actions">
+          <button type="button" className="pilot-btn" onClick={exportCsv}>
+            Exportar productos
+          </button>
+          <button type="button" className="pilot-btn" onClick={openImportModal}>
+            Importar productos
+          </button>
+          <button type="button" className="pilot-btn pilot-btn--primary" onClick={openCreateModal}>
+            Nuevo producto
+          </button>
         </div>
       </section>
 
@@ -281,6 +371,17 @@ export function ProductsPage(): import("react").JSX.Element {
         loading={catalog.deleting}
         onCancel={closeDelete}
         onConfirm={confirmDelete}
+      />
+
+      <ProductsImportModal
+        open={importOpen}
+        fileName={importFileName}
+        preview={importPreview}
+        parseError={importParseError}
+        importing={catalog.importing}
+        onClose={closeImportModal}
+        onPickFile={handleImportPickFile}
+        onConfirmImport={confirmImport}
       />
     </div>
   );

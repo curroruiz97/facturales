@@ -1,7 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Product } from "../../../shared/types/domain";
 import type { CreateProductInput, UpdateProductInput } from "../../../services/repositories/products.repository";
-import { productsAdapter, type BulkDeleteSummary, type ProductsUsageBadge } from "../adapters/products.adapter";
+import {
+  productsAdapter,
+  type BulkDeleteSummary,
+  type ProductsImportSummary,
+  type ProductsUsageBadge,
+} from "../adapters/products.adapter";
+import type { ProductImportRowResult } from "../domain/products-import";
 
 const SEARCH_DEBOUNCE_MS = 280;
 const DEFAULT_PAGE_SIZE = 10;
@@ -13,6 +19,7 @@ export interface UseProductsCatalogResult {
   loading: boolean;
   saving: boolean;
   deleting: boolean;
+  importing: boolean;
   searchTerm: string;
   setSearchTerm: (value: string) => void;
   usageBadge: ProductsUsageBadge | null;
@@ -32,6 +39,7 @@ export interface UseProductsCatalogResult {
   updateProduct: (productId: string, input: UpdateProductInput) => Promise<boolean>;
   deleteProduct: (productId: string) => Promise<boolean>;
   deleteSelectedProducts: () => Promise<BulkDeleteSummary | null>;
+  importProducts: (rows: ProductImportRowResult[]) => Promise<ProductsImportSummary | null>;
 }
 
 export function useProductsCatalog(pageSize = DEFAULT_PAGE_SIZE): UseProductsCatalogResult {
@@ -39,6 +47,7 @@ export function useProductsCatalog(pageSize = DEFAULT_PAGE_SIZE): UseProductsCat
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [importing, setImporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [usageError, setUsageError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -171,6 +180,20 @@ export function useProductsCatalog(pageSize = DEFAULT_PAGE_SIZE): UseProductsCat
     return result.data;
   };
 
+  const importProducts = async (rows: ProductImportRowResult[]): Promise<ProductsImportSummary | null> => {
+    setImporting(true);
+    const result = await productsAdapter.importProducts(rows);
+    setImporting(false);
+
+    if (!result.success) {
+      setError(result.error.message);
+      return null;
+    }
+
+    await refresh();
+    return result.data;
+  };
+
   const isSelected = (productId: string) => selectedIds.has(productId);
 
   const toggleSelected = (productId: string, checked: boolean) => {
@@ -208,6 +231,7 @@ export function useProductsCatalog(pageSize = DEFAULT_PAGE_SIZE): UseProductsCat
     loading,
     saving,
     deleting,
+    importing,
     searchTerm,
     setSearchTerm,
     usageBadge,
@@ -227,6 +251,7 @@ export function useProductsCatalog(pageSize = DEFAULT_PAGE_SIZE): UseProductsCat
     updateProduct,
     deleteProduct,
     deleteSelectedProducts,
+    importProducts,
   };
 }
 

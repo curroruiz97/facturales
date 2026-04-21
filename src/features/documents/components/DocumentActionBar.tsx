@@ -237,17 +237,17 @@ export function DocumentActionBar({
         setFlash(`Error al enviar: ${error.message}`);
       } else if (alreadyProcessed) {
         setFlash("Este documento ya fue procesado anteriormente.");
-        setEmitStep("done");
-        setTimeout(() => setEmitModalOpen(false), 1500);
       } else if (!isSuccess) {
         setFlash(typeof data?.error === "string" ? data.error : "No se pudo enviar el email.");
       } else {
         setFlash("Email enviado correctamente.");
-        setEmitStep("done");
-        setTimeout(() => setEmitModalOpen(false), 1500);
       }
+      setEmitStep("done");
+      setTimeout(() => setEmitModalOpen(false), 1500);
     } catch (err) {
       setFlash(`Error inesperado al enviar: ${err instanceof Error ? err.message : String(err)}`);
+      setEmitStep("done");
+      setTimeout(() => setEmitModalOpen(false), 1500);
     } finally {
       setSending(false);
     }
@@ -299,17 +299,17 @@ export function DocumentActionBar({
         setFlash(`Error al programar: ${error.message}`);
       } else if (alreadyProcessed) {
         setFlash("Este documento ya tenía un envío procesado.");
-        setEmitStep("done");
-        setTimeout(() => setEmitModalOpen(false), 1500);
       } else if (!isSuccess) {
         setFlash(typeof data?.error === "string" ? data.error : "No se pudo programar el envío.");
       } else {
         setFlash(`Envío programado para ${scheduleDate} a las ${scheduleTime}.`);
-        setEmitStep("done");
-        setTimeout(() => setEmitModalOpen(false), 1500);
       }
+      setEmitStep("done");
+      setTimeout(() => setEmitModalOpen(false), 1500);
     } catch (err) {
       setFlash(`Error inesperado: ${err instanceof Error ? err.message : String(err)}`);
+      setEmitStep("done");
+      setTimeout(() => setEmitModalOpen(false), 1500);
     } finally {
       setSending(false);
     }

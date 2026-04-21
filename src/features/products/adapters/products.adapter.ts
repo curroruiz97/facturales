@@ -2,6 +2,7 @@ import { billingLimitsService } from "../../../services/billing-limits/billing-l
 import { productsRepository, type CreateProductInput, type UpdateProductInput } from "../../../services/repositories/products.repository";
 import type { Product } from "../../../shared/types/domain";
 import { fail, ok, type ServiceResult } from "../../../shared/types/service-result";
+import type { ProductImportRowResult } from "../domain/products-import";
 
 export interface ProductsUsageBadge {
   current: number;
@@ -15,6 +16,12 @@ export interface BulkDeleteSummary {
   failedIds: string[];
 }
 
+export interface ProductsImportSummary {
+  insertedCount: number;
+  skippedDuplicates: number;
+  errorRows: Array<{ row: number; nombre: string; reason: string }>;
+}
+
 export interface ProductsAdapter {
   loadProducts(searchTerm?: string): Promise<ServiceResult<Product[]>>;
   createProduct(input: CreateProductInput): Promise<ServiceResult<Product>>;
@@ -22,6 +29,11 @@ export interface ProductsAdapter {
   deleteProduct(productId: string): Promise<ServiceResult<null>>;
   deleteProducts(productIds: string[]): Promise<ServiceResult<BulkDeleteSummary>>;
   loadUsageBadge(): Promise<ServiceResult<ProductsUsageBadge | null>>;
+  importProducts(rows: ProductImportRowResult[]): Promise<ServiceResult<ProductsImportSummary>>;
+}
+
+function normalizeReference(reference: string | null | undefined): string {
+  return (reference ?? "").trim().toUpperCase();
 }
 
 export class DefaultProductsAdapter implements ProductsAdapter {
@@ -91,6 +103,64 @@ export class DefaultProductsAdapter implements ProductsAdapter {
       failed,
       failedIds,
     });
+  }
+
+  async importProducts(rows: ProductImportRowResult[]): Promise<ServiceResult<ProductsImportSummary>> {
+    if (rows.length === 0) return fail("No hay filas para importar", "VALIDATION_PRODUCTS_IMPORT_EMPTY");
+
+    const usageResult = await this.loadUsageBadge();
+    if (!usageResult.success) return fail(usageResult.error.message, usageResult.error.code, usageResult.error.cause);
+    if (usageResult.data && usageResult.data.limit !== Number.POSITIVE_INFINITY) {
+      const remaining = usageResult.data.limit - usageResult.data.current;
+      if (remaining <= 0) {
+        return fail(
+          `Has alcanzado el limite de ${usageResult.data.limit} productos del plan ${usageResult.data.planName}.`,
+          "BILLING_LIMIT_PRODUCTS_BLOCKED",
+        );
+      }
+      if (rows.length > remaining) {
+        return fail(
+          `Solo puedes importar ${remaining} producto(s) con tu plan actual (${usageResult.data.current}/${usageResult.data.limit}).`,
+          "BILLING_LIMIT_PRODUCTS_IMPORT_EXCEEDED",
+        );
+      }
+    }
+
+    const existingProducts = await productsRepository.list("");
+    if (!existingProducts.success) {
+      return fail(existingProducts.error.message, existingProducts.error.code, existingProducts.error.cause);
+    }
+
+    const knownReferences = new Set(
+      existingProducts.data
+        .map((product) => normalizeReference(product.referencia))
+        .filter((ref) => ref.length > 0),
+    );
+    let insertedCount = 0;
+    let skippedDuplicates = 0;
+    const errorRows: Array<{ row: number; nombre: string; reason: string }> = [];
+
+    for (const row of rows) {
+      const reference = normalizeReference(row.data.referencia);
+      if (reference && knownReferences.has(reference)) {
+        skippedDuplicates += 1;
+        continue;
+      }
+
+      const created = await productsRepository.create(row.data);
+      if (created.success) {
+        insertedCount += 1;
+        if (reference) knownReferences.add(reference);
+      } else {
+        errorRows.push({
+          row: row.rowIndex,
+          nombre: row.data.nombre,
+          reason: created.error.message,
+        });
+      }
+    }
+
+    return ok({ insertedCount, skippedDuplicates, errorRows });
   }
 }
 
