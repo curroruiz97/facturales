@@ -270,6 +270,7 @@ export function InvoicesPage({ mode }: InvoicesPageProps): import("react").JSX.E
             editorController={workspace.editorController}
             onSaveDraft={saveDraft}
             onEmit={emitActive}
+            emitErrorMessage={workspace.error}
             flash={flash}
             setFlash={setFlash}
             previewPath="/facturas/vista-previa"

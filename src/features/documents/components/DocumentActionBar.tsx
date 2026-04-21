@@ -14,7 +14,10 @@ interface DocumentActionBarProps {
   editorController: UseDocumentEditorResult;
   /** Returns the saved document ID on success, or null on failure. */
   onSaveDraft: () => Promise<string | null>;
+  /** Returns true on success. Falsy return shows generic error, or caller can set workspace.error for detail. */
   onEmit: () => Promise<boolean>;
+  /** Last emission error message to surface in toast when emit fails. */
+  emitErrorMessage?: string | null;
   flash: string | null;
   setFlash: (msg: string | null) => void;
   mode?: "editor" | "preview";
@@ -77,6 +80,7 @@ export function DocumentActionBar({
   editorController,
   onSaveDraft,
   onEmit,
+  emitErrorMessage,
   flash,
   setFlash,
   mode = "editor",
@@ -219,7 +223,7 @@ export function DocumentActionBar({
       setTimeout(() => setEmitModalOpen(false), 1200);
     } else {
       // Cierra la modal aunque la emisión falle y muestra el error por toast
-      setFlash(`No se pudo emitir ${kindLabel}. Revisa los datos e inténtalo de nuevo.`);
+      setFlash(emitErrorMessage ? `No se pudo emitir: ${emitErrorMessage}` : `No se pudo emitir ${kindLabel}. Revisa los datos e inténtalo de nuevo.`);
       setEmitStep("done");
       setTimeout(() => setEmitModalOpen(false), 1500);
     }
@@ -232,7 +236,7 @@ export function DocumentActionBar({
     }
     const success = await doEmit();
     if (!success) {
-      setFlash(`No se pudo emitir ${kindLabel}. Revisa los datos e inténtalo de nuevo.`);
+      setFlash(emitErrorMessage ? `No se pudo emitir: ${emitErrorMessage}` : `No se pudo emitir ${kindLabel}. Revisa los datos e inténtalo de nuevo.`);
       setEmitStep("done");
       setTimeout(() => setEmitModalOpen(false), 1500);
       return;
@@ -247,7 +251,7 @@ export function DocumentActionBar({
     }
     const success = await doEmit();
     if (!success) {
-      setFlash(`No se pudo emitir ${kindLabel}. Revisa los datos e inténtalo de nuevo.`);
+      setFlash(emitErrorMessage ? `No se pudo emitir: ${emitErrorMessage}` : `No se pudo emitir ${kindLabel}. Revisa los datos e inténtalo de nuevo.`);
       setEmitStep("done");
       setTimeout(() => setEmitModalOpen(false), 1500);
       return;

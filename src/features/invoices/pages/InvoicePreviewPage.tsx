@@ -254,6 +254,7 @@ export function InvoicePreviewPage(): import("react").JSX.Element {
         editorController={workspace.editorController}
         onSaveDraft={saveDraft}
         onEmit={emitActive}
+        emitErrorMessage={workspace.error}
         flash={flash}
         setFlash={setFlash}
         mode="preview"

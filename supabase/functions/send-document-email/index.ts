@@ -74,6 +74,28 @@ async function sha256(message: string): Promise<string> {
   return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+/**
+ * Extrae el user id y email del JWT ya validado por Supabase (verify_jwt=true).
+ * No verifica la firma — Supabase lo hizo antes de invocar la función.
+ */
+function extractUserFromJwt(authHeader: string): { id: string; email?: string } | null {
+  try {
+    const token = authHeader.replace(/^Bearer\s+/i, "").trim();
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+    // base64url decode
+    const payload = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const padded = payload + "=".repeat((4 - (payload.length % 4)) % 4);
+    const json = JSON.parse(atob(padded));
+    if (!json.sub || typeof json.sub !== "string") return null;
+    // Rechaza tokens expirados (defensa en profundidad — Supabase ya debería haberlos bloqueado)
+    if (typeof json.exp === "number" && Date.now() / 1000 > json.exp) return null;
+    return { id: json.sub, email: typeof json.email === "string" ? json.email : undefined };
+  } catch {
+    return null;
+  }
+}
+
 // arriba de buildEmailHtml, o dentro, como constantes:
 const POWERED_BY_URL = "https://facturales.es/";
 const POWERED_BY_LOGO = "https://nukslmpdwjqlepacukul.supabase.co/storage/v1/object/public/email-assets/logo-color.png";
@@ -227,13 +249,12 @@ Deno.serve(async (req: Request) => {
 
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
-    // ── 3. Validar JWT (pasa token explícitamente para Deno edge runtime) ──
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
-    if (authError || !user) {
-      return jsonResponse(req, { success: false, error: `Token inválido: ${authError?.message ?? "usuario no encontrado"}` }, 401);
+    // ── 3. Extraer user id del JWT (ya validado por Supabase con verify_jwt=true) ──
+    const jwtInfo = extractUserFromJwt(authHeader);
+    if (!jwtInfo) {
+      return jsonResponse(req, { success: false, error: "Token inválido o expirado" }, 401);
     }
-    const userId = user.id;
+    const userId = jwtInfo.id;
 
     // ── 4. Verificar ownership y status del documento ────────
     const tableName = documentType === "invoice" ? "invoices" : "quotes";

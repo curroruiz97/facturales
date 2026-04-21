@@ -268,6 +268,7 @@ export function QuotesPage({ mode }: QuotesPageProps): import("react").JSX.Eleme
             editorController={workspace.editorController}
             onSaveDraft={saveDraft}
             onEmit={emitActive}
+            emitErrorMessage={workspace.error}
             flash={flash}
             setFlash={setFlash}
             previewPath="/presupuestos/vista-previa"
