@@ -1,6 +1,7 @@
 // Supabase Edge Function: send-document-email
 // Envía email con PDF adjunto de factura/presupuesto vía Resend
-// Requiere JWT (verificación automática de Supabase)
+// verify_jwt=false: validamos el JWT nosotros mismos decodificando el payload
+//   (el gateway de Supabase estaba rechazando tokens válidos con 401 en Deno edge runtime).
 // Sin reintentos: cada combinación documentType+documentId+to se envía una sola vez.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -193,6 +194,14 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
+    // ── 0. Validación propia del JWT (verify_jwt=false en el gateway) ──
+    const authHeader = req.headers.get("Authorization") || "";
+    const token = authHeader.replace(/^Bearer\s+/i, "").trim();
+    if (!token) return jsonResponse(req, { success: false, error: "Falta header Authorization" }, 401);
+    const jwtPayload = extractUserFromJwt(`Bearer ${token}`);
+    if (!jwtPayload) return jsonResponse(req, { success: false, error: "JWT inválido o expirado" }, 401);
+    const userId = jwtPayload.id;
+
     // ── 1. Parsear y validar payload ──────────────────────────
     const payload: EmailPayload = await req.json();
     const { documentType, documentId, pdfBase64 } = payload;
@@ -238,23 +247,10 @@ Deno.serve(async (req: Request) => {
       return jsonResponse(req, { success: false, error: "pdfBase64 es obligatorio (PDF del documento)" }, 400);
     }
 
-    // ── 2. Crear clientes Supabase ───────────────────────────
+    // ── 2. Crear cliente Supabase admin ───────────────────────
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const authHeader = req.headers.get("Authorization");
-
-    if (!authHeader) {
-      return jsonResponse(req, { success: false, error: "No autorizado: falta header Authorization" }, 401);
-    }
-
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
-
-    // ── 3. Extraer user id del JWT (ya validado por Supabase con verify_jwt=true) ──
-    const jwtInfo = extractUserFromJwt(authHeader);
-    if (!jwtInfo) {
-      return jsonResponse(req, { success: false, error: "Token inválido o expirado" }, 401);
-    }
-    const userId = jwtInfo.id;
 
     // ── 4. Verificar ownership y status del documento ────────
     const tableName = documentType === "invoice" ? "invoices" : "quotes";
