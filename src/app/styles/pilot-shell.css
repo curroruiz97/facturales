@@ -13044,3 +13044,132 @@ select.settings-input option:checked {
   .plan-card__feature { color: #cbd5e1; }
   .plans-page__footer-text { color: #94a3b8; }
 }
+
+/* ── Line items: layout responsive (tabla desktop, cards móvil) ── */
+.inv-line-cards {
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+}
+.inv-line-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+.dark .inv-line-card {
+  background: #1d1e24;
+  border-color: #2a313c;
+}
+.inv-line-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.inv-line-card__index {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #ec8228;
+  background: rgba(236, 130, 40, 0.1);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+.inv-line-card__remove {
+  width: 34px;
+  height: 34px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #94a3b8;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.inv-line-card__remove:hover:not(:disabled) {
+  background: rgba(220, 38, 38, 0.08);
+  color: #b91c1c;
+  border-color: rgba(220, 38, 38, 0.2);
+}
+.inv-line-card__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.inv-line-card__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+.dark .inv-line-card__label {
+  color: #94a3b8;
+}
+.inv-line-card__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.inv-line-card__field--full {
+  grid-column: 1 / -1;
+}
+.inv-line-card__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px dashed #e2e8f0;
+}
+.dark .inv-line-card__footer {
+  border-top-color: #2a313c;
+}
+.inv-line-card__total-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #64748b;
+}
+.dark .inv-line-card__total-label {
+  color: #94a3b8;
+}
+.inv-line-card__total-value {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f172a;
+  font-variant-numeric: tabular-nums;
+}
+.dark .inv-line-card__total-value {
+  color: #f1f5f9;
+}
+.inv-line-cards__empty {
+  margin: 0;
+  padding: 28px 16px;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.9rem;
+  font-style: italic;
+  border: 1px dashed #e2e8f0;
+  border-radius: 14px;
+}
+.dark .inv-line-cards__empty {
+  border-color: #2a313c;
+}
+
+/* Breakpoint: tablet/móvil → cards en lugar de tabla */
+@media (max-width: 820px) {
+  .inv-line-table-wrap { display: none; }
+  .inv-line-cards { display: flex; }
+}
+
+/* En móvil muy pequeño, cant/precio/impuesto/dto se apilan a una columna */
+@media (max-width: 420px) {
+  .inv-line-card__grid { grid-template-columns: 1fr; }
+}

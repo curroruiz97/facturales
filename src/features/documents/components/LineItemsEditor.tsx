@@ -136,8 +136,48 @@ export function LineItemsEditor({
     });
   };
 
+  const renderQuantityStepper = (line: DocumentLineDraft) => (
+    !readOnly && (
+      <div className="inv-number-stepper">
+        <button type="button" tabIndex={-1} onClick={() => onUpdateLine(line.id, { quantity: Math.round((line.quantity + 1) * 100) / 100 })} aria-label="Incrementar">
+          <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 7L5 3L8 7" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        </button>
+        <button type="button" tabIndex={-1} onClick={() => onUpdateLine(line.id, { quantity: Math.max(0, Math.round((line.quantity - 1) * 100) / 100) })} aria-label="Decrementar">
+          <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 3L5 7L8 3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        </button>
+      </div>
+    )
+  );
+
+  const renderPriceStepper = (line: DocumentLineDraft) => (
+    !readOnly && (
+      <div className="inv-number-stepper">
+        <button type="button" tabIndex={-1} onClick={() => onUpdateLine(line.id, { unitPrice: Math.round((line.unitPrice + 1) * 100) / 100 })} aria-label="Incrementar">
+          <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 7L5 3L8 7" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        </button>
+        <button type="button" tabIndex={-1} onClick={() => onUpdateLine(line.id, { unitPrice: Math.max(0, Math.round((line.unitPrice - 1) * 100) / 100) })} aria-label="Decrementar">
+          <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 3L5 7L8 3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        </button>
+      </div>
+    )
+  );
+
+  const renderDiscountStepper = (line: DocumentLineDraft) => (
+    !readOnly && (
+      <div className="inv-number-stepper">
+        <button type="button" tabIndex={-1} onClick={() => onUpdateLine(line.id, { discount: Math.min(100, Math.round((line.discount + 1) * 100) / 100) })} aria-label="Incrementar">
+          <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 7L5 3L8 7" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        </button>
+        <button type="button" tabIndex={-1} onClick={() => onUpdateLine(line.id, { discount: Math.max(0, Math.round((line.discount - 1) * 100) / 100) })} aria-label="Decrementar">
+          <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 3L5 7L8 3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        </button>
+      </div>
+    )
+  );
+
   return (
     <section>
+      {/* Desktop: tabla clásica */}
       <div className="inv-line-table-wrap">
         <table className="inv-line-table">
           <thead>
@@ -183,16 +223,7 @@ export function LineItemsEditor({
                       onChange={(event) => onUpdateLine(line.id, { quantity: toNumber(event.target.value) })}
                       disabled={readOnly}
                     />
-                    {!readOnly && (
-                      <div className="inv-number-stepper">
-                        <button type="button" tabIndex={-1} onClick={() => onUpdateLine(line.id, { quantity: Math.round((line.quantity + 1) * 100) / 100 })} aria-label="Incrementar">
-                          <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 7L5 3L8 7" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                        </button>
-                        <button type="button" tabIndex={-1} onClick={() => onUpdateLine(line.id, { quantity: Math.max(0, Math.round((line.quantity - 1) * 100) / 100) })} aria-label="Decrementar">
-                          <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 3L5 7L8 3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                        </button>
-                      </div>
-                    )}
+                    {renderQuantityStepper(line)}
                   </div>
                 </td>
                 <td>
@@ -206,16 +237,7 @@ export function LineItemsEditor({
                       onChange={(event) => onUpdateLine(line.id, { unitPrice: toNumber(event.target.value) })}
                       disabled={readOnly}
                     />
-                    {!readOnly && (
-                      <div className="inv-number-stepper">
-                        <button type="button" tabIndex={-1} onClick={() => onUpdateLine(line.id, { unitPrice: Math.round((line.unitPrice + 1) * 100) / 100 })} aria-label="Incrementar">
-                          <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 7L5 3L8 7" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                        </button>
-                        <button type="button" tabIndex={-1} onClick={() => onUpdateLine(line.id, { unitPrice: Math.max(0, Math.round((line.unitPrice - 1) * 100) / 100) })} aria-label="Decrementar">
-                          <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 3L5 7L8 3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                        </button>
-                      </div>
-                    )}
+                    {renderPriceStepper(line)}
                   </div>
                 </td>
                 <td>
@@ -244,20 +266,11 @@ export function LineItemsEditor({
                       onChange={(event) => onUpdateLine(line.id, { discount: toNumber(event.target.value) })}
                       disabled={readOnly}
                     />
-                    {!readOnly && (
-                      <div className="inv-number-stepper">
-                        <button type="button" tabIndex={-1} onClick={() => onUpdateLine(line.id, { discount: Math.min(100, Math.round((line.discount + 1) * 100) / 100) })} aria-label="Incrementar">
-                          <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 7L5 3L8 7" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                        </button>
-                        <button type="button" tabIndex={-1} onClick={() => onUpdateLine(line.id, { discount: Math.max(0, Math.round((line.discount - 1) * 100) / 100) })} aria-label="Decrementar">
-                          <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 3L5 7L8 3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                        </button>
-                      </div>
-                    )}
+                    {renderDiscountStepper(line)}
                   </div>
                 </td>
                 <td>
-                  <strong>{new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR" }).format(line.quantity * line.unitPrice)}</strong>
+                  <strong>{formatEUR(line.quantity * line.unitPrice)}</strong>
                 </td>
                 <td>
                   <button type="button" className="inv-icon-btn" onClick={() => onRemoveLine(line.id)} disabled={readOnly} title="Eliminar línea">
@@ -270,6 +283,123 @@ export function LineItemsEditor({
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Móvil: tarjetas apiladas (cada línea como card) */}
+      <div className="inv-line-cards">
+        {lines.map((line, idx) => (
+          <article key={line.id} className="inv-line-card">
+            <header className="inv-line-card__head">
+              <span className="inv-line-card__index">Línea {idx + 1}</span>
+              {!readOnly ? (
+                <button type="button" className="inv-line-card__remove" onClick={() => onRemoveLine(line.id)} aria-label="Eliminar línea">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+                    <path d="M4 7h16M9 7V5h6v2M9 11v7M15 11v7M7 7l1 12h8l1-12" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+              ) : null}
+            </header>
+
+            <label className="inv-line-card__field inv-line-card__field--full">
+              <span className="inv-line-card__label">Concepto</span>
+              <div className="inv-concept-input">
+                <input
+                  className="inv-input"
+                  type="text"
+                  value={line.description}
+                  onChange={(event) => onUpdateLine(line.id, { description: event.target.value })}
+                  disabled={readOnly}
+                  placeholder="Añadir concepto"
+                />
+                <button type="button" className="inv-icon-btn" onClick={() => openProductModal(line.id)} disabled={readOnly} title="Buscar producto" aria-label="Buscar producto">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+                    <circle cx="11" cy="11" r="6.5" stroke="currentColor" strokeWidth="1.8" />
+                    <path d="M16 16L21 21" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                  </svg>
+                </button>
+              </div>
+            </label>
+
+            <div className="inv-line-card__grid">
+              <label className="inv-line-card__field">
+                <span className="inv-line-card__label">Cantidad</span>
+                <div className="inv-number-wrap">
+                  <input
+                    className="inv-input"
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={line.quantity}
+                    onChange={(event) => onUpdateLine(line.id, { quantity: toNumber(event.target.value) })}
+                    disabled={readOnly}
+                    inputMode="decimal"
+                  />
+                  {renderQuantityStepper(line)}
+                </div>
+              </label>
+
+              <label className="inv-line-card__field">
+                <span className="inv-line-card__label">Precio (€)</span>
+                <div className="inv-number-wrap">
+                  <input
+                    className="inv-input"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={line.unitPrice}
+                    onChange={(event) => onUpdateLine(line.id, { unitPrice: toNumber(event.target.value) })}
+                    disabled={readOnly}
+                    inputMode="decimal"
+                  />
+                  {renderPriceStepper(line)}
+                </div>
+              </label>
+
+              <label className="inv-line-card__field">
+                <span className="inv-line-card__label">Impuesto</span>
+                <select
+                  className="inv-select"
+                  value={line.taxCode}
+                  onChange={(event) => onUpdateLine(line.id, { taxCode: event.target.value })}
+                  disabled={readOnly}
+                >
+                  {DOCUMENT_TAX_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="inv-line-card__field">
+                <span className="inv-line-card__label">Dto. %</span>
+                <div className="inv-number-wrap">
+                  <input
+                    className="inv-input"
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.5"
+                    value={line.discount}
+                    onChange={(event) => onUpdateLine(line.id, { discount: toNumber(event.target.value) })}
+                    disabled={readOnly}
+                    inputMode="decimal"
+                  />
+                  {renderDiscountStepper(line)}
+                </div>
+              </label>
+            </div>
+
+            <footer className="inv-line-card__footer">
+              <span className="inv-line-card__total-label">Importe</span>
+              <strong className="inv-line-card__total-value">{formatEUR(line.quantity * line.unitPrice)}</strong>
+            </footer>
+          </article>
+        ))}
+
+        {lines.length === 0 ? (
+          <p className="inv-line-cards__empty">Sin líneas. Añade la primera pulsando "Añadir línea".</p>
+        ) : null}
       </div>
 
       {productModalOpen ? (
