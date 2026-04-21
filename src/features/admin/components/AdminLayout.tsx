@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
-  Shield, LayoutDashboard, Users, CreditCard, DollarSign,
+  Shield, LayoutDashboard, Users, CreditCard, Package, DollarSign,
   Activity, Mail, HeartPulse, ScrollText, Flag, Settings,
   Menu, X, ChevronRight, Moon, Sun,
 } from "lucide-react";
@@ -19,6 +19,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: "overview", label: "Overview", href: "/admin", icon: LayoutDashboard, section: "Principal" },
   { id: "users", label: "Usuarios", href: "/admin/users", icon: Users, section: "Gestion" },
   { id: "subscriptions", label: "Suscripciones", href: "/admin/subscriptions", icon: CreditCard, section: "Gestion" },
+  { id: "plans", label: "Planes", href: "/admin/plans", icon: Package, section: "Gestion" },
   { id: "finance", label: "Finanzas", href: "/admin/finance", icon: DollarSign, section: "Analytics" },
   { id: "api-usage", label: "Uso de API", href: "/admin/api-usage", icon: Activity, section: "Analytics" },
   { id: "email", label: "Email", href: "/admin/email-analytics", icon: Mail, section: "Analytics" },

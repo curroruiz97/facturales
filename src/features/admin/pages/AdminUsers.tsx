@@ -1,10 +1,17 @@
 import { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Users, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Users, Search, ChevronLeft, ChevronRight, Trash2, Eye, AlertTriangle } from "lucide-react";
 import { AdminLayout } from "../components/AdminLayout";
 import { AdminExportButton } from "../components/shared/AdminExportButton";
 import { AdminUserService } from "../services/AdminUserService";
 import type { AdminUsersResponse } from "../types";
+
+type PlanValue = "starter" | "pro" | "business";
+const PLAN_OPTIONS: ReadonlyArray<{ value: PlanValue; label: string }> = [
+  { value: "starter", label: "Starter" },
+  { value: "pro", label: "Pro" },
+  { value: "business", label: "Business" },
+];
 
 const PLAN_BADGE: Record<string, string> = {
   starter: "bg-slate-100 text-slate-700 ring-slate-200/60 dark:bg-slate-700 dark:text-slate-300 dark:ring-slate-600",
@@ -31,6 +38,9 @@ export function AdminUsers(): import("react").JSX.Element {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [planFilter, setPlanFilter] = useState("");
+  const [updatingUser, setUpdatingUser] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<{ id: string; email: string } | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -44,6 +54,24 @@ export function AdminUsers(): import("react").JSX.Element {
   const handleSearch = (value: string) => {
     setSearch(value);
     setPage(1);
+  };
+
+  const handlePlanChange = async (userId: string, plan: string): Promise<void> => {
+    setUpdatingUser(userId);
+    const ok = await AdminUserService.updateSubscription(userId, plan);
+    setUpdatingUser(null);
+    if (ok) void load();
+  };
+
+  const handleConfirmDelete = async (): Promise<void> => {
+    if (!confirmDelete) return;
+    setDeleting(true);
+    const ok = await AdminUserService.deleteUser(confirmDelete.id);
+    setDeleting(false);
+    if (ok) {
+      setConfirmDelete(null);
+      void load();
+    }
   };
 
   return (
@@ -104,13 +132,14 @@ export function AdminUsers(): import("react").JSX.Element {
                   <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Plan</th>
                   <th className="hidden px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 md:table-cell">Facturas</th>
                   <th className="hidden px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 lg:table-cell">Registro</th>
+                  <th className="px-5 py-3.5 text-right text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
                   Array.from({ length: 5 }).map((_, i) => (
                     <tr key={i} className="border-b border-slate-100 last:border-0 dark:border-slate-700/50">
-                      <td colSpan={5} className="px-5 py-4"><div className="h-5 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-700" /></td>
+                      <td colSpan={6} className="px-5 py-4"><div className="h-5 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-700" /></td>
                     </tr>
                   ))
                 ) : (
@@ -125,13 +154,45 @@ export function AdminUsers(): import("react").JSX.Element {
                         {user.nombre_fiscal ?? user.nombre_comercial ?? <span className="text-slate-300 dark:text-slate-600">&mdash;</span>}
                       </td>
                       <td className="px-5 py-3.5">
-                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ring-1 ring-inset ${PLAN_BADGE[user.plan] ?? PLAN_BADGE.starter}`}>
-                          {user.plan}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ring-1 ring-inset ${PLAN_BADGE[user.plan] ?? PLAN_BADGE.starter}`}>
+                            {user.plan}
+                          </span>
+                          <select
+                            value={user.plan}
+                            disabled={updatingUser === user.id}
+                            onChange={(e) => void handlePlanChange(user.id, e.target.value)}
+                            className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs text-slate-600 focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-500/30 disabled:opacity-50 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200"
+                            title="Cambiar plan"
+                          >
+                            {PLAN_OPTIONS.map((opt) => (
+                              <option key={opt.value} value={opt.value}>{opt.label}</option>
+                            ))}
+                          </select>
+                        </div>
                       </td>
                       <td className="hidden px-5 py-3.5 font-medium tabular-nums text-slate-700 dark:text-slate-300 md:table-cell">{user.invoices_count}</td>
                       <td className="hidden px-5 py-3.5 text-slate-500 dark:text-slate-400 lg:table-cell">
                         {new Date(user.created_at).toLocaleDateString("es-ES", { day: "2-digit", month: "short", year: "numeric" })}
+                      </td>
+                      <td className="px-5 py-3.5 text-right">
+                        <div className="inline-flex items-center gap-1.5">
+                          <Link
+                            to={`/admin/users/${user.id}`}
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-orange-600 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-orange-400"
+                            title="Ver detalle"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => setConfirmDelete({ id: user.id, email: user.email })}
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-rose-50 hover:text-rose-600 dark:text-slate-400 dark:hover:bg-rose-900/30 dark:hover:text-rose-400"
+                            title="Eliminar usuario"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -186,6 +247,44 @@ export function AdminUsers(): import("react").JSX.Element {
           </div>
         ) : null}
       </div>
+
+      {/* Modal de confirmación de borrado */}
+      {confirmDelete ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-slate-800">
+            <div className="mb-4 flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-rose-100 text-rose-600 dark:bg-rose-900/40 dark:text-rose-300">
+                <AlertTriangle className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-slate-900 dark:text-white">Eliminar usuario</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Esta acción es irreversible.</p>
+              </div>
+            </div>
+            <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
+              Vas a eliminar permanentemente al usuario <strong className="text-slate-900 dark:text-white">{confirmDelete.email}</strong>. Se borrarán sus facturas, presupuestos, contactos, productos y ficheros.
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(null)}
+                disabled={deleting}
+                className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={() => void handleConfirmDelete()}
+                disabled={deleting}
+                className="rounded-lg bg-gradient-to-r from-rose-500 to-rose-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:from-rose-600 hover:to-rose-700 disabled:opacity-50"
+              >
+                {deleting ? "Eliminando..." : "Eliminar usuario"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </AdminLayout>
   );
 }

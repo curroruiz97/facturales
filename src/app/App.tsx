@@ -47,6 +47,7 @@ const AdminEmailAnalytics = lazy(() => import("../features/admin/pages/AdminEmai
 const AdminSystemHealth = lazy(() => import("../features/admin/pages/AdminSystemHealth").then((m) => ({ default: m.AdminSystemHealth })));
 const AdminLogs = lazy(() => import("../features/admin/pages/AdminLogs").then((m) => ({ default: m.AdminLogs })));
 const AdminFeatureFlags = lazy(() => import("../features/admin/pages/AdminFeatureFlags").then((m) => ({ default: m.AdminFeatureFlags })));
+const AdminPlans = lazy(() => import("../features/admin/pages/AdminPlans").then((m) => ({ default: m.AdminPlans })));
 const AdminConfig = lazy(() => import("../features/admin/pages/AdminConfig").then((m) => ({ default: m.AdminConfig })));
 
 interface CanonicalRouteDefinition {
@@ -135,6 +136,7 @@ function AppRoutes(): JSX.Element {
       <Route path="/admin/users" element={<ProtectedRoute><AdminGuard><AdminSuspense><AdminUsers /></AdminSuspense></AdminGuard></ProtectedRoute>} />
       <Route path="/admin/users/:userId" element={<ProtectedRoute><AdminGuard><AdminSuspense><AdminUserDetail /></AdminSuspense></AdminGuard></ProtectedRoute>} />
       <Route path="/admin/subscriptions" element={<ProtectedRoute><AdminGuard><AdminSuspense><AdminSubscriptions /></AdminSuspense></AdminGuard></ProtectedRoute>} />
+      <Route path="/admin/plans" element={<ProtectedRoute><AdminGuard><AdminSuspense><AdminPlans /></AdminSuspense></AdminGuard></ProtectedRoute>} />
       <Route path="/admin/finance" element={<ProtectedRoute><AdminGuard><AdminSuspense><AdminFinance /></AdminSuspense></AdminGuard></ProtectedRoute>} />
       <Route path="/admin/api-usage" element={<ProtectedRoute><AdminGuard><AdminSuspense><AdminApiUsage /></AdminSuspense></AdminGuard></ProtectedRoute>} />
       <Route path="/admin/email-analytics" element={<ProtectedRoute><AdminGuard><AdminSuspense><AdminEmailAnalytics /></AdminSuspense></AdminGuard></ProtectedRoute>} />

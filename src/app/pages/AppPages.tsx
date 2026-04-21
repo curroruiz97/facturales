@@ -6,6 +6,7 @@ import { businessInfoService, type BusinessInfoInput } from "../../services/busi
 import { subscriptionStatusService } from "../../services/subscription/subscription-status.service";
 import { subscriptionManagementService } from "../../services/subscription/subscription-management.service";
 import type { BillingInterval, BillingPlan } from "../../shared/types/domain";
+import { DEFAULT_PLAN_CONFIGS, fetchPlanConfigs, type PlanConfig } from "../../services/plans/plans-config.service";
 import { useAuth } from "../providers/AuthProvider";
 import { ErrorState } from "../components/states/ErrorState";
 import { resolveSafeRedirectPath } from "../routing/route-metadata";
@@ -1490,65 +1491,6 @@ export function SubscribePage(): import("react").JSX.Element {
   );
 }
 
-interface OnboardingPlan {
-  id: Exclude<BillingPlan, "none">;
-  label: string;
-  monthlyPrice: number;
-  yearlyPrice: number;
-  tagline: string;
-  badge?: string;
-  features: string[];
-}
-
-const ONBOARDING_PLANS: OnboardingPlan[] = [
-  {
-    id: "starter",
-    label: "Starter",
-    monthlyPrice: 6.45,
-    yearlyPrice: 4.95,
-    tagline: "Para empezar a facturar.",
-    features: [
-      "Hasta 10 clientes",
-      "1 usuario",
-      "Hasta 30 productos",
-      "10 facturas / mes",
-      "Escaneado: 10 docs/mes",
-      "Soporte por email",
-    ],
-  },
-  {
-    id: "pro",
-    label: "Pro",
-    monthlyPrice: 11.95,
-    yearlyPrice: 8.95,
-    tagline: "Para profesionales y autónomos activos.",
-    badge: "Más popular",
-    features: [
-      "Hasta 150 clientes",
-      "Hasta 3 usuarios",
-      "Hasta 150 productos",
-      "Facturas ilimitadas",
-      "Escaneado: 75 docs/mes",
-      "Soporte por chat y email",
-    ],
-  },
-  {
-    id: "business",
-    label: "Ilimitado",
-    monthlyPrice: 23.95,
-    yearlyPrice: 17.95,
-    tagline: "Equipos, asesorías y alto volumen.",
-    features: [
-      "Clientes ilimitados",
-      "Usuarios ilimitados",
-      "Productos ilimitados",
-      "Facturas ilimitadas",
-      "Escaneado: 300 docs/mes",
-      "Soporte prioritario (chat, email y teléfono)",
-    ],
-  },
-];
-
 function formatPlanPrice(value: number): string {
   return value.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
@@ -1557,29 +1499,34 @@ export function PlansPage(): import("react").JSX.Element {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [interval, setInterval] = useState<BillingInterval>("yearly");
-  const [loadingPlan, setLoadingPlan] = useState<OnboardingPlan["id"] | null>(null);
+  const [loadingPlan, setLoadingPlan] = useState<PlanConfig["id"] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [hasActive, setHasActive] = useState<boolean>(false);
   const [statusLoading, setStatusLoading] = useState(true);
+  const [plans, setPlans] = useState<PlanConfig[]>(DEFAULT_PLAN_CONFIGS);
 
   useEffect(() => {
     let active = true;
     const load = async () => {
-      const result = await subscriptionStatusService.resolveStatus();
+      const [statusResult, planConfigs] = await Promise.all([
+        subscriptionStatusService.resolveStatus(),
+        fetchPlanConfigs(),
+      ]);
       if (!active) return;
-      if (result.success && result.data.hasAccess) {
+      if (statusResult.success && statusResult.data.hasAccess) {
         setHasActive(true);
       }
+      setPlans(planConfigs);
       setStatusLoading(false);
     };
     void load();
     return () => { active = false; };
   }, []);
 
-  const handleSelectPlan = async (planId: OnboardingPlan["id"]): Promise<void> => {
+  const handleSelectPlan = async (planId: PlanConfig["id"]): Promise<void> => {
     setError(null);
     setLoadingPlan(planId);
-    const result = await subscriptionManagementService.createCheckoutSession(planId, interval);
+    const result = await subscriptionManagementService.createCheckoutSession(planId as Exclude<BillingPlan, "none">, interval);
     if (!result.success) {
       setLoadingPlan(null);
       setError(`No se pudo iniciar el pago: ${result.error.message}`);
@@ -1634,7 +1581,7 @@ export function PlansPage(): import("react").JSX.Element {
         {error ? <p className="plans-page__error">{error}</p> : null}
 
         <div className="plans-page__grid">
-          {ONBOARDING_PLANS.map((plan) => {
+          {plans.map((plan) => {
             const price = interval === "yearly" ? plan.yearlyPrice : plan.monthlyPrice;
             const isLoading = loadingPlan === plan.id;
             return (
