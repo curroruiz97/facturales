@@ -45,16 +45,13 @@ function toFormValues(product: Product): ProductFormValues {
   };
 }
 
+function formatLimit(limit: number): string {
+  if (limit === Number.POSITIVE_INFINITY) return "Ilimitado";
+  return String(limit);
+}
+
 type FormMode = "create" | "edit";
 type DeleteMode = "single" | "bulk";
-
-const IconSearch = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-);
-
-const IconPackage = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.89 1.45l8 4A2 2 0 0122 7.24v9.53a2 2 0 01-1.11 1.79l-8 4a2 2 0 01-1.79 0l-8-4a2 2 0 01-1.1-1.8V7.24a2 2 0 011.11-1.79l8-4a2 2 0 011.78 0z"/><polyline points="2.32 6.16 12 11 21.68 6.16"/><line x1="12" y1="22.76" x2="12" y2="11"/></svg>
-);
 
 export function ProductsPage(): import("react").JSX.Element {
   const catalog = useProductsCatalog();
@@ -71,15 +68,11 @@ export function ProductsPage(): import("react").JSX.Element {
   const [importPreview, setImportPreview] = useState<ProductsImportPreview | null>(null);
   const [importParseError, setImportParseError] = useState<string | null>(null);
 
-  const isUnlimited = useMemo(() => {
-    return catalog.usageBadge?.limit === Number.POSITIVE_INFINITY;
-  }, [catalog.usageBadge]);
-
-  const usageRatio = useMemo(() => {
-    if (!catalog.usageBadge || isUnlimited) return 0;
-    if (catalog.usageBadge.limit <= 0) return 0;
-    return Math.min(1, catalog.usageBadge.current / catalog.usageBadge.limit);
-  }, [catalog.usageBadge, isUnlimited]);
+  const usageText = useMemo(() => {
+    if (catalog.usageError) return "No se pudo cargar uso de plan";
+    if (!catalog.usageBadge) return "Sin uso disponible";
+    return `${catalog.usageBadge.current}/${formatLimit(catalog.usageBadge.limit)} productos (${catalog.usageBadge.planName})`;
+  }, [catalog.usageBadge, catalog.usageError]);
 
   const openCreateModal = () => {
     setFlash(null);
@@ -238,65 +231,48 @@ export function ProductsPage(): import("react").JSX.Element {
 
   return (
     <div className="pilot-grid">
-      {/* Header: Catálogo + usage + search */}
       <section className="pilot-panel">
-        <div className="prod-header">
-          <div className="prod-header__left">
-            <div className="prod-header__icon"><IconPackage /></div>
-            <div>
-              <h2 className="prod-header__title">Catálogo</h2>
-              <p className="prod-header__count">
-                {catalog.products.length} productos registrados
-              </p>
-              {catalog.usageBadge ? (
-                <div className="prod-usage">
-                  <span className="prod-usage__label">{catalog.usageBadge.current}</span>
-                  {isUnlimited ? (
-                    <>
-                      <span className="prod-usage__sep">/</span>
-                      <span className="prod-usage__infinity">∞</span>
-                      <span className="prod-usage__plan">productos</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="prod-usage__sep">/</span>
-                      <span className="prod-usage__label">{catalog.usageBadge.limit}</span>
-                      <span className="prod-usage__plan">productos</span>
-                      <div className="prod-usage__bar">
-                        <div className="prod-usage__fill" style={{ width: `${usageRatio * 100}%` }} />
-                      </div>
-                    </>
-                  )}
-                </div>
-              ) : null}
-            </div>
+        <div className="pilot-doc-header">
+          <div>
+            <h2>Productos</h2>
+            <p>Gestiona tu catálogo de productos y servicios.</p>
+            <small className="text-sm opacity-70">{usageText}</small>
           </div>
-          <div className="prod-header__search">
-            <span className="prod-header__search-icon"><IconSearch /></span>
-            <input
-              className="prod-header__search-input"
-              type="search"
-              value={catalog.searchTerm}
-              onChange={(event) => catalog.setSearchTerm(event.target.value)}
-              placeholder="Buscar por nombre o referencia"
-            />
+          <div className="pilot-actions">
+            <button type="button" className="pilot-btn" onClick={exportCsv}>
+              Exportar productos
+            </button>
+            <button type="button" className="pilot-btn" onClick={openImportModal}>
+              Importar productos
+            </button>
+            <button type="button" className="pilot-btn pilot-btn--primary" onClick={openCreateModal}>
+              Nuevo producto
+            </button>
           </div>
-        </div>
-        <div className="pilot-actions">
-          <button type="button" className="pilot-btn" onClick={exportCsv}>
-            Exportar productos
-          </button>
-          <button type="button" className="pilot-btn" onClick={openImportModal}>
-            Importar productos
-          </button>
-          <button type="button" className="pilot-btn pilot-btn--primary" onClick={openCreateModal}>
-            Nuevo producto
-          </button>
         </div>
       </section>
 
-      {/* Product list */}
       <section className="pilot-panel">
+        <label className="pilot-field">
+          Buscar productos
+          <input
+            className="pilot-input"
+            type="search"
+            value={catalog.searchTerm}
+            onChange={(event) => catalog.setSearchTerm(event.target.value)}
+            placeholder="Buscar por nombre o referencia..."
+          />
+        </label>
+      </section>
+
+      <section className="pilot-panel">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-lg font-bold">Lista de productos</h2>
+          <span className={`pilot-status ${catalog.products.length > 0 ? "pilot-status--ok" : "pilot-status--warn"}`}>
+            {catalog.products.length} registros
+          </span>
+        </div>
+
         {flash ? <p className="pilot-info-text">{flash}</p> : null}
 
         {catalog.selectedCount > 0 ? (
@@ -318,6 +294,7 @@ export function ProductsPage(): import("react").JSX.Element {
         {!catalog.loading && !catalog.error && catalog.pageProducts.length === 0 ? (
           <EmptyState title="No hay productos en esta vista" description="Prueba con otro filtro o crea un nuevo producto." />
         ) : null}
+
         {!catalog.loading && !catalog.error && catalog.pageProducts.length > 0 ? (
           <>
             <ProductsTable
@@ -327,22 +304,20 @@ export function ProductsPage(): import("react").JSX.Element {
               onTogglePageSelection={catalog.togglePageSelection}
               onEdit={openEditModal}
               onDelete={openSingleDelete}
-              onAdd={openCreateModal}
             />
-            <div className="tx-pagination">
-              <span className="tx-pagination__info">Mostrando resultados {((catalog.page - 1) * 10) + 1}–{Math.min(catalog.page * 10, catalog.products.length)}</span>
-              <div className="tx-pagination__controls">
-                <button type="button" className="tx-pagination__btn" disabled={catalog.page <= 1} onClick={() => catalog.setPage(catalog.page - 1)}>
-                  ‹
-                </button>
-                <span className="tx-pagination__page">{catalog.page}</span>
-                <button type="button" className="tx-pagination__btn" disabled={catalog.page >= catalog.totalPages} onClick={() => catalog.setPage(catalog.page + 1)}>
-                  ›
-                </button>
-              </div>
-              <label className="tx-pagination__select-all">
+            <div className="pilot-pagination">
+              <button type="button" className="pilot-btn" disabled={catalog.page <= 1} onClick={() => catalog.setPage(catalog.page - 1)}>
+                Anterior
+              </button>
+              <span className="text-sm">
+                Página {catalog.page} de {catalog.totalPages}
+              </span>
+              <button type="button" className="pilot-btn" disabled={catalog.page >= catalog.totalPages} onClick={() => catalog.setPage(catalog.page + 1)}>
+                Siguiente
+              </button>
+              <label className="pilot-inline-actions">
                 <input type="checkbox" checked={pageSelectAllChecked} onChange={(event) => catalog.togglePageSelection(event.target.checked)} />
-                <span>Seleccionar página</span>
+                <span className="text-sm">Seleccionar página</span>
               </label>
             </div>
           </>

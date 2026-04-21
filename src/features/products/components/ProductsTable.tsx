@@ -8,7 +8,6 @@ interface ProductsTableProps {
   onTogglePageSelection: (checked: boolean) => void;
   onEdit: (product: Product) => void;
   onDelete: (product: Product) => void;
-  onAdd?: () => void;
 }
 
 const IconEdit = () => (
@@ -32,7 +31,6 @@ export function ProductsTable({
   onTogglePageSelection,
   onEdit,
   onDelete,
-  onAdd,
 }: ProductsTableProps): import("react").JSX.Element {
   const selectedCountOnPage = products.filter((product) => selectedIds.has(product.id)).length;
   const allSelectedOnPage = products.length > 0 && selectedCountOnPage === products.length;
@@ -40,14 +38,6 @@ export function ProductsTable({
 
   return (
     <div className="overflow-auto">
-      <div className="prod-table-header">
-        <span className="prod-table-header__label">PRODUCTO / SERVICIO</span>
-        {onAdd ? (
-          <button type="button" className="prod-table-header__add" onClick={onAdd}>
-            Añadir producto
-          </button>
-        ) : null}
-      </div>
       <table className="pilot-table prod-table">
         <thead>
           <tr>
