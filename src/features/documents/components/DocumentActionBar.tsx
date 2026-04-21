@@ -31,6 +31,22 @@ type EmitStep = "confirm" | "send-form" | "schedule-form" | "done";
 const EMAIL_RE = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
 const MAX_RECIPIENTS = 10;
 
+/** Extrae el mensaje real del servidor cuando functions.invoke devuelve non-2xx */
+async function extractFunctionErrorMessage(error: unknown): Promise<string> {
+  const fallback = error instanceof Error ? error.message : "Error desconocido";
+  const ctx = (error as { context?: { body?: string | Blob } })?.context;
+  if (!ctx?.body) return fallback;
+  try {
+    const raw = typeof ctx.body === "string" ? ctx.body : await ctx.body.text();
+    const parsed = JSON.parse(raw);
+    if (parsed?.error) return String(parsed.error);
+    if (parsed?.message) return String(parsed.message);
+    return raw || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 function buildFilename(kind: string, number: string): string {
   const sanitized = (number || "sin-numero").replace(/[^a-zA-Z0-9-_]/g, "_");
   return `${kind === "invoice" ? "factura" : "presupuesto"}-${sanitized}.pdf`;
@@ -276,7 +292,8 @@ export function DocumentActionBar({
       const isSuccess = Boolean(data?.success);
 
       if (error) {
-        setFlash(`Error al enviar: ${error.message}`);
+        const detail = await extractFunctionErrorMessage(error);
+        setFlash(`Error al enviar: ${detail}`);
       } else if (alreadyProcessed) {
         setFlash("Este documento ya fue procesado anteriormente.");
       } else if (!isSuccess) {
@@ -343,7 +360,7 @@ export function DocumentActionBar({
       const isSuccess = Boolean(data?.success);
 
       if (error) {
-        setFlash(`Error al programar: ${error.message}`);
+        setFlash(`Error al programar: ${await extractFunctionErrorMessage(error)}`);
       } else if (alreadyProcessed) {
         setFlash("Este documento ya tenía un envío procesado.");
       } else if (!isSuccess) {
