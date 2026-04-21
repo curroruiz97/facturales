@@ -4,7 +4,7 @@ import { useDocumentEditor } from "../../documents/hooks/use-document-editor";
 import { quotesAdapter, type QuoteWorkspaceItem } from "../adapters/quotes.adapter";
 import { businessInfoService } from "../../../services/business/business-info.service";
 import { getSupabaseClient } from "../../../services/supabase/client";
-import { loadDefaultPaymentMethod } from "../../../services/payment/default-payment-method";
+import { loadDefaultPaymentMethod, loadDefaultPaymentMethodFromDB } from "../../../services/payment/default-payment-method";
 
 interface IssuerPrefill {
   name: string;
@@ -90,15 +90,27 @@ export function useQuotesWorkspace(): UseQuotesWorkspaceResult {
       editorController.setIssuerField("postalCode", issuerPrefill.postalCode);
       editorController.setIssuerField("email", issuerPrefill.email);
     }
-    const defaultPm = loadDefaultPaymentMethod();
-    if (defaultPm) {
+    const cachedPm = loadDefaultPaymentMethod();
+    if (cachedPm) {
       editorController.addPaymentMethod({
-        type: defaultPm.type,
-        iban: defaultPm.iban,
-        phone: defaultPm.phone,
-        label: defaultPm.label,
+        type: cachedPm.type,
+        iban: cachedPm.iban,
+        phone: cachedPm.phone,
+        label: cachedPm.label,
       });
     }
+    void loadDefaultPaymentMethodFromDB().then((dbPm) => {
+      if (!dbPm) return;
+      if (cachedPm && cachedPm.type === dbPm.type && cachedPm.iban === dbPm.iban && cachedPm.phone === dbPm.phone) return;
+      if (!cachedPm) {
+        editorController.addPaymentMethod({
+          type: dbPm.type,
+          iban: dbPm.iban,
+          phone: dbPm.phone,
+          label: dbPm.label,
+        });
+      }
+    });
     setActiveQuoteId(null);
     setActiveQuoteStatus("draft");
     setError(null);

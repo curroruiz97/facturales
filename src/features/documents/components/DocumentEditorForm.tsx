@@ -6,7 +6,7 @@ import type { UseDocumentEditorResult } from "../hooks/use-document-editor";
 import type { ClientPickerOption } from "./ClientPicker";
 import { clientsRepository } from "../../../services/repositories";
 import { invoiceSeriesService, type InvoiceSeriesInput, type InvoiceSeriesRecord } from "../../../services/invoice-series/invoice-series.service";
-import { saveDefaultPaymentMethod } from "../../../services/payment/default-payment-method";
+import { saveDefaultPaymentMethodSync } from "../../../services/payment/default-payment-method";
 
 interface DocumentEditorFormProps {
   kindLabel: string;
@@ -698,7 +698,7 @@ export function DocumentEditorForm({
             onAddMethod={editorController.addPaymentMethod}
             onUpdateMethod={editorController.updatePaymentMethod}
             onRemoveMethod={editorController.removePaymentMethod}
-            onSaveDefault={saveDefaultPaymentMethod}
+            onSaveDefault={saveDefaultPaymentMethodSync}
           />
         </section>
 

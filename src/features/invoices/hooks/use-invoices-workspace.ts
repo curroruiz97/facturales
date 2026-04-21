@@ -4,7 +4,7 @@ import { useDocumentEditor } from "../../documents/hooks/use-document-editor";
 import { invoicesAdapter, type InvoiceWorkspaceItem } from "../adapters/invoices.adapter";
 import { businessInfoService } from "../../../services/business/business-info.service";
 import { getSupabaseClient } from "../../../services/supabase/client";
-import { loadDefaultPaymentMethod } from "../../../services/payment/default-payment-method";
+import { loadDefaultPaymentMethod, loadDefaultPaymentMethodFromDB } from "../../../services/payment/default-payment-method";
 
 interface IssuerPrefill {
   name: string;
@@ -90,15 +90,31 @@ export function useInvoicesWorkspace(): UseInvoicesWorkspaceResult {
       editorController.setIssuerField("postalCode", issuerPrefill.postalCode);
       editorController.setIssuerField("email", issuerPrefill.email);
     }
-    const defaultPm = loadDefaultPaymentMethod();
-    if (defaultPm) {
+    // Prefill inmediato desde localStorage (no bloqueante)
+    const cachedPm = loadDefaultPaymentMethod();
+    if (cachedPm) {
       editorController.addPaymentMethod({
-        type: defaultPm.type,
-        iban: defaultPm.iban,
-        phone: defaultPm.phone,
-        label: defaultPm.label,
+        type: cachedPm.type,
+        iban: cachedPm.iban,
+        phone: cachedPm.phone,
+        label: cachedPm.label,
       });
     }
+    // Refresco desde BD por si hubiera una versión más reciente guardada
+    void loadDefaultPaymentMethodFromDB().then((dbPm) => {
+      if (!dbPm) return;
+      const sameAsCache = cachedPm && cachedPm.type === dbPm.type && cachedPm.iban === dbPm.iban && cachedPm.phone === dbPm.phone;
+      if (sameAsCache) return;
+      // Si no había ninguno añadido, lo añadimos; si había (desde cache), no duplicamos.
+      if (!cachedPm) {
+        editorController.addPaymentMethod({
+          type: dbPm.type,
+          iban: dbPm.iban,
+          phone: dbPm.phone,
+          label: dbPm.label,
+        });
+      }
+    });
     setActiveInvoiceId(null);
     setActiveInvoiceStatus("draft");
     setError(null);
