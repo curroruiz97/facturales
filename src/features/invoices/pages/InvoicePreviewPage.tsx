@@ -150,6 +150,32 @@ export function InvoicePreviewPage(): import("react").JSX.Element {
               <button type="button" className="doc-action-bar__btn" onClick={() => setRefreshTick((v) => v + 1)}>
                 Regenerar
               </button>
+              <a
+                className="doc-action-bar__btn"
+                href={previewUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Abrir en pestaña
+              </a>
+              <button
+                type="button"
+                className="doc-action-bar__btn"
+                onClick={() =>
+                  downloadPdf(
+                    {
+                      editor,
+                      totals: summary,
+                      documentNumber: docNumber,
+                      brandColor: workspace.pdfBrandColor,
+                      logoDataUrl: resolvedLogoDataUrl,
+                    },
+                    `factura-${docNumber || "borrador"}.pdf`,
+                  )
+                }
+              >
+                Descargar PDF
+              </button>
             </div>
           </div>
           <iframe src={previewUrl} title="Vista previa factura PDF" />

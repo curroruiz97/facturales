@@ -87,7 +87,28 @@ export class DefaultExpenseOcrService implements ExpenseOcrService {
           filePath: path,
         },
       });
-      if (invoke.error) return fail(invoke.error.message, invoke.error.name, invoke.error);
+      if (invoke.error) {
+        // El error es un FunctionsHttpError con un body JSON útil — intenta leerlo
+        let detail = invoke.error.message;
+        try {
+          const errorBody = (invoke.error as { context?: { body?: string | Blob } })?.context?.body;
+          if (typeof errorBody === "string") {
+            const parsed = JSON.parse(errorBody);
+            if (parsed?.error) detail = String(parsed.error);
+          } else if (errorBody instanceof Blob) {
+            const txt = await errorBody.text();
+            const parsed = JSON.parse(txt);
+            if (parsed?.error) detail = String(parsed.error);
+          }
+        } catch {
+          // ignore — usa el mensaje original
+        }
+        // Mensajes más claros para errores conocidos
+        if (/Azure.*401/i.test(detail)) {
+          detail = "El servicio de OCR no está disponible temporalmente (credenciales Azure caducadas). Contacta con soporte.";
+        }
+        return fail(detail, invoke.error.name, invoke.error);
+      }
 
       const payload = (invoke.data ?? {}) as Record<string, unknown>;
       const analyzed: OcrExpenseResult = {

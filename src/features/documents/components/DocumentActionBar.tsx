@@ -201,6 +201,11 @@ export function DocumentActionBar({
       setEmitStep("done");
       setFlash(`${kindLabel.charAt(0).toUpperCase() + kindLabel.slice(1)} emitida correctamente.`);
       setTimeout(() => setEmitModalOpen(false), 1200);
+    } else {
+      // Cierra la modal aunque la emisión falle y muestra el error por toast
+      setFlash(`No se pudo emitir ${kindLabel}. Revisa los datos e inténtalo de nuevo.`);
+      setEmitStep("done");
+      setTimeout(() => setEmitModalOpen(false), 1500);
     }
   };
 
@@ -210,7 +215,12 @@ export function DocumentActionBar({
       return;
     }
     const success = await doEmit();
-    if (!success) return;
+    if (!success) {
+      setFlash(`No se pudo emitir ${kindLabel}. Revisa los datos e inténtalo de nuevo.`);
+      setEmitStep("done");
+      setTimeout(() => setEmitModalOpen(false), 1500);
+      return;
+    }
     setEmitStep("send-form");
   };
 
@@ -220,7 +230,12 @@ export function DocumentActionBar({
       return;
     }
     const success = await doEmit();
-    if (!success) return;
+    if (!success) {
+      setFlash(`No se pudo emitir ${kindLabel}. Revisa los datos e inténtalo de nuevo.`);
+      setEmitStep("done");
+      setTimeout(() => setEmitModalOpen(false), 1500);
+      return;
+    }
     setEmitStep("schedule-form");
   };
 
