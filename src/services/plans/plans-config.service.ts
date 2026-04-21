@@ -139,3 +139,47 @@ export async function adminUpsertPlanConfig(plan: PlanConfig): Promise<{ success
     return { success: false, error: error instanceof Error ? error.message : "Error inesperado" };
   }
 }
+
+export async function adminResetPlanConfig(planId: PlanConfig["id"]): Promise<{ success: true } | { success: false; error: string }> {
+  try {
+    const { error } = await getSupabaseClient().rpc("admin_reset_plan_config", { p_id: planId });
+    if (error) return { success: false, error: error.message };
+    cache = null;
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : "Error inesperado" };
+  }
+}
+
+export interface PlanStats {
+  planId: "starter" | "pro" | "business";
+  activeCount: number;
+  trialingCount: number;
+  canceledCount: number;
+  mrrEstimate: number;
+}
+
+interface PlanStatsRow {
+  plan_id: string;
+  active_count: number;
+  trialing_count: number;
+  canceled_count: number;
+  mrr_estimate: number | string;
+}
+
+export async function adminFetchPlanStats(): Promise<PlanStats[]> {
+  try {
+    const { data, error } = await getSupabaseClient().rpc("admin_get_plan_stats");
+    if (error || !data) return [];
+    const rows = (data as { plans?: PlanStatsRow[] }).plans ?? [];
+    return rows.map((row) => ({
+      planId: row.plan_id as PlanStats["planId"],
+      activeCount: Number(row.active_count) || 0,
+      trialingCount: Number(row.trialing_count) || 0,
+      canceledCount: Number(row.canceled_count) || 0,
+      mrrEstimate: Number(row.mrr_estimate) || 0,
+    }));
+  } catch {
+    return [];
+  }
+}
