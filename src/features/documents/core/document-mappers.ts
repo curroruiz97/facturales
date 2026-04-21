@@ -136,16 +136,25 @@ const VALID_PAYMENT_TYPES: ReadonlyArray<PaymentMethod["type"]> = [
 ];
 
 function normalizePaymentMethods(methods: DocumentPaymentMethodDraft[]): PaymentMethod[] {
+  // Permisivo: acepta todos los tipos válidos y pasa los campos tal cual, trimeados.
+  // NO eliminamos iban/phone según el tipo para evitar perder datos y no romper la emisión
+  // cuando el usuario configura métodos como "efectivo" o "bizum" sin campos extra.
   return methods
-    .filter((method) => method && typeof method.type === "string" && VALID_PAYMENT_TYPES.includes(method.type as PaymentMethod["type"]))
-    .map((method) => ({
-      type: method.type,
-      // Solo transferencia/domiciliacion/otro llevan IBAN; efectivo/bizum/contrareembolso NO.
-      iban: method.iban && method.type !== "efectivo" && method.type !== "bizum" && method.type !== "contrareembolso" ? method.iban : undefined,
-      // Solo bizum usa phone.
-      phone: method.phone && method.type === "bizum" ? method.phone : undefined,
-      label: method.label || undefined,
-    }));
+    .filter((method): method is DocumentPaymentMethodDraft => {
+      if (!method || typeof method.type !== "string") return false;
+      return VALID_PAYMENT_TYPES.includes(method.type as PaymentMethod["type"]);
+    })
+    .map((method) => {
+      const trimmedIban = typeof method.iban === "string" ? method.iban.trim() : "";
+      const trimmedPhone = typeof method.phone === "string" ? method.phone.trim() : "";
+      const trimmedLabel = typeof method.label === "string" ? method.label.trim() : "";
+      return {
+        type: method.type,
+        iban: trimmedIban || undefined,
+        phone: trimmedPhone || undefined,
+        label: trimmedLabel || undefined,
+      };
+    });
 }
 
 export function createEmptyDocumentEditor(kind: DocumentKind): DocumentEditorState {

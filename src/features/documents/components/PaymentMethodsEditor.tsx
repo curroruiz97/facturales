@@ -95,17 +95,13 @@ export function PaymentMethodsEditor({
   const confirmAdd = () => {
     if (!selectedType) return;
 
-    if (selectedType === "transferencia" || selectedType === "domiciliacion") {
+    // Validaciones suaves: IBAN solo si el usuario lo rellenó (mal)
+    if ((selectedType === "transferencia" || selectedType === "domiciliacion")) {
       const cleanIban = unformatIban(formIban);
-      if (!cleanIban || cleanIban.length < 15) {
-        setFormError("El IBAN es obligatorio y debe tener al menos 15 caracteres.");
+      if (cleanIban && cleanIban.length < 15) {
+        setFormError("El IBAN debe tener al menos 15 caracteres o dejarse vacío.");
         return;
       }
-    }
-
-    if (selectedType === "bizum" && !formPhone.trim()) {
-      setFormError("El teléfono es obligatorio para Bizum.");
-      return;
     }
 
     const method: Partial<DocumentPaymentMethodDraft> = {

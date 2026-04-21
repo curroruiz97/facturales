@@ -534,9 +534,6 @@ export function SettingsPage(): import("react").JSX.Element {
   const [accountEmailConfirmed, setAccountEmailConfirmed] = useState<boolean>(false);
   const [accountUserId, setAccountUserId] = useState<string | null>(null);
   const [signingOutAll, setSigningOutAll] = useState(false);
-  const [deleteAccountOpen, setDeleteAccountOpen] = useState(false);
-  const [deleteConfirmText, setDeleteConfirmText] = useState("");
-  const [deleteBusy, setDeleteBusy] = useState(false);
   const [exportingData, setExportingData] = useState(false);
 
   const [logsItems, setLogsItems] = useState<AccessLogEntry[]>([]);
@@ -555,6 +552,12 @@ export function SettingsPage(): import("react").JSX.Element {
 
   const [subscription, setSubscription] = useState<SubscriptionSnapshot | null>(null);
   const [subscriptionLoading, setSubscriptionLoading] = useState(false);
+  const [realUsage, setRealUsage] = useState<{
+    clients: number;
+    products: number;
+    invoicesIssued: number;
+    quotesIssued: number;
+  } | null>(null);
   const [subscriptionBusy, setSubscriptionBusy] = useState(false);
   const [billingInterval, setBillingInterval] = useState<BillingInterval>("yearly");
 
@@ -667,30 +670,6 @@ export function SettingsPage(): import("react").JSX.Element {
     navigate("/login", { replace: true });
   };
 
-  const onConfirmDeleteAccount = async (): Promise<void> => {
-    if (deleteConfirmText.trim().toUpperCase() !== "ELIMINAR") {
-      setError("Escribe ELIMINAR para confirmar.");
-      return;
-    }
-    setDeleteBusy(true);
-    setNotice(null);
-    const { error } = await getSupabaseClient().rpc("request_account_deletion");
-    setDeleteBusy(false);
-    if (error) {
-      if (/function .* does not exist/i.test(error.message)) {
-        setError(
-          "La baja de cuenta requiere intervención del soporte. Escribe a soporte@facturales.es desde tu email registrado para completarla.",
-        );
-      } else {
-        setError(`No se pudo solicitar la baja: ${error.message}`);
-      }
-      return;
-    }
-    setDeleteAccountOpen(false);
-    setDeleteConfirmText("");
-    setSuccess("Solicitud de baja recibida. Recibirás confirmación por email en las próximas 24h.");
-  };
-
   const loadLogs = async (page: number): Promise<void> => {
     setLogsLoading(true);
     const result = await accessLogService.listMine({ page, pageSize: 20 });
@@ -725,6 +704,26 @@ export function SettingsPage(): import("react").JSX.Element {
     }
     setSubscription(result.data);
     setBillingInterval(result.data.interval);
+    // Contadores reales desde las tablas (evita desync con billing_usage)
+    void loadRealUsage();
+  };
+
+  const loadRealUsage = async (): Promise<void> => {
+    const supabase = getSupabaseClient();
+    const userId = (await supabase.auth.getUser()).data.user?.id;
+    if (!userId) return;
+    const [clientsResult, productsResult, invoicesResult, quotesResult] = await Promise.all([
+      supabase.from("clientes").select("id", { count: "exact", head: true }).eq("user_id", userId),
+      supabase.from("productos").select("id", { count: "exact", head: true }).eq("user_id", userId),
+      supabase.from("invoices").select("id", { count: "exact", head: true }).eq("user_id", userId).eq("status", "issued"),
+      supabase.from("quotes").select("id", { count: "exact", head: true }).eq("user_id", userId).eq("status", "issued"),
+    ]);
+    setRealUsage({
+      clients: clientsResult.count ?? 0,
+      products: productsResult.count ?? 0,
+      invoicesIssued: invoicesResult.count ?? 0,
+      quotesIssued: quotesResult.count ?? 0,
+    });
   };
 
   useEffect(() => {
@@ -1545,9 +1544,9 @@ export function SettingsPage(): import("react").JSX.Element {
                     Tu cuenta está vinculada a Google. Gestiona la contraseña desde tu cuenta de Google.
                   </div>
                 ) : (
-                  <form className="settings-form-grid" onSubmit={(event) => void onChangePassword(event)}>
-                    <label className="settings-field">
-                      Contraseña actual
+                  <form className="settings-password-form" onSubmit={(event) => void onChangePassword(event)}>
+                    <label className="settings-field settings-password-form__field">
+                      <span className="settings-password-form__label">Contraseña actual</span>
                       <div className="settings-password">
                         <input
                           className="settings-input"
@@ -1555,19 +1554,21 @@ export function SettingsPage(): import("react").JSX.Element {
                           value={currentPassword}
                           onChange={(event) => setCurrentPassword(event.target.value)}
                           autoComplete="current-password"
+                          placeholder="••••••••"
                         />
                         <button
                           type="button"
                           className="settings-password__toggle"
                           onClick={() => setShowCurrentPassword((previous) => !previous)}
+                          aria-label={showCurrentPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                         >
                           {showCurrentPassword ? "Ocultar" : "Mostrar"}
                         </button>
                       </div>
                     </label>
 
-                    <label className="settings-field">
-                      Nueva contraseña
+                    <label className="settings-field settings-password-form__field">
+                      <span className="settings-password-form__label">Nueva contraseña</span>
                       <div className="settings-password">
                         <input
                           className="settings-input"
@@ -1576,20 +1577,22 @@ export function SettingsPage(): import("react").JSX.Element {
                           onChange={(event) => setNewPassword(event.target.value)}
                           autoComplete="new-password"
                           minLength={8}
+                          placeholder="Mínimo 8 caracteres"
                         />
                         <button
                           type="button"
                           className="settings-password__toggle"
                           onClick={() => setShowNewPassword((previous) => !previous)}
+                          aria-label={showNewPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                         >
                           {showNewPassword ? "Ocultar" : "Mostrar"}
                         </button>
                       </div>
-                      <small className="settings-muted">Mínimo 8 caracteres. Combina letras, números y símbolos.</small>
+                      <small className="settings-muted settings-password-form__hint">Combina letras, números y símbolos para una contraseña más fuerte.</small>
                     </label>
 
-                    <div className="settings-card__actions settings-card__actions--end">
-                      <button type="submit" className="settings-btn settings-btn--primary" disabled={passwordSaving}>
+                    <div className="settings-password-form__actions">
+                      <button type="submit" className="settings-btn settings-btn--primary settings-password-form__submit" disabled={passwordSaving}>
                         {passwordSaving ? "Guardando..." : "Actualizar contraseña"}
                       </button>
                     </div>
@@ -1732,81 +1735,7 @@ export function SettingsPage(): import("react").JSX.Element {
                 </div>
               </div>
 
-              <div className="settings-card settings-card--danger">
-                <div className="settings-card__head">
-                  <div className="settings-card__head-icon settings-card__head-icon--danger" aria-hidden>
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
-                      <line x1="12" y1="9" x2="12" y2="13" />
-                      <line x1="12" y1="17" x2="12.01" y2="17" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3>Zona de peligro</h3>
-                    <p className="settings-muted">Acciones irreversibles sobre tu cuenta.</p>
-                  </div>
-                </div>
-
-                <p className="settings-muted settings-info-hint">
-                  Si eliminas tu cuenta borraremos tus facturas, presupuestos, contactos, productos, gastos y ficheros almacenados. Esta acción no se puede deshacer.
-                </p>
-                <div className="settings-card__actions settings-card__actions--end">
-                  <button
-                    type="button"
-                    className="settings-btn settings-btn--danger"
-                    onClick={() => {
-                      setDeleteConfirmText("");
-                      setDeleteAccountOpen(true);
-                    }}
-                  >
-                    Eliminar mi cuenta
-                  </button>
-                </div>
-              </div>
             </div>
-
-            {deleteAccountOpen ? (
-              <div className="pilot-modal" role="dialog" aria-modal="true" aria-label="Confirmar eliminación de cuenta">
-                <button
-                  type="button"
-                  className="pilot-modal__overlay"
-                  onClick={() => setDeleteAccountOpen(false)}
-                  aria-label="Cerrar modal"
-                />
-                <div className="pilot-modal__content">
-                  <div className="pilot-modal__header">
-                    <h3 className="text-lg font-bold">Eliminar cuenta de Facturales</h3>
-                    <button type="button" className="pilot-btn" onClick={() => setDeleteAccountOpen(false)} disabled={deleteBusy}>
-                      Cerrar
-                    </button>
-                  </div>
-                  <p>
-                    Esta acción es <strong>irreversible</strong>. Perderás acceso a todas tus facturas, presupuestos, contactos, productos, gastos y ficheros adjuntos. Si tienes obligaciones fiscales en curso, exporta tus datos antes de continuar.
-                  </p>
-                  <p>Para confirmar, escribe <strong>ELIMINAR</strong> en mayúsculas:</p>
-                  <input
-                    className="settings-input"
-                    value={deleteConfirmText}
-                    onChange={(event) => setDeleteConfirmText(event.target.value)}
-                    placeholder="ELIMINAR"
-                    autoFocus
-                  />
-                  <div className="pilot-modal__footer mt-5">
-                    <button type="button" className="pilot-btn" onClick={() => setDeleteAccountOpen(false)} disabled={deleteBusy}>
-                      Cancelar
-                    </button>
-                    <button
-                      type="button"
-                      className="settings-btn settings-btn--danger"
-                      onClick={() => void onConfirmDeleteAccount()}
-                      disabled={deleteBusy || deleteConfirmText.trim().toUpperCase() !== "ELIMINAR"}
-                    >
-                      {deleteBusy ? "Procesando..." : "Confirmar eliminación"}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ) : null}
           </section>
         ) : null}
 
@@ -2129,9 +2058,10 @@ export function SettingsPage(): import("react").JSX.Element {
               </div>
               <div className="settings-usage-grid">
                 {[
-                  { label: "Clientes", used: subscription?.usage?.usage.clients ?? 0, limit: subscription?.usage?.limits.clients ?? 0 },
-                  { label: "Productos", used: subscription?.usage?.usage.products ?? 0, limit: subscription?.usage?.limits.products ?? 0 },
-                  { label: "Facturas / Presup.", used: subscription?.usage?.usage.invoicesMonth ?? 0, limit: subscription?.usage?.limits.invoicesMonth ?? 0 },
+                  { label: "Clientes", used: realUsage?.clients ?? subscription?.usage?.usage.clients ?? 0, limit: subscription?.usage?.limits.clients ?? 0 },
+                  { label: "Productos", used: realUsage?.products ?? subscription?.usage?.usage.products ?? 0, limit: subscription?.usage?.limits.products ?? 0 },
+                  { label: "Facturas emitidas", used: realUsage?.invoicesIssued ?? 0, limit: subscription?.usage?.limits.invoicesMonth ?? 0 },
+                  { label: "Presupuestos emitidos", used: realUsage?.quotesIssued ?? 0, limit: subscription?.usage?.limits.invoicesMonth ?? 0 },
                   { label: "Escaneos OCR", used: subscription?.usage?.usage.ocrMonth ?? 0, limit: subscription?.usage?.limits.ocrMonth ?? 0 },
                 ].map((item) => {
                   const pct = item.limit === Infinity || item.limit === 0 ? 0 : Math.min((item.used / item.limit) * 100, 100);

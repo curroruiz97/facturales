@@ -197,10 +197,19 @@ export function InvoicesPage({ mode }: InvoicesPageProps): import("react").JSX.E
                   <tbody>
                     {workspace.invoices.map((invoice) => {
                       const badge = statusBadge(invoice.status);
+                      // Muestra serie + número cuando el número no incluye ya el código de serie
+                      // (el formato "simple" genera p.ej. "20260033" sin prefijo de serie)
+                      const rawNumber = invoice.invoiceNumber || "";
+                      const seriesCode = invoice.invoiceSeries || "";
+                      const displayNumber = rawNumber
+                        ? (seriesCode && !rawNumber.toUpperCase().includes(seriesCode.toUpperCase())
+                            ? `${seriesCode}-${rawNumber}`
+                            : rawNumber)
+                        : "Sin número";
                       return (
                         <tr key={invoice.id}>
                           <td>
-                            <strong>{invoice.invoiceNumber || "Sin número"}</strong>
+                            <strong>{displayNumber}</strong>
                             <p className="doc-table__sub">Actualizada: {invoice.updatedAt.slice(0, 10)}</p>
                           </td>
                           <td>

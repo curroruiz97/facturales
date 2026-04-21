@@ -1,5 +1,11 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Urbanist:wght@300;400;500;600;700&display=swap");
 
+/* Checkboxes y radios globalmente en naranja Facturales */
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: #ec8228;
+}
+
 .pilot-shell,
 .pilot-public {
   font-family: "Urbanist", sans-serif;
@@ -4659,11 +4665,27 @@
 
 .integration-card__icon {
   flex-shrink: 0;
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+.integration-card__icon img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+.dark .integration-card__icon {
+  background: #1d1e24;
+  border-color: #2a313c;
 }
 
 .integration-card__title {
@@ -5334,7 +5356,7 @@
 /* ───── Dedicated Preview Page ───── */
 .doc-preview-grid {
   display: grid;
-  grid-template-columns: minmax(0, 640px) minmax(300px, 1fr);
+  grid-template-columns: minmax(0, 60fr) minmax(280px, 40fr);
   gap: 24px;
   margin-top: 14px;
 }
@@ -8312,6 +8334,47 @@ select.settings-input option:checked {
   font-size: 0.78rem;
   font-weight: 700;
   cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.settings-password__toggle:hover {
+  color: #ec8228;
+  background: rgba(236, 130, 40, 0.08);
+}
+
+/* Formulario de cambio de contraseña — layout limpio, alineado */
+.settings-password-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 440px;
+  margin: 0 auto;
+}
+.settings-password-form__field {
+  gap: 8px;
+}
+.settings-password-form__label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #475569;
+  letter-spacing: 0.01em;
+}
+.dark .settings-password-form__label {
+  color: #cbd5e1;
+}
+.settings-password-form__hint {
+  margin-top: 2px;
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+.settings-password-form__actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 6px;
+}
+.settings-password-form__submit {
+  min-width: 220px;
 }
 
 .settings-security-grid {
@@ -8616,7 +8679,7 @@ select.settings-input option:checked {
 }
 
 .pm-item__default-label input[type="checkbox"] {
-  accent-color: #f28c18;
+  accent-color: #ec8228;
 }
 
 .pm-item__badge {

@@ -47,9 +47,9 @@ const INTEGRATION_ICONS: Record<string, string> = {
 function IntegrationIcon({ type }: { type: string }): import("react").JSX.Element {
   const src = INTEGRATION_ICONS[type];
   if (src) {
-    return <img src={src} alt={type} width={48} height={48} style={{ objectFit: "contain" }} />;
+    return <img src={src} alt={type} />;
   }
-  return <div style={{ width: 48, height: 48 }} />;
+  return <div style={{ width: "100%", height: "100%" }} />;
 }
 
 export function IntegrationsPage(): import("react").JSX.Element {

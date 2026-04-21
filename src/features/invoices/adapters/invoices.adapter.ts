@@ -10,6 +10,7 @@ import type { DocumentEditorState } from "../../documents/core/document-types";
 export interface InvoiceWorkspaceItem {
   id: string;
   invoiceNumber: string;
+  invoiceSeries: string;
   clientName: string;
   issueDate: string;
   dueDate: string | null;
@@ -41,6 +42,7 @@ function toWorkspaceItem(invoice: Invoice, emailSent = false): InvoiceWorkspaceI
   return {
     id: invoice.id,
     invoiceNumber: invoice.invoiceNumber ?? "Sin número",
+    invoiceSeries: invoice.invoiceSeries ?? "",
     clientName: invoice.clientName,
     issueDate: invoice.issueDate,
     dueDate: invoice.dueDate,
