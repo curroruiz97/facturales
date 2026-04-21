@@ -19,6 +19,7 @@ import {
 } from "../../../services/subscription/subscription-management.service";
 import { getSupabaseClient } from "../../../services/supabase/client";
 import type { BillingInterval, BillingPlan } from "../../../shared/types/domain";
+import { BrandColorPicker } from "../components/BrandColorPicker";
 
 type TabId = "business" | "series" | "faq" | "security" | "logs" | "users" | "subscription";
 type TeamRole = "propietario" | "gestor" | "lector";
@@ -250,14 +251,6 @@ const PLAN_CARDS: PlanCardDefinition[] = [
       "Soporte prioritario (chat, email y teléfono)",
     ],
   },
-];
-
-const BACKUP_ITEMS: Array<{ date: string; size: string }> = [
-  { date: "4 mar 2026 08:00", size: "2.4 MB" },
-  { date: "1 mar 2026 08:00", size: "2.3 MB" },
-  { date: "22 feb 2026 08:00", size: "2.1 MB" },
-  { date: "15 feb 2026 08:00", size: "2.0 MB" },
-  { date: "8 feb 2026 08:00", size: "1.9 MB" },
 ];
 
 const STORAGE_LIMITS: Record<BillingPlan, number> = {
@@ -535,6 +528,14 @@ export function SettingsPage(): import("react").JSX.Element {
   const [storagePlanLabel, setStoragePlanLabel] = useState("Sin plan");
   const [storageLimit, setStorageLimit] = useState(0);
   const [storageUsed, setStorageUsed] = useState(0);
+  const [accountCreatedAt, setAccountCreatedAt] = useState<string | null>(null);
+  const [accountLastSignInAt, setAccountLastSignInAt] = useState<string | null>(null);
+  const [accountEmailConfirmed, setAccountEmailConfirmed] = useState<boolean>(false);
+  const [accountUserId, setAccountUserId] = useState<string | null>(null);
+  const [signingOutAll, setSigningOutAll] = useState(false);
+  const [deleteAccountOpen, setDeleteAccountOpen] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [deleteBusy, setDeleteBusy] = useState(false);
 
   const [logsItems, setLogsItems] = useState<AccessLogEntry[]>([]);
   const [logsLoading, setLogsLoading] = useState(false);
@@ -612,6 +613,14 @@ export function SettingsPage(): import("react").JSX.Element {
       setProvider(providerResult.data);
     }
 
+    const userResult = await authService.getCurrentUser();
+    if (userResult.success && userResult.data) {
+      setAccountUserId(userResult.data.id ?? null);
+      setAccountCreatedAt(userResult.data.created_at ?? null);
+      setAccountLastSignInAt(userResult.data.last_sign_in_at ?? null);
+      setAccountEmailConfirmed(Boolean(userResult.data.email_confirmed_at));
+    }
+
     const usageResult = await billingLimitsService.getUsage();
     if (usageResult.success && usageResult.data) {
       setStoragePlanLabel(usageResult.data.planName);
@@ -622,6 +631,42 @@ export function SettingsPage(): import("react").JSX.Element {
     if (!rpcResult.error) {
       setStorageUsed(Number(rpcResult.data ?? 0));
     }
+  };
+
+  const onSignOutAllDevices = async (): Promise<void> => {
+    setSigningOutAll(true);
+    setNotice(null);
+    const { error } = await getSupabaseClient().auth.signOut({ scope: "global" });
+    setSigningOutAll(false);
+    if (error) {
+      setError(`No se pudo cerrar sesión en todos los dispositivos: ${error.message}`);
+      return;
+    }
+    navigate("/login", { replace: true });
+  };
+
+  const onConfirmDeleteAccount = async (): Promise<void> => {
+    if (deleteConfirmText.trim().toUpperCase() !== "ELIMINAR") {
+      setError("Escribe ELIMINAR para confirmar.");
+      return;
+    }
+    setDeleteBusy(true);
+    setNotice(null);
+    const { error } = await getSupabaseClient().rpc("request_account_deletion");
+    setDeleteBusy(false);
+    if (error) {
+      if (/function .* does not exist/i.test(error.message)) {
+        setError(
+          "La baja de cuenta requiere intervención del soporte. Escribe a soporte@facturales.es desde tu email registrado para completarla.",
+        );
+      } else {
+        setError(`No se pudo solicitar la baja: ${error.message}`);
+      }
+      return;
+    }
+    setDeleteAccountOpen(false);
+    setDeleteConfirmText("");
+    setSuccess("Solicitud de baja recibida. Recibirás confirmación por email en las próximas 24h.");
   };
 
   const loadLogs = async (page: number): Promise<void> => {
@@ -1165,7 +1210,7 @@ export function SettingsPage(): import("react").JSX.Element {
                   </div>
 
                   <aside className="settings-business__aside">
-                    <div className="settings-card">
+                    <div className="settings-card settings-card--centered">
                       <h3>Actualizar perfil</h3>
                       <p className="settings-muted">Perfil mínimo 300x300. Máximo 1 MB.</p>
                       <div className="settings-image-preview">
@@ -1189,43 +1234,21 @@ export function SettingsPage(): import("react").JSX.Element {
                       />
                     </div>
 
-                    <div className="settings-card">
+                    <div className="settings-card settings-card--centered">
                       <h3>Color de marca</h3>
                       <p className="settings-muted">Se usa como color principal en facturas PDF.</p>
-                      <div className="settings-color-swatches">
-                        {["#ec8228", "#3b82f6", "#22c55e", "#ef4444", "#8b5cf6", "#0891b2", "#000000"].map((c) => (
-                          <button
-                            key={c}
-                            type="button"
-                            className={`settings-color-swatch${normalizeHex(form.brandColor ?? "#000000") === c ? " settings-color-swatch--active" : ""}`}
-                            style={{ background: c }}
-                            onClick={() => setForm((previous) => ({ ...previous, brandColor: c }))}
-                            aria-label={`Color ${c}`}
-                          />
-                        ))}
-                      </div>
-                      <div className="settings-color-row">
-                        <span
-                          className="settings-color-preview"
-                          style={{ background: normalizeHex(form.brandColor ?? "#000000") }}
-                          aria-hidden="true"
-                        />
-                        <input
-                          className="settings-input"
-                          value={normalizeHex(form.brandColor ?? "#000000")}
-                          onChange={(event) =>
-                            setForm((previous) => ({ ...previous, brandColor: normalizeHex(event.target.value) }))
-                          }
-                          placeholder="#000000"
-                          aria-label="Color personalizado en hexadecimal"
-                        />
-                      </div>
+                      <BrandColorPicker
+                        value={normalizeHex(form.brandColor ?? "#000000")}
+                        onChange={(hex) =>
+                          setForm((previous) => ({ ...previous, brandColor: normalizeHex(hex) }))
+                        }
+                      />
                       <p className="settings-muted settings-color-hint">
-                        Elige uno de los colores o escribe un hexadecimal personalizado (ej. #4F46E5).
+                        Elige uno de los colores, haz clic en el cuadrado para abrir el selector o escribe un hexadecimal.
                       </p>
                     </div>
 
-                    <div className="settings-card">
+                    <div className="settings-card settings-card--centered">
                       <h3>Logo factura</h3>
                       <p className="settings-muted">PNG, JPG o WebP. Máximo 500 KB.</p>
                       <label className="settings-logo-dropzone" htmlFor="invoice-logo-input">
@@ -1493,26 +1516,37 @@ export function SettingsPage(): import("react").JSX.Element {
         ) : null}
 
         {activeTab === "security" ? (
-          <section className="settings-panel">
-            <div className="settings-security-grid">
-              <div>
-                <h2>Contraseña</h2>
-                <p className="settings-muted">Cambia o consulta tu contraseña.</p>
+          <section className="settings-panel settings-security">
+            <div className="settings-security__grid">
+              <div className="settings-card">
+                <div className="settings-card__head">
+                  <div className="settings-card__head-icon" aria-hidden>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="11" width="18" height="11" rx="2" />
+                      <path d="M7 11V7a5 5 0 0110 0v4" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3>Contraseña</h3>
+                    <p className="settings-muted">Actualiza tu contraseña cuando lo necesites.</p>
+                  </div>
+                </div>
 
                 {provider === "google" ? (
                   <div className="settings-notice">
-                    Cuenta vinculada a Google. La contraseña se gestiona directamente desde Google.
+                    Tu cuenta está vinculada a Google. Gestiona la contraseña desde tu cuenta de Google.
                   </div>
                 ) : (
                   <form className="settings-form-grid" onSubmit={(event) => void onChangePassword(event)}>
                     <label className="settings-field">
-                      Contraseña anterior
+                      Contraseña actual
                       <div className="settings-password">
                         <input
                           className="settings-input"
                           type={showCurrentPassword ? "text" : "password"}
                           value={currentPassword}
                           onChange={(event) => setCurrentPassword(event.target.value)}
+                          autoComplete="current-password"
                         />
                         <button
                           type="button"
@@ -1532,6 +1566,8 @@ export function SettingsPage(): import("react").JSX.Element {
                           type={showNewPassword ? "text" : "password"}
                           value={newPassword}
                           onChange={(event) => setNewPassword(event.target.value)}
+                          autoComplete="new-password"
+                          minLength={8}
                         />
                         <button
                           type="button"
@@ -1541,81 +1577,217 @@ export function SettingsPage(): import("react").JSX.Element {
                           {showNewPassword ? "Ocultar" : "Mostrar"}
                         </button>
                       </div>
-                      <small className="settings-muted">Mínimo 8 caracteres</small>
+                      <small className="settings-muted">Mínimo 8 caracteres. Combina letras, números y símbolos.</small>
                     </label>
 
-                    <div>
+                    <div className="settings-card__actions settings-card__actions--end">
                       <button type="submit" className="settings-btn settings-btn--primary" disabled={passwordSaving}>
-                        {passwordSaving ? "Guardando..." : "Guardar cambios"}
+                        {passwordSaving ? "Guardando..." : "Actualizar contraseña"}
                       </button>
                     </div>
                   </form>
                 )}
+              </div>
 
-                <hr className="settings-divider" />
-
-                <div className="settings-panel">
-                  <div className="settings-panel__header">
-                    <div>
-                      <h2>Copia de seguridad y almacenamiento</h2>
-                    </div>
+              <div className="settings-card">
+                <div className="settings-card__head">
+                  <div className="settings-card__head-icon" aria-hidden>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="8" r="4" />
+                      <path d="M4 21a8 8 0 0116 0" />
+                    </svg>
                   </div>
-
-                  <div className="settings-card">
-                    <h3>Tus datos están protegidos</h3>
-                    <p className="settings-muted">
-                      Los datos se almacenan con redundancia para garantizar integridad y disponibilidad del servicio.
-                    </p>
-                    <ul className="settings-list">
-                      <li>Copias de seguridad periódicas sobre las bases de datos.</li>
-                      <li>Replicación en varias zonas para minimizar pérdida de información.</li>
-                    </ul>
+                  <div>
+                    <h3>Información de la cuenta</h3>
+                    <p className="settings-muted">Datos asociados a tu sesión en Facturales.</p>
                   </div>
+                </div>
 
-                  <div className="settings-storage-card">
-                    <div className="settings-storage-card__head">
-                      <strong>Almacenamiento</strong>
-                      <span className="settings-chip">{storagePlanLabel}</span>
-                    </div>
-                    <p>
-                      {formatStorage(storageUsed)} / {formatStorage(storageLimit)}
-                    </p>
-                    <div className="settings-progress-bar">
-                      <span style={{ width: `${storagePercent}%` }} />
-                    </div>
-                    <small className="settings-muted">
-                      {formatStorage(storageUsed)} utilizados de {formatStorage(storageLimit)}
-                    </small>
+                <dl className="settings-info-list">
+                  <div className="settings-info-list__row">
+                    <dt>Email</dt>
+                    <dd>
+                      {user?.email ?? "—"}
+                      {accountEmailConfirmed ? (
+                        <span className="settings-badge settings-badge--ok">Verificado</span>
+                      ) : (
+                        <span className="settings-badge settings-badge--warn">Sin verificar</span>
+                      )}
+                    </dd>
                   </div>
+                  <div className="settings-info-list__row">
+                    <dt>Método de acceso</dt>
+                    <dd>
+                      {provider === "google" ? "Google" : provider === "email" ? "Email y contraseña" : "Desconocido"}
+                    </dd>
+                  </div>
+                  <div className="settings-info-list__row">
+                    <dt>Alta de la cuenta</dt>
+                    <dd>{formatDateTime(accountCreatedAt)}</dd>
+                  </div>
+                  <div className="settings-info-list__row">
+                    <dt>Último acceso</dt>
+                    <dd>{formatDateTime(accountLastSignInAt)}</dd>
+                  </div>
+                  <div className="settings-info-list__row">
+                    <dt>Identificador</dt>
+                    <dd>
+                      <code className="settings-code">{accountUserId ? `${accountUserId.slice(0, 8)}…${accountUserId.slice(-4)}` : "—"}</code>
+                    </dd>
+                  </div>
+                </dl>
+              </div>
 
-                  <div className="settings-card">
-                    <h3>Copias de seguridad disponibles</h3>
-                    <div className="settings-archive-list">
-                      {BACKUP_ITEMS.map((backup) => (
-                        <div key={backup.date} className="settings-archive-item">
-                          <div className="settings-stack">
-                            <strong>Copia completa</strong>
-                            <small>
-                              {backup.date} · {backup.size}
-                            </small>
-                          </div>
-                          <button type="button" className="settings-btn settings-btn--ghost">
-                            Descargar
-                          </button>
-                        </div>
-                      ))}
-                    </div>
+              <div className="settings-card">
+                <div className="settings-card__head">
+                  <div className="settings-card__head-icon" aria-hidden>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="3" width="18" height="18" rx="3" />
+                      <path d="M9 12l2 2 4-4" />
+                    </svg>
                   </div>
+                  <div>
+                    <h3>Sesiones activas</h3>
+                    <p className="settings-muted">Cierra la sesión en todos los dispositivos si perdiste uno o compartiste el acceso.</p>
+                  </div>
+                </div>
+
+                <p className="settings-muted settings-info-hint">
+                  Tu sesión actual se renueva automáticamente. Si has iniciado sesión en otro navegador o móvil, puedes forzar el cierre en todos los dispositivos.
+                </p>
+                <div className="settings-card__actions settings-card__actions--end">
+                  <button
+                    type="button"
+                    className="settings-btn settings-btn--ghost"
+                    onClick={() => navigate("/configuracion?tab=logs")}
+                  >
+                    Ver historial de accesos
+                  </button>
+                  <button
+                    type="button"
+                    className="settings-btn settings-btn--primary"
+                    onClick={() => void onSignOutAllDevices()}
+                    disabled={signingOutAll}
+                  >
+                    {signingOutAll ? "Cerrando..." : "Cerrar sesión en todos los dispositivos"}
+                  </button>
                 </div>
               </div>
 
-              <aside className="settings-security-illustration" aria-hidden>
-                <div className="settings-security-illustration__circle">
-                  <span>***</span>
-                  <span>***</span>
+              <div className="settings-card">
+                <div className="settings-card__head">
+                  <div className="settings-card__head-icon" aria-hidden>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 2L4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6l-8-4z" />
+                      <path d="M9 12l2 2 4-4" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3>Protección de datos</h3>
+                    <p className="settings-muted">Cómo guardamos y respaldamos tu información.</p>
+                  </div>
                 </div>
-              </aside>
+
+                <ul className="settings-check-list">
+                  <li>Almacenamiento cifrado en servidores de <strong>Supabase</strong> dentro del Espacio Económico Europeo.</li>
+                  <li>Copias de seguridad automáticas <strong>diarias</strong> con retención de 7 días (planes Pro) o 30 días (Business).</li>
+                  <li>Replicación en varias zonas de disponibilidad para minimizar pérdida de datos.</li>
+                  <li>Acceso a tus datos limitado a tu usuario mediante políticas de seguridad a nivel de fila (RLS).</li>
+                  <li>Cumplimiento con <strong>RGPD</strong>: puedes exportar o solicitar la eliminación de tu información en cualquier momento.</li>
+                </ul>
+
+                <div className="settings-storage-card">
+                  <div className="settings-storage-card__head">
+                    <strong>Almacenamiento de ficheros</strong>
+                    <span className="settings-chip">{storagePlanLabel}</span>
+                  </div>
+                  <p>
+                    {formatStorage(storageUsed)} de {formatStorage(storageLimit)}
+                  </p>
+                  <div className="settings-progress-bar">
+                    <span style={{ width: `${storagePercent}%` }} />
+                  </div>
+                  <small className="settings-muted">
+                    Incluye logos de factura, imagen de perfil y PDFs adjuntos de gastos.
+                  </small>
+                </div>
+              </div>
+
+              <div className="settings-card settings-card--danger">
+                <div className="settings-card__head">
+                  <div className="settings-card__head-icon settings-card__head-icon--danger" aria-hidden>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                      <line x1="12" y1="9" x2="12" y2="13" />
+                      <line x1="12" y1="17" x2="12.01" y2="17" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3>Zona de peligro</h3>
+                    <p className="settings-muted">Acciones irreversibles sobre tu cuenta.</p>
+                  </div>
+                </div>
+
+                <p className="settings-muted settings-info-hint">
+                  Si eliminas tu cuenta borraremos tus facturas, presupuestos, contactos, productos, gastos y ficheros almacenados. Esta acción no se puede deshacer.
+                </p>
+                <div className="settings-card__actions settings-card__actions--end">
+                  <button
+                    type="button"
+                    className="settings-btn settings-btn--danger"
+                    onClick={() => {
+                      setDeleteConfirmText("");
+                      setDeleteAccountOpen(true);
+                    }}
+                  >
+                    Eliminar mi cuenta
+                  </button>
+                </div>
+              </div>
             </div>
+
+            {deleteAccountOpen ? (
+              <div className="pilot-modal" role="dialog" aria-modal="true" aria-label="Confirmar eliminación de cuenta">
+                <button
+                  type="button"
+                  className="pilot-modal__overlay"
+                  onClick={() => setDeleteAccountOpen(false)}
+                  aria-label="Cerrar modal"
+                />
+                <div className="pilot-modal__content">
+                  <div className="pilot-modal__header">
+                    <h3 className="text-lg font-bold">Eliminar cuenta de Facturales</h3>
+                    <button type="button" className="pilot-btn" onClick={() => setDeleteAccountOpen(false)} disabled={deleteBusy}>
+                      Cerrar
+                    </button>
+                  </div>
+                  <p>
+                    Esta acción es <strong>irreversible</strong>. Perderás acceso a todas tus facturas, presupuestos, contactos, productos, gastos y ficheros adjuntos. Si tienes obligaciones fiscales en curso, exporta tus datos antes de continuar.
+                  </p>
+                  <p>Para confirmar, escribe <strong>ELIMINAR</strong> en mayúsculas:</p>
+                  <input
+                    className="settings-input"
+                    value={deleteConfirmText}
+                    onChange={(event) => setDeleteConfirmText(event.target.value)}
+                    placeholder="ELIMINAR"
+                    autoFocus
+                  />
+                  <div className="pilot-modal__footer mt-5">
+                    <button type="button" className="pilot-btn" onClick={() => setDeleteAccountOpen(false)} disabled={deleteBusy}>
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      className="settings-btn settings-btn--danger"
+                      onClick={() => void onConfirmDeleteAccount()}
+                      disabled={deleteBusy || deleteConfirmText.trim().toUpperCase() !== "ELIMINAR"}
+                    >
+                      {deleteBusy ? "Procesando..." : "Confirmar eliminación"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : null}
           </section>
         ) : null}
 
