@@ -7205,21 +7205,29 @@
 }
 
 .settings-color-preview {
+  display: block;
   width: 52px;
   height: 44px;
   border-radius: 10px;
   border: 1px solid #e2e8f0;
-  cursor: pointer;
-  padding: 2px;
-  transition: box-shadow 0.15s ease;
-}
-
-.settings-color-preview:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  background-clip: padding-box;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
 }
 
 .dark .settings-color-preview {
   border-color: #2a313c;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.settings-color-hint {
+  margin-top: 10px;
+  font-size: 0.78rem;
+}
+
+.settings-card__actions {
+  margin-top: 14px;
+  display: flex;
+  justify-content: center;
 }
 
 .settings-logo-dropzone {

@@ -132,34 +132,64 @@ const SECTOR_OPTIONS: Array<{ value: string; label: string }> = [
 
 const FAQ_ENTRIES: Array<{ question: string; answer: string }> = [
   {
-    question: "¿Cuál es la parte más importante de un panel?",
+    question: "¿Cómo emito mi primera factura?",
     answer:
-      "En realidad, el aspecto más importante de un buen panel es la parte que recibe menos atención: los datos subyacentes. Más que cualquier otro aspecto, los datos harán o desharán un panel. Dentro de esta definición, la administración exitosa parece descansar en tres habilidades básicas, que llamaremos técnicas, humanas y conceptuales. Los paneles son inteligencia de negocios.",
+      "Ve a Facturas → Emitir factura. Selecciona (o crea al vuelo) un cliente, añade productos desde tu catálogo o introdúcelos manualmente, revisa impuestos, descuentos y retenciones, y pulsa \"Emitir factura\". Desde el paso final podrás descargar el PDF, enviarlo por email al cliente o programar su envío para una fecha futura. Mientras estés editando, puedes guardar el documento como borrador y retomarlo desde Facturas → Borradores en cualquier momento.",
   },
   {
-    question: "¿Cuáles son los tres tipos de panel?",
+    question: "¿Cuál es la diferencia entre borrador y factura emitida?",
     answer:
-      "Los tres tipos principales de panel son: estratégico, táctico y operativo. El panel estratégico ofrece una visión de alto nivel orientada a la toma de decisiones a largo plazo, como objetivos anuales de facturación y crecimiento. El panel táctico se enfoca en el rendimiento a medio plazo, permitiendo a los responsables de área monitorizar KPIs departamentales y detectar tendencias. Por último, el panel operativo proporciona datos en tiempo real sobre las actividades diarias, como facturas emitidas hoy, cobros pendientes o gastos recientes, facilitando la gestión del día a día con agilidad.",
+      "Un borrador es un documento en edición: no tiene número oficial de factura, no cuenta en tu resumen fiscal y lo puedes modificar o eliminar libremente. Una factura emitida es el documento legal y definitivo: recibe el siguiente número de serie, queda registrada en Facturas emitidas, aparece en el Resumen Fiscal y solo puede rectificarse mediante una factura rectificativa (no se borra sin más). Usa presupuestos si aún estás negociando y factura cuando el trabajo esté cerrado.",
   },
   {
-    question: "¿Cuáles son ejemplos de administración?",
+    question: "¿Puedo programar el envío de facturas y presupuestos por email?",
     answer:
-      "La administración abarca múltiples disciplinas orientadas a optimizar los recursos de una organización. Algunos ejemplos comunes incluyen: la administración financiera, que se encarga del control de cobros, pagos y flujo de caja; la administración de clientes, que gestiona las relaciones comerciales y el seguimiento de presupuestos; la administración fiscal, que asegura el cumplimiento de las obligaciones tributarias como IVA, IRPF y declaraciones trimestrales; y la administración operativa, que supervisa procesos internos, facturación, inventario y objetivos de crecimiento.",
+      "Sí. En el paso final de \"Emitir factura\" o \"Emitir presupuesto\" elige \"Programar envío\", indica destinatario, asunto, cuerpo del email, fecha y hora. El PDF se adjuntará automáticamente con los datos fiscales de tu empresa y tu logo, y nuestro sistema lo enviará en la fecha marcada sin que tengas que hacer nada más. Puedes consultar el estado del envío (programado, enviado, fallido) desde el detalle del documento.",
   },
   {
-    question: "¿Cuáles son 5 beneficios de los paneles?",
+    question: "¿Cómo configuro mis series de numeración?",
     answer:
-      "Los paneles de control ofrecen cinco beneficios clave para cualquier negocio: 1) Visibilidad total, al centralizar métricas de ingresos, gastos y beneficios en un solo lugar. 2) Mejor control financiero, permitiendo detectar desviaciones antes de que se conviertan en problemas. 3) Rapidez en la toma de decisiones, gracias a datos actualizados y gráficos intuitivos. 4) Reducción de errores, al automatizar cálculos y eliminar la dependencia de hojas de cálculo manuales. 5) Mejor coordinación del equipo, ya que todos los miembros pueden acceder a la misma información en tiempo real.",
+      "Desde Configuración → Series de facturación puedes crear series independientes para facturas, presupuestos y rectificativas (por ejemplo, una serie por ejercicio fiscal o por línea de negocio). Cada serie tiene un prefijo, un formato de numeración (común, por año, reiniciable) y un contador automático. El sistema garantiza que los números son correlativos y únicos — no podrás saltarte números ni duplicarlos, cumpliendo con los requisitos de la Agencia Tributaria.",
   },
   {
-    question: "¿Qué hace que un panel sea bueno?",
+    question: "¿Qué tipos de impuesto soporta el programa?",
     answer:
-      "Un buen panel combina varios elementos esenciales: una jerarquía visual clara que destaque las métricas más importantes, métricas accionables que permitan tomar decisiones inmediatas, datos actualizados en tiempo real para reflejar la situación actual del negocio, y un diseño limpio que evite la sobrecarga de información. Además, debe ser personalizable para adaptarse a las necesidades específicas de cada usuario y ofrecer la posibilidad de filtrar por períodos, categorías o clientes.",
+      "Facturales soporta los tres regímenes fiscales del territorio español: IVA peninsular y Baleares (21%, 10%, 4%, 0%), IGIC canario (20%, 13,5%, 9,5%, 7%, 3%, 0%) e IPSI de Ceuta y Melilla (10%, 8%, 4%, 2%, 1%, 0,5%, 0%), además de operaciones exentas. También puedes aplicar retenciones de IRPF por línea o sobre el total, y la app calcula automáticamente la base imponible, cuotas y totales.",
   },
   {
-    question: "¿Cuáles son las 3 habilidades básicas de un administrador?",
+    question: "¿Cómo funciona el Resumen Fiscal (IVA e IRPF)?",
     answer:
-      "Según la teoría clásica de gestión empresarial, las tres habilidades básicas de un administrador son: habilidades técnicas, que incluyen el dominio de herramientas, procesos y conocimientos específicos del área como software de facturación, contabilidad o gestión de proyectos; habilidades humanas, que se refieren a la capacidad de comunicarse, motivar y liderar equipos de forma efectiva; y habilidades conceptuales, que permiten analizar situaciones complejas, identificar patrones y tomar decisiones estratégicas con visión global del negocio.",
+      "En Resumen Fiscal tienes una vista trimestral y anual con el IVA repercutido (de tus facturas emitidas), el IVA soportado (de tus gastos con ticket o factura registrada) y las retenciones de IRPF practicadas y soportadas. Cada trimestre ves el saldo a ingresar o compensar, listo para volcarlo al modelo 303 (IVA) y a tu estimación del modelo 130/131. Puedes filtrar por ejercicio, exportar a CSV y marcar un trimestre como presentado.",
+  },
+  {
+    question: "¿Cómo importo o exporto mis contactos y productos?",
+    answer:
+      "Desde Contactos o Productos pulsa \"Importar\" y sube un archivo CSV o XLSX. El sistema reconoce automáticamente cabeceras habituales (nombre, NIF/CIF, email, dirección, precio, IVA…) y te muestra una previsualización con filas válidas y filas con error antes de confirmar. Duplica por NIF/CIF (contactos) o por referencia (productos) se omiten automáticamente. Con \"Exportar\" descargas un CSV con todos tus registros, ideal para copias de seguridad o para migrar de otra herramienta.",
+  },
+  {
+    question: "¿Cómo registro un gasto con OCR desde un ticket o factura?",
+    answer:
+      "En Gastos → Nuevo gasto puedes subir una foto o PDF del ticket/factura y el sistema extrae automáticamente fecha, proveedor, base imponible, IVA y total gracias al OCR integrado. Revisa que los datos sean correctos, ajusta la categoría (suministros, transporte, material, etc.) y guarda. El gasto se añade al Resumen Fiscal y al panel de control. Para gastos recurrentes puedes duplicar uno existente y solo cambiar la fecha.",
+  },
+  {
+    question: "¿Cómo personalizo mis facturas con mi logo y colores?",
+    answer:
+      "En Configuración → Datos fiscales puedes subir dos imágenes: la foto de perfil (que aparece en el panel) y el logo de factura (que se incrusta en el PDF). El color de marca se aplica a los encabezados, totales y detalles de la factura PDF. Soportamos PNG, JPG y WebP hasta 500 KB en el logo. Para un mejor resultado usa un logo con fondo transparente y proporciones horizontales.",
+  },
+  {
+    question: "¿Qué pasa si supero los límites de mi plan?",
+    answer:
+      "Cada plan tiene un tope de clientes, productos y facturas. Cuando te acercas al límite verás un aviso en la propia sección (por ejemplo, 9/10 contactos). Al superarlo, las operaciones que creen nuevos registros quedan bloqueadas hasta que elimines datos antiguos o mejores tu plan desde Configuración → Plan y facturación. Los datos existentes no se pierden nunca, solo se pausan las altas.",
+  },
+  {
+    question: "¿Cómo corrijo una factura ya emitida?",
+    answer:
+      "Una factura emitida no se puede borrar ni editar para preservar la integridad fiscal. Si detectas un error debes emitir una factura rectificativa: desde el detalle de la factura original pulsa \"Rectificar\". El sistema creará un nuevo documento negativo que anula la anterior y te permitirá emitir seguidamente la factura correcta. Ambas quedan vinculadas en el Resumen Fiscal y cumplen con la normativa.",
+  },
+  {
+    question: "¿Los datos están seguros y hago copias de seguridad?",
+    answer:
+      "Todos tus datos se almacenan cifrados en servidores de Supabase dentro del Espacio Económico Europeo, con copias automáticas diarias. Solo tú (y las cuentas que invites a tu organización) tenéis acceso. Puedes exportar en cualquier momento tus contactos, productos, facturas y gastos a CSV. Si borras una cuenta, eliminamos tus datos en un máximo de 30 días cumpliendo con el RGPD.",
   },
 ];
 
@@ -1145,9 +1175,11 @@ export function SettingsPage(): import("react").JSX.Element {
                           <span>{(form.nombreFiscal?.trim() || "FA").slice(0, 2).toUpperCase()}</span>
                         )}
                       </div>
-                      <label className="settings-btn settings-btn--ghost" htmlFor="profile-image-input">
-                        Cambiar imagen
-                      </label>
+                      <div className="settings-card__actions">
+                        <label className="settings-btn settings-btn--ghost" htmlFor="profile-image-input">
+                          Cambiar imagen
+                        </label>
+                      </div>
                       <input
                         id="profile-image-input"
                         type="file"
@@ -1161,7 +1193,7 @@ export function SettingsPage(): import("react").JSX.Element {
                       <h3>Color de marca</h3>
                       <p className="settings-muted">Se usa como color principal en facturas PDF.</p>
                       <div className="settings-color-swatches">
-                        {["#ec8228", "#3b82f6", "#22c55e", "#ef4444", "#8b5cf6", "#e11d48", "#0891b2", "#000000"].map((c) => (
+                        {["#ec8228", "#3b82f6", "#22c55e", "#ef4444", "#8b5cf6", "#0891b2", "#000000"].map((c) => (
                           <button
                             key={c}
                             type="button"
@@ -1173,13 +1205,10 @@ export function SettingsPage(): import("react").JSX.Element {
                         ))}
                       </div>
                       <div className="settings-color-row">
-                        <input
-                          type="color"
+                        <span
                           className="settings-color-preview"
-                          value={normalizeHex(form.brandColor ?? "#000000")}
-                          onChange={(event) =>
-                            setForm((previous) => ({ ...previous, brandColor: normalizeHex(event.target.value) }))
-                          }
+                          style={{ background: normalizeHex(form.brandColor ?? "#000000") }}
+                          aria-hidden="true"
                         />
                         <input
                           className="settings-input"
@@ -1188,8 +1217,12 @@ export function SettingsPage(): import("react").JSX.Element {
                             setForm((previous) => ({ ...previous, brandColor: normalizeHex(event.target.value) }))
                           }
                           placeholder="#000000"
+                          aria-label="Color personalizado en hexadecimal"
                         />
                       </div>
+                      <p className="settings-muted settings-color-hint">
+                        Elige uno de los colores o escribe un hexadecimal personalizado (ej. #4F46E5).
+                      </p>
                     </div>
 
                     <div className="settings-card">
@@ -1210,13 +1243,15 @@ export function SettingsPage(): import("react").JSX.Element {
                         onChange={(event) => void onUploadImage(event, "invoiceImageUrl", 500 * 1024)}
                       />
                       {form.invoiceImageUrl ? (
-                        <button
-                          type="button"
-                          className="settings-btn settings-btn--danger-sm"
-                          onClick={() => setForm((previous) => ({ ...previous, invoiceImageUrl: null }))}
-                        >
-                          Eliminar logo
-                        </button>
+                        <div className="settings-card__actions">
+                          <button
+                            type="button"
+                            className="settings-btn settings-btn--danger-sm"
+                            onClick={() => setForm((previous) => ({ ...previous, invoiceImageUrl: null }))}
+                          >
+                            Eliminar logo
+                          </button>
+                        </div>
                       ) : null}
                     </div>
                   </aside>
