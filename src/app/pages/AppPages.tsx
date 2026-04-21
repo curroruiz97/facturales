@@ -829,17 +829,68 @@ export function SignUpPage(): import("react").JSX.Element {
 }
 
 export function VerifyEmailPage(): import("react").JSX.Element {
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendMessage, setResendMessage] = useState<string | null>(null);
+  const { user } = useAuth();
+
+  const handleResend = async () => {
+    if (!user?.email) {
+      setResendMessage("No hay sesión activa. Vuelve a registrarte.");
+      return;
+    }
+    setResendLoading(true);
+    const { error } = await getSupabaseClient().auth.resend({ type: "signup", email: user.email });
+    setResendLoading(false);
+    setResendMessage(error ? `No se pudo reenviar: ${error.message}` : "Enlace reenviado. Revisa tu bandeja.");
+  };
+
   return (
-    <PublicLayout
-      title="Verifica tu correo"
-      subtitle="Te hemos enviado un enlace de verificación. Si no aparece, revisa spam o solicita un nuevo envío."
-    >
-      <div className="pilot-actions">
-        <Link className="pilot-btn pilot-btn--primary" to="/signin">
-          Ir a iniciar sesión
-        </Link>
+    <div className="verify-email-page">
+      <div className="verify-email-card">
+        <div className="verify-email-card__icon" aria-hidden>
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="5" width="18" height="14" rx="2" />
+            <path d="M3 7l9 6 9-6" />
+          </svg>
+        </div>
+        <p className="verify-email-card__brand">FACTURALES</p>
+        <h1 className="verify-email-card__title">Confirma tu email</h1>
+        <p className="verify-email-card__subtitle">
+          {user?.email ? (
+            <>Te hemos enviado un enlace de confirmación a <strong>{user.email}</strong>. Haz clic en el enlace para activar tu cuenta.</>
+          ) : (
+            <>Te hemos enviado un enlace de confirmación. Haz clic en el enlace para activar tu cuenta.</>
+          )}
+        </p>
+
+        <div className="verify-email-card__tips">
+          <p className="verify-email-card__tip">
+            <span className="verify-email-card__tip-bullet">•</span>
+            Revisa también tu carpeta de <strong>spam</strong> o <strong>correo no deseado</strong>.
+          </p>
+          <p className="verify-email-card__tip">
+            <span className="verify-email-card__tip-bullet">•</span>
+            El enlace caduca a las 24 horas.
+          </p>
+        </div>
+
+        <div className="verify-email-card__actions">
+          <button
+            type="button"
+            className="pilot-btn pilot-btn--primary verify-email-card__btn"
+            onClick={() => void handleResend()}
+            disabled={resendLoading}
+          >
+            {resendLoading ? "Reenviando..." : "Reenviar email"}
+          </button>
+          <Link className="pilot-btn verify-email-card__btn" to="/signin">
+            Ir a iniciar sesión
+          </Link>
+        </div>
+
+        {resendMessage ? <p className="verify-email-card__flash">{resendMessage}</p> : null}
       </div>
-    </PublicLayout>
+    </div>
   );
 }
 
@@ -1031,19 +1082,27 @@ function BusinessProfileForm({ mode }: { mode: BusinessProfileMode }): import("r
   const { form, setField, loading, setLoading, error, setError, flash, setFlash } = useBusinessProfileForm();
   const navigate = useNavigate();
   const isCompleteMode = mode === "complete";
+  const isEmpresa = form.businessType === "empresa";
+  const nameLabel = isEmpresa ? "Nombre fiscal" : "Nombre / Nombre fiscal";
+  const nameHint = isEmpresa
+    ? "Razón social tal y como aparece en tu CIF (ej. AVENUE DIGITAL GROUP SL)."
+    : "Tu nombre completo tal y como aparece en tu NIF (ej. Francisco Ruiz Chamorro).";
 
-  const subtitle = useMemo(
-    () =>
-      isCompleteMode
-        ? "Completa los datos de tu negocio para activar el entorno de facturación."
-        : "Gestiona la información fiscal y comercial de tu negocio.",
-    [isCompleteMode],
-  );
+  const subtitle = isCompleteMode
+    ? "Solo necesitamos estos datos para emitir facturas válidas. Tardarás menos de un minuto."
+    : "Gestiona la información fiscal y comercial de tu negocio.";
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     setLoading(true);
-    const result = await businessInfoService.saveMine(form);
+    const payload = {
+      ...form,
+      // En complete-profile fijamos España y color por defecto; sector queda opcional (null)
+      pais: form.pais || "España",
+      sector: form.sector && form.sector.trim() ? form.sector : null,
+      brandColor: form.brandColor || "#ec8228",
+    };
+    const result = await businessInfoService.saveMine(payload);
     setLoading(false);
 
     if (!result.success) {
@@ -1060,8 +1119,168 @@ function BusinessProfileForm({ mode }: { mode: BusinessProfileMode }): import("r
     }
   };
 
+  if (isCompleteMode) {
+    return (
+      <div className="onboarding-page">
+        <div className="onboarding-card">
+          <div className="onboarding-card__header">
+            <p className="onboarding-card__brand">FACTURALES</p>
+            <h1 className="onboarding-card__title">Completa tu perfil</h1>
+            <p className="onboarding-card__subtitle">{subtitle}</p>
+          </div>
+
+          <div className="onboarding-steps" aria-hidden>
+            <div className="onboarding-step onboarding-step--done"><span>1</span><small>Registro</small></div>
+            <div className="onboarding-step onboarding-step--done"><span>2</span><small>Email</small></div>
+            <div className="onboarding-step onboarding-step--current"><span>3</span><small>Perfil</small></div>
+            <div className="onboarding-step"><span>4</span><small>Facturar</small></div>
+          </div>
+
+          <form className="onboarding-form" onSubmit={(event) => void submit(event)}>
+            <section className="onboarding-section">
+              <h3 className="onboarding-section__title">Tipo de cuenta</h3>
+              <div className="onboarding-type-toggle" role="tablist" aria-label="Tipo de negocio">
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={form.businessType !== "empresa"}
+                  className={`onboarding-type-toggle__btn${form.businessType !== "empresa" ? " onboarding-type-toggle__btn--active" : ""}`}
+                  onClick={() => setField("businessType", "autonomo")}
+                >
+                  <strong>Autónomo</strong>
+                  <small>Persona física con NIF</small>
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={form.businessType === "empresa"}
+                  className={`onboarding-type-toggle__btn${form.businessType === "empresa" ? " onboarding-type-toggle__btn--active" : ""}`}
+                  onClick={() => setField("businessType", "empresa")}
+                >
+                  <strong>Empresa</strong>
+                  <small>Sociedad con CIF</small>
+                </button>
+              </div>
+            </section>
+
+            <section className="onboarding-section">
+              <h3 className="onboarding-section__title">Datos fiscales</h3>
+              <div className="onboarding-grid onboarding-grid--two">
+                <label className="onboarding-field">
+                  <span className="onboarding-field__label">{nameLabel} *</span>
+                  <input
+                    className="onboarding-input"
+                    type="text"
+                    value={form.nombreFiscal}
+                    onChange={(event) => setField("nombreFiscal", event.target.value)}
+                    required
+                    placeholder={isEmpresa ? "AVENUE DIGITAL GROUP SL" : "Francisco Ruiz Chamorro"}
+                  />
+                  <small className="onboarding-field__hint">{nameHint}</small>
+                </label>
+                <label className="onboarding-field">
+                  <span className="onboarding-field__label">{isEmpresa ? "CIF" : "NIF"} *</span>
+                  <input
+                    className="onboarding-input"
+                    type="text"
+                    value={form.nifCif}
+                    onChange={(event) => setField("nifCif", event.target.value.toUpperCase())}
+                    required
+                    placeholder={isEmpresa ? "B12345678" : "12345678A"}
+                  />
+                </label>
+                <label className="onboarding-field onboarding-field--full">
+                  <span className="onboarding-field__label">Nombre comercial (opcional)</span>
+                  <input
+                    className="onboarding-input"
+                    type="text"
+                    value={form.nombreComercial ?? ""}
+                    onChange={(event) => setField("nombreComercial", event.target.value)}
+                    placeholder="Nombre visible en facturas"
+                  />
+                </label>
+              </div>
+            </section>
+
+            <section className="onboarding-section">
+              <h3 className="onboarding-section__title">Contacto y dirección</h3>
+              <div className="onboarding-grid onboarding-grid--two">
+                <label className="onboarding-field">
+                  <span className="onboarding-field__label">Teléfono *</span>
+                  <input
+                    className="onboarding-input"
+                    type="tel"
+                    value={form.telefono}
+                    onChange={(event) => setField("telefono", event.target.value)}
+                    required
+                    placeholder="+34 600 000 000"
+                  />
+                </label>
+                <label className="onboarding-field">
+                  <span className="onboarding-field__label">Código postal *</span>
+                  <input
+                    className="onboarding-input"
+                    type="text"
+                    value={form.codigoPostal}
+                    onChange={(event) => setField("codigoPostal", event.target.value)}
+                    required
+                    placeholder="28001"
+                  />
+                </label>
+                <label className="onboarding-field onboarding-field--full">
+                  <span className="onboarding-field__label">Dirección fiscal *</span>
+                  <input
+                    className="onboarding-input"
+                    type="text"
+                    value={form.direccionFacturacion}
+                    onChange={(event) => setField("direccionFacturacion", event.target.value)}
+                    required
+                    placeholder="Calle, número, piso"
+                  />
+                </label>
+                <label className="onboarding-field">
+                  <span className="onboarding-field__label">Ciudad *</span>
+                  <input
+                    className="onboarding-input"
+                    type="text"
+                    value={form.ciudad}
+                    onChange={(event) => setField("ciudad", event.target.value)}
+                    required
+                    placeholder="Madrid"
+                  />
+                </label>
+                <label className="onboarding-field">
+                  <span className="onboarding-field__label">Provincia *</span>
+                  <input
+                    className="onboarding-input"
+                    type="text"
+                    value={form.provincia}
+                    onChange={(event) => setField("provincia", event.target.value)}
+                    required
+                    placeholder="Madrid"
+                  />
+                </label>
+              </div>
+            </section>
+
+            {error ? <p className="onboarding-error">{error}</p> : null}
+            {flash ? <p className="onboarding-flash">{flash}</p> : null}
+
+            <div className="onboarding-actions">
+              <button type="submit" className="pilot-btn pilot-btn--primary onboarding-submit" disabled={loading}>
+                {loading ? "Guardando..." : "Guardar y continuar"}
+              </button>
+              <small className="onboarding-actions__hint">Podrás editar estos datos en cualquier momento desde Configuración.</small>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  // Modo "settings" legacy — usa PublicLayout
   return (
-    <PublicLayout title={isCompleteMode ? "Completar perfil" : "Ajustes de negocio"} subtitle={subtitle}>
+    <PublicLayout title="Ajustes de negocio" subtitle={subtitle}>
       <form className="pilot-grid" onSubmit={(event) => void submit(event)}>
         <div className="pilot-grid pilot-grid--two">
           <label className="pilot-field">
@@ -1074,12 +1293,7 @@ function BusinessProfileForm({ mode }: { mode: BusinessProfileMode }): import("r
           </label>
           <label className="pilot-field">
             Nombre comercial
-            <input
-              className="pilot-input"
-              type="text"
-              value={form.nombreComercial ?? ""}
-              onChange={(event) => setField("nombreComercial", event.target.value)}
-            />
+            <input className="pilot-input" type="text" value={form.nombreComercial ?? ""} onChange={(event) => setField("nombreComercial", event.target.value)} />
           </label>
           <label className="pilot-field">
             Teléfono
@@ -1087,13 +1301,7 @@ function BusinessProfileForm({ mode }: { mode: BusinessProfileMode }): import("r
           </label>
           <label className="pilot-field">
             Dirección fiscal
-            <input
-              className="pilot-input"
-              type="text"
-              value={form.direccionFacturacion}
-              onChange={(event) => setField("direccionFacturacion", event.target.value)}
-              required
-            />
+            <input className="pilot-input" type="text" value={form.direccionFacturacion} onChange={(event) => setField("direccionFacturacion", event.target.value)} required />
           </label>
           <label className="pilot-field">
             Ciudad
@@ -1101,25 +1309,11 @@ function BusinessProfileForm({ mode }: { mode: BusinessProfileMode }): import("r
           </label>
           <label className="pilot-field">
             Código postal
-            <input
-              className="pilot-input"
-              type="text"
-              value={form.codigoPostal}
-              onChange={(event) => setField("codigoPostal", event.target.value)}
-              required
-            />
+            <input className="pilot-input" type="text" value={form.codigoPostal} onChange={(event) => setField("codigoPostal", event.target.value)} required />
           </label>
           <label className="pilot-field">
             Provincia
             <input className="pilot-input" type="text" value={form.provincia} onChange={(event) => setField("provincia", event.target.value)} required />
-          </label>
-          <label className="pilot-field">
-            País
-            <input className="pilot-input" type="text" value={form.pais} onChange={(event) => setField("pais", event.target.value)} required />
-          </label>
-          <label className="pilot-field">
-            Sector
-            <input className="pilot-input" type="text" value={form.sector} onChange={(event) => setField("sector", event.target.value)} required />
           </label>
           <label className="pilot-field">
             Tipo de negocio
@@ -1128,20 +1322,14 @@ function BusinessProfileForm({ mode }: { mode: BusinessProfileMode }): import("r
               <option value="empresa">Empresa</option>
             </select>
           </label>
-          <label className="pilot-field">
-            Color de marca (HEX)
-            <input className="pilot-input" type="text" value={form.brandColor ?? ""} onChange={(event) => setField("brandColor", event.target.value)} />
-          </label>
         </div>
         <div className="pilot-actions">
           <button type="submit" className="pilot-btn pilot-btn--primary" disabled={loading}>
             {loading ? "Guardando..." : "Guardar perfil"}
           </button>
-          {!isCompleteMode ? (
-            <Link className="pilot-btn" to="/dashboard">
-              Volver al dashboard
-            </Link>
-          ) : null}
+          <Link className="pilot-btn" to="/dashboard">
+            Volver al dashboard
+          </Link>
         </div>
       </form>
       {flash ? <p className="pilot-info-text">{flash}</p> : null}
@@ -1203,50 +1391,95 @@ export function FiscalPage(): import("react").JSX.Element {
 }
 
 export function SubscribePage(): import("react").JSX.Element {
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [statusMessage, setStatusMessage] = useState<string>("Cargando estado de suscripción...");
+  const [hasAccess, setHasAccess] = useState<boolean>(false);
+  const [signingOut, setSigningOut] = useState(false);
 
   useEffect(() => {
     let active = true;
     const load = async () => {
       const result = await subscriptionStatusService.resolveStatus();
       if (!active) return;
-
       if (!result.success) {
         setError(result.error.message);
-        setStatusMessage("No se pudo resolver el estado de suscripción.");
         setLoading(false);
         return;
       }
-
-      if (result.data.hasAccess) {
-        setStatusMessage("Tu cuenta tiene acceso activo. Puedes volver al dashboard.");
-      } else {
-        setStatusMessage("Tu cuenta no tiene una suscripción activa. Contacta soporte para activar tu plan.");
-      }
+      setHasAccess(result.data.hasAccess);
       setLoading(false);
     };
-
     void load();
-    return () => {
-      active = false;
-    };
+    return () => { active = false; };
   }, []);
 
+  const handleSignOut = async () => {
+    setSigningOut(true);
+    await authService.signOut();
+    navigate("/signin", { replace: true });
+  };
+
+  const supportHref = `mailto:soporte@facturales.es?subject=${encodeURIComponent("Activación de plan")}&body=${encodeURIComponent(`Hola, necesito activar mi plan.\n\nEmail: ${user?.email ?? ""}\n`)}`;
+
   return (
-    <PublicLayout title="Suscripción" subtitle="Gestión del acceso y estado de plan.">
-      <p>{loading ? "Verificando estado..." : statusMessage}</p>
-      <div className="pilot-actions mt-3">
-        <Link className="pilot-btn pilot-btn--primary" to="/dashboard">
-          Volver al dashboard
-        </Link>
-        <Link className="pilot-btn" to="/soporte">
-          Contactar soporte
-        </Link>
+    <div className="verify-email-page">
+      <div className="verify-email-card">
+        <div className="verify-email-card__icon" aria-hidden>
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 2L4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6l-8-4z" />
+            <path d="M9 12l2 2 4-4" />
+          </svg>
+        </div>
+        <p className="verify-email-card__brand">FACTURALES</p>
+        <h1 className="verify-email-card__title">
+          {loading ? "Verificando plan..." : hasAccess ? "Tu plan está activo" : "Activa tu plan"}
+        </h1>
+        <p className="verify-email-card__subtitle">
+          {loading
+            ? "Consultando el estado de tu suscripción."
+            : hasAccess
+              ? "Ya puedes acceder a todas las funciones de Facturales."
+              : "Tu cuenta aún no tiene un plan activo. Escríbenos a soporte y lo activamos en minutos."}
+        </p>
+
+        {!loading && !hasAccess ? (
+          <div className="verify-email-card__tips">
+            <p className="verify-email-card__tip">
+              <span className="verify-email-card__tip-bullet">•</span>
+              Incluye en el email tu nombre y el plan que te interesa.
+            </p>
+            <p className="verify-email-card__tip">
+              <span className="verify-email-card__tip-bullet">•</span>
+              Te responderemos con las instrucciones de pago y activación.
+            </p>
+          </div>
+        ) : null}
+
+        <div className="verify-email-card__actions">
+          {hasAccess ? (
+            <Link className="pilot-btn pilot-btn--primary verify-email-card__btn" to="/dashboard">
+              Ir al dashboard
+            </Link>
+          ) : (
+            <a className="pilot-btn pilot-btn--primary verify-email-card__btn" href={supportHref}>
+              Contactar a soporte
+            </a>
+          )}
+          <button
+            type="button"
+            className="pilot-btn verify-email-card__btn"
+            onClick={() => void handleSignOut()}
+            disabled={signingOut}
+          >
+            {signingOut ? "Saliendo..." : "Cerrar sesión"}
+          </button>
+        </div>
+
+        {error ? <p className="verify-email-card__flash">{error}</p> : null}
       </div>
-      {error ? <ErrorState title="No se pudo cargar billing" description={error} /> : null}
-    </PublicLayout>
+    </div>
   );
 }
 

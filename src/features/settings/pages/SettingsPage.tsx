@@ -1148,7 +1148,7 @@ export function SettingsPage(): import("react").JSX.Element {
                         Sector
                         <select
                           className="settings-input"
-                          value={form.sector}
+                          value={form.sector ?? ""}
                           onChange={(event) => setForm((previous) => ({ ...previous, sector: event.target.value }))}
                         >
                           {SECTOR_OPTIONS.map((option) => (

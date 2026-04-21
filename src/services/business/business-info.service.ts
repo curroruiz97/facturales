@@ -14,8 +14,8 @@ export interface BusinessInfoInput {
   ciudad: string;
   codigoPostal: string;
   provincia: string;
-  pais: string;
-  sector: string;
+  pais?: string;
+  sector?: string | null;
   businessType?: "autonomo" | "empresa";
   brandColor?: string | null;
   formaJuridica?: string | null;
@@ -72,6 +72,8 @@ function normalizePercent(value: number | null | undefined, fallback: number): n
 }
 
 function mapInputToRow(userId: string, input: BusinessInfoInput): Record<string, unknown> {
+  const sectorRaw = typeof input.sector === "string" ? sanitizeText(input.sector) : "";
+  const paisRaw = typeof input.pais === "string" ? sanitizeText(input.pais) : "";
   return {
     user_id: userId,
     nombre_fiscal: sanitizeText(input.nombreFiscal),
@@ -82,10 +84,10 @@ function mapInputToRow(userId: string, input: BusinessInfoInput): Record<string,
     ciudad: sanitizeText(input.ciudad),
     codigo_postal: sanitizeText(input.codigoPostal),
     provincia: sanitizeText(input.provincia),
-    pais: sanitizeText(input.pais),
-    sector: sanitizeText(input.sector),
+    pais: paisRaw || "España",
+    sector: sectorRaw || null,
     business_type: input.businessType ?? "autonomo",
-    brand_color: input.brandColor ?? null,
+    brand_color: input.brandColor ?? "#ec8228",
     forma_juridica: input.formaJuridica ? sanitizeText(input.formaJuridica) : null,
     default_tax_type: input.defaultTaxType ?? "iva",
     default_iva: normalizePercent(input.defaultIva, 21),
