@@ -176,7 +176,6 @@ Deno.serve(async (req: Request) => {
     const { documentType, documentId, pdfBase64 } = payload;
     // Normalize inputs early — strip injection vectors
     const recipients = parseRecipients(payload.to);
-    const to = recipients[0] ?? "";
     const subject = payload.subject ? sanitizeOneLine(payload.subject).substring(0, MAX_SUBJECT_LENGTH) : undefined;
     const body = payload.body ? payload.body.substring(0, MAX_BODY_LENGTH) : undefined;
     const pdfFilename = payload.pdfFilename ? sanitizeFilename(payload.pdfFilename) : undefined;
@@ -220,18 +219,19 @@ Deno.serve(async (req: Request) => {
     // ── 2. Crear clientes Supabase ───────────────────────────
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const authHeader = req.headers.get("Authorization")!;
+    const authHeader = req.headers.get("Authorization");
 
-    const supabaseUser = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!, {
-      global: { headers: { Authorization: authHeader } },
-    });
+    if (!authHeader) {
+      return jsonResponse(req, { success: false, error: "No autorizado: falta header Authorization" }, 401);
+    }
 
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
-    // ── 3. Validar JWT ───────────────────────────────────────
-    const { data: { user }, error: authError } = await supabaseUser.auth.getUser();
+    // ── 3. Validar JWT (pasa token explícitamente para Deno edge runtime) ──
+    const token = authHeader.replace("Bearer ", "");
+    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
     if (authError || !user) {
-      return jsonResponse(req, { success: false, error: "No autenticado" }, 401);
+      return jsonResponse(req, { success: false, error: `Token inválido: ${authError?.message ?? "usuario no encontrado"}` }, 401);
     }
     const userId = user.id;
 
