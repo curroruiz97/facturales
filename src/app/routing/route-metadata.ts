@@ -314,6 +314,17 @@ const ROUTE_METADATA: RouteMeta[] = [
     shellVariant: "public",
   },
   {
+    id: "planes",
+    path: "/planes",
+    title: "Elige tu plan",
+    section: "Billing",
+    requiresAuth: true,
+    requiresSubscription: false,
+    breadcrumbs: ["Billing", "Planes"],
+    showGlobalSearch: false,
+    shellVariant: "public",
+  },
+  {
     id: "billing-success",
     path: "/billing/success",
     title: "Pago completado",

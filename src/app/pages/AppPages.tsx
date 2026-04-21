@@ -4,6 +4,8 @@ import { authService } from "../../services/auth/auth.service";
 import { getSupabaseClient } from "../../services/supabase/client";
 import { businessInfoService, type BusinessInfoInput } from "../../services/business/business-info.service";
 import { subscriptionStatusService } from "../../services/subscription/subscription-status.service";
+import { subscriptionManagementService } from "../../services/subscription/subscription-management.service";
+import type { BillingInterval, BillingPlan } from "../../shared/types/domain";
 import { useAuth } from "../providers/AuthProvider";
 import { ErrorState } from "../components/states/ErrorState";
 import { resolveSafeRedirectPath } from "../routing/route-metadata";
@@ -1114,7 +1116,7 @@ function BusinessProfileForm({ mode }: { mode: BusinessProfileMode }): import("r
     setFlash("Perfil guardado correctamente.");
     if (isCompleteMode) {
       setTimeout(() => {
-        navigate("/dashboard", { replace: true });
+        navigate("/planes", { replace: true });
       }, 500);
     }
   };
@@ -1408,12 +1410,17 @@ export function SubscribePage(): import("react").JSX.Element {
         setLoading(false);
         return;
       }
+      // Si no tiene acceso, lleva directamente a la página de planes
+      if (!result.data.hasAccess) {
+        navigate("/planes", { replace: true });
+        return;
+      }
       setHasAccess(result.data.hasAccess);
       setLoading(false);
     };
     void load();
     return () => { active = false; };
-  }, []);
+  }, [navigate]);
 
   const handleSignOut = async () => {
     setSigningOut(true);
@@ -1483,15 +1490,242 @@ export function SubscribePage(): import("react").JSX.Element {
   );
 }
 
+interface OnboardingPlan {
+  id: Exclude<BillingPlan, "none">;
+  label: string;
+  monthlyPrice: number;
+  yearlyPrice: number;
+  tagline: string;
+  badge?: string;
+  features: string[];
+}
+
+const ONBOARDING_PLANS: OnboardingPlan[] = [
+  {
+    id: "starter",
+    label: "Starter",
+    monthlyPrice: 6.45,
+    yearlyPrice: 4.95,
+    tagline: "Para empezar a facturar.",
+    features: [
+      "Hasta 10 clientes",
+      "1 usuario",
+      "Hasta 30 productos",
+      "10 facturas / mes",
+      "Escaneado: 10 docs/mes",
+      "Soporte por email",
+    ],
+  },
+  {
+    id: "pro",
+    label: "Pro",
+    monthlyPrice: 11.95,
+    yearlyPrice: 8.95,
+    tagline: "Para profesionales y autónomos activos.",
+    badge: "Más popular",
+    features: [
+      "Hasta 150 clientes",
+      "Hasta 3 usuarios",
+      "Hasta 150 productos",
+      "Facturas ilimitadas",
+      "Escaneado: 75 docs/mes",
+      "Soporte por chat y email",
+    ],
+  },
+  {
+    id: "business",
+    label: "Ilimitado",
+    monthlyPrice: 23.95,
+    yearlyPrice: 17.95,
+    tagline: "Equipos, asesorías y alto volumen.",
+    features: [
+      "Clientes ilimitados",
+      "Usuarios ilimitados",
+      "Productos ilimitados",
+      "Facturas ilimitadas",
+      "Escaneado: 300 docs/mes",
+      "Soporte prioritario (chat, email y teléfono)",
+    ],
+  },
+];
+
+function formatPlanPrice(value: number): string {
+  return value.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+export function PlansPage(): import("react").JSX.Element {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [interval, setInterval] = useState<BillingInterval>("yearly");
+  const [loadingPlan, setLoadingPlan] = useState<OnboardingPlan["id"] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [hasActive, setHasActive] = useState<boolean>(false);
+  const [statusLoading, setStatusLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    const load = async () => {
+      const result = await subscriptionStatusService.resolveStatus();
+      if (!active) return;
+      if (result.success && result.data.hasAccess) {
+        setHasActive(true);
+      }
+      setStatusLoading(false);
+    };
+    void load();
+    return () => { active = false; };
+  }, []);
+
+  const handleSelectPlan = async (planId: OnboardingPlan["id"]): Promise<void> => {
+    setError(null);
+    setLoadingPlan(planId);
+    const result = await subscriptionManagementService.createCheckoutSession(planId, interval);
+    if (!result.success) {
+      setLoadingPlan(null);
+      setError(`No se pudo iniciar el pago: ${result.error.message}`);
+      return;
+    }
+    window.location.href = result.data.url;
+  };
+
+  const handleSignOut = async () => {
+    await authService.signOut();
+    navigate("/signin", { replace: true });
+  };
+
+  return (
+    <div className="plans-page">
+      <div className="plans-page__inner">
+        <header className="plans-page__header">
+          <p className="plans-page__brand">FACTURALES</p>
+          <h1 className="plans-page__title">
+            {hasActive ? "Tu plan está activo" : "Elige tu plan"}
+          </h1>
+          <p className="plans-page__subtitle">
+            {hasActive
+              ? "Ya tienes acceso. Puedes gestionar tu suscripción desde Configuración."
+              : "Empieza con 14 días de prueba gratis. Cancela cuando quieras."}
+          </p>
+
+          {!hasActive ? (
+            <div className="plans-page__toggle" role="tablist" aria-label="Frecuencia de facturación">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={interval === "monthly"}
+                className={`plans-page__toggle-btn${interval === "monthly" ? " plans-page__toggle-btn--active" : ""}`}
+                onClick={() => setInterval("monthly")}
+              >
+                Mensual
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={interval === "yearly"}
+                className={`plans-page__toggle-btn${interval === "yearly" ? " plans-page__toggle-btn--active" : ""}`}
+                onClick={() => setInterval("yearly")}
+              >
+                Anual <span className="plans-page__toggle-badge">Ahorra 30%</span>
+              </button>
+            </div>
+          ) : null}
+        </header>
+
+        {error ? <p className="plans-page__error">{error}</p> : null}
+
+        <div className="plans-page__grid">
+          {ONBOARDING_PLANS.map((plan) => {
+            const price = interval === "yearly" ? plan.yearlyPrice : plan.monthlyPrice;
+            const isLoading = loadingPlan === plan.id;
+            return (
+              <article
+                key={plan.id}
+                className={`plan-card${plan.badge ? " plan-card--featured" : ""}`}
+              >
+                {plan.badge ? <span className="plan-card__badge">{plan.badge}</span> : null}
+                <h3 className="plan-card__title">{plan.label}</h3>
+                <p className="plan-card__tagline">{plan.tagline}</p>
+                <div className="plan-card__price">
+                  <span className="plan-card__price-amount">{formatPlanPrice(price)}</span>
+                  <span className="plan-card__price-currency">€</span>
+                  <span className="plan-card__price-interval">/mes + IVA</span>
+                </div>
+                {interval === "yearly" ? (
+                  <p className="plan-card__price-note">Facturación anual — {formatPlanPrice(price * 12)} € al año</p>
+                ) : (
+                  <p className="plan-card__price-note">Facturación mensual — cancela cuando quieras</p>
+                )}
+                <ul className="plan-card__features">
+                  {plan.features.map((feature) => (
+                    <li key={feature} className="plan-card__feature">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  type="button"
+                  className={`pilot-btn plan-card__cta${plan.badge ? " pilot-btn--primary" : ""}`}
+                  onClick={() => void handleSelectPlan(plan.id)}
+                  disabled={isLoading || statusLoading || hasActive}
+                >
+                  {isLoading
+                    ? "Redirigiendo a Stripe..."
+                    : hasActive
+                      ? "Ya tienes plan activo"
+                      : `Empezar con ${plan.label}`}
+                </button>
+                <small className="plan-card__trial">14 días de prueba gratis</small>
+              </article>
+            );
+          })}
+        </div>
+
+        <footer className="plans-page__footer">
+          {hasActive ? (
+            <Link className="pilot-btn pilot-btn--primary plans-page__footer-btn" to="/dashboard">
+              Ir al dashboard
+            </Link>
+          ) : (
+            <p className="plans-page__footer-text">
+              ¿Dudas sobre qué plan elegir?{" "}
+              <a href="mailto:soporte@facturales.es?subject=Consulta%20sobre%20planes" className="plans-page__footer-link">
+                Escríbenos a soporte
+              </a>
+            </p>
+          )}
+          <button type="button" className="plans-page__footer-link plans-page__footer-logout" onClick={() => void handleSignOut()}>
+            Cerrar sesión ({user?.email ?? ""})
+          </button>
+        </footer>
+      </div>
+    </div>
+  );
+}
+
 export function BillingSuccessPage(): import("react").JSX.Element {
   return (
-    <PublicLayout title="Pago completado" subtitle="Tu suscripción se ha actualizado correctamente.">
-      <div className="pilot-actions">
-        <Link className="pilot-btn pilot-btn--primary" to="/dashboard">
-          Ir al dashboard
-        </Link>
+    <div className="verify-email-page">
+      <div className="verify-email-card">
+        <div className="verify-email-card__icon" aria-hidden style={{ background: "rgba(34, 197, 94, 0.12)", color: "#15803d" }}>
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </div>
+        <p className="verify-email-card__brand">FACTURALES</p>
+        <h1 className="verify-email-card__title">Pago completado</h1>
+        <p className="verify-email-card__subtitle">
+          Tu suscripción se ha activado correctamente. Ya puedes acceder a todas las funciones.
+        </p>
+        <div className="verify-email-card__actions">
+          <Link className="pilot-btn pilot-btn--primary verify-email-card__btn" to="/dashboard">
+            Ir al dashboard
+          </Link>
+        </div>
       </div>
-    </PublicLayout>
+    </div>
   );
 }
 
