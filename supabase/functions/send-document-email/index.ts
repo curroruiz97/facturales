@@ -12,12 +12,30 @@ import { getCorsHeaders, handleCorsOptions, jsonResponse } from "../_shared/cors
 interface EmailPayload {
   documentType: "invoice" | "quote";
   documentId: string;
-  to: string;
+  to: string | string[];
   subject?: string;
   body?: string;
   pdfBase64: string;   // obligatorio
   pdfFilename?: string;
   scheduledAt?: string; // ISO 8601 — si se envía, Resend programa el envío para esa fecha
+}
+
+const MAX_RECIPIENTS = 10;
+
+/** Parse `to` accepting a single email, comma/semicolon-separated list or array */
+function parseRecipients(raw: unknown): string[] {
+  if (Array.isArray(raw)) {
+    return raw
+      .map((entry) => (typeof entry === "string" ? entry.trim().toLowerCase() : ""))
+      .filter(Boolean);
+  }
+  if (typeof raw === "string") {
+    return raw
+      .split(/[,;]/)
+      .map((entry) => entry.trim().toLowerCase())
+      .filter(Boolean);
+  }
+  return [];
 }
 
 // ============================================
@@ -157,7 +175,8 @@ Deno.serve(async (req: Request) => {
     const payload: EmailPayload = await req.json();
     const { documentType, documentId, pdfBase64 } = payload;
     // Normalize inputs early — strip injection vectors
-    const to = typeof payload.to === "string" ? payload.to.trim().toLowerCase() : "";
+    const recipients = parseRecipients(payload.to);
+    const to = recipients[0] ?? "";
     const subject = payload.subject ? sanitizeOneLine(payload.subject).substring(0, MAX_SUBJECT_LENGTH) : undefined;
     const body = payload.body ? payload.body.substring(0, MAX_BODY_LENGTH) : undefined;
     const pdfFilename = payload.pdfFilename ? sanitizeFilename(payload.pdfFilename) : undefined;
@@ -184,8 +203,15 @@ Deno.serve(async (req: Request) => {
     if (!documentId || typeof documentId !== "string") {
       return jsonResponse(req, { success: false, error: "documentId es obligatorio" }, 400);
     }
-    if (!to || !EMAIL_RE.test(to.trim())) {
-      return jsonResponse(req, { success: false, error: "to debe ser un email válido" }, 400);
+    if (recipients.length === 0) {
+      return jsonResponse(req, { success: false, error: "Debes indicar al menos un email de destino" }, 400);
+    }
+    if (recipients.length > MAX_RECIPIENTS) {
+      return jsonResponse(req, { success: false, error: `Máximo ${MAX_RECIPIENTS} destinatarios por envío` }, 400);
+    }
+    const invalidRecipient = recipients.find((email) => !EMAIL_RE.test(email));
+    if (invalidRecipient) {
+      return jsonResponse(req, { success: false, error: `Email inválido: ${invalidRecipient}` }, 400);
     }
     if (!pdfBase64 || typeof pdfBase64 !== "string") {
       return jsonResponse(req, { success: false, error: "pdfBase64 es obligatorio (PDF del documento)" }, 400);
@@ -230,18 +256,10 @@ Deno.serve(async (req: Request) => {
       return jsonResponse(req, { success: false, error: "El documento debe estar emitido para enviar email" }, 400);
     }
 
-    // ── 4b. Validar que 'to' coincide con el email del cliente del documento ──
-    const docJsonDataRaw = docData[dataField] || {};
-    const clientEmailOnDoc = docJsonDataRaw.client?.email;
-    if (!clientEmailOnDoc) {
-      return jsonResponse(req, { success: false, error: "El documento no tiene un email de cliente asociado" }, 400);
-    }
-    if (to.trim().toLowerCase() !== clientEmailOnDoc.trim().toLowerCase()) {
-      return jsonResponse(req, { success: false, error: "El email de destino no coincide con el email del cliente del documento" }, 403);
-    }
-
     // ── 5. Idempotencia ──────────────────────────────────────
-    const idempotencyKey = await sha256(`${documentType}:${documentId}:${to}`);
+    // Clave independiente del orden — ordena los recipients antes de hashear
+    const sortedRecipients = [...recipients].sort();
+    const idempotencyKey = await sha256(`${documentType}:${documentId}:${sortedRecipients.join(",")}`);
 
     // FIX #1: Si existe log con CUALQUIER status, devolver sin reenviar
     const { data: existingLog } = await supabaseAdmin
@@ -291,7 +309,7 @@ Deno.serve(async (req: Request) => {
         user_id: userId,
         document_type: documentType,
         document_id: documentId,
-        to_email: to,
+        to_email: recipients.join(", "),
         subject: emailSubject,
         provider: "resend",
         status: "queued",
@@ -393,7 +411,7 @@ Deno.serve(async (req: Request) => {
 
     const resendBody: Record<string, unknown> = {
       from: resendFrom,
-      to: [to],
+      to: recipients,
       subject: emailSubject,
       html: emailHtml,
       attachments: [{

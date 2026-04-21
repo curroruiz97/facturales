@@ -77,7 +77,7 @@ export class DefaultExpenseOcrService implements ExpenseOcrService {
       const supabase = getSupabaseClient();
       const safeName = sanitizeFileName(input.file.name);
       const path = `${userId}/${Date.now()}_${safeName}`;
-      const upload = await supabase.storage.from("ocr-expenses").upload(path, input.file, {
+      const upload = await supabase.storage.from("expense-ocr-temp").upload(path, input.file, {
         upsert: false,
       });
       if (upload.error) return fail(upload.error.message, upload.error.name, upload.error);

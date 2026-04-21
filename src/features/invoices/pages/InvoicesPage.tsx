@@ -122,7 +122,7 @@ export function InvoicesPage({ mode }: InvoicesPageProps): import("react").JSX.E
       return;
     }
     if (mode === "emitidas") {
-      navigate(`/facturas/vista-previa?invoice=${encodeURIComponent(invoiceId)}`);
+      navigate(`/facturas/vista-previa?draft=${encodeURIComponent(invoiceId)}`);
       return;
     }
 

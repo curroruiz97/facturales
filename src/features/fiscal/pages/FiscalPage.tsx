@@ -33,6 +33,22 @@ function formatDate(iso: string): string {
   return new Intl.DateTimeFormat("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" }).format(d);
 }
 
+function escapeCsv(value: string): string {
+  return `"${value.replace(/"/g, '""')}"`;
+}
+
+function downloadCsvFile(filename: string, csv: string): void {
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
 export function FiscalPage(): import("react").JSX.Element {
   const currentYear = new Date().getFullYear();
   const [year, setYear] = useState(currentYear);
@@ -41,6 +57,26 @@ export function FiscalPage(): import("react").JSX.Element {
   const [showQuarterDrop, setShowQuarterDrop] = useState(false);
 
   const fiscal = useFiscalData(year, quarter);
+
+  const handleExportFiscal = (): void => {
+    if (fiscal.invoices.length === 0) return;
+    const headers = ["Número", "Cliente", "Fecha", "Base", "IVA", "IRPF", "Total"];
+    const rows = fiscal.invoices.map((inv) => {
+      const d = extractInvoiceFiscalData(inv);
+      return [
+        inv.invoiceNumber ?? "",
+        inv.clientName ?? "",
+        inv.issueDate ?? "",
+        d.taxBase.toFixed(2),
+        d.taxAmount.toFixed(2),
+        d.retentionAmount.toFixed(2),
+        d.totalAmount.toFixed(2),
+      ];
+    });
+    const csv = `\uFEFF${headers.map(escapeCsv).join(",")}\n${rows.map((row) => row.map((cell) => escapeCsv(String(cell))).join(",")).join("\n")}`;
+    const suffix = quarter === 0 ? `anual-${year}` : `${year}-Q${quarter}`;
+    downloadCsvFile(`facturas-${suffix}.csv`, csv);
+  };
 
   const years = useMemo(() => {
     const list: number[] = [];
@@ -254,7 +290,13 @@ export function FiscalPage(): import("react").JSX.Element {
           <div className="fiscal-invoices-panel">
             <div className="fiscal-invoices-header">
               <h3>{tableTitleForQuarter(quarter)}</h3>
-              <button type="button" className="fiscal-export-btn">
+              <button
+                type="button"
+                className="fiscal-export-btn"
+                onClick={handleExportFiscal}
+                disabled={fiscal.invoices.length === 0}
+                title={fiscal.invoices.length === 0 ? "No hay facturas para exportar en este periodo" : "Descargar CSV"}
+              >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
                 Exportar
               </button>

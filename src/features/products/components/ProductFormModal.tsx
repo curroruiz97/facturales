@@ -87,120 +87,140 @@ export function ProductFormModal({
     await onSubmit(values);
   };
 
+  const marginTone = margin === null ? "neutral" : margin >= 25 ? "ok" : margin >= 0 ? "warn" : "danger";
+
   return (
-    <div className="pilot-modal" role="dialog" aria-modal="true" aria-labelledby="product-modal-title">
+    <div className="pilot-modal product-modal" role="dialog" aria-modal="true" aria-labelledby="product-modal-title">
       <div className="pilot-modal__overlay" onClick={onClose} />
-      <div className="pilot-modal__content">
-        <header className="pilot-modal__header">
-          <h3 id="product-modal-title" className="text-lg font-bold">
-            {resolveTitle(mode)}
-          </h3>
+      <div className="pilot-modal__content product-modal__content">
+        <header className="pilot-modal__header product-modal__header">
+          <div>
+            <h3 id="product-modal-title" className="product-modal__title">
+              {resolveTitle(mode)}
+            </h3>
+            <p className="product-modal__subtitle">
+              {mode === "create"
+                ? "Añade un producto o servicio a tu catálogo."
+                : "Actualiza los datos del producto."}
+            </p>
+          </div>
           <button type="button" className="pilot-btn" onClick={onClose} disabled={saving}>
             Cerrar
           </button>
         </header>
 
-        <form className="pilot-grid" onSubmit={handleSubmit}>
-          <div className="pilot-grid pilot-grid--two">
-            <label className="pilot-field">
-              <span>Nombre *</span>
-              <input
-                className="pilot-input"
-                value={values.nombre}
-                onChange={(event) => setValues((prev) => ({ ...prev, nombre: event.target.value }))}
-                placeholder="Servicio de consultoria"
-              />
-            </label>
-            <label className="pilot-field">
-              <span>Referencia</span>
-              <input
-                className="pilot-input"
-                value={values.referencia}
-                onChange={(event) => setValues((prev) => ({ ...prev, referencia: event.target.value }))}
-                placeholder="REF-001"
-              />
-            </label>
-          </div>
-
-          <label className="pilot-field">
-            <span>Descripcion</span>
-            <textarea
-              className="pilot-input pilot-textarea"
-              value={values.descripcion}
-              onChange={(event) => setValues((prev) => ({ ...prev, descripcion: event.target.value }))}
-              placeholder="Descripcion del producto o servicio"
-            />
-          </label>
-
-          <div className="pilot-grid pilot-grid--two">
-            <label className="pilot-field">
-              <span>Impuesto</span>
-              <select
-                className="pilot-input"
-                value={values.impuesto}
-                onChange={(event) => setValues((prev) => ({ ...prev, impuesto: event.target.value }))}
-              >
-                {PRODUCT_TAX_OPTIONS.map((option) => (
-                  <option key={option.code} value={option.code}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="pilot-field">
-              <span>Descuento (%)</span>
-              <input
-                className="pilot-input"
-                type="number"
-                min="0"
-                max="100"
-                step="0.01"
-                value={values.descuento}
-                onChange={(event) => setValues((prev) => ({ ...prev, descuento: event.target.value }))}
-              />
-            </label>
-          </div>
-
-          <div className="pilot-grid pilot-grid--two">
-            <label className="pilot-field">
-              <span>Precio compra</span>
-              <input
-                className="pilot-input"
-                type="number"
-                min="0"
-                step="0.01"
-                value={values.precioCompra}
-                onChange={(event) => setValues((prev) => ({ ...prev, precioCompra: event.target.value }))}
-              />
-            </label>
-            <label className="pilot-field">
-              <span>Precio venta</span>
-              <input
-                className="pilot-input"
-                type="number"
-                min="0"
-                step="0.01"
-                value={values.precioVenta}
-                onChange={(event) => setValues((prev) => ({ ...prev, precioVenta: event.target.value }))}
-              />
-            </label>
-          </div>
-
-          <div className="pilot-grid pilot-grid--two">
-            <div className="pilot-kpi">
-              <span className="pilot-kpi__label">PVP</span>
-              <span className="pilot-kpi__value">{formatProductCurrency(pvp)}</span>
+        <form className="product-modal__form" onSubmit={handleSubmit}>
+          <section className="product-modal__section">
+            <h4 className="product-modal__section-title">Información básica</h4>
+            <div className="pilot-grid pilot-grid--two">
+              <label className="pilot-field">
+                <span>Nombre *</span>
+                <input
+                  className="pilot-input"
+                  value={values.nombre}
+                  onChange={(event) => setValues((prev) => ({ ...prev, nombre: event.target.value }))}
+                  placeholder="Servicio de consultoría"
+                />
+              </label>
+              <label className="pilot-field">
+                <span>Referencia</span>
+                <input
+                  className="pilot-input"
+                  value={values.referencia}
+                  onChange={(event) => setValues((prev) => ({ ...prev, referencia: event.target.value }))}
+                  placeholder="REF-001"
+                />
+              </label>
             </div>
-            <div className="pilot-kpi">
-              <span className="pilot-kpi__label">Margen</span>
-              <span className="pilot-kpi__value">{margin === null ? "N/A" : `${margin.toFixed(1)}%`}</span>
+            <label className="pilot-field">
+              <span>Descripción</span>
+              <textarea
+                className="pilot-input pilot-textarea"
+                value={values.descripcion}
+                onChange={(event) => setValues((prev) => ({ ...prev, descripcion: event.target.value }))}
+                placeholder="Descripción opcional del producto o servicio"
+                rows={3}
+              />
+            </label>
+          </section>
+
+          <section className="product-modal__section">
+            <h4 className="product-modal__section-title">Fiscalidad</h4>
+            <div className="pilot-grid pilot-grid--two">
+              <label className="pilot-field">
+                <span>Impuesto</span>
+                <select
+                  className="pilot-input"
+                  value={values.impuesto}
+                  onChange={(event) => setValues((prev) => ({ ...prev, impuesto: event.target.value }))}
+                >
+                  {PRODUCT_TAX_OPTIONS.map((option) => (
+                    <option key={option.code} value={option.code}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="pilot-field">
+                <span>Descuento (%)</span>
+                <input
+                  className="pilot-input"
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.01"
+                  value={values.descuento}
+                  onChange={(event) => setValues((prev) => ({ ...prev, descuento: event.target.value }))}
+                />
+              </label>
             </div>
-          </div>
+          </section>
+
+          <section className="product-modal__section">
+            <h4 className="product-modal__section-title">Precios</h4>
+            <div className="pilot-grid pilot-grid--two">
+              <label className="pilot-field">
+                <span>Precio compra</span>
+                <input
+                  className="pilot-input"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={values.precioCompra}
+                  onChange={(event) => setValues((prev) => ({ ...prev, precioCompra: event.target.value }))}
+                />
+              </label>
+              <label className="pilot-field">
+                <span>Precio venta (sin IVA)</span>
+                <input
+                  className="pilot-input"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={values.precioVenta}
+                  onChange={(event) => setValues((prev) => ({ ...prev, precioVenta: event.target.value }))}
+                />
+              </label>
+            </div>
+          </section>
+
+          <section className="product-modal__summary">
+            <div className="product-modal__summary-item">
+              <span className="product-modal__summary-label">PVP con impuesto</span>
+              <span className="product-modal__summary-value">{formatProductCurrency(pvp)}</span>
+            </div>
+            <div className={`product-modal__summary-item product-modal__summary-item--${marginTone}`}>
+              <span className="product-modal__summary-label">Margen</span>
+              <span className="product-modal__summary-value">
+                {margin === null ? "—" : `${margin.toFixed(1)}%`}
+              </span>
+            </div>
+          </section>
 
           {localError ? <p className="pilot-error-text">{localError}</p> : null}
           {error ? <p className="pilot-error-text">{error}</p> : null}
 
-          <div className="pilot-modal__footer">
+          <div className="pilot-modal__footer product-modal__footer">
             <button type="button" className="pilot-btn" onClick={onClose} disabled={saving}>
               Cancelar
             </button>

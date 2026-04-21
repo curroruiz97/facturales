@@ -29,10 +29,27 @@ interface DocumentActionBarProps {
 
 type EmitStep = "confirm" | "send-form" | "schedule-form" | "done";
 const EMAIL_RE = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+const MAX_RECIPIENTS = 10;
 
 function buildFilename(kind: string, number: string): string {
   const sanitized = (number || "sin-numero").replace(/[^a-zA-Z0-9-_]/g, "_");
   return `${kind === "invoice" ? "factura" : "presupuesto"}-${sanitized}.pdf`;
+}
+
+/**
+ * Parse one or more emails separated by commas/semicolons.
+ * Returns `{ emails, invalid }`: if `invalid` is non-null, al menos un token falla validación.
+ */
+function parseEmailList(raw: string): { emails: string[]; invalid: string | null } {
+  const tokens = raw
+    .split(/[,;]/)
+    .map((token) => token.trim())
+    .filter(Boolean);
+  if (tokens.length === 0) return { emails: [], invalid: null };
+  for (const token of tokens) {
+    if (!EMAIL_RE.test(token)) return { emails: [], invalid: token };
+  }
+  return { emails: tokens, invalid: null };
 }
 
 export function DocumentActionBar({
@@ -117,6 +134,15 @@ export function DocumentActionBar({
     };
   }, [pdfLogoUrl]);
 
+  // Reset del paso y estado de envío al cerrar la modal
+  useEffect(() => {
+    if (!emitModalOpen) {
+      setEmitStep("confirm");
+      setSending(false);
+      setEmitting(false);
+    }
+  }, [emitModalOpen]);
+
   const validateBeforePreview = (): string | null => {
     if (!editor.client.name.trim()) {
       return "El nombre del cliente es obligatorio.";
@@ -199,16 +225,17 @@ export function DocumentActionBar({
   };
 
   const sendEmailNow = async () => {
-    if (!sendEmail.trim()) {
-      setFlash("Introduce un email de destino.");
+    const parsed = parseEmailList(sendEmail);
+    if (parsed.invalid) {
+      setFlash(`Email inválido: ${parsed.invalid}`);
       return;
     }
-    if (!EMAIL_RE.test(sendEmail.trim())) {
-      setFlash("El email de destino no es válido.");
+    if (parsed.emails.length === 0) {
+      setFlash("Introduce al menos un email de destino.");
       return;
     }
-    if (clientEmail && sendEmail.trim().toLowerCase() !== clientEmail.trim().toLowerCase()) {
-      setFlash("El email de envío debe coincidir con el email del cliente en el documento.");
+    if (parsed.emails.length > MAX_RECIPIENTS) {
+      setFlash(`Máximo ${MAX_RECIPIENTS} destinatarios.`);
       return;
     }
     if (!activeDocumentId) {
@@ -222,7 +249,7 @@ export function DocumentActionBar({
       const payload = {
         documentType: documentKind,
         documentId: activeDocumentId,
-        to: sendEmail.trim(),
+        to: parsed.emails,
         subject: sendSubject || `${kindLabel} ${docNumber}`,
         body: sendBody || "",
         pdfBase64,
@@ -254,16 +281,21 @@ export function DocumentActionBar({
   };
 
   const scheduleEmailSend = async () => {
-    if (!sendEmail.trim() || !scheduleDate) {
-      setFlash("Introduce email y fecha de envío.");
+    const parsed = parseEmailList(sendEmail);
+    if (!scheduleDate) {
+      setFlash("Introduce la fecha de envío programado.");
       return;
     }
-    if (!EMAIL_RE.test(sendEmail.trim())) {
-      setFlash("El email de destino no es válido.");
+    if (parsed.invalid) {
+      setFlash(`Email inválido: ${parsed.invalid}`);
       return;
     }
-    if (clientEmail && sendEmail.trim().toLowerCase() !== clientEmail.trim().toLowerCase()) {
-      setFlash("El email de envío debe coincidir con el email del cliente en el documento.");
+    if (parsed.emails.length === 0) {
+      setFlash("Introduce al menos un email de destino.");
+      return;
+    }
+    if (parsed.emails.length > MAX_RECIPIENTS) {
+      setFlash(`Máximo ${MAX_RECIPIENTS} destinatarios.`);
       return;
     }
     if (!activeDocumentId) {
@@ -283,7 +315,7 @@ export function DocumentActionBar({
       const payload = {
         documentType: documentKind,
         documentId: activeDocumentId,
-        to: sendEmail.trim(),
+        to: parsed.emails,
         subject: sendSubject || `${kindLabel} ${docNumber}`,
         body: sendBody || "",
         pdfBase64,
@@ -322,7 +354,12 @@ export function DocumentActionBar({
 
   return (
     <>
-      {flash ? <div className="doc-action-flash">{flash}</div> : null}
+      {flash
+        ? createPortal(
+            <div className="doc-action-flash doc-action-flash--portal">{flash}</div>,
+            document.body,
+          )
+        : null}
 
       <div className="doc-action-bar">
         <div className="doc-action-bar__left">
@@ -411,7 +448,14 @@ export function DocumentActionBar({
                 </div>
                 <div className="doc-emit-modal__form">
                   <label className="inv-label">Email del destinatario</label>
-                  <input className="inv-input" type="email" value={sendEmail} onChange={(e) => setSendEmail(e.target.value)} placeholder="cliente@email.com" />
+                  <input
+                    className="inv-input"
+                    type="text"
+                    value={sendEmail}
+                    onChange={(e) => setSendEmail(e.target.value)}
+                    placeholder="cliente@email.com, asesor@email.com"
+                  />
+                  <small className="doc-emit-modal__hint">Puedes separar varios emails con comas. Máx. {MAX_RECIPIENTS}.</small>
                   <label className="inv-label">Asunto</label>
                   <input className="inv-input" type="text" value={sendSubject} onChange={(e) => setSendSubject(e.target.value)} />
                   <label className="inv-label">Mensaje</label>
@@ -434,7 +478,14 @@ export function DocumentActionBar({
                 </div>
                 <div className="doc-emit-modal__form">
                   <label className="inv-label">Email del destinatario</label>
-                  <input className="inv-input" type="email" value={sendEmail} onChange={(e) => setSendEmail(e.target.value)} placeholder="cliente@email.com" />
+                  <input
+                    className="inv-input"
+                    type="text"
+                    value={sendEmail}
+                    onChange={(e) => setSendEmail(e.target.value)}
+                    placeholder="cliente@email.com, asesor@email.com"
+                  />
+                  <small className="doc-emit-modal__hint">Puedes separar varios emails con comas. Máx. {MAX_RECIPIENTS}.</small>
                   <label className="inv-label">Asunto</label>
                   <input className="inv-input" type="text" value={sendSubject} onChange={(e) => setSendSubject(e.target.value)} />
                   <div className="doc-emit-modal__date-row">

@@ -100,9 +100,9 @@ export class DefaultQuotesAdapter implements QuotesAdapter {
 
     if (!created.success) return fail(created.error.message, created.error.code, created.error.cause);
 
-    // Mantiene semantica legacy: los presupuestos consumen contador documental compartido.
-    await billingLimitsService.recordInvoiceUsage();
-
+    // Los presupuestos NO consumen cuota de facturas — ese contador solo se incrementa al
+    // emitir una factura real. Si en el futuro se quiere limitar presupuestos, añadir
+    // `recordQuoteUsage()` con un contador independiente.
     return created;
   }
 

@@ -20,6 +20,7 @@ import {
 import { getSupabaseClient } from "../../../services/supabase/client";
 import type { BillingInterval, BillingPlan } from "../../../shared/types/domain";
 import { BrandColorPicker } from "../components/BrandColorPicker";
+import { exportAllDataAsZip } from "../../../services/data-export/data-export.service";
 
 type TabId = "business" | "series" | "faq" | "security" | "logs" | "users" | "subscription";
 type TeamRole = "propietario" | "gestor" | "lector";
@@ -536,6 +537,7 @@ export function SettingsPage(): import("react").JSX.Element {
   const [deleteAccountOpen, setDeleteAccountOpen] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [deleteBusy, setDeleteBusy] = useState(false);
+  const [exportingData, setExportingData] = useState(false);
 
   const [logsItems, setLogsItems] = useState<AccessLogEntry[]>([]);
   const [logsLoading, setLogsLoading] = useState(false);
@@ -631,6 +633,26 @@ export function SettingsPage(): import("react").JSX.Element {
     if (!rpcResult.error) {
       setStorageUsed(Number(rpcResult.data ?? 0));
     }
+  };
+
+  const onDownloadAllData = async (): Promise<void> => {
+    setExportingData(true);
+    setNotice(null);
+    const result = await exportAllDataAsZip();
+    setExportingData(false);
+    if (!result.success) {
+      setError(`No se pudo generar el ZIP: ${result.error.message}`);
+      return;
+    }
+    const url = URL.createObjectURL(result.data.blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = result.data.filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    setSuccess("Export descargado correctamente.");
   };
 
   const onSignOutAllDevices = async (): Promise<void> => {
@@ -1003,20 +1025,6 @@ export function SettingsPage(): import("react").JSX.Element {
           ))}
         </div>
 
-        <div className="settings-progress">
-          <span className="settings-progress__ring">100%</span>
-          <div>
-            <h4>Completa el perfil</h4>
-            <p>Completa tu perfil para desbloquear todas las funciones</p>
-            <button
-              type="button"
-              className="settings-btn settings-btn--primary settings-progress__btn"
-              onClick={() => navigate("/soporte?subject=Verificación%20de%20identidad")}
-            >
-              Verificar identidad
-            </button>
-          </div>
-        </div>
       </aside>
 
       <section className="settings-legacy__content">
@@ -1710,6 +1718,17 @@ export function SettingsPage(): import("react").JSX.Element {
                   <small className="settings-muted">
                     Incluye logos de factura, imagen de perfil y PDFs adjuntos de gastos.
                   </small>
+                </div>
+
+                <div className="settings-card__actions settings-card__actions--end">
+                  <button
+                    type="button"
+                    className="settings-btn settings-btn--primary"
+                    onClick={() => void onDownloadAllData()}
+                    disabled={exportingData}
+                  >
+                    {exportingData ? "Generando..." : "Descargar mis datos (.zip)"}
+                  </button>
                 </div>
               </div>
 

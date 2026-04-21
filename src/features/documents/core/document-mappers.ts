@@ -126,13 +126,26 @@ function resolveDefaultTaxType(kind: DocumentKind): "iva" | "igic" | "ipsi" {
   return "iva";
 }
 
+const VALID_PAYMENT_TYPES: ReadonlyArray<PaymentMethod["type"]> = [
+  "transferencia",
+  "bizum",
+  "efectivo",
+  "domiciliacion",
+  "contrareembolso",
+  "otro",
+];
+
 function normalizePaymentMethods(methods: DocumentPaymentMethodDraft[]): PaymentMethod[] {
-  return methods.map((method) => ({
-    type: method.type,
-    iban: method.iban || undefined,
-    phone: method.phone || undefined,
-    label: method.label || undefined,
-  }));
+  return methods
+    .filter((method) => method && typeof method.type === "string" && VALID_PAYMENT_TYPES.includes(method.type as PaymentMethod["type"]))
+    .map((method) => ({
+      type: method.type,
+      // Solo transferencia/domiciliacion/otro llevan IBAN; efectivo/bizum/contrareembolso NO.
+      iban: method.iban && method.type !== "efectivo" && method.type !== "bizum" && method.type !== "contrareembolso" ? method.iban : undefined,
+      // Solo bizum usa phone.
+      phone: method.phone && method.type === "bizum" ? method.phone : undefined,
+      label: method.label || undefined,
+    }));
 }
 
 export function createEmptyDocumentEditor(kind: DocumentKind): DocumentEditorState {

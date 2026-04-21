@@ -4,6 +4,7 @@
 const ALLOWED_ORIGINS: ReadonlySet<string> = new Set([
   "https://facturales.es",
   "https://www.facturales.es",
+  "https://app.facturales.es",
   // Uncomment for local development:
   // "http://localhost:5173",
   // "http://127.0.0.1:5173",

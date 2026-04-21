@@ -123,7 +123,8 @@ export class DefaultInvoicesAdapter implements InvoicesAdapter {
     });
 
     if (!created.success) return fail(created.error.message, created.error.code, created.error.cause);
-    await billingLimitsService.recordInvoiceUsage();
+    // NB: el contador de uso (`billing_usage.invoices_used`) se incrementa solo al **emitir**,
+    // no al crear un borrador. Así borradores/cancelaciones no consumen cuota.
     return created;
   }
 
@@ -154,6 +155,9 @@ export class DefaultInvoicesAdapter implements InvoicesAdapter {
   async emitInvoice(invoiceId: string): Promise<ServiceResult<Invoice>> {
     const emitted = await invoicesRepository.emit(invoiceId);
     if (!emitted.success) return emitted;
+
+    // El contador se incrementa SOLO en emisión real, no en borrador.
+    await billingLimitsService.recordInvoiceUsage();
 
     const userId = await getCurrentUserId();
     if (userId) {

@@ -3,7 +3,7 @@ import { Link, Navigate } from "react-router-dom";
 import { ErrorState } from "../../../app/components/states/ErrorState";
 import { LoadingSkeleton } from "../../../app/components/states/LoadingSkeleton";
 import { DocumentActionBar } from "../../documents/components/DocumentActionBar";
-import { getPdfDataUrl, downloadPdf } from "../../documents/pdf/document-pdf-generator";
+import { getPdfBlob, downloadPdf } from "../../documents/pdf/document-pdf-generator";
 import { useInvoicesWorkspace } from "../hooks/use-invoices-workspace";
 
 function formatCurrency(amount: number, currency: string): string {
@@ -97,8 +97,8 @@ export function InvoicePreviewPage(): import("react").JSX.Element {
     : `/facturas/emision?draft=${encodeURIComponent(workspace.activeInvoiceId ?? "")}`;
   const backLabel = issuedReadOnly ? "Volver a emitidas" : "Volver a editar";
 
-  const previewUrl = useMemo(() => {
-    return getPdfDataUrl({
+  const previewBlob = useMemo(() => {
+    return getPdfBlob({
       editor,
       totals: summary,
       documentNumber: docNumber,
@@ -106,6 +106,13 @@ export function InvoicePreviewPage(): import("react").JSX.Element {
       logoDataUrl: resolvedLogoDataUrl,
     });
   }, [editor, summary, docNumber, workspace.pdfBrandColor, resolvedLogoDataUrl, refreshTick]);
+
+  const [previewUrl, setPreviewUrl] = useState<string>("");
+  useEffect(() => {
+    const url = URL.createObjectURL(previewBlob);
+    setPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [previewBlob]);
 
   if (workspace.loading) {
     return <LoadingSkeleton message="Cargando vista previa de factura..." />;
