@@ -1925,6 +1925,71 @@ export function SettingsPage(): import("react").JSX.Element {
 
             {subscriptionLoading ? <p className="settings-muted">Cargando suscripción...</p> : null}
 
+            {(() => {
+              const currentPlanDef = PLAN_CARDS.find((p) => p.id === subscription?.plan);
+              const hasActive = Boolean(subscription?.plan && subscription.plan !== "none");
+              const pendingDowngradeId = subscription?.pendingDowngradePlan && subscription.pendingDowngradePlan !== "none"
+                ? subscription.pendingDowngradePlan
+                : null;
+              const pendingDowngradeLabel = pendingDowngradeId
+                ? (PLAN_CARDS.find((p) => p.id === pendingDowngradeId)?.label ?? pendingDowngradeId)
+                : null;
+              return (
+                <div className={`settings-current-plan${hasActive ? " settings-current-plan--active" : " settings-current-plan--empty"}`}>
+                  <div className="settings-current-plan__left">
+                    <span className="settings-current-plan__label">Tu plan actual</span>
+                    <div className="settings-current-plan__name-row">
+                      <strong className="settings-current-plan__name">
+                        {currentPlanDef?.label ?? (hasActive ? (subscription?.plan ?? "").toUpperCase() : "Sin plan activo")}
+                      </strong>
+                      <span className={`settings-current-plan__status settings-current-plan__status--${subscription?.status ?? "none"}`}>
+                        {getSubscriptionStatusLabel(subscription)}
+                      </span>
+                    </div>
+                    <small className="settings-current-plan__meta">
+                      {hasActive && subscription?.currentPeriodEnd
+                        ? `Renovación el ${formatDate(subscription.currentPeriodEnd)}`
+                        : hasActive
+                          ? "Sin fecha de renovación"
+                          : "Elige un plan para empezar a facturar."}
+                      {pendingDowngradeLabel
+                        ? ` · Cambiará a ${pendingDowngradeLabel} al finalizar el periodo`
+                        : ""}
+                    </small>
+                  </div>
+                  <div className="settings-current-plan__actions">
+                    <button
+                      type="button"
+                      className="settings-btn settings-btn--ghost"
+                      onClick={() => void onOpenPaymentMethod()}
+                      disabled={subscriptionBusy}
+                    >
+                      Método de pago
+                    </button>
+                    {subscription?.cancelAtPeriodEnd ? (
+                      <button
+                        type="button"
+                        className="settings-btn settings-btn--ghost"
+                        onClick={() => void onReactivateSubscription()}
+                        disabled={subscriptionBusy}
+                      >
+                        Reactivar
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        className="settings-btn settings-btn--danger-ghost"
+                        onClick={() => void onCancelSubscription()}
+                        disabled={subscriptionBusy || !subscription?.status}
+                      >
+                        Cancelar suscripción
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
+
             <div className="settings-pricing-toggle-wrap">
               <div className="settings-pricing-toggle">
                 <button
@@ -1946,7 +2011,7 @@ export function SettingsPage(): import("react").JSX.Element {
 
             <div className="settings-plan-grid">
               {PLAN_CARDS.map((plan) => {
-                const isCurrent = subscription?.plan === plan.id && !subscription?.pendingDowngradePlan;
+                const isCurrent = subscription?.plan === plan.id;
                 const shownPrice = billingInterval === "yearly" ? plan.yearlyPrice : plan.monthlyPrice;
                 const cardClass = [
                   "settings-plan-card",
@@ -1956,6 +2021,7 @@ export function SettingsPage(): import("react").JSX.Element {
                 ].filter(Boolean).join(" ");
                 return (
                   <article key={plan.id} className={cardClass}>
+                    {isCurrent ? <span className="settings-plan-current-pill">Tu plan actual</span> : null}
                     <div className="settings-plan-header">
                       {plan.badge ? (
                         <>
@@ -2000,45 +2066,6 @@ export function SettingsPage(): import("react").JSX.Element {
                   </article>
                 );
               })}
-            </div>
-
-            <div className="settings-subscription-summary">
-              <div>
-                <small>Plan actual</small>
-                <p>
-                  {subscription?.plan ? subscription.plan.toUpperCase() : "SIN PLAN"} · {getSubscriptionStatusLabel(subscription)}
-                </p>
-                <p className="settings-muted">Renovación: {formatDate(subscription?.currentPeriodEnd ?? null)}</p>
-              </div>
-              <div className="settings-inline-actions">
-                <button
-                  type="button"
-                  className="settings-btn settings-btn--ghost"
-                  onClick={() => void onOpenPaymentMethod()}
-                  disabled={subscriptionBusy}
-                >
-                  Método de pago
-                </button>
-                {subscription?.cancelAtPeriodEnd ? (
-                  <button
-                    type="button"
-                    className="settings-btn settings-btn--ghost"
-                    onClick={() => void onReactivateSubscription()}
-                    disabled={subscriptionBusy}
-                  >
-                    Reactivar suscripción
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    className="settings-btn settings-btn--danger-ghost"
-                    onClick={() => void onCancelSubscription()}
-                    disabled={subscriptionBusy || !subscription?.status}
-                  >
-                    Cancelar suscripción
-                  </button>
-                )}
-              </div>
             </div>
 
             <div className="settings-card">

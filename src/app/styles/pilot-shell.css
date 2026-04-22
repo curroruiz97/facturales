@@ -7993,7 +7993,39 @@ select.settings-input option:checked {
 
 .settings-plan-card--current {
   border-color: #ec8228;
-  box-shadow: 0 4px 20px rgba(236, 130, 40, 0.12);
+  border-width: 2px;
+  box-shadow: 0 0 0 4px rgba(236, 130, 40, 0.14), 0 10px 28px rgba(236, 130, 40, 0.18);
+  background: linear-gradient(180deg, rgba(236, 130, 40, 0.06) 0%, rgba(236, 130, 40, 0.0) 55%);
+  position: relative;
+}
+
+/* La tarjeta actual siempre muestra el borde naranja, incluso si es business/popular */
+.settings-plan-card--current.settings-plan-card--business,
+.settings-plan-card--current.settings-plan-card--popular {
+  border-color: #ec8228;
+}
+
+.dark .settings-plan-card--current {
+  background: linear-gradient(180deg, rgba(236, 130, 40, 0.14) 0%, rgba(236, 130, 40, 0.0) 55%);
+  box-shadow: 0 0 0 4px rgba(236, 130, 40, 0.18), 0 10px 28px rgba(236, 130, 40, 0.22);
+}
+
+.settings-plan-current-pill {
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #ec8228, #d96f1a);
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  padding: 5px 14px;
+  border-radius: 999px;
+  box-shadow: 0 4px 12px rgba(236, 130, 40, 0.35);
+  white-space: nowrap;
+  z-index: 2;
 }
 
 .settings-plan-card--business {
@@ -8222,6 +8254,145 @@ select.settings-input option:checked {
   justify-content: space-between;
   align-items: flex-start;
   gap: 12px;
+}
+
+/* Banner de plan actual (arriba del selector de planes) */
+.settings-current-plan {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding: 18px 22px;
+  border-radius: 14px;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  margin-top: 4px;
+}
+
+.settings-current-plan--active {
+  border-color: #ec8228;
+  background: linear-gradient(135deg, rgba(236, 130, 40, 0.08) 0%, rgba(236, 130, 40, 0.02) 100%);
+  box-shadow: 0 2px 12px rgba(236, 130, 40, 0.08);
+}
+
+.settings-current-plan--empty {
+  background: #f8fafc;
+  border-style: dashed;
+}
+
+.dark .settings-current-plan {
+  border-color: #2a313c;
+  background: #1a1c22;
+}
+
+.dark .settings-current-plan--active {
+  border-color: #ec8228;
+  background: linear-gradient(135deg, rgba(236, 130, 40, 0.18) 0%, rgba(236, 130, 40, 0.04) 100%);
+}
+
+.dark .settings-current-plan--empty {
+  background: #15171c;
+}
+
+.settings-current-plan__left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.settings-current-plan__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.settings-current-plan__name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.settings-current-plan__name {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.dark .settings-current-plan__name {
+  color: #f8fafc;
+}
+
+.settings-current-plan__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #475569;
+  letter-spacing: 0.03em;
+}
+
+.settings-current-plan__status::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.settings-current-plan__status--active {
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+}
+
+.settings-current-plan__status--trialing {
+  background: rgba(59, 130, 246, 0.12);
+  color: #2563eb;
+}
+
+.settings-current-plan__status--past_due,
+.settings-current-plan__status--incomplete {
+  background: rgba(245, 158, 11, 0.15);
+  color: #b45309;
+}
+
+.settings-current-plan__status--canceled,
+.settings-current-plan__status--none {
+  background: #e2e8f0;
+  color: #64748b;
+}
+
+.settings-current-plan__meta {
+  font-size: 0.82rem;
+  color: #64748b;
+}
+
+.dark .settings-current-plan__meta {
+  color: #94a3b8;
+}
+
+.settings-current-plan__actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 720px) {
+  .settings-current-plan {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+  .settings-current-plan__actions {
+    flex-wrap: wrap;
+  }
 }
 
 .settings-btn {
