@@ -9,12 +9,15 @@ const RATE_LIMIT_MAX = 10;
 const RATE_LIMIT_WINDOW_MIN = 5;
 const AZURE_TIMEOUT_MS = 45_000;
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+// Azure Document Intelligence 2024-11-30: PDF, JPEG, PNG, TIFF, BMP, HEIF
+// (WEBP no esta soportado — por eso no se incluye)
 const ALLOWED_MIME_TYPES = new Set([
   "application/pdf",
   "image/jpeg",
   "image/png",
   "image/tiff",
   "image/bmp",
+  "image/heif",
 ]);
 const MAX_POLL_ATTEMPTS = 20;
 
@@ -175,8 +178,15 @@ async function analyzeWithAzure(
     }
 
     if (!postRes.ok) {
+      const bodyText = await postRes.text().catch(() => "");
+      // 401 = credenciales caducadas/erroneas. No tiene sentido probar el siguiente modelo.
+      if (postRes.status === 401) {
+        throw new Error(
+          "Azure OCR rechazó la autenticación (401). Las credenciales AZURE_DI_KEY/AZURE_DI_ENDPOINT estan caducadas o son incorrectas. Renuevalas en el panel Supabase."
+        );
+      }
       if (model === "prebuilt-invoice") continue;
-      throw new Error(`Azure ${model} respondió ${postRes.status}`);
+      throw new Error(`Azure ${model} respondió ${postRes.status}${bodyText ? `: ${bodyText.substring(0, 200)}` : ""}`);
     }
 
     const operationUrl = postRes.headers.get("Operation-Location");

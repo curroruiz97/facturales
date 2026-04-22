@@ -16,7 +16,7 @@ const STEPS = [
   {
     number: 1,
     title: "Sube tu documento",
-    description: "Arrastra o selecciona un ticket, factura de proveedor o recibo en formato PDF, JPG, PNG o WEBP.",
+    description: "Arrastra o selecciona un ticket, factura de proveedor o recibo en formato PDF, JPG o PNG.",
   },
   {
     number: 2,
@@ -222,14 +222,14 @@ export function OcrPage(): import("react").JSX.Element {
                 <IconUpload />
                 <p className="ocr-dropzone__text">Arrastra aquí tu documento</p>
                 <p className="ocr-dropzone__subtext">o haz clic para seleccionar</p>
-                <span className="ocr-dropzone__formats">PDF, JPG, PNG, WEBP · Máx. 10 MB</span>
+                <span className="ocr-dropzone__formats">PDF, JPG, PNG · Máx. 10 MB</span>
               </div>
             )}
 
             <input
               ref={inputRef}
               type="file"
-              accept=".pdf,.png,.jpg,.jpeg,.webp"
+              accept=".pdf,.png,.jpg,.jpeg"
               className="ocr-dropzone__input"
               onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
             />
@@ -266,12 +266,12 @@ export function OcrPage(): import("react").JSX.Element {
 
             <div className="ocr-result__grid">
               <div className="ocr-result__field">
-                <span className="ocr-result__label">Concepto</span>
-                <strong className="ocr-result__value">{analysis.concept}</strong>
-              </div>
-              <div className="ocr-result__field">
                 <span className="ocr-result__label">Proveedor</span>
                 <strong className="ocr-result__value">{analysis.provider ?? "No detectado"}</strong>
+              </div>
+              <div className="ocr-result__field">
+                <span className="ocr-result__label">Nº factura</span>
+                <strong className="ocr-result__value">{analysis.invoiceNumber ?? "No detectado"}</strong>
               </div>
               <div className="ocr-result__field">
                 <span className="ocr-result__label">Fecha</span>
@@ -283,8 +283,14 @@ export function OcrPage(): import("react").JSX.Element {
               </div>
               <div className="ocr-result__field">
                 <span className="ocr-result__label">IVA detectado</span>
-                <strong className="ocr-result__value">{analysis.taxRate !== null ? `${analysis.taxRate}%` : "N/A"}</strong>
+                <strong className="ocr-result__value">{analysis.taxRate !== null ? `${analysis.taxRate}%` : "No detectado"}</strong>
               </div>
+              {analysis.confidence !== null ? (
+                <div className="ocr-result__field">
+                  <span className="ocr-result__label">Confianza</span>
+                  <strong className="ocr-result__value">{Math.round((analysis.confidence ?? 0) * 100)}%</strong>
+                </div>
+              ) : null}
             </div>
 
             <button

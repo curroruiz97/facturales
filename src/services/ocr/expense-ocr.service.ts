@@ -10,6 +10,8 @@ export interface OcrExpenseResult {
   date: string;
   taxRate: number | null;
   provider: string | null;
+  invoiceNumber: string | null;
+  confidence: number | null;
   raw: unknown;
 }
 
@@ -23,7 +25,8 @@ export interface ExpenseOcrService {
 }
 
 const MAX_OCR_FILE_BYTES = 10 * 1024 * 1024;
-const ALLOWED_OCR_MIME_TYPES = new Set(["application/pdf", "image/jpeg", "image/png", "image/webp"]);
+// Azure Document Intelligence no soporta WEBP — alineamos MIME types con el edge function
+const ALLOWED_OCR_MIME_TYPES = new Set(["application/pdf", "image/jpeg", "image/png"]);
 
 function sanitizeFileName(name: string): string {
   const normalized = name
@@ -36,7 +39,7 @@ function sanitizeFileName(name: string): string {
 function validateOcrFile(file: File): ServiceResult<null> {
   if (!file) return fail("Debes adjuntar un archivo.", "OCR_FILE_REQUIRED");
   if (!ALLOWED_OCR_MIME_TYPES.has(file.type)) {
-    return fail("Formato no soportado. Usa PDF, JPG, PNG o WEBP.", "OCR_FILE_TYPE_NOT_SUPPORTED");
+    return fail("Formato no soportado. Usa PDF, JPG o PNG.", "OCR_FILE_TYPE_NOT_SUPPORTED");
   }
   if (file.size <= 0) return fail("El archivo esta vacio.", "OCR_FILE_EMPTY");
   if (file.size > MAX_OCR_FILE_BYTES) {
@@ -45,20 +48,55 @@ function validateOcrFile(file: File): ServiceResult<null> {
   return ok(null);
 }
 
+function todayISO(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+}
+
 function toISODate(value: unknown): string {
-  if (typeof value !== "string" || !value.trim()) {
-    const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-  }
+  if (typeof value !== "string" || !value.trim()) return todayISO();
   const normalized = value.trim();
-  if (/^\d{4}-\d{2}-\d{2}$/.test(normalized)) return normalized;
-  return toISODate(undefined);
+  // Azure Document Intelligence devuelve fechas tipo "2026-03-10" o ISO completa — nos quedamos con yyyy-mm-dd
+  const match = normalized.match(/^\d{4}-\d{2}-\d{2}/);
+  if (match) return match[0];
+  const parsed = new Date(normalized);
+  if (!Number.isNaN(parsed.getTime())) {
+    return `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, "0")}-${String(parsed.getDate()).padStart(2, "0")}`;
+  }
+  return todayISO();
 }
 
 function toAmount(value: unknown): number {
   const parsed = typeof value === "number" ? value : Number.parseFloat(String(value ?? 0));
   if (!Number.isFinite(parsed)) return 0;
   return parsed;
+}
+
+function toNullableNumber(value: unknown): number | null {
+  if (value === null || value === undefined || value === "") return null;
+  const parsed = typeof value === "number" ? value : Number.parseFloat(String(value));
+  if (!Number.isFinite(parsed)) return null;
+  return parsed;
+}
+
+function buildConcept(vendor: string | null, invoiceNumber: string | null): string {
+  const parts: string[] = [];
+  if (vendor) parts.push(vendor);
+  if (invoiceNumber) parts.push(`Factura ${invoiceNumber}`);
+  return parts.length > 0 ? parts.join(" · ") : "Gasto OCR";
+}
+
+function computeTaxRate(tax: number | null, subtotal: number | null, total: number | null): number | null {
+  // Azure devuelve `tax` y `subtotal` como importes. Deducimos el % de IVA sobre la base imponible.
+  if (tax !== null && subtotal !== null && subtotal > 0) {
+    return Math.round((tax / subtotal) * 100 * 100) / 100;
+  }
+  // Fallback: si solo hay tax y total, la base es total - tax
+  if (tax !== null && total !== null && total > tax) {
+    const base = total - tax;
+    if (base > 0) return Math.round((tax / base) * 100 * 100) / 100;
+  }
+  return null;
 }
 
 export class DefaultExpenseOcrService implements ExpenseOcrService {
@@ -104,19 +142,34 @@ export class DefaultExpenseOcrService implements ExpenseOcrService {
           // ignore — usa el mensaje original
         }
         // Mensajes más claros para errores conocidos
-        if (/Azure.*401/i.test(detail)) {
-          detail = "El servicio de OCR no está disponible temporalmente (credenciales Azure caducadas). Contacta con soporte.";
+        if (/Azure.*(401|autenticaci)/i.test(detail)) {
+          detail = "El servicio de OCR no está disponible temporalmente. Las credenciales han caducado; contacta con soporte para renovarlas.";
+        } else if (/Límite alcanzado/i.test(detail)) {
+          // Dejamos el mensaje del edge tal cual — ya es claro
+        } else if (/Azure .* respondió 429/i.test(detail)) {
+          detail = "El servicio de OCR está saturado. Inténtalo en unos segundos.";
         }
         return fail(detail, invoke.error.name, invoke.error);
       }
 
       const payload = (invoke.data ?? {}) as Record<string, unknown>;
+      // El edge (`analyze-expense-document`) devuelve campos de Azure Document Intelligence:
+      // { vendorName, invoiceNumber, invoiceDate, total, subtotal, tax, currency, confidence }
+      const vendor = payload.vendorName ? String(payload.vendorName) : null;
+      const invoiceNumber = payload.invoiceNumber ? String(payload.invoiceNumber) : null;
+      const total = toAmount(payload.total ?? 0);
+      const tax = toNullableNumber(payload.tax);
+      const subtotal = toNullableNumber(payload.subtotal);
+      const confidence = toNullableNumber(payload.confidence);
+
       const analyzed: OcrExpenseResult = {
-        concept: String(payload.concept ?? payload.description ?? "Gasto OCR"),
-        amount: toAmount(payload.amount ?? payload.total ?? 0),
-        date: toISODate(payload.date ?? payload.issue_date),
-        taxRate: payload.tax_rate !== undefined ? toAmount(payload.tax_rate) : null,
-        provider: payload.provider ? String(payload.provider) : null,
+        concept: buildConcept(vendor, invoiceNumber),
+        amount: total,
+        date: toISODate(payload.invoiceDate),
+        taxRate: computeTaxRate(tax, subtotal, total || null),
+        provider: vendor,
+        invoiceNumber,
+        confidence,
         raw: invoke.data,
       };
 
