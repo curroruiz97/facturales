@@ -23,7 +23,7 @@ const DEFAULT_FORM_VALUES: ContactFormValues = {
   provincia: "",
   pais: "",
   diaFacturacion: "",
-  estado: "activo",
+  estado: "recurrente",
 };
 
 type FormMode = "create" | "edit";

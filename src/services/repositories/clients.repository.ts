@@ -82,7 +82,7 @@ function normalizeCreateInput(input: CreateClientInput, userId: string): Record<
     provincia: input.provincia?.trim() ?? null,
     pais: input.pais?.trim() ?? null,
     dia_facturacion: input.diaFacturacion ?? null,
-    estado: input.estado ?? "activo",
+    estado: input.estado ?? "recurrente",
   };
 }
 
