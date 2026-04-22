@@ -1411,13 +1411,12 @@ export function SubscribePage(): import("react").JSX.Element {
         setLoading(false);
         return;
       }
-      // Si no tiene acceso, lleva directamente a la página de planes
-      if (!result.data.hasAccess) {
-        navigate("/planes", { replace: true });
+      // Con suscripción activa → dashboard. Sin acceso → planes.
+      if (result.data.hasAccess) {
+        navigate("/dashboard", { replace: true });
         return;
       }
-      setHasAccess(result.data.hasAccess);
-      setLoading(false);
+      navigate("/planes", { replace: true });
     };
     void load();
     return () => { active = false; };
@@ -1514,14 +1513,15 @@ export function PlansPage(): import("react").JSX.Element {
       ]);
       if (!active) return;
       if (statusResult.success && statusResult.data.hasAccess) {
-        setHasActive(true);
+        navigate("/dashboard", { replace: true });
+        return;
       }
       setPlans(planConfigs);
       setStatusLoading(false);
     };
     void load();
     return () => { active = false; };
-  }, []);
+  }, [navigate]);
 
   const handleSelectPlan = async (planId: PlanConfig["id"]): Promise<void> => {
     setError(null);
