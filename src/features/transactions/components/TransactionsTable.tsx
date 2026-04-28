@@ -194,6 +194,11 @@ export function TransactionsTable({
                 <td>
                   <strong>{transaction.concepto}</strong>
                   {locked ? <p className="text-xs opacity-70">Generada desde factura</p> : null}
+                  {transaction.tipo === "gasto" && transaction.deducible === false ? (
+                    <span className="tx-badge tx-badge--non-deductible" title="Este gasto NO se incluye en el cálculo del Modelo 130 ni 303">
+                      No deducible
+                    </span>
+                  ) : null}
                 </td>
                 <td>{formatTransactionCategory(transaction.categoria)}</td>
                 <td>

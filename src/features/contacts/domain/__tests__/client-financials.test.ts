@@ -85,6 +85,7 @@ function createTransaction(partial: Partial<Transaction> = {}): Transaction {
     observaciones: partial.observaciones ?? null,
     ivaPorcentaje: partial.ivaPorcentaje ?? null,
     irpfPorcentaje: partial.irpfPorcentaje ?? null,
+    deducible: partial.deducible ?? true,
     invoiceId: partial.invoiceId ?? null,
     createdAt: partial.createdAt ?? "2026-03-02T10:00:00.000Z",
     updatedAt: partial.updatedAt ?? "2026-03-02T10:00:00.000Z",

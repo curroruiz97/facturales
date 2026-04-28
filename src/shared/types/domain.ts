@@ -47,6 +47,8 @@ export interface Transaction {
   observaciones: string | null;
   ivaPorcentaje: number | null;
   irpfPorcentaje: number | null;
+  /** Si el gasto es deducible fiscalmente (default true). Solo se filtra cuando tipo === "gasto". */
+  deducible: boolean;
   invoiceId: string | null;
   createdAt: string;
   updatedAt: string;

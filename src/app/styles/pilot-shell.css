@@ -1332,6 +1332,62 @@ input[type="radio"] {
   gap: 6px;
   font-size: 0.95rem;
   font-weight: 600;
+  /* `align-content: start` evita que las filas internas (label/input/hint)
+     se estiren cuando el hermano tiene más contenido — soluciona el bug
+     en el que el input "IVA" crecía verticalmente porque "Importe total"
+     tenía un hint debajo que hacía la celda más alta. */
+  align-content: start;
+}
+
+.pilot-checkbox-field {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.pilot-checkbox-field:hover {
+  border-color: #fed7aa;
+}
+
+.pilot-checkbox-field input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: #ec8228;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.pilot-checkbox-field > span {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pilot-checkbox-field strong {
+  font-weight: 600;
+  color: #1a202c;
+}
+
+.dark .pilot-checkbox-field {
+  border-color: #2a313c;
+  background: #23262b;
+}
+
+.dark .pilot-checkbox-field:hover {
+  border-color: rgba(236, 130, 40, 0.5);
+}
+
+.dark .pilot-checkbox-field strong {
+  color: #f8fafc;
 }
 
 .pilot-textarea {
@@ -1339,6 +1395,14 @@ input[type="radio"] {
   padding-top: 12px;
   padding-bottom: 12px;
   resize: vertical;
+}
+
+/* Responsive: en pantallas pequeñas, el grid de 2 columnas pasa a 1 columna
+   para que los campos no se compriman ni recorten en móvil/tablet. */
+@media (max-width: 720px) {
+  .pilot-grid--two {
+    grid-template-columns: 1fr;
+  }
 }
 
 .pilot-kpi {
@@ -4394,6 +4458,46 @@ input[type="radio"] {
 }
 
 .dark .fiscal-tax-divider { border-color: #2A313C; }
+
+/* Filas de subtotal en el desglose del Modelo 130 (rendimiento previo, neto) */
+.fiscal-tax-row--subtotal {
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.fiscal-tax-row--subtotal span {
+  font-weight: 600 !important;
+  color: #475569 !important;
+}
+
+.dark .fiscal-tax-row--subtotal { border-top-color: #2a313c; }
+.dark .fiscal-tax-row--subtotal span { color: #cbd5e1 !important; }
+
+.fiscal-tax-h4-suffix {
+  margin-left: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #94a3b8;
+  letter-spacing: normal;
+}
+
+.fiscal-tax-note {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  color: #92400e;
+  line-height: 1.4;
+}
+
+.dark .fiscal-tax-note {
+  background: rgba(252, 211, 77, 0.08);
+  border-color: rgba(252, 211, 77, 0.2);
+  color: #fcd34d;
+}
 
 .fiscal-h4-icon {
   display: flex;
@@ -9577,6 +9681,147 @@ select.settings-input option:checked {
 }
 
 .tx-pagination__select-all input { accent-color: #ec8228; }
+
+/* Bloque de régimen IRPF y toggle DJ en ajustes */
+.settings-fiscal-divider {
+  border: none;
+  border-top: 1px dashed #e2e8f0;
+  margin: 16px 0;
+}
+
+.dark .settings-fiscal-divider { border-top-color: #2a313c; }
+
+.settings-fiscal-regime {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr;
+  margin-top: 8px;
+}
+
+.settings-regime-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 12px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #ffffff;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.settings-regime-card:hover {
+  border-color: #fed7aa;
+  background: #fffbf5;
+}
+
+.settings-regime-card--active {
+  border-color: #ec8228;
+  background: #fff7ed;
+  box-shadow: 0 0 0 3px rgba(236, 130, 40, 0.12);
+}
+
+.settings-regime-card strong {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1a202c;
+}
+
+.settings-regime-card small {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.dark .settings-regime-card {
+  background: #23262b;
+  border-color: #2a313c;
+}
+
+.dark .settings-regime-card:hover {
+  border-color: rgba(236, 130, 40, 0.4);
+  background: rgba(236, 130, 40, 0.05);
+}
+
+.dark .settings-regime-card--active {
+  background: rgba(236, 130, 40, 0.1);
+}
+
+.dark .settings-regime-card strong { color: #f8fafc; }
+.dark .settings-regime-card small { color: #94a3b8; }
+
+.settings-fiscal-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  margin-top: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+  cursor: pointer;
+}
+
+.settings-fiscal-toggle input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: #ec8228;
+  flex-shrink: 0;
+}
+
+.settings-fiscal-toggle > span {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.settings-fiscal-toggle strong {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #1a202c;
+}
+
+.settings-fiscal-toggle small {
+  font-size: 0.8rem;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.dark .settings-fiscal-toggle {
+  background: #23262b;
+  border-color: #2a313c;
+}
+
+.dark .settings-fiscal-toggle strong { color: #f8fafc; }
+.dark .settings-fiscal-toggle small { color: #94a3b8; }
+
+/* Badge para gastos no deducibles */
+.tx-badge {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.tx-badge--non-deductible {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+
+.dark .tx-badge--non-deductible {
+  background: rgba(252, 211, 77, 0.12);
+  color: #fcd34d;
+  border-color: rgba(252, 211, 77, 0.25);
+}
 
 /* Cabeceras ordenables de la tabla de transacciones */
 .tx-table__sort {

@@ -263,25 +263,68 @@ export function FiscalPage(): import("react").JSX.Element {
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ea580c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4-4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" /></svg>
                   </span>
                   Modelo 130 - IRPF
+                  {quarter > 0 ? (
+                    <small className="fiscal-tax-h4-suffix" title="Acumulado desde el 1 de enero hasta el final del trimestre seleccionado">
+                      (acumulado YTD)
+                    </small>
+                  ) : null}
                 </h4>
                 <div className="fiscal-tax-rows">
                   <div className="fiscal-tax-row">
-                    <span title="Base imponible total de tus facturas emitidas en el periodo">Ingresos:</span>
-                    <span>{fmt(fiscal.modelo130.ingresos)}</span>
+                    <span title="Base imponible acumulada de tus facturas emitidas desde el 1 de enero hasta el final del trimestre">Ingresos acumulados:</span>
+                    <span>{fmt(fiscal.modelo130.ingresosAcumulados)}</span>
                   </div>
                   <div className="fiscal-tax-row">
-                    <span title="Base imponible de los gastos registrados">Gastos:</span>
-                    <span>{fmt(fiscal.modelo130.gastos)}</span>
+                    <span title="Base imponible de los gastos deducibles registrados (los marcados como NO deducibles se excluyen)">Gastos deducibles acumulados:</span>
+                    <span>− {fmt(fiscal.modelo130.gastosAcumulados)}</span>
+                  </div>
+                  <div className="fiscal-tax-row fiscal-tax-row--subtotal">
+                    <span>Rendimiento neto previo:</span>
+                    <span>{fmt(fiscal.modelo130.rendimientoNetoPrevio)}</span>
+                  </div>
+                  {fiscal.modelo130.difJustificacionAplicada ? (
+                    <div className="fiscal-tax-row">
+                      <span title="Deducción del 7% por gastos de difícil justificación (estimación directa simplificada). Tope 2.000€/año.">
+                        − Difícil justificación (7%):
+                      </span>
+                      <span>− {fmt(fiscal.modelo130.difJustificacionImporte)}</span>
+                    </div>
+                  ) : null}
+                  <div className="fiscal-tax-row fiscal-tax-row--subtotal">
+                    <span>Rendimiento neto:</span>
+                    <span>{fmt(fiscal.modelo130.rendimientoNeto)}</span>
                   </div>
                   <div className="fiscal-tax-row">
-                    <span title="IRPF que tus clientes ya han retenido e ingresado a Hacienda por ti">Retenciones:</span>
-                    <span>{fmt(fiscal.modelo130.retenciones)}</span>
+                    <span title="20% sobre el rendimiento neto">Pago a cuenta acumulado (20%):</span>
+                    <span>{fmt(fiscal.modelo130.pagoAcumulado)}</span>
                   </div>
+                  <div className="fiscal-tax-row">
+                    <span title="IRPF que tus clientes ya retuvieron e ingresaron a Hacienda por ti">− Retenciones acumuladas:</span>
+                    <span>− {fmt(fiscal.modelo130.retencionesAcumuladas)}</span>
+                  </div>
+                  {fiscal.modelo130.pagosAcumuladosAnteriores > 0 ? (
+                    <div className="fiscal-tax-row">
+                      <span title="Suma de los pagos a cuenta del Modelo 130 ya declarados en trimestres anteriores del mismo año">
+                        − Pagos a cuenta T anteriores:
+                      </span>
+                      <span>− {fmt(fiscal.modelo130.pagosAcumuladosAnteriores)}</span>
+                    </div>
+                  ) : null}
                   <div className="fiscal-tax-result">
-                    <span>Beneficio neto:</span>
-                    <span>{fmt(fiscal.modelo130.beneficioNeto)}</span>
+                    <span>{fiscal.modelo130.label}</span>
+                    <span>{fmt(fiscal.modelo130.resultado)}</span>
                   </div>
                 </div>
+                {fiscal.irpfRegime !== "estimacion_directa_simplificada" ? (
+                  <p className="fiscal-tax-note">
+                    Régimen actual: <strong>{fiscal.irpfRegime === "estimacion_directa_normal" ? "estimación directa normal" : "estimación objetiva"}</strong>.
+                    {fiscal.irpfRegime === "estimacion_directa_normal" ? " No se aplica el 7% de difícil justificación." : " El Modelo 130 por módulos no usa este cálculo."}
+                  </p>
+                ) : !fiscal.applyDifficultJustification ? (
+                  <p className="fiscal-tax-note">
+                    Deducción del 7% por difícil justificación <strong>desactivada</strong> en Configuración &gt; Datos fiscales.
+                  </p>
+                ) : null}
               </div>
             </div>
           </div>

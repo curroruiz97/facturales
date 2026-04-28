@@ -12,6 +12,8 @@ export interface CreateTransactionInput {
   observaciones?: string | null;
   ivaPorcentaje?: number | null;
   irpfPorcentaje?: number | null;
+  /** Default true. Si false, este gasto se EXCLUYE del cálculo del Modelo 130 y 303. */
+  deducible?: boolean;
   invoiceId?: string | null;
 }
 
@@ -31,6 +33,7 @@ export interface FiscalExpenseRow {
   importe: number;
   ivaPorcentaje: number | null;
   irpfPorcentaje: number | null;
+  deducible: boolean;
 }
 
 export interface TransactionsRepository {
@@ -54,6 +57,7 @@ interface TransactionRow {
   observaciones: string | null;
   iva_porcentaje: number | null;
   irpf_porcentaje: number | null;
+  deducible: boolean | null;
   invoice_id: string | null;
   created_at: string;
   updated_at: string;
@@ -72,6 +76,7 @@ function mapTransactionRow(row: TransactionRow): Transaction {
     observaciones: row.observaciones,
     ivaPorcentaje: row.iva_porcentaje,
     irpfPorcentaje: row.irpf_porcentaje,
+    deducible: row.deducible ?? true,
     invoiceId: row.invoice_id,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -90,6 +95,7 @@ function normalizeCreateInput(input: CreateTransactionInput, userId: string): Re
     observaciones: input.observaciones?.trim() ?? null,
     iva_porcentaje: input.ivaPorcentaje ?? null,
     irpf_porcentaje: input.irpfPorcentaje ?? null,
+    deducible: input.deducible ?? true,
     invoice_id: input.invoiceId ?? null,
   };
 }
@@ -105,6 +111,7 @@ function normalizeUpdateInput(input: UpdateTransactionInput): Record<string, unk
   if (input.observaciones !== undefined) payload.observaciones = input.observaciones?.trim() ?? null;
   if (input.ivaPorcentaje !== undefined) payload.iva_porcentaje = input.ivaPorcentaje ?? null;
   if (input.irpfPorcentaje !== undefined) payload.irpf_porcentaje = input.irpfPorcentaje ?? null;
+  if (input.deducible !== undefined) payload.deducible = input.deducible;
   if (input.invoiceId !== undefined) payload.invoice_id = input.invoiceId ?? null;
   return payload;
 }
@@ -217,7 +224,7 @@ export class SupabaseTransactionsRepository implements TransactionsRepository {
       const supabase = getSupabaseClient();
       const { data, error } = await supabase
         .from("transacciones")
-        .select("importe, iva_porcentaje, irpf_porcentaje")
+        .select("importe, iva_porcentaje, irpf_porcentaje, deducible")
         .eq("user_id", userId)
         .eq("tipo", "gasto")
         .gte("fecha", startDate)
@@ -225,10 +232,11 @@ export class SupabaseTransactionsRepository implements TransactionsRepository {
 
       if (error) return fail(error.message, error.code, error);
       return ok(
-        (data ?? []).map((row: { importe: number; iva_porcentaje: number | null; irpf_porcentaje: number | null }) => ({
+        (data ?? []).map((row: { importe: number; iva_porcentaje: number | null; irpf_porcentaje: number | null; deducible: boolean | null }) => ({
           importe: row.importe ?? 0,
           ivaPorcentaje: row.iva_porcentaje,
           irpfPorcentaje: row.irpf_porcentaje,
+          deducible: row.deducible ?? true,
         })),
       );
     } catch (error) {

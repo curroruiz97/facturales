@@ -4,6 +4,10 @@ import { fail, ok, type ServiceResult } from "../../shared/types/service-result"
 export type BusinessTaxType = "iva" | "igic" | "ipsi";
 export type BusinessSubscriptionPlan = "starter" | "pro" | "business" | null;
 export type BusinessSubscriptionInterval = "monthly" | "yearly" | null;
+export type IrpfRegime =
+  | "estimacion_directa_simplificada"
+  | "estimacion_directa_normal"
+  | "estimacion_objetiva";
 
 export interface BusinessInfoInput {
   nombreFiscal: string;
@@ -22,6 +26,10 @@ export interface BusinessInfoInput {
   defaultTaxType?: BusinessTaxType;
   defaultIva?: number | null;
   defaultIrpf?: number | null;
+  /** Régimen fiscal de IRPF. Determina si se aplica el 7% de difícil justificación. */
+  irpfRegime?: IrpfRegime;
+  /** Si se aplica la deducción del 7% por gastos de difícil justificación (Modelo 130). */
+  applyDifficultJustification?: boolean;
   profileImageUrl?: string | null;
   invoiceImageUrl?: string | null;
 }
@@ -52,6 +60,11 @@ function mapRowToRecord(row: Record<string, unknown>): BusinessInfoRecord {
     defaultTaxType: (row.default_tax_type as BusinessTaxType | undefined) ?? "iva",
     defaultIva: row.default_iva === null || row.default_iva === undefined ? 21 : Number(row.default_iva),
     defaultIrpf: row.default_irpf === null || row.default_irpf === undefined ? 15 : Number(row.default_irpf),
+    irpfRegime: (row.irpf_regime as IrpfRegime | undefined) ?? "estimacion_directa_simplificada",
+    applyDifficultJustification:
+      row.apply_difficult_justification === null || row.apply_difficult_justification === undefined
+        ? true
+        : Boolean(row.apply_difficult_justification),
     profileImageUrl: (row.profile_image_url as string | null) ?? null,
     invoiceImageUrl: (row.invoice_image_url as string | null) ?? null,
     subscriptionPlan: (row.subscription_plan as BusinessSubscriptionPlan | undefined) ?? null,
@@ -92,6 +105,8 @@ function mapInputToRow(userId: string, input: BusinessInfoInput): Record<string,
     default_tax_type: input.defaultTaxType ?? "iva",
     default_iva: normalizePercent(input.defaultIva, 21),
     default_irpf: normalizePercent(input.defaultIrpf, 15),
+    irpf_regime: input.irpfRegime ?? "estimacion_directa_simplificada",
+    apply_difficult_justification: input.applyDifficultJustification ?? true,
     profile_image_url: input.profileImageUrl ?? null,
     invoice_image_url: input.invoiceImageUrl ?? null,
   };

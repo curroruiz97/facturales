@@ -27,6 +27,8 @@ export interface TransactionFormValues {
   irpfPorcentaje: string;
   fecha: string;
   observaciones: string;
+  /** Default true. Si false, el gasto se EXCLUYE del Modelo 130 y 303. */
+  deducible: boolean;
 }
 
 interface TransactionFormModalProps {
@@ -261,6 +263,22 @@ export function TransactionFormModal({
               />
             </label>
           </div>
+
+          {values.tipo === "gasto" ? (
+            <label className="pilot-checkbox-field">
+              <input
+                type="checkbox"
+                checked={values.deducible}
+                onChange={(event) => setValues((prev) => ({ ...prev, deducible: event.target.checked }))}
+              />
+              <span>
+                <strong>Gasto deducible fiscalmente</strong>
+                <span className="pilot-field__hint">
+                  Si lo desmarcas, este gasto NO se incluirá en el cálculo del Modelo 130 ni 303 (ej: multas, gastos personales, sanciones).
+                </span>
+              </span>
+            </label>
+          ) : null}
 
           {showBreakdown ? (
             <div className="pilot-amount-breakdown" aria-live="polite">

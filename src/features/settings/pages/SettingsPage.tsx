@@ -82,9 +82,29 @@ const EMPTY_FORM: BusinessInfoInput = {
   defaultTaxType: "iva",
   defaultIva: 21,
   defaultIrpf: 15,
+  irpfRegime: "estimacion_directa_simplificada",
+  applyDifficultJustification: true,
   profileImageUrl: null,
   invoiceImageUrl: null,
 };
+
+const IRPF_REGIME_OPTIONS: Array<{ value: NonNullable<BusinessInfoInput["irpfRegime"]>; label: string; help: string }> = [
+  {
+    value: "estimacion_directa_simplificada",
+    label: "Estimación directa simplificada",
+    help: "El régimen más común. Permite deducir el 7% en gastos de difícil justificación (tope 2.000€/año).",
+  },
+  {
+    value: "estimacion_directa_normal",
+    label: "Estimación directa normal",
+    help: "Para autónomos con facturación superior a 600.000€/año. No aplica el 7% de difícil justificación.",
+  },
+  {
+    value: "estimacion_objetiva",
+    label: "Estimación objetiva (módulos)",
+    help: "Régimen por módulos según actividad. El Modelo 130 no se calcula con base en ingresos/gastos reales.",
+  },
+];
 
 const TAX_RATE_OPTIONS: Record<BusinessTaxType, Array<{ value: number; label: string }>> = {
   iva: [
@@ -1212,6 +1232,42 @@ export function SettingsPage(): import("react").JSX.Element {
                             </button>
                           ))}
                         </div>
+
+                        <hr className="settings-fiscal-divider" />
+
+                        <p className="settings-muted">Régimen IRPF (afecta al cálculo del Modelo 130)</p>
+                        <div className="settings-fiscal-regime">
+                          {IRPF_REGIME_OPTIONS.map((regime) => (
+                            <button
+                              key={regime.value}
+                              type="button"
+                              className={`settings-regime-card ${(form.irpfRegime ?? "estimacion_directa_simplificada") === regime.value ? "settings-regime-card--active" : ""}`}
+                              onClick={() => setForm((previous) => ({ ...previous, irpfRegime: regime.value }))}
+                            >
+                              <strong>{regime.label}</strong>
+                              <small>{regime.help}</small>
+                            </button>
+                          ))}
+                        </div>
+
+                        {(form.irpfRegime ?? "estimacion_directa_simplificada") === "estimacion_directa_simplificada" ? (
+                          <label className="settings-fiscal-toggle">
+                            <input
+                              type="checkbox"
+                              checked={form.applyDifficultJustification ?? true}
+                              onChange={(event) =>
+                                setForm((previous) => ({ ...previous, applyDifficultJustification: event.target.checked }))
+                              }
+                            />
+                            <span>
+                              <strong>Aplicar deducción del 7% por gastos de difícil justificación</strong>
+                              <small>
+                                Solo válido en estimación directa simplificada. Tope 2.000 €/año (Ley 28/2022).
+                                Reduce el rendimiento neto en el Modelo 130.
+                              </small>
+                            </span>
+                          </label>
+                        ) : null}
                       </div>
                     ) : null}
                   </div>

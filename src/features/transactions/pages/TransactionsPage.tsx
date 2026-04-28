@@ -37,6 +37,7 @@ const DEFAULT_FORM_VALUES: TransactionFormValues = {
   irpfPorcentaje: "",
   fecha: new Date().toISOString().slice(0, 10),
   observaciones: "",
+  deducible: true,
 };
 
 type FormMode = "create" | "edit";
@@ -53,6 +54,7 @@ function toFormValues(transaction: TransactionLedgerItem): TransactionFormValues
     irpfPorcentaje: transaction.irpfPorcentaje !== null ? String(transaction.irpfPorcentaje) : "",
     fecha: transaction.fecha,
     observaciones: transaction.observaciones ?? "",
+    deducible: transaction.deducible ?? true,
   };
 }
 
@@ -185,6 +187,7 @@ export function TransactionsPage(): import("react").JSX.Element {
       irpfPorcentaje: parseNumberOrNull(values.irpfPorcentaje),
       fecha: values.fecha,
       observaciones: values.observaciones.trim() || null,
+      deducible: values.tipo === "gasto" ? values.deducible : true,
     };
 
     const success =

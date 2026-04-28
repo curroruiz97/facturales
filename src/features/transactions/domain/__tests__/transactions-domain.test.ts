@@ -22,6 +22,7 @@ function buildTransaction(overrides: Partial<Transaction> = {}): Transaction {
     observaciones: null,
     ivaPorcentaje: null,
     irpfPorcentaje: null,
+    deducible: true,
     invoiceId: null,
     createdAt: "2026-03-11T10:00:00.000Z",
     updatedAt: "2026-03-11T10:00:00.000Z",
