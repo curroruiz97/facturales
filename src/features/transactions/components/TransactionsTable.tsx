@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import type { TransactionLedgerItem } from "../domain/transactions-domain";
 import { formatTransactionCategory, formatTransactionType } from "../domain/transactions-domain";
+import { calculateExpenseBreakdown } from "../domain/transaction-amounts";
 import type { TransactionsSortMode } from "../hooks/use-transactions-ledger";
 
 type SortKey = "client" | "concept" | "category" | "amount" | "date" | "type";
@@ -200,10 +201,27 @@ export function TransactionsTable({
                 </td>
                 <td>
                   {transaction.ivaPorcentaje !== null || transaction.irpfPorcentaje !== null ? (
-                    <div className="flex flex-col gap-0.5">
-                      {transaction.ivaPorcentaje !== null ? <span className="text-xs">IVA: {transaction.ivaPorcentaje}%</span> : null}
-                      {transaction.irpfPorcentaje !== null ? <span className="text-xs">IRPF: {transaction.irpfPorcentaje}%</span> : null}
-                    </div>
+                    (() => {
+                      const bd = calculateExpenseBreakdown(
+                        transaction.importe,
+                        transaction.ivaPorcentaje,
+                        transaction.irpfPorcentaje,
+                      );
+                      return (
+                        <div className="flex flex-col gap-0.5">
+                          {transaction.ivaPorcentaje !== null ? (
+                            <span className="text-xs">
+                              IVA: {transaction.ivaPorcentaje}% <span className="opacity-70">({formatAmount(bd.cuotaIva)})</span>
+                            </span>
+                          ) : null}
+                          {transaction.irpfPorcentaje !== null ? (
+                            <span className="text-xs">
+                              IRPF: {transaction.irpfPorcentaje}% <span className="opacity-70">(−{formatAmount(bd.cuotaIrpf)})</span>
+                            </span>
+                          ) : null}
+                        </div>
+                      );
+                    })()
                   ) : (
                     <span className="text-xs opacity-70">-</span>
                   )}

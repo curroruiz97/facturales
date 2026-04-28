@@ -1598,6 +1598,89 @@ input[type="radio"] {
   gap: 10px;
 }
 
+/* Hint text bajo un campo del formulario */
+.pilot-field__hint {
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: #64748b;
+  line-height: 1.35;
+  margin-top: 2px;
+}
+
+.dark .pilot-field__hint {
+  color: #94a3b8;
+}
+
+/* Bloque de desglose calculado (IVA / IRPF / base / total) */
+.pilot-amount-breakdown {
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  padding: 14px 16px;
+}
+
+.dark .pilot-amount-breakdown {
+  border-color: #2a313c;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.pilot-amount-breakdown__header {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+  margin-bottom: 10px;
+}
+
+.dark .pilot-amount-breakdown__header { color: #94a3b8; }
+
+.pilot-amount-breakdown__list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+
+.pilot-amount-breakdown__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 0.92rem;
+}
+
+.pilot-amount-breakdown__row dt {
+  color: #475569;
+  font-weight: 500;
+  margin: 0;
+}
+
+.pilot-amount-breakdown__row dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.dark .pilot-amount-breakdown__row dt { color: #94a3b8; }
+.dark .pilot-amount-breakdown__row dd { color: #f8fafc; }
+
+.pilot-amount-breakdown__row--total {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 8px;
+  margin-top: 4px;
+  font-weight: 700;
+}
+
+.pilot-amount-breakdown__row--total dt,
+.pilot-amount-breakdown__row--total dd {
+  font-weight: 700;
+}
+
+.dark .pilot-amount-breakdown__row--total {
+  border-top-color: #2a313c;
+}
+
 .contact-type-switch {
   display: flex;
   gap: 10px;

@@ -2,6 +2,10 @@ import { useEffect, useMemo, useState, type FormEvent } from "react";
 import type { TransactionCategory, TransactionType } from "../../../shared/types/domain";
 import type { TransactionClientOption } from "../adapters/transactions.adapter";
 import { TRANSACTION_CATEGORY_LABELS } from "../domain/transactions-domain";
+import { calculateExpenseBreakdown } from "../domain/transaction-amounts";
+
+const formatEur = (value: number): string =>
+  new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR" }).format(value);
 
 const MANUAL_TRANSACTION_CATEGORIES: Array<Exclude<TransactionCategory, "factura">> = [
   "material_oficina",
@@ -76,6 +80,15 @@ export function TransactionFormModal({
   const amount = useMemo(() => Number.parseFloat(values.importe), [values.importe]);
   const iva = useMemo(() => parsePercent(values.ivaPorcentaje), [values.ivaPorcentaje]);
   const irpf = useMemo(() => parsePercent(values.irpfPorcentaje), [values.irpfPorcentaje]);
+
+  const breakdown = useMemo(() => {
+    const safeAmount = Number.isFinite(amount) ? amount : 0;
+    const safeIva = iva !== null && Number.isFinite(iva) ? iva : null;
+    const safeIrpf = irpf !== null && Number.isFinite(irpf) ? irpf : null;
+    return calculateExpenseBreakdown(safeAmount, safeIva, safeIrpf);
+  }, [amount, iva, irpf]);
+
+  const showBreakdown = breakdown.total > 0 && (breakdown.cuotaIva > 0 || breakdown.cuotaIrpf > 0);
 
   if (!open) return null;
 
@@ -194,7 +207,7 @@ export function TransactionFormModal({
 
           <div className="pilot-grid pilot-grid--two">
             <label className="pilot-field">
-              Importe *
+              Importe total *
               <input
                 className="pilot-input"
                 type="number"
@@ -204,6 +217,9 @@ export function TransactionFormModal({
                 onChange={(event) => setValues((prev) => ({ ...prev, importe: event.target.value }))}
                 placeholder="0.00"
               />
+              <span className="pilot-field__hint">
+                Total que pagas al proveedor (con IVA sumado e IRPF restado si aplica).
+              </span>
             </label>
             <label className="pilot-field">
               IVA (%)
@@ -245,6 +261,34 @@ export function TransactionFormModal({
               />
             </label>
           </div>
+
+          {showBreakdown ? (
+            <div className="pilot-amount-breakdown" aria-live="polite">
+              <header className="pilot-amount-breakdown__header">Desglose calculado</header>
+              <dl className="pilot-amount-breakdown__list">
+                <div className="pilot-amount-breakdown__row">
+                  <dt>Base imponible</dt>
+                  <dd>{formatEur(breakdown.base)}</dd>
+                </div>
+                {breakdown.cuotaIva > 0 ? (
+                  <div className="pilot-amount-breakdown__row">
+                    <dt>Cuota IVA ({iva}%)</dt>
+                    <dd>+ {formatEur(breakdown.cuotaIva)}</dd>
+                  </div>
+                ) : null}
+                {breakdown.cuotaIrpf > 0 ? (
+                  <div className="pilot-amount-breakdown__row">
+                    <dt>Retención IRPF ({irpf}%)</dt>
+                    <dd>− {formatEur(breakdown.cuotaIrpf)}</dd>
+                  </div>
+                ) : null}
+                <div className="pilot-amount-breakdown__row pilot-amount-breakdown__row--total">
+                  <dt>Total a pagar</dt>
+                  <dd>{formatEur(breakdown.total)}</dd>
+                </div>
+              </dl>
+            </div>
+          ) : null}
 
           {localError ? <p className="pilot-error-text">{localError}</p> : null}
           {error ? <p className="pilot-error-text">{error}</p> : null}
