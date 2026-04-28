@@ -14,6 +14,8 @@ export interface TransactionClientOption {
   id: string;
   name: string;
   identifier: string;
+  /** Rol del contacto (usado para auto-sugerir categoría al crear transacciones). */
+  rol: import("../../../shared/types/domain").ClientRol;
 }
 
 export interface TransactionsAdapterFilters {
@@ -142,6 +144,7 @@ export class DefaultTransactionsAdapter implements TransactionsAdapter {
         id: client.id,
         name: client.nombreRazonSocial,
         identifier: client.identificador,
+        rol: client.rol,
       })),
     );
   }

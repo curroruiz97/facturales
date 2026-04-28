@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
+import type { ClientRol } from "../../../shared/types/domain";
 
 export interface ContactFormValues {
   nombreRazonSocial: string;
   identificador: string;
   tipoCliente: "autonomo" | "empresa";
+  rol: ClientRol;
   email: string;
   telefono: string;
   direccion: string;
@@ -14,6 +16,39 @@ export interface ContactFormValues {
   diaFacturacion: string;
   estado: "activo" | "inactivo" | "recurrente" | "puntual";
 }
+
+export const ROL_OPTIONS: Array<{ value: ClientRol; label: string; help: string }> = [
+  {
+    value: "cliente",
+    label: "Cliente",
+    help: "A quien le emites facturas. Sus pagos cuentan como ingresos.",
+  },
+  {
+    value: "empleado",
+    label: "Empleado / Nómina",
+    help: "Trabajador en plantilla. Sus salarios entran como gasto deducible (concepto: salarios).",
+  },
+  {
+    value: "proveedor_servicios",
+    label: "Proveedor de servicios",
+    help: "Autónomo o empresa que te factura por servicios profesionales (asesoría, marketing, IT, etc.).",
+  },
+  {
+    value: "proveedor_bienes",
+    label: "Proveedor de bienes",
+    help: "Empresa que te suministra material, equipamiento o productos físicos.",
+  },
+  {
+    value: "acreedor",
+    label: "Acreedor / Financiación",
+    help: "Banco, prestamista o entidad a la que pagas intereses o cuotas de préstamos.",
+  },
+  {
+    value: "otro",
+    label: "Otro",
+    help: "Cualquier otra relación que no encaje con las anteriores.",
+  },
+];
 
 interface ContactFormModalProps {
   open: boolean;
@@ -107,7 +142,19 @@ export function ContactFormModal(props: ContactFormModalProps): import("react").
           </label>
 
           <label className="pilot-field">
-            Tipo de contacto
+            Rol del contacto
+            <select className="pilot-input" value={values.rol} onChange={(event) => updateField("rol", event.target.value as ClientRol)}>
+              {ROL_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+            <small className="pilot-field__hint">
+              {ROL_OPTIONS.find((opt) => opt.value === values.rol)?.help ?? ""}
+            </small>
+          </label>
+
+          <label className="pilot-field">
+            Frecuencia
             <div className="contact-type-switch" role="tablist" aria-label="Tipo de contacto">
               <button
                 type="button"

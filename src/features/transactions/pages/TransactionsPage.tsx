@@ -146,6 +146,35 @@ export function TransactionsPage(): import("react").JSX.Element {
     );
   }, [location.pathname, location.search, navigate]);
 
+  // Sincronizar el filtro de tipo (Todas/Ingresos/Gastos) con el query param `?tipo=`
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tipoParam = params.get("tipo");
+    if (tipoParam === "ingreso" || tipoParam === "gasto") {
+      ledger.setTypeFilter(tipoParam);
+    } else {
+      ledger.setTypeFilter("all");
+    }
+    // intencional: ignoramos ledger.setTypeFilter en deps (es estable del hook)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.search]);
+
+  const setActiveTab = (tab: "all" | "ingreso" | "gasto") => {
+    const params = new URLSearchParams(location.search);
+    if (tab === "all") {
+      params.delete("tipo");
+    } else {
+      params.set("tipo", tab);
+    }
+    navigate(
+      {
+        pathname: location.pathname,
+        search: params.toString() ? `?${params.toString()}` : "",
+      },
+      { replace: true },
+    );
+  };
+
   const openEditModal = (transaction: TransactionLedgerItem) => {
     setFlash(null);
     setFormMode("edit");
@@ -243,7 +272,62 @@ export function TransactionsPage(): import("react").JSX.Element {
         <section className="pilot-grid">
           {/* Header */}
           <section className="pilot-panel">
-            <h2 className="tx-page__title">Gastos</h2>
+            <div className="tx-page__header">
+              <h2 className="tx-page__title">
+                {ledger.typeFilter === "ingreso"
+                  ? "Ingresos"
+                  : ledger.typeFilter === "gasto"
+                    ? "Gastos"
+                    : "Transacciones"}
+              </h2>
+            </div>
+
+            {/* Tabs Todas / Ingresos / Gastos */}
+            <div className="tx-tabs" role="tablist" aria-label="Tipo de transacción">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={ledger.typeFilter === "all"}
+                className={`tx-tabs__btn ${ledger.typeFilter === "all" ? "tx-tabs__btn--active" : ""}`}
+                onClick={() => setActiveTab("all")}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <line x1="8" y1="6" x2="21" y2="6"/>
+                  <line x1="8" y1="12" x2="21" y2="12"/>
+                  <line x1="8" y1="18" x2="21" y2="18"/>
+                  <line x1="3" y1="6" x2="3.01" y2="6"/>
+                  <line x1="3" y1="12" x2="3.01" y2="12"/>
+                  <line x1="3" y1="18" x2="3.01" y2="18"/>
+                </svg>
+                Todas
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={ledger.typeFilter === "ingreso"}
+                className={`tx-tabs__btn tx-tabs__btn--income ${ledger.typeFilter === "ingreso" ? "tx-tabs__btn--active" : ""}`}
+                onClick={() => setActiveTab("ingreso")}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <polyline points="17 11 12 6 7 11"/>
+                  <polyline points="17 18 12 13 7 18"/>
+                </svg>
+                Ingresos
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={ledger.typeFilter === "gasto"}
+                className={`tx-tabs__btn tx-tabs__btn--expense ${ledger.typeFilter === "gasto" ? "tx-tabs__btn--active" : ""}`}
+                onClick={() => setActiveTab("gasto")}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <polyline points="7 13 12 18 17 13"/>
+                  <polyline points="7 6 12 11 17 6"/>
+                </svg>
+                Gastos
+              </button>
+            </div>
 
             {/* Search bar + filter button */}
             <div className="tx-search-bar">

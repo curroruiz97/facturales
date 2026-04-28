@@ -1,11 +1,12 @@
 import { getCurrentUserId, getSupabaseClient } from "../supabase/client";
-import type { Client } from "../../shared/types/domain";
+import type { Client, ClientRol } from "../../shared/types/domain";
 import { fail, ok, type ServiceResult } from "../../shared/types/service-result";
 
 export interface CreateClientInput {
   nombreRazonSocial: string;
   identificador: string;
   tipoCliente?: "autonomo" | "empresa";
+  rol?: ClientRol;
   email?: string | null;
   telefono?: string | null;
   direccion?: string | null;
@@ -34,6 +35,7 @@ interface ClientRow {
   nombre_razon_social: string;
   identificador: string;
   tipo_cliente: "autonomo" | "empresa";
+  rol: ClientRol | null;
   email: string | null;
   telefono: string | null;
   direccion: string | null;
@@ -54,6 +56,7 @@ function mapClientRow(row: ClientRow): Client {
     nombreRazonSocial: row.nombre_razon_social,
     identificador: row.identificador,
     tipoCliente: row.tipo_cliente,
+    rol: row.rol ?? "cliente",
     email: row.email,
     telefono: row.telefono,
     direccion: row.direccion,
@@ -74,6 +77,7 @@ function normalizeCreateInput(input: CreateClientInput, userId: string): Record<
     nombre_razon_social: input.nombreRazonSocial.trim(),
     identificador: input.identificador.trim().toUpperCase(),
     tipo_cliente: input.tipoCliente ?? "autonomo",
+    rol: input.rol ?? "cliente",
     email: input.email?.trim() ?? null,
     telefono: input.telefono?.trim() ?? null,
     direccion: input.direccion?.trim() ?? null,
@@ -92,6 +96,7 @@ function normalizeUpdateInput(input: UpdateClientInput): Record<string, unknown>
   if (input.nombreRazonSocial !== undefined) data.nombre_razon_social = input.nombreRazonSocial?.trim();
   if (input.identificador !== undefined) data.identificador = input.identificador?.trim().toUpperCase();
   if (input.tipoCliente !== undefined) data.tipo_cliente = input.tipoCliente;
+  if (input.rol !== undefined) data.rol = input.rol;
   if (input.email !== undefined) data.email = input.email?.trim() ?? null;
   if (input.telefono !== undefined) data.telefono = input.telefono?.trim() ?? null;
   if (input.direccion !== undefined) data.direccion = input.direccion?.trim() ?? null;

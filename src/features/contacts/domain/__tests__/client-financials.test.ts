@@ -9,6 +9,7 @@ function createClient(partial: Partial<Client> = {}): Client {
     nombreRazonSocial: partial.nombreRazonSocial ?? "Acme SL",
     identificador: partial.identificador ?? "B12345678",
     tipoCliente: partial.tipoCliente ?? "empresa",
+    rol: partial.rol ?? "cliente",
     email: partial.email ?? null,
     telefono: partial.telefono ?? null,
     direccion: partial.direccion ?? null,

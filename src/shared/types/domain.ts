@@ -4,12 +4,24 @@ export type BillingInterval = "monthly" | "yearly";
 export type ClientStatus = "activo" | "inactivo" | "recurrente" | "puntual";
 export type ClientKind = "autonomo" | "empresa";
 
+/** Rol del contacto: tipo de relación que tiene con el negocio. Determina la
+ *  categorización por defecto de los gastos y permite separar nóminas de
+ *  servicios profesionales. */
+export type ClientRol =
+  | "cliente"
+  | "empleado"
+  | "proveedor_servicios"
+  | "proveedor_bienes"
+  | "acreedor"
+  | "otro";
+
 export interface Client {
   id: string;
   userId: string;
   nombreRazonSocial: string;
   identificador: string;
   tipoCliente: ClientKind;
+  rol: ClientRol;
   email: string | null;
   telefono: string | null;
   direccion: string | null;
@@ -32,6 +44,8 @@ export type TransactionCategory =
   | "alquiler"
   | "transporte"
   | "marketing"
+  | "salarios"
+  | "financieros"
   | "otros"
   | "factura";
 

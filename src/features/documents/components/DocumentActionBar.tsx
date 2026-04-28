@@ -405,9 +405,20 @@ export function DocumentActionBar({
           </button>
         </div>
         <div className="doc-action-bar__right">
-          <button type="button" className="doc-action-bar__btn" onClick={() => void onSaveDraft()} disabled={saving || readOnly}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><path d="M17 21v-8H7v8M7 3v5h8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
-            Guardar borrador
+          <button
+            type="button"
+            className="doc-action-bar__btn doc-action-bar__btn--secondary"
+            onClick={() => void onSaveDraft()}
+            disabled={saving || readOnly}
+            title={readOnly
+              ? `Esta ${kindLabel.toLowerCase()} ya está emitida y no puede guardarse de nuevo como borrador.`
+              : saving
+                ? "Guardando..."
+                : "Guarda los cambios sin emitir el documento. Podrás retomar la edición más tarde."
+            }
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><path d="M17 21v-8H7v8M7 3v5h8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            {saving ? "Guardando..." : "Guardar borrador"}
           </button>
           {mode === "editor" ? (
             <button type="button" className="doc-action-bar__btn" onClick={() => void handlePreview()} disabled={saving || !previewPath}>

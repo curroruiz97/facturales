@@ -81,7 +81,15 @@ export function InvoicePreviewPage(): import("react").JSX.Element {
   const displayDocNumber = docNumber || "Se asignará al emitir";
   const issueDate = editor.meta.issueDate || "-";
   const dueDate = editor.meta.dueDate || "-";
-  const paymentTerms = editor.meta.paymentTerms || "-";
+  // Etiqueta legible del plazo de pago: si el campo está vacío, asumimos
+  // "Pago inmediato" en vez de mostrar "—" (que confunde al usuario).
+  const paymentTerms = (() => {
+    const raw = (editor.meta.paymentTerms ?? "").trim().toLowerCase();
+    if (!raw || raw === "immediate" || raw === "inmediato") return "Pago inmediato";
+    if (raw === "15" || raw === "30" || raw === "60" || raw === "90") return `${raw} días`;
+    return editor.meta.paymentTerms;
+  })();
+  const paymentDueDate = editor.meta.dueDate || editor.meta.issueDate;
   const taxesTotal = summary.taxAmount + summary.reAmount;
   const paymentMethodLabels: Record<string, string> = {
     transferencia: "Transferencia bancaria",
@@ -219,7 +227,10 @@ export function InvoicePreviewPage(): import("react").JSX.Element {
           ) : null}
           <hr />
           <h3>Condiciones de pago</h3>
-          <div className="doc-preview-summary__row"><span>Términos</span><strong>{paymentTerms}</strong></div>
+          <div className="doc-preview-summary__row"><span>Plazo de pago</span><strong>{paymentTerms}</strong></div>
+          {paymentDueDate ? (
+            <div className="doc-preview-summary__row"><span>Vencimiento</span><strong>{paymentDueDate}</strong></div>
+          ) : null}
           <hr />
           <div className="doc-preview-summary__actions">
             <button

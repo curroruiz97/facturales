@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import type { TransactionCategory, TransactionType } from "../../../shared/types/domain";
 import type { TransactionClientOption } from "../adapters/transactions.adapter";
-import { TRANSACTION_CATEGORY_LABELS } from "../domain/transactions-domain";
+import { TRANSACTION_CATEGORY_LABELS, suggestCategoryFromRol } from "../domain/transactions-domain";
 import { calculateExpenseBreakdown } from "../domain/transaction-amounts";
 
 const formatEur = (value: number): string =>
@@ -14,6 +14,8 @@ const MANUAL_TRANSACTION_CATEGORIES: Array<Exclude<TransactionCategory, "factura
   "alquiler",
   "transporte",
   "marketing",
+  "salarios",
+  "financieros",
   "otros",
 ];
 
@@ -145,7 +147,21 @@ export function TransactionFormModal({
               <select
                 className="pilot-input"
                 value={values.clienteId}
-                onChange={(event) => setValues((prev) => ({ ...prev, clienteId: event.target.value }))}
+                onChange={(event) => {
+                  const newClienteId = event.target.value;
+                  // Auto-sugerir categoría según el rol del contacto seleccionado
+                  // (solo si la categoría actual es la default — no pisar elecciones del usuario).
+                  const matched = clients.find((c) => c.id === newClienteId);
+                  const suggested = matched ? suggestCategoryFromRol(matched.rol) : null;
+                  setValues((prev) => ({
+                    ...prev,
+                    clienteId: newClienteId,
+                    categoria:
+                      suggested && (prev.categoria === "material_oficina" || prev.categoria === "otros")
+                        ? suggested
+                        : prev.categoria,
+                  }));
+                }}
                 disabled={clientsLoading}
               >
                 <option value="">Sin contacto</option>
