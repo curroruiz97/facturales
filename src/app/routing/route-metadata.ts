@@ -182,6 +182,17 @@ const ROUTE_METADATA: RouteMeta[] = [
     shellVariant: "react-app",
   },
   {
+    id: "facturas-importar",
+    path: "/facturas/importar",
+    title: "Importar facturas",
+    section: "Facturas",
+    requiresAuth: true,
+    requiresSubscription: true,
+    breadcrumbs: ["Facturas", "Importar"],
+    showGlobalSearch: true,
+    shellVariant: "react-app",
+  },
+  {
     id: "ocr",
     path: "/ocr",
     title: "Escanear gasto",
@@ -451,6 +462,7 @@ export const SHELL_NAVIGATION: NavigationItem[] = [
       { id: "facturas-emision", label: "Emitir factura", href: "/facturas/emision" },
       { id: "facturas-borradores", label: "Borradores", href: "/facturas/borradores" },
       { id: "facturas-emitidas", label: "Facturas emitidas", href: "/facturas/emitidas" },
+      { id: "facturas-importar", label: "Importar facturas", href: "/facturas/importar" },
     ],
   },
   {

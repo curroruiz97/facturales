@@ -24,6 +24,7 @@ import { SubscriptionRoute } from "./routing/subscription-route";
 const ContactsPage = lazy(() => import("../features/contacts/pages/ContactsPage").then((m) => ({ default: m.ContactsPage })));
 const DashboardPage = lazy(() => import("../features/dashboard/pages/DashboardPage").then((m) => ({ default: m.DashboardPage })));
 const InvoicesPage = lazy(() => import("../features/invoices/pages/InvoicesPage").then((m) => ({ default: m.InvoicesPage })));
+const InvoiceImportPage = lazy(() => import("../features/invoices/pages/InvoiceImportPage").then((m) => ({ default: m.InvoiceImportPage })));
 const OcrPage = lazy(() => import("../features/ocr/pages/OcrPage").then((m) => ({ default: m.OcrPage })));
 const ProductsPage = lazy(() => import("../features/products/pages/ProductsPage").then((m) => ({ default: m.ProductsPage })));
 const QuotesPage = lazy(() => import("../features/quotes/pages/QuotesPage").then((m) => ({ default: m.QuotesPage })));
@@ -70,6 +71,7 @@ const CANONICAL_ROUTES: CanonicalRouteDefinition[] = [
   { path: "/facturas/vista-previa", element: <InvoicePreviewPage /> },
   { path: "/facturas/borradores", element: <InvoicesPage mode="borradores" /> },
   { path: "/facturas/emitidas", element: <InvoicesPage mode="emitidas" /> },
+  { path: "/facturas/importar", element: <InvoiceImportPage /> },
   { path: "/ocr", element: <OcrPage /> },
   { path: "/soporte", element: <SupportPage /> },
   { path: "/ajustes", element: <SettingsPage /> },
