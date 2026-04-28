@@ -1,4 +1,5 @@
 import type { Invoice } from "../../../shared/types/domain";
+import { calculateExpenseBreakdown } from "../../transactions/domain/transaction-amounts";
 
 export interface QuarterRange {
   start: string;
@@ -102,17 +103,14 @@ export function calcResumenPagos(invoices: Invoice[]): PaymentSummary {
 export interface TransactionFiscalRow {
   importe: number;
   ivaPorcentaje: number | null;
+  irpfPorcentaje: number | null;
 }
 
 export function calcIVASoportado(gastos: TransactionFiscalRow[]): number {
   let total = 0;
   for (const g of gastos) {
-    const importe = g.importe || 0;
-    const ivaPct = g.ivaPorcentaje || 0;
-    if (ivaPct > 0 && importe > 0) {
-      const base = importe / (1 + ivaPct / 100);
-      total += importe - base;
-    }
+    const { cuotaIva } = calculateExpenseBreakdown(g.importe || 0, g.ivaPorcentaje, g.irpfPorcentaje);
+    total += cuotaIva;
   }
   return total;
 }
@@ -120,13 +118,8 @@ export function calcIVASoportado(gastos: TransactionFiscalRow[]): number {
 export function calcGastosBase(gastos: TransactionFiscalRow[]): number {
   let total = 0;
   for (const g of gastos) {
-    const importe = g.importe || 0;
-    const ivaPct = g.ivaPorcentaje || 0;
-    if (ivaPct > 0 && importe > 0) {
-      total += importe / (1 + ivaPct / 100);
-    } else {
-      total += importe;
-    }
+    const { base } = calculateExpenseBreakdown(g.importe || 0, g.ivaPorcentaje, g.irpfPorcentaje);
+    total += base;
   }
   return total;
 }

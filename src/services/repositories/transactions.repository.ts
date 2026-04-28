@@ -30,6 +30,7 @@ export interface TransactionFilters {
 export interface FiscalExpenseRow {
   importe: number;
   ivaPorcentaje: number | null;
+  irpfPorcentaje: number | null;
 }
 
 export interface TransactionsRepository {
@@ -216,7 +217,7 @@ export class SupabaseTransactionsRepository implements TransactionsRepository {
       const supabase = getSupabaseClient();
       const { data, error } = await supabase
         .from("transacciones")
-        .select("importe, iva_porcentaje")
+        .select("importe, iva_porcentaje, irpf_porcentaje")
         .eq("user_id", userId)
         .eq("tipo", "gasto")
         .gte("fecha", startDate)
@@ -224,9 +225,10 @@ export class SupabaseTransactionsRepository implements TransactionsRepository {
 
       if (error) return fail(error.message, error.code, error);
       return ok(
-        (data ?? []).map((row: { importe: number; iva_porcentaje: number | null }) => ({
+        (data ?? []).map((row: { importe: number; iva_porcentaje: number | null; irpf_porcentaje: number | null }) => ({
           importe: row.importe ?? 0,
           ivaPorcentaje: row.iva_porcentaje,
+          irpfPorcentaje: row.irpf_porcentaje,
         })),
       );
     } catch (error) {
