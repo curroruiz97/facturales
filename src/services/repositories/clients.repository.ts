@@ -126,7 +126,10 @@ export class SupabaseClientsRepository implements ClientsRepository {
       const supabase = getSupabaseClient();
       const payload = normalizeCreateInput(input, userId);
       const { data, error } = await supabase.from("clientes").insert([payload]).select("*").single();
-      if (error || !data) return fail(error?.message ?? "No se pudo crear cliente", error?.code, error);
+      if (error || !data) {
+        if (error?.code === "23505") return fail("Ya existe un contacto con ese NIF/CIF.", "CLIENTS_DUPLICATE_IDENTIFIER", error);
+        return fail(error?.message ?? "No se pudo crear cliente", error?.code, error);
+      }
       return ok(mapClientRow(data as ClientRow));
     } catch (error) {
       return fail("No se pudo crear cliente", "CLIENTS_CREATE_ERROR", error);
@@ -199,7 +202,10 @@ export class SupabaseClientsRepository implements ClientsRepository {
         .eq("user_id", userId)
         .select("*")
         .single();
-      if (error || !data) return fail(error?.message ?? "No se pudo actualizar cliente", error?.code, error);
+      if (error || !data) {
+        if (error?.code === "23505") return fail("Ya existe un contacto con ese NIF/CIF.", "CLIENTS_DUPLICATE_IDENTIFIER", error);
+        return fail(error?.message ?? "No se pudo actualizar cliente", error?.code, error);
+      }
       return ok(mapClientRow(data as ClientRow));
     } catch (error) {
       return fail("No se pudo actualizar cliente", "CLIENTS_UPDATE_ERROR", error);
