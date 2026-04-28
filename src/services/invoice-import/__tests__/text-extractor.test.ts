@@ -193,4 +193,93 @@ TOTAL FACTURA 1.060,00 €
     });
     expect(result.warnings.length).toBeGreaterThan(0);
   });
+
+  it("extrae correctamente la factura ADG-2613 (caso del bug reportado)", () => {
+    const text = `
+Factura: ADG-2613
+Fecha: 30/01/2026
+CLIENTE
+Sapiens Telco SL
+C/ Vicente Goicoechea, 5 - bajo dcha.
+47006 - Valladolid
+NIF: B70856257
+CONCEPTO IMPORTE
+Servicio CAU Noviembre 1.950,00 €
+TOTAL 1.950,00 €
+IVA 21% 409,50 €
+TOTAL FACTURA 2.359,50 €
+Forma de pago: Transferencia bancaria
+IBAN: ES19 3085 0103 5528 0942 9620
+`;
+    const result = extractInvoiceFromText({
+      text,
+      fileName: "Factura ADG-2613.pdf",
+      fileKind: "pdf",
+    });
+    expect(result.invoiceNumber).toBe("ADG-2613");
+    expect(result.client.name).toBe("Sapiens Telco SL");
+    expect(result.client.identifier).toBe("B70856257");
+    expect(result.client.postalCode).toBe("47006");
+    expect(result.client.city).toBe("Valladolid");
+    expect(result.base).toBeCloseTo(1950, 2);
+    expect(result.ivaRate).toBe(21);
+    expect(result.ivaAmount).toBeCloseTo(409.5, 2);
+    expect(result.total).toBeCloseTo(2359.5, 2);
+  });
+
+  it("extrae el IVA aunque el importe esté en una línea separada del label", () => {
+    // Simula el caso donde pdfjs separa "IVA 21%" del importe "409,50 €"
+    // por agrupar Y con tolerancia distinta.
+    const text = `
+Factura: ADG-2613
+Fecha: 30/01/2026
+CLIENTE
+Sapiens Telco SL
+C/ Vicente Goicoechea, 5
+47006 - Valladolid
+NIF: B70856257
+CONCEPTO IMPORTE
+Servicio 1.950,00 €
+TOTAL
+1.950,00 €
+IVA 21%
+409,50 €
+TOTAL FACTURA
+2.359,50 €
+`;
+    const result = extractInvoiceFromText({
+      text,
+      fileName: "test.pdf",
+      fileKind: "pdf",
+    });
+    expect(result.base).toBeCloseTo(1950, 2);
+    expect(result.ivaAmount).toBeCloseTo(409.5, 2);
+    expect(result.total).toBeCloseTo(2359.5, 2);
+  });
+
+  it("respeta TOTAL FACTURA aunque haya múltiples ocurrencias de TOTAL", () => {
+    const text = `
+Factura: A-001
+Fecha: 15/03/2026
+CLIENTE
+Cliente Test
+Calle 1
+28001 Madrid
+NIF: 12345678Z
+CONCEPTO IMPORTE
+Producto A 100,00 €
+Producto B 50,00 €
+TOTAL 150,00 €
+IVA 21% 31,50 €
+TOTAL FACTURA 181,50 €
+`;
+    const result = extractInvoiceFromText({
+      text,
+      fileName: "test.pdf",
+      fileKind: "pdf",
+    });
+    expect(result.base).toBeCloseTo(150, 2);
+    expect(result.ivaAmount).toBeCloseTo(31.5, 2);
+    expect(result.total).toBeCloseTo(181.5, 2);
+  });
 });

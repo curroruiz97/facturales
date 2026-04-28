@@ -127,13 +127,16 @@ async function buildInvoiceData(parsed: ParsedInvoice): Promise<InvoiceDraftPayl
   const retentionAmount = parsed.irpfAmount ?? 0;
   const total = parsed.total;
 
+  // El sistema espera taxLabel en formato "IVA_21" (con guión bajo) para que
+  // parseTaxCode pueda dividirlo correctamente y obtener la rate. Si usamos
+  // "IVA 21%" se interpreta como rate 0 y se pierde el IVA al recalcular.
   const concept = {
     description: parsed.concept,
     quantity: 1,
     unitPrice: taxBase,
     discount: 0,
     tax: taxRate,
-    taxLabel: `IVA ${taxRate}%`,
+    taxLabel: taxRate > 0 ? `IVA_${taxRate}` : "EXENTO",
     taxRate,
     re: 0,
     total: taxBase + taxAmount,

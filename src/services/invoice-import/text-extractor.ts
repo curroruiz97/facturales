@@ -203,61 +203,78 @@ export function extractInvoiceFromText(input: ExtractInput): ParsedInvoice {
   }
 
   // ─── Importes ───
-  // Buscar "TOTAL FACTURA  786,50 €" para el total final
-  const totalFacturaMatch = text.match(/TOTAL\s+FACTURA\s*[:\s]+([\d.,]+)\s*€?/i);
-  const total = totalFacturaMatch ? parseSpanishNumber(totalFacturaMatch[1]) : 0;
+  // El layout típico es:
+  //   TOTAL              1.950,00 €
+  //   IVA 21%              409,50 €
+  //   TOTAL FACTURA      2.359,50 €
+  //
+  // Pero pdfjs puede agrupar items por Y con tolerancia distinta y a veces el
+  // importe queda en una línea separada del label. Hacemos las regex tolerantes
+  // a saltos de línea (hasta 40 chars de gap incluyendo \n).
 
-  // Buscar "IVA 21%   136,50 €" o "IVA: 21%" + importe en otra línea
+  // TOTAL FACTURA: busca el primer importe tras la palabra "TOTAL FACTURA"
+  // (puede estar en la misma línea o en la siguiente).
+  let total = 0;
+  const totalFacturaMatch = text.match(/TOTAL\s+FACTURA[\s\S]{0,40}?([\d][\d.,]*)\s*€?/i);
+  if (totalFacturaMatch) total = parseSpanishNumber(totalFacturaMatch[1]);
+
+  // IVA: capturamos primero el porcentaje y el importe asociado en la misma área.
   let ivaRate = 0;
   let ivaAmount = 0;
-  const ivaMatch = text.match(/IVA\s*[:#]?\s*(\d+(?:[.,]\d+)?)\s*%\s*([\d.,]*)\s*€?/i);
+  const ivaMatch = text.match(/IVA\s*[:#]?\s*(\d+(?:[.,]\d+)?)\s*%[\s\S]{0,40}?([\d][\d.,]*)?\s*€?/i);
   if (ivaMatch) {
     ivaRate = parseSpanishNumber(ivaMatch[1]);
     if (ivaMatch[2]) ivaAmount = parseSpanishNumber(ivaMatch[2]);
   }
 
-  // Buscar "TOTAL  650,00 €" (sin la palabra "FACTURA") como base imponible
-  // Cuidado: hay que excluir "TOTAL FACTURA" para no confundirlo.
+  // BASE / SUBTOTAL: la línea "TOTAL X €" (sin la palabra "FACTURA").
+  // Recorremos todas las apariciones de "TOTAL <importe>" y descartamos las que
+  // formen parte de "TOTAL FACTURA".
   let base = 0;
-  const totalLineRegex = /^[ \t]*TOTAL[ \t]+([\d.,]+)\s*€?/gim;
+  const totalLineRegex = /TOTAL[\s\S]{0,40}?([\d][\d.,]*)\s*€?/gi;
   let m: RegExpExecArray | null;
-  const totalMatches: number[] = [];
   while ((m = totalLineRegex.exec(text)) !== null) {
-    // Excluir las líneas que sean realmente "TOTAL FACTURA"
-    const lineStart = text.lastIndexOf("\n", m.index) + 1;
-    const lineEnd = text.indexOf("\n", m.index);
-    const line = text.slice(lineStart, lineEnd === -1 ? undefined : lineEnd);
-    if (/TOTAL\s+FACTURA/i.test(line)) continue;
-    totalMatches.push(parseSpanishNumber(m[1]));
+    // Saltamos "TOTAL FACTURA" — buscamos "FACTURA" en los 12 chars siguientes a "TOTAL".
+    const after = text.slice(m.index, m.index + 16).toUpperCase();
+    if (after.startsWith("TOTAL FACTURA") || after.startsWith("TOTAL  FACTURA") || after.startsWith("TOTAL\nFACTURA")) {
+      continue;
+    }
+    base = parseSpanishNumber(m[1]);
+    break; // primera ocurrencia válida
   }
-  if (totalMatches.length > 0) base = totalMatches[0];
 
-  // Si no se encontró "TOTAL X" como base, buscamos importe del concepto en la última línea de concepto.
-  if (base === 0 && concept) {
-    const conceptAreaMatch = text.match(/CONCEPTO[\s\S]{0,500}?IMPORTE([\s\S]*?)TOTAL/i);
+  // Fallback: importe de la fila del concepto (entre "IMPORTE" y "TOTAL")
+  if (base === 0) {
+    const conceptAreaMatch = text.match(/IMPORTE([\s\S]*?)TOTAL/i);
     if (conceptAreaMatch) {
-      const importes = Array.from(conceptAreaMatch[1].matchAll(/([\d.,]+)\s*€/g)).map((mm) =>
+      const importes = Array.from(conceptAreaMatch[1].matchAll(/([\d][\d.,]*)\s*€/g)).map((mm) =>
         parseSpanishNumber(mm[1]),
       );
       if (importes.length > 0) base = importes[importes.length - 1];
     }
   }
 
-  // Si todavía no tenemos base pero sí total e IVA: deducir
+  // ─── Fallbacks cruzados ───
+  // Si tenemos total + ivaAmount pero no base
   if (base === 0 && total > 0 && ivaAmount > 0) {
     base = total - ivaAmount;
   }
-  // Si ivaAmount = 0 pero ivaRate > 0: deducir
+  // Si tenemos total + ivaRate pero no base ni ivaAmount → despejar
+  if (base === 0 && total > 0 && ivaRate > 0) {
+    base = total / (1 + ivaRate / 100);
+  }
+  // Si tenemos base + ivaRate pero no ivaAmount → calcular
   if (ivaRate > 0 && ivaAmount === 0 && base > 0) {
     ivaAmount = (base * ivaRate) / 100;
   }
+  // El cálculo del total se difiere a después de detectar IRPF (más abajo).
+
   if (base === 0) warnings.push("No se pudo detectar la base imponible.");
-  if (total === 0) warnings.push("No se pudo detectar el total de la factura.");
 
   // ─── IRPF (opcional) ───
   let irpfRate: number | null = null;
   let irpfAmount: number | null = null;
-  const irpfMatch = text.match(/(?:RETENCI[ÓO]N|IRPF)\s*[:#]?\s*(\d+(?:[.,]\d+)?)\s*%\s*([\d.,]+)?\s*€?/i);
+  const irpfMatch = text.match(/(?:RETENCI[ÓO]N|IRPF)\s*[:#]?\s*(\d+(?:[.,]\d+)?)\s*%[\s\S]{0,40}?([\d][\d.,]*)?\s*€?/i);
   if (irpfMatch) {
     irpfRate = parseSpanishNumber(irpfMatch[1]);
     if (irpfMatch[2]) {
@@ -266,6 +283,12 @@ export function extractInvoiceFromText(input: ExtractInput): ParsedInvoice {
       irpfAmount = (base * irpfRate) / 100;
     }
   }
+
+  // Si no tenemos total pero sí base e IVA (y opcionalmente IRPF), lo calculamos.
+  if (total === 0 && base > 0) {
+    total = base + ivaAmount - (irpfAmount ?? 0);
+  }
+  if (total === 0) warnings.push("No se pudo detectar el total de la factura.");
 
   // ─── IBAN ───
   const ibanMatch = text.match(/IBAN\s*[:#]?\s*([A-Z]{2}[\d\s]{20,30})/i);
