@@ -9374,7 +9374,8 @@ select.settings-input option:checked {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 0 0;
+  gap: 16px;
+  padding: 14px 0 0;
   margin-top: 8px;
   border-top: 1px solid #f1f5f9;
   font-size: 13px;
@@ -9383,6 +9384,13 @@ select.settings-input option:checked {
 
 .dark .tx-pagination { border-top-color: #2a313c; color: #94a3b8; }
 
+.tx-pagination__left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
 .tx-pagination__controls {
   display: flex;
   align-items: center;
@@ -9390,36 +9398,92 @@ select.settings-input option:checked {
 }
 
 .tx-pagination__btn {
-  width: 30px;
-  height: 30px;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border: 1px solid #e2e8f0;
-  border-radius: 6px;
+  border-radius: 8px;
   background: #fff;
   color: #1a202c;
-  font-size: 16px;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tx-pagination__btn:hover:not(:disabled):not(.tx-pagination__btn--active) {
+  background: #f8fafc;
+  border-color: #cbd5e1;
 }
 
 .tx-pagination__btn:disabled { opacity: 0.35; cursor: default; }
 .dark .tx-pagination__btn { background: #1d1e24; border-color: #2a313c; color: #f1f5f9; }
+.dark .tx-pagination__btn:hover:not(:disabled):not(.tx-pagination__btn--active) {
+  background: #232932;
+  border-color: #3b4250;
+}
 
-.tx-pagination__page {
+.tx-pagination__btn--active {
+  background: #ec8228;
+  border-color: #ec8228;
+  color: #fff;
+  cursor: default;
+  box-shadow: 0 1px 3px rgba(236, 130, 40, 0.3);
+}
+
+.tx-pagination__btn--active:hover {
+  background: #ec8228;
+  border-color: #ec8228;
+}
+
+.dark .tx-pagination__btn--active { color: #fff; }
+
+.tx-pagination__ellipsis {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 6px;
-  background: #ec8228;
-  color: #fff;
-  font-weight: 700;
-  font-size: 13px;
+  min-width: 24px;
+  height: 32px;
+  color: #94a3b8;
+  font-weight: 600;
+  user-select: none;
 }
 
-.tx-pagination__info { font-size: 12px; }
+.tx-pagination__info {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.dark .tx-pagination__info { color: #94a3b8; }
+
+.tx-pagination__page-size {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.tx-pagination__page-size select {
+  padding: 4px 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #fff;
+  color: #1a202c;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+}
+
+.tx-pagination__page-size select:hover { border-color: #cbd5e1; }
+.tx-pagination__page-size select:focus { border-color: #ec8228; box-shadow: 0 0 0 3px rgba(236, 130, 40, 0.15); }
+
+.dark .tx-pagination__page-size { color: #94a3b8; }
+.dark .tx-pagination__page-size select { background: #1d1e24; border-color: #2a313c; color: #f1f5f9; }
 
 .tx-pagination__select-all {
   display: flex;
@@ -9430,6 +9494,47 @@ select.settings-input option:checked {
 }
 
 .tx-pagination__select-all input { accent-color: #ec8228; }
+
+/* Cabeceras ordenables de la tabla de transacciones */
+.tx-table__sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  user-select: none;
+  transition: color 0.15s ease;
+}
+
+.tx-table__sort:hover { color: #ec8228; }
+.tx-table__sort:focus-visible {
+  outline: 2px solid #ec8228;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.tx-table__sort--active { color: #ec8228; }
+
+.tx-table__sort-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  opacity: 0.45;
+  transition: opacity 0.15s ease;
+}
+
+.tx-table__sort:hover .tx-table__sort-icon,
+.tx-table__sort--active .tx-table__sort-icon {
+  opacity: 1;
+}
 
 /* ─── Sidebar card (Transactions) ─── */
 

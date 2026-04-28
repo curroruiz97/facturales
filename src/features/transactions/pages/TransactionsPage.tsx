@@ -7,7 +7,25 @@ import { TRANSACTION_CATEGORY_LABELS, type TransactionLedgerItem } from "../doma
 import { TransactionDeleteModal } from "../components/TransactionDeleteModal";
 import { TransactionFormModal, type TransactionFormValues } from "../components/TransactionFormModal";
 import { TransactionsTable } from "../components/TransactionsTable";
-import { useTransactionsLedger } from "../hooks/use-transactions-ledger";
+import { useTransactionsLedger, PAGE_SIZE_OPTIONS, type TransactionsPageSize } from "../hooks/use-transactions-ledger";
+
+/**
+ * Genera la lista de páginas a mostrar en la paginación, con elipsis cuando hay
+ * muchas páginas. Ej. (current=5, total=12, siblings=2): [1, '…', 3, 4, 5, 6, 7, '…', 12]
+ */
+function buildPageList(currentPage: number, totalPages: number, siblings = 1): Array<number | "..."> {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+  const left = Math.max(2, currentPage - siblings);
+  const right = Math.min(totalPages - 1, currentPage + siblings);
+  const pages: Array<number | "..."> = [1];
+  if (left > 2) pages.push("...");
+  for (let i = left; i <= right; i++) pages.push(i);
+  if (right < totalPages - 1) pages.push("...");
+  pages.push(totalPages);
+  return pages;
+}
 
 const DEFAULT_FORM_VALUES: TransactionFormValues = {
   clienteId: "",
@@ -346,19 +364,51 @@ export function TransactionsPage(): import("react").JSX.Element {
                   transactions={ledger.pageTransactions}
                   selectedIds={ledger.selectedIds}
                   highlightedId={ledger.highlightedId}
+                  sortMode={ledger.sortMode}
+                  onSortChange={ledger.setSortMode}
                   onToggleSelection={ledger.toggleSelected}
                   onTogglePageSelection={ledger.togglePageSelection}
                   onEdit={openEditModal}
                   onDelete={openSingleDelete}
                 />
                 <div className="tx-pagination">
-                  <span className="tx-pagination__info">Mostrando resultados {((ledger.page - 1) * 10) + 1}–{Math.min(ledger.page * 10, ledger.transactions.length)}</span>
+                  <div className="tx-pagination__left">
+                    <span className="tx-pagination__info">
+                      Mostrando {((ledger.page - 1) * ledger.pageSize) + 1}–{Math.min(ledger.page * ledger.pageSize, ledger.totalItems)} de {ledger.totalItems}
+                    </span>
+                    <label className="tx-pagination__page-size">
+                      <span>Por página:</span>
+                      <select
+                        value={ledger.pageSize}
+                        onChange={(event) => ledger.setPageSize(Number(event.target.value) as TransactionsPageSize)}
+                      >
+                        {PAGE_SIZE_OPTIONS.map((size) => (
+                          <option key={size} value={size}>{size}</option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
                   <div className="tx-pagination__controls">
-                    <button type="button" className="tx-pagination__btn" disabled={ledger.page <= 1} onClick={() => ledger.setPage(ledger.page - 1)}>
+                    <button type="button" className="tx-pagination__btn" disabled={ledger.page <= 1} onClick={() => ledger.setPage(ledger.page - 1)} aria-label="Página anterior">
                       ‹
                     </button>
-                    <span className="tx-pagination__page">{ledger.page}</span>
-                    <button type="button" className="tx-pagination__btn" disabled={ledger.page >= ledger.totalPages} onClick={() => ledger.setPage(ledger.page + 1)}>
+                    {buildPageList(ledger.page, ledger.totalPages).map((entry, index) =>
+                      entry === "..." ? (
+                        <span key={`ellipsis-${index}`} className="tx-pagination__ellipsis" aria-hidden="true">…</span>
+                      ) : (
+                        <button
+                          key={entry}
+                          type="button"
+                          className={`tx-pagination__btn ${entry === ledger.page ? "tx-pagination__btn--active" : ""}`}
+                          onClick={() => ledger.setPage(entry)}
+                          aria-current={entry === ledger.page ? "page" : undefined}
+                          aria-label={`Página ${entry}`}
+                        >
+                          {entry}
+                        </button>
+                      ),
+                    )}
+                    <button type="button" className="tx-pagination__btn" disabled={ledger.page >= ledger.totalPages} onClick={() => ledger.setPage(ledger.page + 1)} aria-label="Página siguiente">
                       ›
                     </button>
                   </div>

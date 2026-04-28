@@ -15,7 +15,14 @@ export type TransactionsSortMode =
   | "concept-asc"
   | "concept-desc"
   | "client-asc"
-  | "client-desc";
+  | "client-desc"
+  | "category-asc"
+  | "category-desc"
+  | "type-asc"
+  | "type-desc";
+
+export const PAGE_SIZE_OPTIONS = [10, 25, 50, 100] as const;
+export type TransactionsPageSize = (typeof PAGE_SIZE_OPTIONS)[number];
 
 export interface UseTransactionsLedgerResult {
   transactions: TransactionLedgerItem[];
@@ -45,6 +52,9 @@ export interface UseTransactionsLedgerResult {
   page: number;
   totalPages: number;
   setPage: (value: number) => void;
+  pageSize: TransactionsPageSize;
+  setPageSize: (value: TransactionsPageSize) => void;
+  totalItems: number;
   selectedIds: Set<string>;
   selectedCount: number;
   highlightedId: string | null;
@@ -115,13 +125,25 @@ function sortTransactions(items: TransactionLedgerItem[], sortMode: Transactions
     case "client-desc":
       next.sort((a, b) => (b.clientName ?? "").localeCompare(a.clientName ?? "", "es"));
       return next;
+    case "category-asc":
+      next.sort((a, b) => a.categoria.localeCompare(b.categoria, "es"));
+      return next;
+    case "category-desc":
+      next.sort((a, b) => b.categoria.localeCompare(a.categoria, "es"));
+      return next;
+    case "type-asc":
+      next.sort((a, b) => a.tipo.localeCompare(b.tipo, "es"));
+      return next;
+    case "type-desc":
+      next.sort((a, b) => b.tipo.localeCompare(a.tipo, "es"));
+      return next;
     default:
       next.sort((a, b) => b.fecha.localeCompare(a.fecha));
       return next;
   }
 }
 
-export function useTransactionsLedger(pageSize = DEFAULT_PAGE_SIZE): UseTransactionsLedgerResult {
+export function useTransactionsLedger(initialPageSize: TransactionsPageSize = DEFAULT_PAGE_SIZE): UseTransactionsLedgerResult {
   const location = useLocation();
   const [transactions, setTransactions] = useState<TransactionLedgerItem[]>([]);
   const [clients, setClients] = useState<TransactionClientOption[]>([]);
@@ -139,6 +161,7 @@ export function useTransactionsLedger(pageSize = DEFAULT_PAGE_SIZE): UseTransact
   const [endDate, setEndDate] = useState("");
   const [sortMode, setSortMode] = useState<TransactionsSortMode>("date-desc");
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState<TransactionsPageSize>(initialPageSize);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
 
@@ -215,6 +238,10 @@ export function useTransactionsLedger(pageSize = DEFAULT_PAGE_SIZE): UseTransact
     }, SEARCH_DEBOUNCE_MS);
     return () => window.clearTimeout(handle);
   }, [searchTerm, typeFilter, categoryFilter, minAmount, maxAmount, startDate, endDate]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [pageSize]);
 
   useEffect(() => {
     if (page <= totalPages) return;
@@ -336,6 +363,9 @@ export function useTransactionsLedger(pageSize = DEFAULT_PAGE_SIZE): UseTransact
     page,
     totalPages,
     setPage,
+    pageSize,
+    setPageSize,
+    totalItems: sortedTransactions.length,
     selectedIds,
     selectedCount: selectedIds.size,
     highlightedId,

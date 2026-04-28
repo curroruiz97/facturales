@@ -1,11 +1,16 @@
 import { Link } from "react-router-dom";
 import type { TransactionLedgerItem } from "../domain/transactions-domain";
 import { formatTransactionCategory, formatTransactionType } from "../domain/transactions-domain";
+import type { TransactionsSortMode } from "../hooks/use-transactions-ledger";
+
+type SortKey = "client" | "concept" | "category" | "amount" | "date" | "type";
 
 interface TransactionsTableProps {
   transactions: TransactionLedgerItem[];
   selectedIds: Set<string>;
   highlightedId: string | null;
+  sortMode: TransactionsSortMode;
+  onSortChange: (mode: TransactionsSortMode) => void;
   onToggleSelection: (transactionId: string, checked: boolean) => void;
   onTogglePageSelection: (checked: boolean) => void;
   onEdit: (transaction: TransactionLedgerItem) => void;
@@ -52,10 +57,74 @@ const IconTrash = () => (
   </svg>
 );
 
+const IconSortNone = () => (
+  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <polyline points="7 11 12 6 17 11"/>
+    <polyline points="7 13 12 18 17 13"/>
+  </svg>
+);
+
+const IconSortAsc = () => (
+  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <polyline points="6 15 12 9 18 15"/>
+  </svg>
+);
+
+const IconSortDesc = () => (
+  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <polyline points="6 9 12 15 18 9"/>
+  </svg>
+);
+
+function sortDirectionForKey(key: SortKey, sortMode: TransactionsSortMode): "asc" | "desc" | null {
+  if (sortMode === `${key}-asc`) return "asc";
+  if (sortMode === `${key}-desc`) return "desc";
+  return null;
+}
+
+function nextSortMode(key: SortKey, sortMode: TransactionsSortMode): TransactionsSortMode {
+  const current = sortDirectionForKey(key, sortMode);
+  // Estado por defecto al hacer clic en una columna nueva: descendente para fecha/importe (más reciente/grande primero), ascendente para texto.
+  const defaultDir: "asc" | "desc" = key === "date" || key === "amount" ? "desc" : "asc";
+  if (current === null) return `${key}-${defaultDir}` as TransactionsSortMode;
+  if (current === "asc") return `${key}-desc` as TransactionsSortMode;
+  return `${key}-asc` as TransactionsSortMode;
+}
+
+interface SortableHeaderProps {
+  label: string;
+  sortKey: SortKey;
+  sortMode: TransactionsSortMode;
+  onSortChange: (mode: TransactionsSortMode) => void;
+  className?: string;
+}
+
+function SortableHeader({ label, sortKey, sortMode, onSortChange, className }: SortableHeaderProps): import("react").JSX.Element {
+  const direction = sortDirectionForKey(sortKey, sortMode);
+  const ariaSort = direction === "asc" ? "ascending" : direction === "desc" ? "descending" : "none";
+  return (
+    <th className={className} aria-sort={ariaSort}>
+      <button
+        type="button"
+        className={`tx-table__sort ${direction ? "tx-table__sort--active" : ""}`}
+        onClick={() => onSortChange(nextSortMode(sortKey, sortMode))}
+        title={`Ordenar por ${label}`}
+      >
+        <span>{label}</span>
+        <span className="tx-table__sort-icon" aria-hidden="true">
+          {direction === "asc" ? <IconSortAsc /> : direction === "desc" ? <IconSortDesc /> : <IconSortNone />}
+        </span>
+      </button>
+    </th>
+  );
+}
+
 export function TransactionsTable({
   transactions,
   selectedIds,
   highlightedId,
+  sortMode,
+  onSortChange,
   onToggleSelection,
   onTogglePageSelection,
   onEdit,
@@ -79,13 +148,13 @@ export function TransactionsTable({
                 onChange={(event) => onTogglePageSelection(event.target.checked)}
               />
             </th>
-            <th>Contacto</th>
-            <th>Concepto</th>
-            <th>Categoría</th>
-            <th>Importe</th>
+            <SortableHeader label="Contacto" sortKey="client" sortMode={sortMode} onSortChange={onSortChange} />
+            <SortableHeader label="Concepto" sortKey="concept" sortMode={sortMode} onSortChange={onSortChange} />
+            <SortableHeader label="Categoría" sortKey="category" sortMode={sortMode} onSortChange={onSortChange} />
+            <SortableHeader label="Importe" sortKey="amount" sortMode={sortMode} onSortChange={onSortChange} />
             <th>IVA / IRPF</th>
-            <th>Fecha</th>
-            <th>Tipo</th>
+            <SortableHeader label="Fecha" sortKey="date" sortMode={sortMode} onSortChange={onSortChange} />
+            <SortableHeader label="Tipo" sortKey="type" sortMode={sortMode} onSortChange={onSortChange} />
             <th className="text-right">Acciones</th>
           </tr>
         </thead>
