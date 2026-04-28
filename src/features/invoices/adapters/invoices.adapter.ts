@@ -4,6 +4,7 @@ import { invoicesRepository } from "../../../services/repositories";
 import { getCurrentUserId, getSupabaseClient } from "../../../services/supabase/client";
 import type { Invoice, InvoiceStatus } from "../../../shared/types/domain";
 import { fail, ok, type ServiceResult } from "../../../shared/types/service-result";
+import { calculateDocumentTotals } from "../../documents/core/document-calculations";
 import { buildInvoicePayload, createEmptyDocumentEditor, mapInvoiceToDocumentEditor } from "../../documents/core/document-mappers";
 import type { DocumentEditorState } from "../../documents/core/document-types";
 
@@ -27,14 +28,39 @@ export interface InvoiceEditorPayload {
   status: InvoiceStatus;
 }
 
+export interface InvoicePdfPayload {
+  editor: DocumentEditorState;
+  totals: {
+    subtotal: number;
+    discount: number;
+    taxBase: number;
+    taxAmount: number;
+    reAmount: number;
+    retentionAmount: number;
+    expenses: number;
+    total: number;
+    totalToPay: number;
+  };
+  documentNumber: string;
+}
+
+export interface BulkOperationResult {
+  ok: number;
+  failed: number;
+}
+
 export interface InvoicesAdapter {
   loadInvoices(status?: "all" | InvoiceStatus, search?: string): Promise<ServiceResult<InvoiceWorkspaceItem[]>>;
   loadInvoiceEditor(invoiceId: string): Promise<ServiceResult<InvoiceEditorPayload>>;
+  loadInvoicePdfPayload(invoiceId: string): Promise<ServiceResult<InvoicePdfPayload>>;
   createDraft(editor: DocumentEditorState): Promise<ServiceResult<Invoice>>;
   updateDraft(invoiceId: string, editor: DocumentEditorState): Promise<ServiceResult<Invoice>>;
   emitInvoice(invoiceId: string): Promise<ServiceResult<Invoice>>;
   togglePaid(invoiceId: string, isPaid: boolean): Promise<ServiceResult<Invoice>>;
   cancelInvoice(invoiceId: string): Promise<ServiceResult<Invoice>>;
+  togglePaidMany(invoiceIds: string[], isPaid: boolean): Promise<BulkOperationResult>;
+  cancelMany(invoiceIds: string[]): Promise<BulkOperationResult>;
+  markEmailedMany(invoiceIds: string[]): Promise<BulkOperationResult>;
   createEmpty(): DocumentEditorState;
 }
 
@@ -112,6 +138,39 @@ export class DefaultInvoicesAdapter implements InvoicesAdapter {
     });
   }
 
+  async loadInvoicePdfPayload(invoiceId: string): Promise<ServiceResult<InvoicePdfPayload>> {
+    const result = await invoicesRepository.getById(invoiceId);
+    if (!result.success) return fail(result.error.message, result.error.code, result.error.cause);
+    if (!result.data) return fail("No se encontró la factura.", "INVOICE_NOT_FOUND");
+
+    const editor = mapInvoiceToDocumentEditor(result.data);
+    const { summary } = calculateDocumentTotals(editor);
+
+    const rawNumber = result.data.invoiceNumber || "";
+    const seriesCode = result.data.invoiceSeries || "";
+    const documentNumber = rawNumber
+      ? (seriesCode && !rawNumber.toUpperCase().includes(seriesCode.toUpperCase())
+          ? `${seriesCode}-${rawNumber}`
+          : rawNumber)
+      : `factura-${invoiceId.slice(0, 8)}`;
+
+    return ok({
+      editor,
+      totals: {
+        subtotal: summary.subtotal,
+        discount: summary.discount,
+        taxBase: summary.taxBase,
+        taxAmount: summary.taxAmount,
+        reAmount: summary.reAmount,
+        retentionAmount: summary.retentionAmount,
+        expenses: summary.expenses,
+        total: summary.total,
+        totalToPay: summary.totalToPay,
+      },
+      documentNumber,
+    });
+  }
+
   async createDraft(editor: DocumentEditorState): Promise<ServiceResult<Invoice>> {
     const canCreate = await billingLimitsService.canCreateDocument("invoice");
     if (!canCreate.success) return fail(canCreate.error.message, canCreate.error.code, canCreate.error.cause);
@@ -175,6 +234,71 @@ export class DefaultInvoicesAdapter implements InvoicesAdapter {
 
   async cancelInvoice(invoiceId: string): Promise<ServiceResult<Invoice>> {
     return invoicesRepository.remove(invoiceId);
+  }
+
+  async togglePaidMany(invoiceIds: string[], isPaid: boolean): Promise<BulkOperationResult> {
+    const results = await Promise.allSettled(
+      invoiceIds.map((id) => invoicesRepository.togglePaid(id, isPaid)),
+    );
+    let okCount = 0;
+    let failedCount = 0;
+    for (const r of results) {
+      if (r.status === "fulfilled" && r.value.success) okCount++;
+      else failedCount++;
+    }
+    return { ok: okCount, failed: failedCount };
+  }
+
+  async cancelMany(invoiceIds: string[]): Promise<BulkOperationResult> {
+    const results = await Promise.allSettled(invoiceIds.map((id) => invoicesRepository.remove(id)));
+    let okCount = 0;
+    let failedCount = 0;
+    for (const r of results) {
+      if (r.status === "fulfilled" && r.value.success) okCount++;
+      else failedCount++;
+    }
+    return { ok: okCount, failed: failedCount };
+  }
+
+  async markEmailedMany(invoiceIds: string[]): Promise<BulkOperationResult> {
+    if (invoiceIds.length === 0) return { ok: 0, failed: 0 };
+    const userId = await getCurrentUserId();
+    if (!userId) return { ok: 0, failed: invoiceIds.length };
+
+    const supabase = getSupabaseClient();
+    const nowIso = new Date().toISOString();
+
+    // Filtrar las que ya tienen un registro 'sent' para evitar duplicados ruidosos.
+    const { data: existingLogs } = await supabase
+      .from("document_email_log")
+      .select("document_id")
+      .eq("document_type", "invoice")
+      .eq("status", "sent")
+      .in("document_id", invoiceIds);
+    const alreadySent = new Set<string>((existingLogs ?? []).map((row) => row.document_id as string));
+    const pendingIds = invoiceIds.filter((id) => !alreadySent.has(id));
+
+    if (pendingIds.length === 0) {
+      // Todas estaban ya marcadas como enviadas; tratamos como éxito.
+      return { ok: invoiceIds.length, failed: 0 };
+    }
+
+    const rows = pendingIds.map((id) => ({
+      user_id: userId,
+      document_type: "invoice" as const,
+      document_id: id,
+      to_email: "manual",
+      provider: "manual",
+      status: "sent" as const,
+      sent_at: nowIso,
+      idempotency_key: `manual-${id}-${nowIso}`,
+    }));
+
+    const { error } = await supabase.from("document_email_log").insert(rows);
+    if (error) {
+      return { ok: alreadySent.size, failed: pendingIds.length };
+    }
+    return { ok: invoiceIds.length, failed: 0 };
   }
 
   createEmpty(): DocumentEditorState {

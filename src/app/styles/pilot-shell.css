@@ -9661,9 +9661,90 @@ select.settings-input option:checked {
 .tx-action-icon--edit:hover { background: #eff6ff; }
 .tx-action-icon--delete:hover { background: #fef2f2; }
 .tx-action-icon--link:hover { background: #f0fdf4; }
+.tx-action-icon--ok { color: #22c55e; }
+.tx-action-icon--ok:hover { background: #f0fdf4; }
 .dark .tx-action-icon--edit:hover { background: #1e3a5f; }
 .dark .tx-action-icon--delete:hover { background: #3b1212; }
 .dark .tx-action-icon--link:hover { background: #14532d; }
+.dark .tx-action-icon--ok:hover { background: #14532d; }
+
+/* Hover: el icono crece levemente para dar feedback */
+.tx-action-icon { transition: background 0.15s, transform 0.15s, color 0.15s; }
+.tx-action-icon > svg { transition: transform 0.15s; }
+.tx-action-icon:not(:disabled):hover { background: #f3f4f6; }
+.tx-action-icon:not(:disabled):hover > svg { transform: scale(1.18); }
+.tx-action-icon:disabled { opacity: 0.35; cursor: not-allowed; }
+.dark .tx-action-icon:not(:disabled):hover { background: #2A313C; }
+
+/* Tooltip custom basado en data-tooltip */
+.tx-action-icon[data-tooltip] { position: relative; }
+.tx-action-icon[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: #1a202c;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  padding: 6px 10px;
+  border-radius: 6px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s, transform 0.15s;
+  z-index: 50;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+}
+.tx-action-icon[data-tooltip]::before {
+  content: "";
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  border: 5px solid transparent;
+  border-top-color: #1a202c;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s, transform 0.15s;
+  z-index: 50;
+}
+.tx-action-icon[data-tooltip]:not(:disabled):hover::after,
+.tx-action-icon[data-tooltip]:not(:disabled):hover::before {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.dark .tx-action-icon[data-tooltip]::after { background: #ec8228; color: #ffffff; }
+.dark .tx-action-icon[data-tooltip]::before { border-top-color: #ec8228; }
+
+/* Cabeceras ordenables */
+.doc-table__sortable {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  text-align: left;
+  transition: color 0.15s;
+}
+.doc-table__sortable:hover { color: #ec8228; }
+.doc-table__sortable--active { color: #ec8228; font-weight: 600; }
+.dark .doc-table__sortable:hover,
+.dark .doc-table__sortable--active { color: #f8b27d; }
+
+/* Selector de año en la cabecera de la tarjeta */
+.doc-year-select {
+  height: 44px;
+  padding: 0 12px;
+  border-radius: 10px;
+  min-width: 160px;
+  margin-right: 12px;
+}
 
 /* Pagination */
 

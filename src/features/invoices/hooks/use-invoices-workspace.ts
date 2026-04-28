@@ -1,10 +1,39 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
+import JSZip from "jszip";
 import { useDocumentEditor } from "../../documents/hooks/use-document-editor";
 import { invoicesAdapter, type InvoiceWorkspaceItem } from "../adapters/invoices.adapter";
 import { businessInfoService } from "../../../services/business/business-info.service";
 import { getSupabaseClient } from "../../../services/supabase/client";
 import { loadDefaultPaymentMethod, loadDefaultPaymentMethodFromDB } from "../../../services/payment/default-payment-method";
+import { getPdfBlob } from "../../documents/pdf/document-pdf-generator";
+
+const PAGE_SIZE = 20;
+const CURRENT_YEAR = new Date().getFullYear();
+
+export type InvoiceSortField = "invoiceNumber" | "clientName" | "issueDate" | "totalAmount" | "updatedAt";
+export type InvoiceSortDir = "asc" | "desc";
+export interface InvoiceSortMode {
+  field: InvoiceSortField;
+  dir: InvoiceSortDir;
+}
+
+function compareInvoices(a: InvoiceWorkspaceItem, b: InvoiceWorkspaceItem, sort: InvoiceSortMode): number {
+  const dirMul = sort.dir === "asc" ? 1 : -1;
+  switch (sort.field) {
+    case "invoiceNumber":
+      return a.invoiceNumber.localeCompare(b.invoiceNumber, "es", { numeric: true, sensitivity: "base" }) * dirMul;
+    case "clientName":
+      return a.clientName.localeCompare(b.clientName, "es", { sensitivity: "base" }) * dirMul;
+    case "issueDate":
+      return a.issueDate.localeCompare(b.issueDate) * dirMul;
+    case "totalAmount":
+      return (a.totalAmount - b.totalAmount) * dirMul;
+    case "updatedAt":
+    default:
+      return a.updatedAt.localeCompare(b.updatedAt) * dirMul;
+  }
+}
 
 interface IssuerPrefill {
   name: string;
@@ -18,6 +47,8 @@ interface IssuerPrefill {
 
 export interface UseInvoicesWorkspaceResult {
   invoices: InvoiceWorkspaceItem[];
+  pageInvoices: InvoiceWorkspaceItem[];
+  availableYears: number[];
   loading: boolean;
   saving: boolean;
   error: string | null;
@@ -25,6 +56,20 @@ export interface UseInvoicesWorkspaceResult {
   setStatusFilter: (value: "all" | "draft" | "issued" | "cancelled") => void;
   search: string;
   setSearch: (value: string) => void;
+  yearFilter: number | "all";
+  setYearFilter: (value: number | "all") => void;
+  sortMode: InvoiceSortMode;
+  setSortMode: (value: InvoiceSortMode) => void;
+  toggleSort: (field: InvoiceSortField) => void;
+  page: number;
+  totalPages: number;
+  pageSize: number;
+  setPage: (value: number) => void;
+  selectedIds: Set<string>;
+  selectedCount: number;
+  toggleSelected: (invoiceId: string, checked: boolean) => void;
+  togglePageSelection: (checked: boolean) => void;
+  clearSelection: () => void;
   activeInvoiceId: string | null;
   activeInvoiceStatus: InvoiceWorkspaceItem["status"] | null;
   readOnlyEditor: boolean;
@@ -36,6 +81,12 @@ export interface UseInvoicesWorkspaceResult {
   emitActive: () => Promise<boolean>;
   togglePaid: (invoiceId: string, isPaid: boolean) => Promise<boolean>;
   cancelInvoice: (invoiceId: string) => Promise<boolean>;
+  togglePaidSelected: (isPaid: boolean) => Promise<{ ok: number; failed: number } | null>;
+  cancelSelected: () => Promise<{ ok: number; failed: number } | null>;
+  markEmailedSelected: () => Promise<{ ok: number; failed: number } | null>;
+  downloadSelectedAsZip: () => Promise<{ ok: number; failed: number } | null>;
+  markInvoiceEmailed: (invoiceId: string) => Promise<boolean>;
+  downloadInvoicePdf: (invoiceId: string) => Promise<boolean>;
   pdfBrandColor: string;
   pdfLogoUrl: string | null;
 }
@@ -59,8 +110,52 @@ export function useInvoicesWorkspace(): UseInvoicesWorkspaceResult {
   const [issuerPrefill, setIssuerPrefill] = useState<IssuerPrefill | null>(null);
   const [pdfBrandColor, setPdfBrandColor] = useState("#ec8228");
   const [pdfLogoUrl, setPdfLogoUrl] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [yearFilter, setYearFilter] = useState<number | "all">(CURRENT_YEAR);
+  const [sortMode, setSortMode] = useState<InvoiceSortMode>({ field: "updatedAt", dir: "desc" });
 
   const readOnlyEditor = useMemo(() => isReadOnlyStatus(activeInvoiceStatus), [activeInvoiceStatus]);
+
+  // Años disponibles para el selector — derivados del set completo cargado.
+  const availableYears = useMemo(() => {
+    const years = new Set<number>();
+    for (const invoice of invoices) {
+      const year = Number.parseInt((invoice.issueDate || "").slice(0, 4), 10);
+      if (Number.isFinite(year) && year > 1900) years.add(year);
+    }
+    return Array.from(years).sort((a, b) => b - a);
+  }, [invoices]);
+
+  // Vista filtrada (por año) y ordenada — base para contador, paginación y bulk.
+  const filteredInvoices = useMemo(() => {
+    const base = yearFilter === "all"
+      ? invoices
+      : invoices.filter((invoice) => (invoice.issueDate || "").startsWith(`${yearFilter}`));
+    return [...base].sort((a, b) => compareInvoices(a, b, sortMode));
+  }, [invoices, yearFilter, sortMode]);
+
+  const totalPages = useMemo(() => {
+    const pages = Math.ceil(filteredInvoices.length / PAGE_SIZE);
+    return pages <= 0 ? 1 : pages;
+  }, [filteredInvoices.length]);
+
+  const pageInvoices = useMemo(() => {
+    const clampedPage = Math.min(page, totalPages);
+    const start = (clampedPage - 1) * PAGE_SIZE;
+    return filteredInvoices.slice(start, start + PAGE_SIZE);
+  }, [filteredInvoices, page, totalPages]);
+
+  const toggleSort = (field: InvoiceSortField) => {
+    setSortMode((prev) => {
+      if (prev.field === field) {
+        return { field, dir: prev.dir === "asc" ? "desc" : "asc" };
+      }
+      // Default direction sensata por campo: textos asc, números/fechas desc.
+      const dir: InvoiceSortDir = field === "totalAmount" || field === "issueDate" || field === "updatedAt" ? "desc" : "asc";
+      return { field, dir };
+    });
+  };
 
   const refresh = async () => {
     setLoading(true);
@@ -80,6 +175,39 @@ export function useInvoicesWorkspace(): UseInvoicesWorkspaceResult {
   useEffect(() => {
     void refresh();
   }, [statusFilter, search]);
+
+  // Reset paginación y selección al cambiar filtros/búsqueda/año/orden.
+  useEffect(() => {
+    setPage(1);
+    setSelectedIds(new Set());
+  }, [statusFilter, search, yearFilter, sortMode]);
+
+  // Si la página actual queda fuera de rango (p.ej. tras una anulación), encajarla.
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
+
+  const toggleSelected = (invoiceId: string, checked: boolean) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (checked) next.add(invoiceId);
+      else next.delete(invoiceId);
+      return next;
+    });
+  };
+
+  const togglePageSelection = (checked: boolean) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      for (const invoice of pageInvoices) {
+        if (checked) next.add(invoice.id);
+        else next.delete(invoice.id);
+      }
+      return next;
+    });
+  };
+
+  const clearSelection = () => setSelectedIds(new Set());
 
   const startNew = () => {
     editorController.reset(invoicesAdapter.createEmpty());
@@ -274,8 +402,158 @@ export function useInvoicesWorkspace(): UseInvoicesWorkspaceResult {
     return true;
   };
 
+  const togglePaidSelected = async (isPaid: boolean): Promise<{ ok: number; failed: number } | null> => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return null;
+    setSaving(true);
+    const summary = await invoicesAdapter.togglePaidMany(ids, isPaid);
+    setSaving(false);
+    setSelectedIds(new Set());
+    await refresh();
+    return summary;
+  };
+
+  const cancelSelected = async (): Promise<{ ok: number; failed: number } | null> => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return null;
+    setSaving(true);
+    const summary = await invoicesAdapter.cancelMany(ids);
+    setSaving(false);
+    setSelectedIds(new Set());
+    await refresh();
+    return summary;
+  };
+
+  const markEmailedSelected = async (): Promise<{ ok: number; failed: number } | null> => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return null;
+    setSaving(true);
+    const summary = await invoicesAdapter.markEmailedMany(ids);
+    setSaving(false);
+    setSelectedIds(new Set());
+    await refresh();
+    return summary;
+  };
+
+  const resolveLogoDataUrl = async (logoUrl: string | null): Promise<string | undefined> => {
+    if (!logoUrl) return undefined;
+    if (logoUrl.startsWith("data:image/")) return logoUrl;
+    try {
+      const response = await fetch(logoUrl);
+      if (!response.ok) return undefined;
+      const blob = await response.blob();
+      return await new Promise<string | undefined>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(typeof reader.result === "string" ? reader.result : undefined);
+        reader.onerror = () => resolve(undefined);
+        reader.readAsDataURL(blob);
+      });
+    } catch {
+      return undefined;
+    }
+  };
+
+  const markInvoiceEmailed = async (invoiceId: string): Promise<boolean> => {
+    setSaving(true);
+    const summary = await invoicesAdapter.markEmailedMany([invoiceId]);
+    setSaving(false);
+    await refresh();
+    return summary.failed === 0;
+  };
+
+  const downloadInvoicePdf = async (invoiceId: string): Promise<boolean> => {
+    setSaving(true);
+    const result = await invoicesAdapter.loadInvoicePdfPayload(invoiceId);
+    if (!result.success) {
+      setSaving(false);
+      return false;
+    }
+    const logoDataUrl = await resolveLogoDataUrl(pdfLogoUrl);
+    try {
+      const blob = getPdfBlob({
+        editor: result.data.editor,
+        totals: result.data.totals,
+        documentNumber: result.data.documentNumber,
+        brandColor: pdfBrandColor,
+        logoDataUrl,
+      });
+      const safeName = result.data.documentNumber.replace(/[\\/:*?"<>|]+/g, "_") || `factura-${invoiceId.slice(0, 8)}`;
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${safeName}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      setSaving(false);
+      return true;
+    } catch {
+      setSaving(false);
+      return false;
+    }
+  };
+
+  const downloadSelectedAsZip = async (): Promise<{ ok: number; failed: number } | null> => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return null;
+
+    setSaving(true);
+    const logoDataUrl = await resolveLogoDataUrl(pdfLogoUrl);
+    const zip = new JSZip();
+    let okCount = 0;
+    let failedCount = 0;
+    const usedNames = new Map<string, number>();
+
+    for (const id of ids) {
+      const result = await invoicesAdapter.loadInvoicePdfPayload(id);
+      if (!result.success) {
+        failedCount++;
+        continue;
+      }
+      try {
+        const blob = getPdfBlob({
+          editor: result.data.editor,
+          totals: result.data.totals,
+          documentNumber: result.data.documentNumber,
+          brandColor: pdfBrandColor,
+          logoDataUrl,
+        });
+        // Evitar colisiones de nombre si dos facturas comparten número.
+        const baseName = result.data.documentNumber.replace(/[\\/:*?"<>|]+/g, "_") || `factura-${id.slice(0, 8)}`;
+        const used = usedNames.get(baseName) ?? 0;
+        usedNames.set(baseName, used + 1);
+        const filename = used === 0 ? `${baseName}.pdf` : `${baseName}-${used + 1}.pdf`;
+        zip.file(filename, blob);
+        okCount++;
+      } catch {
+        failedCount++;
+      }
+    }
+
+    if (okCount === 0) {
+      setSaving(false);
+      return { ok: 0, failed: failedCount };
+    }
+
+    const content = await zip.generateAsync({ type: "blob" });
+    const url = URL.createObjectURL(content);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `facturas_${new Date().toISOString().slice(0, 10)}.zip`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    setSaving(false);
+    return { ok: okCount, failed: failedCount };
+  };
+
   return {
-    invoices,
+    invoices: filteredInvoices,
+    pageInvoices,
+    availableYears,
     loading,
     saving,
     error,
@@ -283,6 +561,20 @@ export function useInvoicesWorkspace(): UseInvoicesWorkspaceResult {
     setStatusFilter,
     search,
     setSearch,
+    yearFilter,
+    setYearFilter,
+    sortMode,
+    setSortMode,
+    toggleSort,
+    page,
+    totalPages,
+    pageSize: PAGE_SIZE,
+    setPage,
+    selectedIds,
+    selectedCount: selectedIds.size,
+    toggleSelected,
+    togglePageSelection,
+    clearSelection,
     activeInvoiceId,
     activeInvoiceStatus,
     readOnlyEditor,
@@ -294,6 +586,12 @@ export function useInvoicesWorkspace(): UseInvoicesWorkspaceResult {
     emitActive,
     togglePaid,
     cancelInvoice,
+    togglePaidSelected,
+    cancelSelected,
+    markEmailedSelected,
+    downloadSelectedAsZip,
+    markInvoiceEmailed,
+    downloadInvoicePdf,
     pdfBrandColor,
     pdfLogoUrl,
   };
