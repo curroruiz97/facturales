@@ -457,7 +457,9 @@ export function DashboardPage(): JSX.Element {
   const [contactSearch, setContactSearch] = useState("");
   const [contactTypeFilter, setContactTypeFilter] = useState<ContactTypeFilter>("all");
   const [contactBalanceFilter, setContactBalanceFilter] = useState<ContactBalanceFilter>("all");
-  const [contactSort, setContactSort] = useState<ContactSortOption>("recent");
+  // Default A→Z (alfabético español) en lugar de "recent" (por updatedAt)
+  // para que el listado del panel sea predecible y fácil de buscar.
+  const [contactSort, setContactSort] = useState<ContactSortOption>("name-asc");
   const [showAdvancedContactFilters, setShowAdvancedContactFilters] = useState(false);
   const [contactsPageSize, setContactsPageSize] = useState(10);
   const [contactsPage, setContactsPage] = useState(1);
@@ -518,17 +520,30 @@ export function DashboardPage(): JSX.Element {
 
   const orderedContacts = useMemo(() => {
     const copy = [...filteredContacts];
+    // Comparador alfabético español case+acento-insensitive con secondary key
+    // por id para garantizar orden estable.
+    const cmpNames = (a: { nombreRazonSocial: string; id: string }, b: { nombreRazonSocial: string; id: string }, dir: 1 | -1) => {
+      const cmp = a.nombreRazonSocial.localeCompare(b.nombreRazonSocial, "es", { sensitivity: "base" });
+      if (cmp !== 0) return dir * cmp;
+      return a.id.localeCompare(b.id);
+    };
     if (contactSort === "name-asc") {
-      return copy.sort((a, b) => a.nombreRazonSocial.localeCompare(b.nombreRazonSocial, "es"));
+      return copy.sort((a, b) => cmpNames(a, b, 1));
     }
     if (contactSort === "name-desc") {
-      return copy.sort((a, b) => b.nombreRazonSocial.localeCompare(a.nombreRazonSocial, "es"));
+      return copy.sort((a, b) => cmpNames(a, b, -1));
     }
     if (contactSort === "balance-desc") {
-      return copy.sort((a, b) => b.balance - a.balance);
+      return copy.sort((a, b) => {
+        const diff = b.balance - a.balance;
+        return diff !== 0 ? diff : cmpNames(a, b, 1);
+      });
     }
     if (contactSort === "balance-asc") {
-      return copy.sort((a, b) => a.balance - b.balance);
+      return copy.sort((a, b) => {
+        const diff = a.balance - b.balance;
+        return diff !== 0 ? diff : cmpNames(a, b, 1);
+      });
     }
     return copy;
   }, [filteredContacts, contactSort]);

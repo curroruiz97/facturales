@@ -186,7 +186,11 @@ export function InvoicePreviewPage(): import("react").JSX.Element {
               </button>
             </div>
           </div>
-          <iframe src={previewUrl} title="Vista previa factura PDF" />
+          {/* `#navpanes=0` oculta el panel lateral del visor de PDF nativo
+              (el icono ☰ que parece un menú pero solo es el switcher de
+              vistas del navegador). Mantenemos la toolbar superior porque
+              da zoom y descarga. */}
+          <iframe src={`${previewUrl}#navpanes=0&toolbar=1`} title="Vista previa factura PDF" />
         </section>
         <aside className="doc-preview-summary">
           <h3>Datos de la factura</h3>
@@ -204,15 +208,35 @@ export function InvoicePreviewPage(): import("react").JSX.Element {
           <hr />
           <h3>Resumen</h3>
           <div className="doc-preview-summary__row"><span>Subtotal</span><strong>{formatCurrency(summary.subtotal, cur)}</strong></div>
-          <div className="doc-preview-summary__row"><span>Descuento</span><strong>-{formatCurrency(summary.discount, cur)}</strong></div>
+          {summary.discount > 0 ? (
+            <div className="doc-preview-summary__row"><span>Descuento</span><strong>-{formatCurrency(summary.discount, cur)}</strong></div>
+          ) : null}
           <div className="doc-preview-summary__row"><span>Base imponible</span><strong>{formatCurrency(summary.taxBase, cur)}</strong></div>
-          <div className="doc-preview-summary__row"><span>Impuestos</span><strong>{formatCurrency(taxesTotal, cur)}</strong></div>
-          <div className="doc-preview-summary__row"><span>Retención ({editor.taxSettings.retentionRate}%)</span><strong>-{formatCurrency(summary.retentionAmount, cur)}</strong></div>
-          <div className="doc-preview-summary__row"><span>Gastos suplidos</span><strong>{formatCurrency(summary.expenses, cur)}</strong></div>
+          <div className="doc-preview-summary__row">
+            <span>{summary.taxRate > 0 ? `IVA (${summary.taxRate}%)` : "IVA"}</span>
+            <strong>+{formatCurrency(summary.taxAmount, cur)}</strong>
+          </div>
+          {summary.reAmount > 0 ? (
+            <div className="doc-preview-summary__row">
+              <span>Recargo equivalencia ({summary.reRate}%)</span>
+              <strong>+{formatCurrency(summary.reAmount, cur)}</strong>
+            </div>
+          ) : null}
+          {summary.retentionRate > 0 ? (
+            <div className="doc-preview-summary__row">
+              <span>Retención IRPF ({summary.retentionRate}%)</span>
+              <strong>−{formatCurrency(summary.retentionAmount, cur)}</strong>
+            </div>
+          ) : null}
+          {summary.expenses > 0 ? (
+            <div className="doc-preview-summary__row"><span>Gastos suplidos</span><strong>{formatCurrency(summary.expenses, cur)}</strong></div>
+          ) : null}
           <div className="doc-preview-summary__row doc-preview-summary__row--total"><span>Total</span><strong>{formatCurrency(summary.total, cur)}</strong></div>
-          <div className="doc-preview-summary__row"><span>Cantidad pagada</span><strong>-{formatCurrency(editor.paidAmount, cur)}</strong></div>
+          {editor.paidAmount > 0 ? (
+            <div className="doc-preview-summary__row"><span>Cantidad pagada</span><strong>−{formatCurrency(editor.paidAmount, cur)}</strong></div>
+          ) : null}
           <div className="doc-preview-summary__row doc-preview-summary__row--total"><span>Total a pagar</span><strong>{formatCurrency(summary.totalToPay, cur)}</strong></div>
-          <p className="doc-preview-summary__hint">Se recalcula automáticamente</p>
+          <p className="doc-preview-summary__hint">Cálculo automático a partir de los conceptos</p>
           {editor.paymentMethods.length > 0 ? (
             <>
               <hr />

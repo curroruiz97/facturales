@@ -77,6 +77,11 @@ function getInitials(name: string): string {
   return parts.map((part) => part.slice(0, 1).toUpperCase()).join("");
 }
 
+// Caja máxima del logo (en mm de jsPDF). Mantenemos la proporción original
+// usando aspect-fit dentro de esta caja para evitar deformaciones.
+const LOGO_MAX_WIDTH = 50;
+const LOGO_MAX_HEIGHT = 25;
+
 function drawLogoOrFallback(
   doc: jsPDF,
   logoDataUrl: string | undefined,
@@ -88,7 +93,20 @@ function drawLogoOrFallback(
   if (logoDataUrl) {
     try {
       const format = logoDataUrl.includes("image/jpeg") || logoDataUrl.includes("image/jpg") ? "JPEG" : "PNG";
-      doc.addImage(logoDataUrl, format, margin, currentY + 2, 45, 20);
+      // jsPDF expone getImageProperties() para leer las dimensiones nativas
+      // del datauri y permitirnos escalar sin deformar.
+      const props = doc.getImageProperties(logoDataUrl);
+      const aspect = props.width > 0 && props.height > 0 ? props.width / props.height : 1;
+      let drawW = LOGO_MAX_WIDTH;
+      let drawH = drawW / aspect;
+      if (drawH > LOGO_MAX_HEIGHT) {
+        drawH = LOGO_MAX_HEIGHT;
+        drawW = drawH * aspect;
+      }
+      // Centrar verticalmente dentro de la caja máxima para que el bloque de
+      // texto del emisor quede alineado en el header.
+      const offsetY = (LOGO_MAX_HEIGHT - drawH) / 2;
+      doc.addImage(logoDataUrl, format, margin, currentY + offsetY, drawW, drawH);
       return;
     } catch {
       // Fallback below.

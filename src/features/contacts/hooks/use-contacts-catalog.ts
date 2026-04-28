@@ -49,20 +49,45 @@ export interface UseContactsCatalogResult {
   importContacts: (rows: ContactImportRowResult[]) => Promise<ContactsImportSummary | null>;
 }
 
+/**
+ * Comparador alfabético español case-insensitive y acento-insensitive.
+ * Garantiza que "ÁVILA", "Ávila" y "ávila" se ordenen como "ávila", evitando
+ * que las mayúsculas/minúsculas mezclen el orden visual (ej. "Hubspot" antes
+ * que "RENFE" porque la H minúscula tiene un código mayor que R mayúscula).
+ */
+function compareNamesEs(a: string, b: string): number {
+  return a.localeCompare(b, "es", { sensitivity: "base" });
+}
+
 function applySort(data: ClientFinancialSnapshot[], sortMode: ContactsSortMode): ClientFinancialSnapshot[] {
   const sorted = [...data];
+  // Sort estable: usamos el id como tiebreaker para que dos contactos con el
+  // mismo nombre mantengan siempre el mismo orden relativo.
   switch (sortMode) {
     case "name-desc":
-      sorted.sort((a, b) => b.nombreRazonSocial.localeCompare(a.nombreRazonSocial, "es"));
+      sorted.sort((a, b) => {
+        const cmp = compareNamesEs(b.nombreRazonSocial, a.nombreRazonSocial);
+        return cmp !== 0 ? cmp : a.id.localeCompare(b.id);
+      });
       return sorted;
     case "billing-desc":
-      sorted.sort((a, b) => b.totalFacturado - a.totalFacturado);
+      sorted.sort((a, b) => {
+        const diff = b.totalFacturado - a.totalFacturado;
+        return diff !== 0 ? diff : compareNamesEs(a.nombreRazonSocial, b.nombreRazonSocial);
+      });
       return sorted;
     case "balance-desc":
-      sorted.sort((a, b) => b.balance - a.balance);
+      sorted.sort((a, b) => {
+        const diff = b.balance - a.balance;
+        return diff !== 0 ? diff : compareNamesEs(a.nombreRazonSocial, b.nombreRazonSocial);
+      });
       return sorted;
     default:
-      sorted.sort((a, b) => a.nombreRazonSocial.localeCompare(b.nombreRazonSocial, "es"));
+      // "name-asc" — A→Z respetando el alfabeto español.
+      sorted.sort((a, b) => {
+        const cmp = compareNamesEs(a.nombreRazonSocial, b.nombreRazonSocial);
+        return cmp !== 0 ? cmp : a.id.localeCompare(b.id);
+      });
       return sorted;
   }
 }
