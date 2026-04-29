@@ -7,6 +7,7 @@ import type { ClientPickerOption } from "./ClientPicker";
 import { clientsRepository } from "../../../services/repositories";
 import { invoiceSeriesService, type InvoiceSeriesInput, type InvoiceSeriesRecord } from "../../../services/invoice-series/invoice-series.service";
 import { saveDefaultPaymentMethodSync } from "../../../services/payment/default-payment-method";
+import { getNextInvoiceNumberForSeries } from "../../invoices/services/next-invoice-number";
 
 interface DocumentEditorFormProps {
   kindLabel: string;
@@ -242,6 +243,8 @@ export function DocumentEditorForm({
   const [seriesModalOpen, setSeriesModalOpen] = useState(false);
   const [seriesSaving, setSeriesSaving] = useState(false);
   const [seriesError, setSeriesError] = useState<string | null>(null);
+  const [autogenLoading, setAutogenLoading] = useState(false);
+  const [autogenError, setAutogenError] = useState<string | null>(null);
   const [newClient, setNewClient] = useState({
     nombreRazonSocial: "",
     identificador: "",
@@ -590,7 +593,29 @@ export function DocumentEditorForm({
             <div className="inv-fields-2">
               <div>
                 <label className="inv-label">Número</label>
-                <input className="inv-input" type="text" value={editor.meta.number} onChange={(e) => editorController.setMetaField("number", e.target.value)} placeholder="Autogenerado" disabled={readOnly} />
+                <div className="inv-input-with-action">
+                  <input className="inv-input" type="text" value={editor.meta.number} onChange={(e) => editorController.setMetaField("number", e.target.value)} placeholder="Se asignará al emitir" disabled={readOnly} />
+                  <button
+                    type="button"
+                    className="inv-input-with-action__btn"
+                    disabled={readOnly || autogenLoading || !editor.meta.series}
+                    title="Calcular el siguiente número correlativo de la serie"
+                    onClick={async () => {
+                      setAutogenError(null);
+                      setAutogenLoading(true);
+                      const next = await getNextInvoiceNumberForSeries(editor.meta.series);
+                      setAutogenLoading(false);
+                      if (!next) {
+                        setAutogenError("No se pudo calcular el siguiente número. Revisa la serie.");
+                        return;
+                      }
+                      editorController.setMetaField("number", next);
+                    }}
+                  >
+                    {autogenLoading ? "Calculando..." : "Autogenerar"}
+                  </button>
+                </div>
+                {autogenError ? <p className="inv-error-inline">{autogenError}</p> : null}
               </div>
               <div>
                 <label className="inv-label">Referencia</label>

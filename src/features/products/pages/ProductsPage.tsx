@@ -5,11 +5,12 @@ import { ErrorState } from "../../../app/components/states/ErrorState";
 import { LoadingSkeleton } from "../../../app/components/states/LoadingSkeleton";
 import { normalizeProductNumber } from "../domain/product-pricing";
 import { buildProductsCsv, processProductsImportFile, type ProductsImportPreview } from "../domain/products-import";
-import { useProductsCatalog } from "../hooks/use-products-catalog";
+import { useProductsCatalog, PRODUCT_PAGE_SIZE_OPTIONS, type ProductPageSize } from "../hooks/use-products-catalog";
 import { ProductDeleteModal } from "../components/ProductDeleteModal";
 import { ProductFormModal, type ProductFormValues } from "../components/ProductFormModal";
 import { ProductsImportModal } from "../components/ProductsImportModal";
 import { ProductsTable } from "../components/ProductsTable";
+import { buildPageList } from "../../../app/components/pagination/build-page-list";
 
 function downloadCsv(filename: string, csvContent: string): void {
   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -305,21 +306,62 @@ export function ProductsPage(): import("react").JSX.Element {
               onEdit={openEditModal}
               onDelete={openSingleDelete}
             />
-            <div className="pilot-pagination">
-              <button type="button" className="pilot-btn" disabled={catalog.page <= 1} onClick={() => catalog.setPage(catalog.page - 1)}>
-                Anterior
-              </button>
-              <span className="text-sm">
-                Página {catalog.page} de {catalog.totalPages}
-              </span>
-              <button type="button" className="pilot-btn" disabled={catalog.page >= catalog.totalPages} onClick={() => catalog.setPage(catalog.page + 1)}>
-                Siguiente
-              </button>
-              <label className="pilot-inline-actions">
-                <input type="checkbox" checked={pageSelectAllChecked} onChange={(event) => catalog.togglePageSelection(event.target.checked)} />
-                <span className="text-sm">Seleccionar página</span>
-              </label>
-            </div>
+            {(() => {
+              const startIdx = (catalog.page - 1) * catalog.pageSize + 1;
+              const endIdx = Math.min(catalog.page * catalog.pageSize, catalog.totalItems);
+              return (
+                <div className="tx-pagination">
+                  <div className="tx-pagination__left">
+                    <span className="tx-pagination__info">
+                      Mostrando {startIdx}–{endIdx} de {catalog.totalItems}
+                    </span>
+                    <label className="tx-pagination__page-size">
+                      <span>Por página:</span>
+                      <select
+                        value={catalog.pageSize}
+                        onChange={(event) => catalog.setPageSize(Number(event.target.value) as ProductPageSize)}
+                      >
+                        {PRODUCT_PAGE_SIZE_OPTIONS.map((size) => (
+                          <option key={size} value={size}>{size}</option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+                  <div className="tx-pagination__controls">
+                    <button type="button" className="tx-pagination__btn" disabled={catalog.page <= 1} onClick={() => catalog.setPage(catalog.page - 1)} aria-label="Página anterior">
+                      ‹
+                    </button>
+                    {buildPageList(catalog.page, catalog.totalPages).map((entry, index) =>
+                      entry === "..." ? (
+                        <span key={`ellipsis-${index}`} className="tx-pagination__ellipsis" aria-hidden="true">…</span>
+                      ) : (
+                        <button
+                          key={entry}
+                          type="button"
+                          className={`tx-pagination__btn ${entry === catalog.page ? "tx-pagination__btn--active" : ""}`}
+                          onClick={() => catalog.setPage(entry)}
+                          aria-current={entry === catalog.page ? "page" : undefined}
+                          aria-label={`Página ${entry}`}
+                        >
+                          {entry}
+                        </button>
+                      ),
+                    )}
+                    <button type="button" className="tx-pagination__btn" disabled={catalog.page >= catalog.totalPages} onClick={() => catalog.setPage(catalog.page + 1)} aria-label="Página siguiente">
+                      ›
+                    </button>
+                  </div>
+                  <label className="tx-pagination__select-all">
+                    <input
+                      type="checkbox"
+                      checked={pageSelectAllChecked}
+                      onChange={(event) => catalog.togglePageSelection(event.target.checked, catalog.pageProducts.map((p) => p.id))}
+                    />
+                    <span>Seleccionar página</span>
+                  </label>
+                </div>
+              );
+            })()}
           </>
         ) : null}
       </section>

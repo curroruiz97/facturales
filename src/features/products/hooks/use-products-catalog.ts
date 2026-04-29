@@ -10,7 +10,9 @@ import {
 import type { ProductImportRowResult } from "../domain/products-import";
 
 const SEARCH_DEBOUNCE_MS = 280;
-const DEFAULT_PAGE_SIZE = 10;
+export const PRODUCT_PAGE_SIZE_OPTIONS = [10, 20, 50, 100] as const;
+export type ProductPageSize = typeof PRODUCT_PAGE_SIZE_OPTIONS[number];
+const DEFAULT_PAGE_SIZE: ProductPageSize = 10;
 
 export interface UseProductsCatalogResult {
   products: Product[];
@@ -27,12 +29,15 @@ export interface UseProductsCatalogResult {
   error: string | null;
   page: number;
   totalPages: number;
+  totalItems: number;
+  pageSize: ProductPageSize;
+  setPageSize: (value: ProductPageSize) => void;
   setPage: (value: number) => void;
   selectedIds: Set<string>;
   selectedCount: number;
   isSelected: (productId: string) => boolean;
   toggleSelected: (productId: string, checked: boolean) => void;
-  togglePageSelection: (checked: boolean) => void;
+  togglePageSelection: (checked: boolean, productIds?: string[]) => void;
   clearSelection: () => void;
   refresh: () => Promise<void>;
   createProduct: (input: CreateProductInput) => Promise<boolean>;
@@ -42,7 +47,7 @@ export interface UseProductsCatalogResult {
   importProducts: (rows: ProductImportRowResult[]) => Promise<ProductsImportSummary | null>;
 }
 
-export function useProductsCatalog(pageSize = DEFAULT_PAGE_SIZE): UseProductsCatalogResult {
+export function useProductsCatalog(initialPageSize: ProductPageSize = DEFAULT_PAGE_SIZE): UseProductsCatalogResult {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -53,6 +58,7 @@ export function useProductsCatalog(pageSize = DEFAULT_PAGE_SIZE): UseProductsCat
   const [searchTerm, setSearchTerm] = useState("");
   const [usageBadge, setUsageBadge] = useState<ProductsUsageBadge | null>(null);
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState<ProductPageSize>(initialPageSize);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const totalPages = useMemo(() => {
@@ -116,6 +122,12 @@ export function useProductsCatalog(pageSize = DEFAULT_PAGE_SIZE): UseProductsCat
     if (page <= totalPages) return;
     setPage(totalPages);
   }, [page, totalPages]);
+
+  // Resetear página y selección al cambiar tamaño de página.
+  useEffect(() => {
+    setPage(1);
+    setSelectedIds(new Set());
+  }, [pageSize]);
 
   const createProduct = async (input: CreateProductInput): Promise<boolean> => {
     setSaving(true);
@@ -208,14 +220,17 @@ export function useProductsCatalog(pageSize = DEFAULT_PAGE_SIZE): UseProductsCat
     });
   };
 
-  const togglePageSelection = (checked: boolean) => {
+  const togglePageSelection = (checked: boolean, productIds?: string[]) => {
+    // Aceptamos los IDs explícitamente del componente para evitar capturar un
+    // `pageProducts` stale (mismo bug que en Contactos).
+    const ids = productIds ?? pageProducts.map((product) => product.id);
     setSelectedIds((prev) => {
       const next = new Set(prev);
-      for (const product of pageProducts) {
+      for (const id of ids) {
         if (checked) {
-          next.add(product.id);
+          next.add(id);
         } else {
-          next.delete(product.id);
+          next.delete(id);
         }
       }
       return next;
@@ -239,6 +254,9 @@ export function useProductsCatalog(pageSize = DEFAULT_PAGE_SIZE): UseProductsCat
     error,
     page,
     totalPages,
+    totalItems: products.length,
+    pageSize,
+    setPageSize,
     setPage,
     selectedIds,
     selectedCount,

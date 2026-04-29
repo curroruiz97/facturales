@@ -639,7 +639,7 @@ export function DashboardPage(): JSX.Element {
   return (
     <div className="pilot-grid dashboard-v2">
       <section className="pilot-panel dashboard-v2__period-panel dashboard-v2__animate dashboard-v2__animate--panel">
-        <div className="pilot-actions">
+        <div className="pilot-actions dashboard-v2__period-actions">
           {KPI_PERIOD_OPTIONS.map((periodOption) => (
             <button
               key={periodOption.id}
@@ -650,6 +650,16 @@ export function DashboardPage(): JSX.Element {
               {periodOption.label}
             </button>
           ))}
+          <select
+            className="pilot-btn dashboard-v2__year-select"
+            value={kpiOverview.year}
+            onChange={(event) => kpiOverview.setYear(Number.parseInt(event.target.value, 10))}
+            aria-label="Seleccionar año"
+          >
+            {kpiOverview.availableYears.map((year) => (
+              <option key={year} value={year}>{year}</option>
+            ))}
+          </select>
         </div>
       </section>
 

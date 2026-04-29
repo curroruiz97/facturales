@@ -7,12 +7,71 @@ import { LoadingSkeleton } from "../../../app/components/states/LoadingSkeleton"
 import { DocumentEditorForm } from "../../documents/components/DocumentEditorForm";
 import { DocumentActionBar } from "../../documents/components/DocumentActionBar";
 import type { ClientPickerOption } from "../../documents/components/ClientPicker";
-import { useInvoicesWorkspace } from "../hooks/use-invoices-workspace";
+import { INVOICE_PAGE_SIZE_OPTIONS, type InvoicePageSize, type InvoiceSortField, useInvoicesWorkspace } from "../hooks/use-invoices-workspace";
+import { buildPageList } from "../../../app/components/pagination/build-page-list";
 
 export type InvoicePageMode = "emision" | "borradores" | "emitidas";
 
 interface InvoicesPageProps {
   mode: InvoicePageMode;
+}
+
+function resolveInitials(name: string | null | undefined): string {
+  if (!name?.trim()) return "SC";
+  const parts = name.trim().split(/\s+/).slice(0, 2);
+  const initials = parts.map((part) => part.charAt(0).toUpperCase()).join("");
+  return initials || "SC";
+}
+
+function formatDateEs(dateISO: string | null | undefined): string {
+  if (!dateISO) return "-";
+  const date = new Date(`${dateISO}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return dateISO;
+  return new Intl.DateTimeFormat("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" }).format(date);
+}
+
+const IconSearchSvg = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+);
+const IconFilterSvg = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+);
+const IconSortNone = () => (
+  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="7 11 12 6 17 11"/><polyline points="7 13 12 18 17 13"/></svg>
+);
+const IconSortAsc = () => (
+  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="6 15 12 9 18 15"/></svg>
+);
+const IconSortDesc = () => (
+  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+);
+
+interface SortableHeaderProps {
+  label: string;
+  field: InvoiceSortField;
+  current: { field: InvoiceSortField; dir: "asc" | "desc" };
+  onToggle: (field: InvoiceSortField) => void;
+  className?: string;
+}
+
+function SortableHeader({ label, field, current, onToggle, className }: SortableHeaderProps): import("react").JSX.Element {
+  const direction = current.field === field ? current.dir : null;
+  const ariaSort = direction === "asc" ? "ascending" : direction === "desc" ? "descending" : "none";
+  return (
+    <th className={className} aria-sort={ariaSort}>
+      <button
+        type="button"
+        className={`tx-table__sort ${direction ? "tx-table__sort--active" : ""}`}
+        onClick={() => onToggle(field)}
+        title={`Ordenar por ${label}`}
+      >
+        <span>{label}</span>
+        <span className="tx-table__sort-icon" aria-hidden="true">
+          {direction === "asc" ? <IconSortAsc /> : direction === "desc" ? <IconSortDesc /> : <IconSortNone />}
+        </span>
+      </button>
+    </th>
+  );
 }
 
 function formatCurrency(amount: number, currency: string): string {
@@ -58,6 +117,7 @@ export function InvoicesPage({ mode }: InvoicesPageProps): import("react").JSX.E
   const workspace = useInvoicesWorkspace();
   const navigate = useNavigate();
   const [flash, setFlash] = useState<string | null>(null);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const meta = useMemo(() => modeMeta(mode), [mode]);
 
   useEffect(() => {
@@ -194,22 +254,87 @@ export function InvoicesPage({ mode }: InvoicesPageProps): import("react").JSX.E
                   {mode === "emitidas" && workspace.yearFilter !== "all" ? ` en ${workspace.yearFilter}` : ""}
                 </span>
               </div>
-              <div className="doc-card__actions">
-                {mode === "emitidas" ? (
-                  <select
-                    className="pilot-input doc-year-select"
-                    value={String(workspace.yearFilter)}
-                    onChange={(event) => {
-                      const value = event.target.value;
-                      workspace.setYearFilter(value === "all" ? "all" : Number.parseInt(value, 10));
-                    }}
+            </div>
+
+            {mode === "emitidas" ? (
+              <>
+                <div className="tx-search-bar">
+                  <div className="tx-search-bar__input-wrap">
+                    <span className="tx-search-bar__icon"><IconSearchSvg /></span>
+                    <input
+                      className="tx-search-bar__input"
+                      type="search"
+                      value={workspace.search}
+                      onChange={(event) => workspace.setSearch(event.target.value)}
+                      placeholder="Buscar factura..."
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    className={`tx-search-bar__filter-btn ${workspace.hasActiveFilters ? "tx-search-bar__filter-btn--active" : ""}`}
+                    onClick={() => setFiltersOpen((open) => !open)}
                   >
-                    <option value="all">Todos los años</option>
-                    {workspace.availableYears.map((year) => (
-                      <option key={year} value={String(year)}>{year}</option>
-                    ))}
-                  </select>
+                    <IconFilterSvg />
+                    Filtros
+                  </button>
+                </div>
+                {filtersOpen ? (
+                  <div className="tx-filters">
+                    <div className="tx-filters__row">
+                      <label className="tx-filters__field">
+                        <span className="tx-filters__label">Año</span>
+                        <select
+                          className="tx-filters__select"
+                          value={String(workspace.yearFilter)}
+                          onChange={(event) => {
+                            const value = event.target.value;
+                            workspace.setYearFilter(value === "all" ? "all" : Number.parseInt(value, 10));
+                          }}
+                        >
+                          <option value="all">Todos</option>
+                          {workspace.availableYears.map((year) => (
+                            <option key={year} value={String(year)}>{year}</option>
+                          ))}
+                        </select>
+                      </label>
+                      <label className="tx-filters__field">
+                        <span className="tx-filters__label">Estado de pago</span>
+                        <select
+                          className="tx-filters__select"
+                          value={workspace.paymentFilter}
+                          onChange={(event) => workspace.setPaymentFilter(event.target.value as typeof workspace.paymentFilter)}
+                        >
+                          <option value="all">Todas</option>
+                          <option value="paid">Pagadas</option>
+                          <option value="unpaid">No pagadas</option>
+                        </select>
+                      </label>
+                    </div>
+                    <div className="tx-filters__row">
+                      <label className="tx-filters__field">
+                        <span className="tx-filters__label">Estado de envío</span>
+                        <select
+                          className="tx-filters__select"
+                          value={workspace.emailFilter}
+                          onChange={(event) => workspace.setEmailFilter(event.target.value as typeof workspace.emailFilter)}
+                        >
+                          <option value="all">Todas</option>
+                          <option value="sent">Enviadas</option>
+                          <option value="unsent">No enviadas</option>
+                        </select>
+                      </label>
+                      <span />
+                    </div>
+                    {workspace.hasActiveFilters ? (
+                      <button type="button" className="tx-filters__clear" onClick={workspace.resetFilters}>
+                        Limpiar filtros
+                      </button>
+                    ) : null}
+                  </div>
                 ) : null}
+              </>
+            ) : (
+              <div className="doc-card__actions">
                 <div className="doc-search">
                   <span className="doc-search__icon">
                     <svg width="21" height="22" viewBox="0 0 21 22" fill="none"><circle cx="9.8" cy="10.7" r="9" strokeWidth="1.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" /><path d="M16 17.4l3.5 3.5" strokeWidth="1.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" /></svg>
@@ -222,7 +347,7 @@ export function InvoicesPage({ mode }: InvoicesPageProps): import("react").JSX.E
                   />
                 </div>
               </div>
-            </div>
+            )}
 
             {flash ? <p className="doc-flash">{flash}</p> : null}
             {workspace.error ? <ErrorState title="No se pudo completar la operación" description={workspace.error} onRetry={() => void workspace.refresh()} /> : null}
@@ -271,53 +396,45 @@ export function InvoicesPage({ mode }: InvoicesPageProps): import("react").JSX.E
                     </div>
                   ) : null}
 
-                  <div className="doc-table-wrap">
-                    <table className="doc-table">
+                  <div className={isEmitidas ? "overflow-auto" : "doc-table-wrap"}>
+                    <table className={isEmitidas ? "pilot-table tx-table" : "doc-table"}>
                       <thead>
                         <tr>
                           {isEmitidas ? (
-                            <td className="w-10">
-                              <input type="checkbox" checked={pageAllChecked} onChange={(event) => workspace.togglePageSelection(event.target.checked)} />
-                            </td>
+                            <th className="w-10">
+                              <input
+                                type="checkbox"
+                                checked={pageAllChecked}
+                                onChange={(event) => workspace.togglePageSelection(event.target.checked, rows.map((invoice) => invoice.id))}
+                              />
+                            </th>
                           ) : null}
                           {isEmitidas ? (
-                            <td>
-                              <button type="button" className={headerClass("invoiceNumber")} onClick={() => workspace.toggleSort("invoiceNumber")}>
-                                Factura{sortIndicator("invoiceNumber")}
-                              </button>
-                            </td>
+                            <SortableHeader label="Factura" field="invoiceNumber" current={workspace.sortMode} onToggle={workspace.toggleSort} />
                           ) : (
                             <td><span>Factura</span></td>
                           )}
                           {isEmitidas ? (
-                            <td>
-                              <button type="button" className={headerClass("clientName")} onClick={() => workspace.toggleSort("clientName")}>
-                                Cliente{sortIndicator("clientName")}
-                              </button>
-                            </td>
+                            <SortableHeader label="Cliente" field="clientName" current={workspace.sortMode} onToggle={workspace.toggleSort} />
                           ) : (
                             <td><span>Cliente</span></td>
                           )}
                           {isEmitidas ? (
-                            <td>
-                              <button type="button" className={headerClass("issueDate")} onClick={() => workspace.toggleSort("issueDate")}>
-                                Fechas{sortIndicator("issueDate")}
-                              </button>
-                            </td>
+                            <SortableHeader label="Fechas" field="issueDate" current={workspace.sortMode} onToggle={workspace.toggleSort} />
                           ) : (
                             <td><span>Fechas</span></td>
                           )}
                           {isEmitidas ? (
-                            <td>
-                              <button type="button" className={headerClass("totalAmount")} onClick={() => workspace.toggleSort("totalAmount")}>
-                                Importe{sortIndicator("totalAmount")}
-                              </button>
-                            </td>
+                            <SortableHeader label="Importe" field="totalAmount" current={workspace.sortMode} onToggle={workspace.toggleSort} />
                           ) : (
                             <td><span>Importe</span></td>
                           )}
-                          {isEmitidas ? <td><span>Estado</span></td> : null}
-                          <td className="doc-table__actions-col"><span>Acciones</span></td>
+                          {isEmitidas ? <th>Estado</th> : null}
+                          {isEmitidas ? (
+                            <th className="text-right">Acciones</th>
+                          ) : (
+                            <td className="doc-table__actions-col"><span>Acciones</span></td>
+                          )}
                         </tr>
                       </thead>
                       <tbody>
@@ -339,34 +456,50 @@ export function InvoicesPage({ mode }: InvoicesPageProps): import("react").JSX.E
                               ) : null}
                               <td>
                                 <strong>{displayNumber}</strong>
-                                <p className="doc-table__sub">Actualizada: {invoice.updatedAt.slice(0, 10)}</p>
+                                <p className={isEmitidas ? "text-xs opacity-70" : "doc-table__sub"}>Actualizada: {isEmitidas ? formatDateEs(invoice.updatedAt.slice(0, 10)) : invoice.updatedAt.slice(0, 10)}</p>
                               </td>
                               <td>
-                                <strong>{invoice.clientName}</strong>
-                                <p className="doc-table__sub">{invoice.currency}</p>
+                                {isEmitidas ? (
+                                  <div className="flex items-center gap-2">
+                                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-success-100 text-xs font-bold text-success-700">
+                                      {resolveInitials(invoice.clientName)}
+                                    </span>
+                                    <div>
+                                      <strong>{invoice.clientName}</strong>
+                                      <p className="text-xs opacity-70">{invoice.currency}</p>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <>
+                                    <strong>{invoice.clientName}</strong>
+                                    <p className="doc-table__sub">{invoice.currency}</p>
+                                  </>
+                                )}
                               </td>
                               <td>
-                                <p>{invoice.issueDate}</p>
-                                <p className="doc-table__sub">Vence: {invoice.dueDate || "-"}</p>
+                                <p>{isEmitidas ? formatDateEs(invoice.issueDate) : invoice.issueDate}</p>
+                                <p className={isEmitidas ? "text-xs opacity-70" : "doc-table__sub"}>Vence: {isEmitidas ? formatDateEs(invoice.dueDate) : (invoice.dueDate || "-")}</p>
                               </td>
                               <td>
-                                <strong>{formatCurrency(invoice.totalAmount, invoice.currency)}</strong>
+                                <strong className={isEmitidas ? "pilot-text-ok" : undefined}>{formatCurrency(invoice.totalAmount, invoice.currency)}</strong>
                               </td>
                               {isEmitidas ? (
                                 <td>
-                                  <span className={`doc-badge ${invoice.isPaid ? "doc-badge--ok" : "doc-badge--warn"}`}>
-                                    {invoice.isPaid ? "Pagada" : "No pagada"}
-                                  </span>
-                                  <span className={`doc-badge ${invoice.emailSent ? "doc-badge--sent" : "doc-badge--not-sent"}`}>
-                                    {invoice.emailSent ? "Enviada" : "No enviada"}
-                                  </span>
+                                  <div className="flex flex-col gap-1 items-start">
+                                    <span className={`pilot-status ${invoice.isPaid ? "pilot-status--ok" : "pilot-status--warn"}`}>
+                                      {invoice.isPaid ? "Pagada" : "No pagada"}
+                                    </span>
+                                    <span className={`pilot-status ${invoice.emailSent ? "pilot-status--ok" : "pilot-status--warn"}`}>
+                                      {invoice.emailSent ? "Enviada" : "No enviada"}
+                                    </span>
+                                  </div>
                                 </td>
                               ) : null}
-                              <td className="doc-table__actions-col">
+                              <td className={isEmitidas ? "text-right" : "doc-table__actions-col"}>
                                 {isEmitidas ? (
                                   <div className="tx-actions-cell">
-                                    <button type="button" className="tx-action-icon" data-tooltip="Abrir" aria-label="Abrir" onClick={() => void openEditor(invoice.id)}>
-                                      <Eye size={18} />
+                                    <button type="button" className="tx-action-icon tx-action-icon--link" data-tooltip="Abrir" aria-label="Abrir" onClick={() => void openEditor(invoice.id)}>
+                                      <Eye size={16} />
                                     </button>
                                     <button
                                       type="button"
@@ -376,17 +509,17 @@ export function InvoicesPage({ mode }: InvoicesPageProps): import("react").JSX.E
                                       disabled={workspace.saving || invoice.status === "cancelled"}
                                       onClick={() => void togglePaid(invoice.id, !invoice.isPaid)}
                                     >
-                                      <Check size={18} />
+                                      <Check size={16} />
                                     </button>
                                     <button
                                       type="button"
-                                      className="tx-action-icon"
+                                      className="tx-action-icon tx-action-icon--edit"
                                       data-tooltip={invoice.emailSent ? "Ya marcada como enviada" : "Marcar como enviada"}
                                       aria-label={invoice.emailSent ? "Ya marcada como enviada" : "Marcar como enviada"}
                                       disabled={workspace.saving || invoice.emailSent}
                                       onClick={() => void markEmailed(invoice.id)}
                                     >
-                                      <Send size={18} />
+                                      <Send size={16} />
                                     </button>
                                     <button
                                       type="button"
@@ -396,7 +529,7 @@ export function InvoicesPage({ mode }: InvoicesPageProps): import("react").JSX.E
                                       disabled={workspace.saving}
                                       onClick={() => void downloadPdf(invoice.id)}
                                     >
-                                      <Download size={18} />
+                                      <Download size={16} />
                                     </button>
                                     <button
                                       type="button"
@@ -406,7 +539,7 @@ export function InvoicesPage({ mode }: InvoicesPageProps): import("react").JSX.E
                                       disabled={workspace.saving || invoice.status === "cancelled"}
                                       onClick={() => void cancelInvoice(invoice.id)}
                                     >
-                                      <Trash2 size={18} />
+                                      <Trash2 size={16} />
                                     </button>
                                   </div>
                                 ) : (
@@ -435,19 +568,62 @@ export function InvoicesPage({ mode }: InvoicesPageProps): import("react").JSX.E
                     </table>
                   </div>
 
-                  {isEmitidas ? (
-                    <div className="pilot-pagination">
-                      <button type="button" className="pilot-btn" disabled={workspace.page <= 1} onClick={() => workspace.setPage(workspace.page - 1)}>
-                        Anterior
-                      </button>
-                      <span className="text-sm">
-                        Página {workspace.page} de {workspace.totalPages} · {workspace.invoices.length} facturas
-                      </span>
-                      <button type="button" className="pilot-btn" disabled={workspace.page >= workspace.totalPages} onClick={() => workspace.setPage(workspace.page + 1)}>
-                        Siguiente
-                      </button>
-                    </div>
-                  ) : null}
+                  {isEmitidas ? (() => {
+                    const startIdx = (workspace.page - 1) * workspace.pageSize + 1;
+                    const endIdx = Math.min(workspace.page * workspace.pageSize, workspace.totalItems);
+                    return (
+                      <div className="tx-pagination">
+                        <div className="tx-pagination__left">
+                          <span className="tx-pagination__info">
+                            Mostrando {startIdx}–{endIdx} de {workspace.totalItems}
+                          </span>
+                          <label className="tx-pagination__page-size">
+                            <span>Por página:</span>
+                            <select
+                              value={workspace.pageSize}
+                              onChange={(event) => workspace.setPageSize(Number(event.target.value) as InvoicePageSize)}
+                            >
+                              {INVOICE_PAGE_SIZE_OPTIONS.map((size) => (
+                                <option key={size} value={size}>{size}</option>
+                              ))}
+                            </select>
+                          </label>
+                        </div>
+                        <div className="tx-pagination__controls">
+                          <button type="button" className="tx-pagination__btn" disabled={workspace.page <= 1} onClick={() => workspace.setPage(workspace.page - 1)} aria-label="Página anterior">
+                            ‹
+                          </button>
+                          {buildPageList(workspace.page, workspace.totalPages).map((entry, index) =>
+                            entry === "..." ? (
+                              <span key={`ellipsis-${index}`} className="tx-pagination__ellipsis" aria-hidden="true">…</span>
+                            ) : (
+                              <button
+                                key={entry}
+                                type="button"
+                                className={`tx-pagination__btn ${entry === workspace.page ? "tx-pagination__btn--active" : ""}`}
+                                onClick={() => workspace.setPage(entry)}
+                                aria-current={entry === workspace.page ? "page" : undefined}
+                                aria-label={`Página ${entry}`}
+                              >
+                                {entry}
+                              </button>
+                            ),
+                          )}
+                          <button type="button" className="tx-pagination__btn" disabled={workspace.page >= workspace.totalPages} onClick={() => workspace.setPage(workspace.page + 1)} aria-label="Página siguiente">
+                            ›
+                          </button>
+                        </div>
+                        <label className="tx-pagination__select-all">
+                          <input
+                            type="checkbox"
+                            checked={pageAllChecked}
+                            onChange={(event) => workspace.togglePageSelection(event.target.checked, rows.map((invoice) => invoice.id))}
+                          />
+                          <span>Seleccionar página</span>
+                        </label>
+                      </div>
+                    );
+                  })() : null}
                 </>
               );
             })() : null}

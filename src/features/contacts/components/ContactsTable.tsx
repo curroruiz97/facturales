@@ -4,7 +4,7 @@ interface ContactsTableProps {
   contacts: ClientFinancialSnapshot[];
   selectedIds: Set<string>;
   onToggleSelection: (contactId: string, checked: boolean) => void;
-  onTogglePageSelection: (checked: boolean) => void;
+  onTogglePageSelection: (checked: boolean, contactIds?: string[]) => void;
   onToggleRecurring: (contactId: string, currentStatus: "activo" | "inactivo" | "recurrente" | "puntual") => void;
   onEdit: (contact: ClientFinancialSnapshot) => void;
   onDelete: (contact: ClientFinancialSnapshot) => void;
@@ -47,7 +47,11 @@ export function ContactsTable(props: ContactsTableProps): import("react").JSX.El
         <thead>
           <tr>
             <th className="w-10">
-              <input type="checkbox" checked={allChecked} onChange={(event) => onTogglePageSelection(event.target.checked)} />
+              <input
+                type="checkbox"
+                checked={allChecked}
+                onChange={(event) => onTogglePageSelection(event.target.checked, contacts.map((contact) => contact.id))}
+              />
             </th>
             <th>Contacto</th>
             <th>Tipo</th>

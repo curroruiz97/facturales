@@ -10,7 +10,9 @@ import {
 } from "../adapters/contacts.adapter";
 
 const SEARCH_DEBOUNCE_MS = 280;
-const DEFAULT_PAGE_SIZE = 10;
+export const CONTACT_PAGE_SIZE_OPTIONS = [10, 20, 50, 100] as const;
+export type ContactPageSize = typeof CONTACT_PAGE_SIZE_OPTIONS[number];
+const DEFAULT_PAGE_SIZE: ContactPageSize = 10;
 
 export type ContactsSortMode = "name-asc" | "name-desc" | "billing-desc" | "balance-desc";
 
@@ -34,11 +36,14 @@ export interface UseContactsCatalogResult {
   setSortMode: (value: ContactsSortMode) => void;
   page: number;
   totalPages: number;
+  totalItems: number;
+  pageSize: ContactPageSize;
+  setPageSize: (value: ContactPageSize) => void;
   setPage: (value: number) => void;
   selectedIds: Set<string>;
   selectedCount: number;
   toggleSelected: (contactId: string, checked: boolean) => void;
-  togglePageSelection: (checked: boolean) => void;
+  togglePageSelection: (checked: boolean, contactIds?: string[]) => void;
   clearSelection: () => void;
   refresh: () => Promise<void>;
   createContact: (input: CreateClientInput) => Promise<boolean>;
@@ -92,7 +97,7 @@ function applySort(data: ClientFinancialSnapshot[], sortMode: ContactsSortMode):
   }
 }
 
-export function useContactsCatalog(pageSize = DEFAULT_PAGE_SIZE): UseContactsCatalogResult {
+export function useContactsCatalog(initialPageSize: ContactPageSize = DEFAULT_PAGE_SIZE): UseContactsCatalogResult {
   const [contacts, setContacts] = useState<ClientFinancialSnapshot[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -106,6 +111,7 @@ export function useContactsCatalog(pageSize = DEFAULT_PAGE_SIZE): UseContactsCat
   const [typeFilter, setTypeFilter] = useState<"all" | ClientKind>("all");
   const [sortMode, setSortMode] = useState<ContactsSortMode>("name-asc");
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState<ContactPageSize>(initialPageSize);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const filteredContacts = useMemo(() => {
@@ -176,6 +182,12 @@ export function useContactsCatalog(pageSize = DEFAULT_PAGE_SIZE): UseContactsCat
     if (page <= totalPages) return;
     setPage(totalPages);
   }, [page, totalPages]);
+
+  // Resetear página y selección al cambiar tamaño de página o filtros que cambian la lista visible.
+  useEffect(() => {
+    setPage(1);
+    setSelectedIds(new Set());
+  }, [pageSize, statusFilter, typeFilter, sortMode]);
 
   const createContact = async (input: CreateClientInput): Promise<boolean> => {
     setSaving(true);
@@ -259,12 +271,16 @@ export function useContactsCatalog(pageSize = DEFAULT_PAGE_SIZE): UseContactsCat
     });
   };
 
-  const togglePageSelection = (checked: boolean) => {
+  const togglePageSelection = (checked: boolean, contactIds?: string[]) => {
+    // Aceptamos los IDs explícitamente desde el componente para evitar capturar
+    // un `pageContacts` stale en el closure (causa raíz del bug en el que el
+    // header solo marcaba algunos contactos en vez de todos los visibles).
+    const ids = contactIds ?? pageContacts.map((contact) => contact.id);
     setSelectedIds((prev) => {
       const next = new Set(prev);
-      for (const contact of pageContacts) {
-        if (checked) next.add(contact.id);
-        else next.delete(contact.id);
+      for (const id of ids) {
+        if (checked) next.add(id);
+        else next.delete(id);
       }
       return next;
     });
@@ -292,6 +308,9 @@ export function useContactsCatalog(pageSize = DEFAULT_PAGE_SIZE): UseContactsCat
     setSortMode,
     page,
     totalPages,
+    totalItems: filteredContacts.length,
+    pageSize,
+    setPageSize,
     setPage,
     selectedIds,
     selectedCount: selectedIds.size,

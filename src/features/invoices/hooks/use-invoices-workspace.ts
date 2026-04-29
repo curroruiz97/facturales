@@ -8,8 +8,13 @@ import { getSupabaseClient } from "../../../services/supabase/client";
 import { loadDefaultPaymentMethod, loadDefaultPaymentMethodFromDB } from "../../../services/payment/default-payment-method";
 import { getPdfBlob } from "../../documents/pdf/document-pdf-generator";
 
-const PAGE_SIZE = 20;
+export const INVOICE_PAGE_SIZE_OPTIONS = [10, 20, 50, 100] as const;
+export type InvoicePageSize = typeof INVOICE_PAGE_SIZE_OPTIONS[number];
+const DEFAULT_PAGE_SIZE: InvoicePageSize = 20;
 const CURRENT_YEAR = new Date().getFullYear();
+
+export type InvoicePaymentFilter = "all" | "paid" | "unpaid";
+export type InvoiceEmailFilter = "all" | "sent" | "unsent";
 
 export type InvoiceSortField = "invoiceNumber" | "clientName" | "issueDate" | "totalAmount" | "updatedAt";
 export type InvoiceSortDir = "asc" | "desc";
@@ -58,17 +63,25 @@ export interface UseInvoicesWorkspaceResult {
   setSearch: (value: string) => void;
   yearFilter: number | "all";
   setYearFilter: (value: number | "all") => void;
+  paymentFilter: InvoicePaymentFilter;
+  setPaymentFilter: (value: InvoicePaymentFilter) => void;
+  emailFilter: InvoiceEmailFilter;
+  setEmailFilter: (value: InvoiceEmailFilter) => void;
+  hasActiveFilters: boolean;
+  resetFilters: () => void;
   sortMode: InvoiceSortMode;
   setSortMode: (value: InvoiceSortMode) => void;
   toggleSort: (field: InvoiceSortField) => void;
   page: number;
   totalPages: number;
-  pageSize: number;
+  totalItems: number;
+  pageSize: InvoicePageSize;
+  setPageSize: (value: InvoicePageSize) => void;
   setPage: (value: number) => void;
   selectedIds: Set<string>;
   selectedCount: number;
   toggleSelected: (invoiceId: string, checked: boolean) => void;
-  togglePageSelection: (checked: boolean) => void;
+  togglePageSelection: (checked: boolean, invoiceIds?: string[]) => void;
   clearSelection: () => void;
   activeInvoiceId: string | null;
   activeInvoiceStatus: InvoiceWorkspaceItem["status"] | null;
@@ -113,6 +126,9 @@ export function useInvoicesWorkspace(): UseInvoicesWorkspaceResult {
   const [page, setPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [yearFilter, setYearFilter] = useState<number | "all">(CURRENT_YEAR);
+  const [paymentFilter, setPaymentFilter] = useState<InvoicePaymentFilter>("all");
+  const [emailFilter, setEmailFilter] = useState<InvoiceEmailFilter>("all");
+  const [pageSize, setPageSize] = useState<InvoicePageSize>(DEFAULT_PAGE_SIZE);
   const [sortMode, setSortMode] = useState<InvoiceSortMode>({ field: "updatedAt", dir: "desc" });
 
   const readOnlyEditor = useMemo(() => isReadOnlyStatus(activeInvoiceStatus), [activeInvoiceStatus]);
@@ -127,24 +143,37 @@ export function useInvoicesWorkspace(): UseInvoicesWorkspaceResult {
     return Array.from(years).sort((a, b) => b - a);
   }, [invoices]);
 
-  // Vista filtrada (por año) y ordenada — base para contador, paginación y bulk.
+  // Vista filtrada (por año, pago y envío) y ordenada — base para contador, paginación y bulk.
   const filteredInvoices = useMemo(() => {
-    const base = yearFilter === "all"
-      ? invoices
-      : invoices.filter((invoice) => (invoice.issueDate || "").startsWith(`${yearFilter}`));
+    let base = invoices;
+    if (yearFilter !== "all") {
+      base = base.filter((invoice) => (invoice.issueDate || "").startsWith(`${yearFilter}`));
+    }
+    if (paymentFilter === "paid") base = base.filter((invoice) => invoice.isPaid);
+    else if (paymentFilter === "unpaid") base = base.filter((invoice) => !invoice.isPaid);
+    if (emailFilter === "sent") base = base.filter((invoice) => invoice.emailSent);
+    else if (emailFilter === "unsent") base = base.filter((invoice) => !invoice.emailSent);
     return [...base].sort((a, b) => compareInvoices(a, b, sortMode));
-  }, [invoices, yearFilter, sortMode]);
+  }, [invoices, yearFilter, paymentFilter, emailFilter, sortMode]);
 
   const totalPages = useMemo(() => {
-    const pages = Math.ceil(filteredInvoices.length / PAGE_SIZE);
+    const pages = Math.ceil(filteredInvoices.length / pageSize);
     return pages <= 0 ? 1 : pages;
-  }, [filteredInvoices.length]);
+  }, [filteredInvoices.length, pageSize]);
 
   const pageInvoices = useMemo(() => {
     const clampedPage = Math.min(page, totalPages);
-    const start = (clampedPage - 1) * PAGE_SIZE;
-    return filteredInvoices.slice(start, start + PAGE_SIZE);
-  }, [filteredInvoices, page, totalPages]);
+    const start = (clampedPage - 1) * pageSize;
+    return filteredInvoices.slice(start, start + pageSize);
+  }, [filteredInvoices, page, totalPages, pageSize]);
+
+  const hasActiveFilters = yearFilter !== "all" || paymentFilter !== "all" || emailFilter !== "all";
+
+  const resetFilters = () => {
+    setYearFilter("all");
+    setPaymentFilter("all");
+    setEmailFilter("all");
+  };
 
   const toggleSort = (field: InvoiceSortField) => {
     setSortMode((prev) => {
@@ -176,11 +205,11 @@ export function useInvoicesWorkspace(): UseInvoicesWorkspaceResult {
     void refresh();
   }, [statusFilter, search]);
 
-  // Reset paginación y selección al cambiar filtros/búsqueda/año/orden.
+  // Reset paginación y selección al cambiar filtros/búsqueda/año/orden/pago/envío/pageSize.
   useEffect(() => {
     setPage(1);
     setSelectedIds(new Set());
-  }, [statusFilter, search, yearFilter, sortMode]);
+  }, [statusFilter, search, yearFilter, paymentFilter, emailFilter, sortMode, pageSize]);
 
   // Si la página actual queda fuera de rango (p.ej. tras una anulación), encajarla.
   useEffect(() => {
@@ -196,12 +225,15 @@ export function useInvoicesWorkspace(): UseInvoicesWorkspaceResult {
     });
   };
 
-  const togglePageSelection = (checked: boolean) => {
+  const togglePageSelection = (checked: boolean, invoiceIds?: string[]) => {
+    // Si el componente nos pasa los IDs explícitamente los usamos (evita capturar
+    // un `pageInvoices` stale en el closure).
+    const ids = invoiceIds ?? pageInvoices.map((invoice) => invoice.id);
     setSelectedIds((prev) => {
       const next = new Set(prev);
-      for (const invoice of pageInvoices) {
-        if (checked) next.add(invoice.id);
-        else next.delete(invoice.id);
+      for (const id of ids) {
+        if (checked) next.add(id);
+        else next.delete(id);
       }
       return next;
     });
@@ -563,12 +595,20 @@ export function useInvoicesWorkspace(): UseInvoicesWorkspaceResult {
     setSearch,
     yearFilter,
     setYearFilter,
+    paymentFilter,
+    setPaymentFilter,
+    emailFilter,
+    setEmailFilter,
+    hasActiveFilters,
+    resetFilters,
     sortMode,
     setSortMode,
     toggleSort,
     page,
     totalPages,
-    pageSize: PAGE_SIZE,
+    totalItems: filteredInvoices.length,
+    pageSize,
+    setPageSize,
     setPage,
     selectedIds,
     selectedCount: selectedIds.size,

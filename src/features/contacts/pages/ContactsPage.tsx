@@ -8,7 +8,8 @@ import { ContactDeleteModal } from "../components/ContactDeleteModal";
 import { ContactFormModal, type ContactFormValues } from "../components/ContactFormModal";
 import { ContactsImportModal } from "../components/ContactsImportModal";
 import { ContactsTable } from "../components/ContactsTable";
-import { useContactsCatalog } from "../hooks/use-contacts-catalog";
+import { useContactsCatalog, CONTACT_PAGE_SIZE_OPTIONS, type ContactPageSize } from "../hooks/use-contacts-catalog";
+import { buildPageList } from "../../../app/components/pagination/build-page-list";
 import type { ClientFinancialSnapshot } from "../adapters/contacts.adapter";
 
 const DEFAULT_FORM_VALUES: ContactFormValues = {
@@ -361,21 +362,62 @@ export function ContactsPage(): import("react").JSX.Element {
               onEdit={openEditModal}
               onDelete={openSingleDelete}
             />
-            <div className="pilot-pagination">
-              <button type="button" className="pilot-btn" disabled={catalog.page <= 1} onClick={() => catalog.setPage(catalog.page - 1)}>
-                Anterior
-              </button>
-              <span className="text-sm">
-                Página {catalog.page} de {catalog.totalPages}
-              </span>
-              <button type="button" className="pilot-btn" disabled={catalog.page >= catalog.totalPages} onClick={() => catalog.setPage(catalog.page + 1)}>
-                Siguiente
-              </button>
-              <label className="pilot-inline-actions">
-                <input type="checkbox" checked={pageSelectAllChecked} onChange={(event) => catalog.togglePageSelection(event.target.checked)} />
-                <span className="text-sm">Seleccionar página</span>
-              </label>
-            </div>
+            {(() => {
+              const startIdx = (catalog.page - 1) * catalog.pageSize + 1;
+              const endIdx = Math.min(catalog.page * catalog.pageSize, catalog.totalItems);
+              return (
+                <div className="tx-pagination">
+                  <div className="tx-pagination__left">
+                    <span className="tx-pagination__info">
+                      Mostrando {startIdx}–{endIdx} de {catalog.totalItems}
+                    </span>
+                    <label className="tx-pagination__page-size">
+                      <span>Por página:</span>
+                      <select
+                        value={catalog.pageSize}
+                        onChange={(event) => catalog.setPageSize(Number(event.target.value) as ContactPageSize)}
+                      >
+                        {CONTACT_PAGE_SIZE_OPTIONS.map((size) => (
+                          <option key={size} value={size}>{size}</option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+                  <div className="tx-pagination__controls">
+                    <button type="button" className="tx-pagination__btn" disabled={catalog.page <= 1} onClick={() => catalog.setPage(catalog.page - 1)} aria-label="Página anterior">
+                      ‹
+                    </button>
+                    {buildPageList(catalog.page, catalog.totalPages).map((entry, index) =>
+                      entry === "..." ? (
+                        <span key={`ellipsis-${index}`} className="tx-pagination__ellipsis" aria-hidden="true">…</span>
+                      ) : (
+                        <button
+                          key={entry}
+                          type="button"
+                          className={`tx-pagination__btn ${entry === catalog.page ? "tx-pagination__btn--active" : ""}`}
+                          onClick={() => catalog.setPage(entry)}
+                          aria-current={entry === catalog.page ? "page" : undefined}
+                          aria-label={`Página ${entry}`}
+                        >
+                          {entry}
+                        </button>
+                      ),
+                    )}
+                    <button type="button" className="tx-pagination__btn" disabled={catalog.page >= catalog.totalPages} onClick={() => catalog.setPage(catalog.page + 1)} aria-label="Página siguiente">
+                      ›
+                    </button>
+                  </div>
+                  <label className="tx-pagination__select-all">
+                    <input
+                      type="checkbox"
+                      checked={pageSelectAllChecked}
+                      onChange={(event) => catalog.togglePageSelection(event.target.checked, catalog.pageContacts.map((c) => c.id))}
+                    />
+                    <span>Seleccionar página</span>
+                  </label>
+                </div>
+              );
+            })()}
           </>
         ) : null}
       </section>

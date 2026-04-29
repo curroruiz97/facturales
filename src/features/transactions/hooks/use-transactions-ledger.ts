@@ -60,7 +60,7 @@ export interface UseTransactionsLedgerResult {
   highlightedId: string | null;
   clearHighlight: () => void;
   toggleSelected: (transactionId: string, checked: boolean) => void;
-  togglePageSelection: (checked: boolean) => void;
+  togglePageSelection: (checked: boolean, transactionIds?: string[]) => void;
   clearSelection: () => void;
   refresh: () => Promise<void>;
   createTransaction: (
@@ -319,13 +319,15 @@ export function useTransactionsLedger(initialPageSize: TransactionsPageSize = DE
     });
   };
 
-  const togglePageSelection = (checked: boolean) => {
+  const togglePageSelection = (checked: boolean, transactionIds?: string[]) => {
+    // Si el componente nos pasa los IDs explícitamente, los usamos (evita closure stale).
+    // El componente ya filtra los `lockedByInvoice` antes de pasarlos.
+    const ids = transactionIds ?? pageTransactions.filter((t) => !t.lockedByInvoice).map((t) => t.id);
     setSelectedIds((prev) => {
       const next = new Set(prev);
-      for (const transaction of pageTransactions) {
-        if (transaction.lockedByInvoice) continue;
-        if (checked) next.add(transaction.id);
-        else next.delete(transaction.id);
+      for (const id of ids) {
+        if (checked) next.add(id);
+        else next.delete(id);
       }
       return next;
     });

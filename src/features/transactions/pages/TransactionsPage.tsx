@@ -8,24 +8,7 @@ import { TransactionDeleteModal } from "../components/TransactionDeleteModal";
 import { TransactionFormModal, type TransactionFormValues } from "../components/TransactionFormModal";
 import { TransactionsTable } from "../components/TransactionsTable";
 import { useTransactionsLedger, PAGE_SIZE_OPTIONS, type TransactionsPageSize } from "../hooks/use-transactions-ledger";
-
-/**
- * Genera la lista de páginas a mostrar en la paginación, con elipsis cuando hay
- * muchas páginas. Ej. (current=5, total=12, siblings=2): [1, '…', 3, 4, 5, 6, 7, '…', 12]
- */
-function buildPageList(currentPage: number, totalPages: number, siblings = 1): Array<number | "..."> {
-  if (totalPages <= 7) {
-    return Array.from({ length: totalPages }, (_, i) => i + 1);
-  }
-  const left = Math.max(2, currentPage - siblings);
-  const right = Math.min(totalPages - 1, currentPage + siblings);
-  const pages: Array<number | "..."> = [1];
-  if (left > 2) pages.push("...");
-  for (let i = left; i <= right; i++) pages.push(i);
-  if (right < totalPages - 1) pages.push("...");
-  pages.push(totalPages);
-  return pages;
-}
+import { buildPageList } from "../../../app/components/pagination/build-page-list";
 
 const DEFAULT_FORM_VALUES: TransactionFormValues = {
   clienteId: "",
@@ -500,7 +483,11 @@ export function TransactionsPage(): import("react").JSX.Element {
                     </button>
                   </div>
                   <label className="tx-pagination__select-all">
-                    <input type="checkbox" checked={pageSelectAllChecked} onChange={(event) => ledger.togglePageSelection(event.target.checked)} />
+                    <input
+                      type="checkbox"
+                      checked={pageSelectAllChecked}
+                      onChange={(event) => ledger.togglePageSelection(event.target.checked, ledger.pageTransactions.filter((t) => !t.lockedByInvoice).map((t) => t.id))}
+                    />
                     <span>Seleccionar página</span>
                   </label>
                 </div>

@@ -1632,6 +1632,14 @@ input[type="radio"] {
 .pilot-modal__content {
   position: relative;
   width: min(780px, 100%);
+  /* En móvil/tablet con formularios largos, el modal se centra y el contenido se
+     desborda fuera de la viewport (cabecera y primeros campos quedan ocultos).
+     max-height + overflow-y interno garantiza que se pueda hacer scroll dentro
+     y que el primer campo siempre sea visible al abrir. */
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   border-radius: 14px;
   border: 1px solid #e2e8f0;
   background: #ffffff;
@@ -5945,6 +5953,49 @@ input[type="radio"] {
 .dark .inv-input { border-color: #23262B; background: #23262B; color: #FAFAFA; }
 .inv-input:disabled { background: #F7FAFC; color: #A0AEC0; cursor: not-allowed; }
 .dark .inv-input:disabled { background: #2A313C; color: #CBD5E0; }
+
+/* Input + botón de acción al lado (p.ej. "Autogenerar" en nº de factura) */
+.inv-input-with-action {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+}
+.inv-input-with-action .inv-input { flex: 1 1 auto; min-width: 0; }
+.inv-input-with-action__btn {
+  flex: 0 0 auto;
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 1px solid #ec8228;
+  background: #fff;
+  color: #ec8228;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.inv-input-with-action__btn:hover:not(:disabled) {
+  background: #ec8228;
+  color: #fff;
+}
+.inv-input-with-action__btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.dark .inv-input-with-action__btn { background: #1d1e24; color: #f8b27d; border-color: #f8b27d; }
+.dark .inv-input-with-action__btn:hover:not(:disabled) { background: #ec8228; color: #fff; border-color: #ec8228; }
+.inv-error-inline { color: #ef4444; font-size: 12px; margin-top: 4px; }
+
+/* Selector de año en el panel de control (junto a tabs T1/T2/T3/T4/Año natural) */
+.dashboard-v2__period-actions { flex-wrap: wrap; align-items: center; gap: 8px; }
+.dashboard-v2__year-select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 28px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23718096' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 10px 10px;
+  cursor: pointer;
+}
 
 /* Hide native number spinners */
 .inv-input[type="number"]::-webkit-outer-spin-button,

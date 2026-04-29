@@ -78,8 +78,9 @@ export function PaymentMethodsEditor({
   const [formIban, setFormIban] = useState("");
   const [formBic, setFormBic] = useState("");
   const [formPhone, setFormPhone] = useState("");
-  const [formIncludeRecurrent, setFormIncludeRecurrent] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  // ID del método cuyo "Guardar como predeterminado" acaba de guardarse, para feedback visual.
+  const [savedDefaultId, setSavedDefaultId] = useState<string | null>(null);
 
   const openModal = () => {
     setSelectedType(null);
@@ -87,7 +88,6 @@ export function PaymentMethodsEditor({
     setFormIban("");
     setFormBic("");
     setFormPhone("");
-    setFormIncludeRecurrent(false);
     setFormError(null);
     setModalOpen(true);
   };
@@ -112,15 +112,6 @@ export function PaymentMethodsEditor({
     };
 
     onAddMethod(method);
-
-    if (formIncludeRecurrent && onSaveDefault) {
-      onSaveDefault({
-        type: selectedType,
-        iban: method.iban ?? "",
-        phone: method.phone ?? "",
-        label: method.label ?? "",
-      });
-    }
 
     setModalOpen(false);
   };
@@ -163,16 +154,21 @@ export function PaymentMethodsEditor({
                   <label className="pm-item__default-label">
                     <input
                       type="checkbox"
-                      onChange={() =>
+                      checked={savedDefaultId === method.id}
+                      onChange={() => {
                         onSaveDefault({
                           type: method.type,
                           iban: method.iban,
                           phone: method.phone,
                           label: method.label,
-                        })
-                      }
+                        });
+                        setSavedDefaultId(method.id);
+                        window.setTimeout(() => {
+                          setSavedDefaultId((current) => (current === method.id ? null : current));
+                        }, 2400);
+                      }}
                     />
-                    Guardar como predeterminado
+                    {savedDefaultId === method.id ? "✓ Guardado" : "Guardar como predeterminado"}
                   </label>
                 ) : null}
               </div>
@@ -267,16 +263,11 @@ export function PaymentMethodsEditor({
                       </div>
                     ) : null}
 
-                    {onSaveDefault ? (
-                      <label className="inv-checkbox-row">
-                        <input
-                          type="checkbox"
-                          checked={formIncludeRecurrent}
-                          onChange={(e) => setFormIncludeRecurrent(e.target.checked)}
-                        />
-                        Incluir en las facturas recurrentes programadas y borradores
-                      </label>
-                    ) : null}
+                    {/* TODO: cuando se implemente la feature de facturas recurrentes
+                        (tabla + scheduler + UI de plantillas), restaurar aquí el checkbox
+                        "Incluir en las facturas recurrentes programadas y borradores"
+                        atado a `formIncludeRecurrent`. Hoy se ha retirado porque no
+                        existe el destino y confundía al usuario. */}
 
                     {formError ? <p className="pm-modal__error">{formError}</p> : null}
                   </div>

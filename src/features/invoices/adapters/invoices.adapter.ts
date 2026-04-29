@@ -177,8 +177,13 @@ export class DefaultInvoicesAdapter implements InvoicesAdapter {
     if (!canCreate.data.allowed) return fail(canCreate.data.reason ?? "Límite alcanzado", "BILLING_LIMIT_INVOICES_BLOCKED");
 
     const payload = buildInvoicePayload(editor).invoiceInput;
+    // Los borradores NO reservan número de factura. El correlativo se asigna en
+    // emisión (trigger `set_invoice_number_on_emit` en BD). Forzar null evita
+    // chocar con el unique index `(user_id, invoice_number)` cuando el usuario
+    // teclea un número ya usado por otra factura emitida o por otro borrador.
     const created = await invoicesRepository.create({
       ...payload,
+      invoiceNumber: null,
       status: "draft",
       invoiceData: payload.invoiceData,
     });
@@ -198,8 +203,9 @@ export class DefaultInvoicesAdapter implements InvoicesAdapter {
     }
 
     const payload = buildInvoicePayload(editor).invoiceInput;
+    // Borradores no reservan número (mismo razonamiento que createDraft).
     return invoicesRepository.update(invoiceId, {
-      invoiceNumber: payload.invoiceNumber,
+      invoiceNumber: null,
       invoiceSeries: payload.invoiceSeries,
       clientId: payload.clientId,
       clientName: payload.clientName,

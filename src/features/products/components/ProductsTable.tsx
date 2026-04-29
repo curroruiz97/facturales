@@ -5,7 +5,7 @@ interface ProductsTableProps {
   products: Product[];
   selectedIds: Set<string>;
   onToggleSelection: (productId: string, checked: boolean) => void;
-  onTogglePageSelection: (checked: boolean) => void;
+  onTogglePageSelection: (checked: boolean, productIds?: string[]) => void;
   onEdit: (product: Product) => void;
   onDelete: (product: Product) => void;
 }
@@ -46,7 +46,7 @@ export function ProductsTable({
                 type="checkbox"
                 checked={allSelectedOnPage}
                 aria-checked={someSelectedOnPage ? "mixed" : allSelectedOnPage}
-                onChange={(event) => onTogglePageSelection(event.target.checked)}
+                onChange={(event) => onTogglePageSelection(event.target.checked, products.map((product) => product.id))}
               />
             </th>
             <th>PRODUCTO / SERVICIO</th>

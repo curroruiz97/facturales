@@ -13,7 +13,7 @@ interface TransactionsTableProps {
   sortMode: TransactionsSortMode;
   onSortChange: (mode: TransactionsSortMode) => void;
   onToggleSelection: (transactionId: string, checked: boolean) => void;
-  onTogglePageSelection: (checked: boolean) => void;
+  onTogglePageSelection: (checked: boolean, transactionIds?: string[]) => void;
   onEdit: (transaction: TransactionLedgerItem) => void;
   onDelete: (transaction: TransactionLedgerItem) => void;
 }
@@ -146,7 +146,7 @@ export function TransactionsTable({
                 type="checkbox"
                 checked={allSelectedOnPage}
                 aria-checked={someSelectedOnPage ? "mixed" : allSelectedOnPage}
-                onChange={(event) => onTogglePageSelection(event.target.checked)}
+                onChange={(event) => onTogglePageSelection(event.target.checked, selectableRows.map((t) => t.id))}
               />
             </th>
             <SortableHeader label="Contacto" sortKey="client" sortMode={sortMode} onSortChange={onSortChange} />
