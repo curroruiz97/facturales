@@ -27,14 +27,22 @@ function formatAmount(value: number): string {
   }).format(value);
 }
 
-function formatDate(dateISO: string): string {
+function formatDate(dateISO: string | null | undefined): string {
   if (!dateISO) return "-";
   const date = new Date(`${dateISO}T00:00:00`);
-  return new Intl.DateTimeFormat("es-ES", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(date);
+  // Guarda contra fechas inválidas (string mal formado, mes fuera de rango, etc.):
+  // sin esto Intl.DateTimeFormat.format(InvalidDate) lanza RangeError y rompe el render
+  // de toda la tabla → ErrorBoundary "Algo ha salido mal".
+  if (Number.isNaN(date.getTime())) return String(dateISO);
+  try {
+    return new Intl.DateTimeFormat("es-ES", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    }).format(date);
+  } catch {
+    return String(dateISO);
+  }
 }
 
 function resolveInitials(name: string | null): string {
