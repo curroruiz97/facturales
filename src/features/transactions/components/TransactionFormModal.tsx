@@ -19,6 +19,9 @@ const MANUAL_TRANSACTION_CATEGORIES: Array<Exclude<TransactionCategory, "factura
   "otros",
 ];
 
+// Antes de la tabla `TransactionFormValues`: TS no permite documentar el bloque
+// completo, así que dejo aquí la nota: añadido `referenciaBancaria` para guardar
+// IBAN/nº de cuenta/ref. de transferencia del gasto.
 export interface TransactionFormValues {
   clienteId: string;
   concepto: string;
@@ -27,6 +30,8 @@ export interface TransactionFormValues {
   importe: string;
   ivaPorcentaje: string;
   irpfPorcentaje: string;
+  /** IBAN / nº de cuenta / referencia de transferencia (opcional). */
+  referenciaBancaria: string;
   fecha: string;
   observaciones: string;
   /** Default true. Si false, el gasto se EXCLUYE del Modelo 130 y 303. */
@@ -255,19 +260,32 @@ export function TransactionFormModal({
           </div>
 
           <div className="pilot-grid pilot-grid--two">
-            <label className="pilot-field">
-              IRPF (%)
-              <input
-                className="pilot-input"
-                type="number"
-                min="0"
-                max="100"
-                step="0.01"
-                value={values.irpfPorcentaje}
-                onChange={(event) => setValues((prev) => ({ ...prev, irpfPorcentaje: event.target.value }))}
-                placeholder="15"
-              />
-            </label>
+            <div className="pilot-grid">
+              <label className="pilot-field">
+                IRPF (%)
+                <input
+                  className="pilot-input"
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.01"
+                  value={values.irpfPorcentaje}
+                  onChange={(event) => setValues((prev) => ({ ...prev, irpfPorcentaje: event.target.value }))}
+                  placeholder="15"
+                />
+              </label>
+              <label className="pilot-field">
+                Referencia bancaria
+                <input
+                  className="pilot-input"
+                  type="text"
+                  maxLength={120}
+                  value={values.referenciaBancaria}
+                  onChange={(event) => setValues((prev) => ({ ...prev, referenciaBancaria: event.target.value }))}
+                  placeholder="IBAN, nº de cuenta o referencia de transferencia"
+                />
+              </label>
+            </div>
             <label className="pilot-field">
               Observaciones
               <textarea

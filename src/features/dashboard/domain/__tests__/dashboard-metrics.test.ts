@@ -19,6 +19,7 @@ function buildTransaction(overrides: Partial<Transaction>): Transaction {
     categoria: "otros",
     tipo: "ingreso",
     observaciones: null,
+    referenciaBancaria: null,
     ivaPorcentaje: null,
     irpfPorcentaje: null,
     deducible: true,

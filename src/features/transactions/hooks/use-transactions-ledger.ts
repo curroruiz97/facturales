@@ -72,6 +72,7 @@ export interface UseTransactionsLedgerResult {
       categoria: Exclude<TransactionCategory, "factura">;
       tipo: TransactionType;
       observaciones?: string | null;
+      referenciaBancaria?: string | null;
       ivaPorcentaje?: number | null;
       irpfPorcentaje?: number | null;
     },
@@ -86,6 +87,7 @@ export interface UseTransactionsLedgerResult {
       categoria?: Exclude<TransactionCategory, "factura">;
       tipo?: TransactionType;
       observaciones?: string | null;
+      referenciaBancaria?: string | null;
       ivaPorcentaje?: number | null;
       irpfPorcentaje?: number | null;
     },

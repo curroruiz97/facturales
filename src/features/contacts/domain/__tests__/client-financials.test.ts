@@ -84,6 +84,7 @@ function createTransaction(partial: Partial<Transaction> = {}): Transaction {
     categoria: partial.categoria ?? "material_oficina",
     tipo: partial.tipo ?? "gasto",
     observaciones: partial.observaciones ?? null,
+    referenciaBancaria: partial.referenciaBancaria ?? null,
     ivaPorcentaje: partial.ivaPorcentaje ?? null,
     irpfPorcentaje: partial.irpfPorcentaje ?? null,
     deducible: partial.deducible ?? true,

@@ -59,6 +59,8 @@ export interface Transaction {
   categoria: TransactionCategory;
   tipo: TransactionType;
   observaciones: string | null;
+  /** Referencia bancaria asociada al gasto (IBAN, nº de cuenta, ref. de transferencia, etc.). */
+  referenciaBancaria: string | null;
   ivaPorcentaje: number | null;
   irpfPorcentaje: number | null;
   /** Si el gasto es deducible fiscalmente (default true). Solo se filtra cuando tipo === "gasto". */

@@ -10,6 +10,8 @@ export interface CreateTransactionInput {
   categoria: TransactionCategory;
   tipo: TransactionType;
   observaciones?: string | null;
+  /** IBAN, nº de cuenta o referencia de transferencia asociada al gasto. */
+  referenciaBancaria?: string | null;
   ivaPorcentaje?: number | null;
   irpfPorcentaje?: number | null;
   /** Default true. Si false, este gasto se EXCLUYE del cálculo del Modelo 130 y 303. */
@@ -55,6 +57,7 @@ interface TransactionRow {
   categoria: TransactionCategory;
   tipo: TransactionType;
   observaciones: string | null;
+  referencia_bancaria: string | null;
   iva_porcentaje: number | null;
   irpf_porcentaje: number | null;
   deducible: boolean | null;
@@ -74,6 +77,8 @@ function mapTransactionRow(row: TransactionRow): Transaction {
     categoria: row.categoria,
     tipo: row.tipo,
     observaciones: row.observaciones,
+    // ?? null: defensivo por si la columna aún no existiera en BD (migración pendiente).
+    referenciaBancaria: row.referencia_bancaria ?? null,
     ivaPorcentaje: row.iva_porcentaje,
     irpfPorcentaje: row.irpf_porcentaje,
     deducible: row.deducible ?? true,
@@ -93,6 +98,7 @@ function normalizeCreateInput(input: CreateTransactionInput, userId: string): Re
     categoria: input.categoria,
     tipo: input.tipo,
     observaciones: input.observaciones?.trim() ?? null,
+    referencia_bancaria: input.referenciaBancaria?.trim() ?? null,
     iva_porcentaje: input.ivaPorcentaje ?? null,
     irpf_porcentaje: input.irpfPorcentaje ?? null,
     deducible: input.deducible ?? true,
@@ -109,6 +115,7 @@ function normalizeUpdateInput(input: UpdateTransactionInput): Record<string, unk
   if (input.categoria !== undefined) payload.categoria = input.categoria;
   if (input.tipo !== undefined) payload.tipo = input.tipo;
   if (input.observaciones !== undefined) payload.observaciones = input.observaciones?.trim() ?? null;
+  if (input.referenciaBancaria !== undefined) payload.referencia_bancaria = input.referenciaBancaria?.trim() ?? null;
   if (input.ivaPorcentaje !== undefined) payload.iva_porcentaje = input.ivaPorcentaje ?? null;
   if (input.irpfPorcentaje !== undefined) payload.irpf_porcentaje = input.irpfPorcentaje ?? null;
   if (input.deducible !== undefined) payload.deducible = input.deducible;
