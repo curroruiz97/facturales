@@ -21,7 +21,7 @@ export type TransactionsSortMode =
   | "type-asc"
   | "type-desc";
 
-export const PAGE_SIZE_OPTIONS = [10, 25, 50, 100] as const;
+export const PAGE_SIZE_OPTIONS = [10, 25, 50, 100, 250] as const;
 export type TransactionsPageSize = (typeof PAGE_SIZE_OPTIONS)[number];
 
 export interface UseTransactionsLedgerResult {

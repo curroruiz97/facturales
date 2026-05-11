@@ -9,6 +9,18 @@ import { TransactionFormModal, type TransactionFormValues } from "../components/
 import { TransactionsTable } from "../components/TransactionsTable";
 import { useTransactionsLedger, PAGE_SIZE_OPTIONS, type TransactionsPageSize } from "../hooks/use-transactions-ledger";
 import { buildPageList } from "../../../app/components/pagination/build-page-list";
+import { buildTransactionsCsv, buildTransactionsXlsx, buildExportFilename } from "../domain/transactions-export";
+
+function triggerDownload(filename: string, blob: Blob): void {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
 
 const DEFAULT_FORM_VALUES: TransactionFormValues = {
   clienteId: "",
@@ -62,6 +74,10 @@ const IconPlus = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
 );
 
+const IconDownload = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+);
+
 const IconCreditCard = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
 );
@@ -107,6 +123,28 @@ export function TransactionsPage(): import("react").JSX.Element {
   const [deleteMode, setDeleteMode] = useState<DeleteMode>("single");
   const [deleteTarget, setDeleteTarget] = useState<TransactionLedgerItem | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
+
+  const exportCsv = () => {
+    if (ledger.transactions.length === 0) {
+      setFlash("No hay transacciones para exportar.");
+      return;
+    }
+    const csv = buildTransactionsCsv(ledger.transactions);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    triggerDownload(buildExportFilename("csv"), blob);
+    setFlash(`${ledger.transactions.length} transacciones exportadas a CSV.`);
+  };
+
+  const exportXlsx = () => {
+    if (ledger.transactions.length === 0) {
+      setFlash("No hay transacciones para exportar.");
+      return;
+    }
+    const buffer = buildTransactionsXlsx(ledger.transactions);
+    const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    triggerDownload(buildExportFilename("xlsx"), blob);
+    setFlash(`${ledger.transactions.length} transacciones exportadas a Excel.`);
+  };
 
   const openCreateModal = () => {
     setFlash(null);
@@ -266,6 +304,26 @@ export function TransactionsPage(): import("react").JSX.Element {
                     ? "Gastos"
                     : "Transacciones"}
               </h2>
+              <div className="tx-page__header-actions">
+                <button
+                  type="button"
+                  className="pilot-btn"
+                  onClick={exportCsv}
+                  title="Exportar todas las transacciones de la vista actual a CSV"
+                >
+                  <IconDownload />
+                  Exportar CSV
+                </button>
+                <button
+                  type="button"
+                  className="pilot-btn"
+                  onClick={exportXlsx}
+                  title="Exportar todas las transacciones de la vista actual a Excel"
+                >
+                  <IconDownload />
+                  Exportar Excel
+                </button>
+              </div>
             </div>
 
             {/* Tabs Todas / Ingresos / Gastos */}

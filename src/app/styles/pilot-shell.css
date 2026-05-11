@@ -1,9 +1,79 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Urbanist:wght@300;400;500;600;700&display=swap");
 
-/* Checkboxes y radios globalmente en naranja Facturales */
+/* Checkboxes y radios globalmente en naranja Facturales.
+   El accent-color funciona en navegadores modernos pero algunos contextos
+   (impresión, ciertas builds) caen al color azul nativo. Por eso, además del
+   accent-color como fallback, redibujamos el checkbox con appearance:none
+   para tener un look idéntico, profesional y consistente en toda la app. */
 input[type="checkbox"],
 input[type="radio"] {
   accent-color: #ec8228;
+}
+
+input[type="checkbox"]:not(.fct-no-restyle) {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 4px;
+  background: #ffffff;
+  cursor: pointer;
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+  flex-shrink: 0;
+}
+input[type="checkbox"]:not(.fct-no-restyle):hover {
+  border-color: #ec8228;
+}
+input[type="checkbox"]:not(.fct-no-restyle):checked {
+  background: #ec8228;
+  border-color: #ec8228;
+}
+input[type="checkbox"]:not(.fct-no-restyle):checked::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 1px;
+  width: 5px;
+  height: 10px;
+  border: solid #ffffff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+input[type="checkbox"]:not(.fct-no-restyle):indeterminate {
+  background: #ec8228;
+  border-color: #ec8228;
+}
+input[type="checkbox"]:not(.fct-no-restyle):indeterminate::after {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 7px;
+  width: 10px;
+  height: 2px;
+  background: #ffffff;
+  border-radius: 1px;
+  transform: none;
+}
+input[type="checkbox"]:not(.fct-no-restyle):focus-visible {
+  outline: 2px solid rgba(236, 130, 40, 0.45);
+  outline-offset: 2px;
+}
+input[type="checkbox"]:not(.fct-no-restyle):disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.dark input[type="checkbox"]:not(.fct-no-restyle) {
+  background: #1d1e24;
+  border-color: #3a4250;
+}
+.dark input[type="checkbox"]:not(.fct-no-restyle):checked,
+.dark input[type="checkbox"]:not(.fct-no-restyle):indeterminate {
+  background: #ec8228;
+  border-color: #ec8228;
 }
 
 .pilot-shell,
@@ -9462,6 +9532,18 @@ select.settings-input option:checked {
 }
 
 .dark .tx-page__title { color: #f1f5f9; }
+
+.tx-page__header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.tx-page__header-actions .pilot-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
 
 /* Tabs Todas / Ingresos / Gastos */
 .tx-tabs {
