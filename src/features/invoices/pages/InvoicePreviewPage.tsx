@@ -5,6 +5,7 @@ import { LoadingSkeleton } from "../../../app/components/states/LoadingSkeleton"
 import { DocumentActionBar } from "../../documents/components/DocumentActionBar";
 import { getPdfBlob, downloadPdf } from "../../documents/pdf/document-pdf-generator";
 import { useInvoicesWorkspace } from "../hooks/use-invoices-workspace";
+import { useVerifactuQr } from "../../../shared/hooks/use-verifactu-qr";
 
 function formatCurrency(amount: number, currency: string): string {
   const normalizedCurrency = /^[A-Z]{3}$/.test((currency || "").toUpperCase()) ? currency.toUpperCase() : "EUR";
@@ -100,6 +101,12 @@ export function InvoicePreviewPage(): import("react").JSX.Element {
     otro: "Otro",
   };
   const issuedReadOnly = workspace.activeInvoiceStatus === "issued";
+  // QR de cotejo VERI*FACTU: solo en facturas emitidas (los borradores no tienen número final).
+  const verifactuQr = useVerifactuQr(
+    issuedReadOnly && editor.issuer.nif && docNumber
+      ? { issuerNif: editor.issuer.nif, numSerie: docNumber, issueDateIso: editor.meta.issueDate, total: summary.total }
+      : null,
+  );
   const backPath = issuedReadOnly
     ? "/facturas/emitidas"
     : `/facturas/emision?draft=${encodeURIComponent(workspace.activeInvoiceId ?? "")}`;
@@ -254,6 +261,26 @@ export function InvoicePreviewPage(): import("react").JSX.Element {
           <div className="doc-preview-summary__row"><span>Plazo de pago</span><strong>{paymentTerms}</strong></div>
           {paymentDueDate ? (
             <div className="doc-preview-summary__row"><span>Vencimiento</span><strong>{paymentDueDate}</strong></div>
+          ) : null}
+          {verifactuQr ? (
+            <>
+              <hr />
+              <h3>VERI*FACTU</h3>
+              <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
+                <img
+                  src={verifactuQr.qrDataUrl}
+                  alt="Código QR de cotejo VERI*FACTU"
+                  width={110}
+                  height={110}
+                  style={{ flexShrink: 0, border: "1px solid #e2e8f0", borderRadius: "8px" }}
+                />
+                <p style={{ fontSize: "12px", lineHeight: 1.5, margin: 0, color: "#4a5568" }}>
+                  Factura verificable en la sede electrónica de la AEAT.{" "}
+                  <strong>Vista previa</strong>: la validación se activará al completar el alta como
+                  colaborador en la AEAT (Tipo 017).
+                </p>
+              </div>
+            </>
           ) : null}
           <hr />
           <div className="doc-preview-summary__actions">
