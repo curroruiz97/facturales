@@ -1,6 +1,7 @@
 // Supabase Edge Function: create-checkout-session
 // Crea una Stripe Checkout Session para suscripciones.
-// verify_jwt=false; validamos JWT manualmente por incompatibilidad con Deno runtime.
+// verify_jwt=false en el gateway: por eso validamos el token SIEMPRE contra
+// Supabase Auth (auth.getUser), que verifica la FIRMA. No basta con decodificar el JWT.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import Stripe from "https://esm.sh/stripe@17?target=deno";
@@ -19,21 +20,20 @@ function getPriceId(plan: Plan, interval: Interval): string | null {
   return Deno.env.get(key) || null;
 }
 
-/** Decodifica el JWT y devuelve sub+email. */
-function extractUserFromJwt(authHeader: string): { id: string; email?: string } | null {
-  try {
-    const token = authHeader.replace(/^Bearer\s+/i, "").trim();
-    const parts = token.split(".");
-    if (parts.length !== 3) return null;
-    const payload = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-    const padded = payload + "=".repeat((4 - (payload.length % 4)) % 4);
-    const json = JSON.parse(atob(padded));
-    if (!json.sub || typeof json.sub !== "string") return null;
-    if (typeof json.exp === "number" && Date.now() / 1000 > json.exp) return null;
-    return { id: json.sub, email: typeof json.email === "string" ? json.email : undefined };
-  } catch {
-    return null;
-  }
+/**
+ * Valida el token contra Supabase Auth (verifica la FIRMA, no solo decodifica el payload).
+ * Imprescindible porque el gateway corre con verify_jwt=false: sin esto, un JWT
+ * fabricado con cualquier `sub` sería aceptado (suplantación de identidad).
+ */
+async function authenticateUser(authHeader: string): Promise<{ id: string; email?: string } | null> {
+  const token = authHeader.replace(/^Bearer\s+/i, "").trim();
+  if (!token) return null;
+  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+  const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+  const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey);
+  const { data, error } = await supabaseAuth.auth.getUser(token);
+  if (error || !data?.user) return null;
+  return { id: data.user.id, email: data.user.email ?? undefined };
 }
 
 Deno.serve(async (req: Request) => {
@@ -42,8 +42,8 @@ Deno.serve(async (req: Request) => {
   try {
     const authHeader = req.headers.get("Authorization") || "";
     if (!authHeader) return jsonResponse(req, { error: "Falta header Authorization" }, 401);
-    const jwt = extractUserFromJwt(authHeader);
-    if (!jwt) return jsonResponse(req, { error: "JWT inválido o expirado" }, 401);
+    const jwt = await authenticateUser(authHeader);
+    if (!jwt) return jsonResponse(req, { error: "No autorizado: token inválido" }, 401);
 
     const { plan, interval } = await req.json() as { plan: string; interval: string };
     if (!plan || !VALID_PLANS.includes(plan as Plan)) {
