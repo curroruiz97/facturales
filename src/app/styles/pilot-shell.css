@@ -212,6 +212,16 @@ input[type="checkbox"]:not(.fct-no-restyle):disabled {
   overflow-y: auto;
   overflow-x: hidden;
   height: 100%;
+  /* Scroll funcional pero SIN barra visible. */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Edge / IE antiguos */
+}
+
+/* Oculta la barra de scroll del menu lateral en navegadores WebKit (Chrome, Safari, Edge). */
+.pilot-sidebar__body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
 }
 
 .pilot-sidebar--collapsed .pilot-sidebar__header {
