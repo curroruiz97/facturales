@@ -1,11 +1,16 @@
 // Supabase Edge Function: send-document-email
 // Envía email con PDF adjunto de factura/presupuesto vía Resend
-// verify_jwt=false: validamos el JWT nosotros mismos decodificando el payload
-//   (el gateway de Supabase estaba rechazando tokens válidos con 401 en Deno edge runtime).
+// verify_jwt=false en el gateway: validamos el token SIEMPRE contra Supabase Auth
+//   (auth.getUser, que verifica la FIRMA). No basta con decodificar el payload.
 // Sin reintentos: cada combinación documentType+documentId+to se envía una sola vez.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders, handleCorsOptions, jsonResponse } from "../_shared/cors.ts";
+
+const emailCurrencyFormatter = new Intl.NumberFormat("es-ES", {
+  style: "currency",
+  currency: "EUR",
+});
 
 // ============================================
 // Tipos
@@ -76,25 +81,19 @@ async function sha256(message: string): Promise<string> {
 }
 
 /**
- * Extrae el user id y email del JWT ya validado por Supabase (verify_jwt=true).
- * No verifica la firma — Supabase lo hizo antes de invocar la función.
+ * Valida el token contra Supabase Auth (verifica la FIRMA, no solo decodifica).
+ * Imprescindible porque el gateway corre con verify_jwt=false: sin esto, un JWT
+ * fabricado con cualquier `sub` sería aceptado (suplantación de identidad).
  */
-function extractUserFromJwt(authHeader: string): { id: string; email?: string } | null {
-  try {
-    const token = authHeader.replace(/^Bearer\s+/i, "").trim();
-    const parts = token.split(".");
-    if (parts.length !== 3) return null;
-    // base64url decode
-    const payload = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-    const padded = payload + "=".repeat((4 - (payload.length % 4)) % 4);
-    const json = JSON.parse(atob(padded));
-    if (!json.sub || typeof json.sub !== "string") return null;
-    // Rechaza tokens expirados (defensa en profundidad — Supabase ya debería haberlos bloqueado)
-    if (typeof json.exp === "number" && Date.now() / 1000 > json.exp) return null;
-    return { id: json.sub, email: typeof json.email === "string" ? json.email : undefined };
-  } catch {
-    return null;
-  }
+async function authenticateUser(authHeader: string): Promise<{ id: string; email?: string } | null> {
+  const token = authHeader.replace(/^Bearer\s+/i, "").trim();
+  if (!token) return null;
+  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+  const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+  const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey);
+  const { data, error } = await supabaseAuth.auth.getUser(token);
+  if (error || !data?.user) return null;
+  return { id: data.user.id, email: data.user.email ?? undefined };
 }
 
 // arriba de buildEmailHtml, o dentro, como constantes:
@@ -194,12 +193,11 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    // ── 0. Validación propia del JWT (verify_jwt=false en el gateway) ──
+    // ── 0. Autenticación: validar el token contra Supabase Auth (verify_jwt=false en el gateway) ──
     const authHeader = req.headers.get("Authorization") || "";
-    const token = authHeader.replace(/^Bearer\s+/i, "").trim();
-    if (!token) return jsonResponse(req, { success: false, error: "Falta header Authorization" }, 401);
-    const jwtPayload = extractUserFromJwt(`Bearer ${token}`);
-    if (!jwtPayload) return jsonResponse(req, { success: false, error: "JWT inválido o expirado" }, 401);
+    if (!authHeader) return jsonResponse(req, { success: false, error: "Falta header Authorization" }, 401);
+    const jwtPayload = await authenticateUser(authHeader);
+    if (!jwtPayload) return jsonResponse(req, { success: false, error: "No autorizado: token inválido" }, 401);
     const userId = jwtPayload.id;
 
     // ── 1. Parsear y validar payload ──────────────────────────
@@ -308,10 +306,7 @@ Deno.serve(async (req: Request) => {
     const issuerName = docJsonData.issuer?.name || "Sin nombre";
     const clientName = docJsonData.client?.name || "Cliente";
     const docNumber = docData[numberField] || "Sin número";
-    const totalAmount = new Intl.NumberFormat("es-ES", {
-      style: "currency",
-      currency: "EUR",
-    }).format(parseFloat(docData.total_amount) || 0);
+    const totalAmount = emailCurrencyFormatter.format(parseFloat(docData.total_amount) || 0);
 
     const emailSubject = sanitizeOneLine(subject || (
       documentType === "invoice"

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Sin conexión · Facturales</title>
+    <style>
+      :root { color-scheme: light; }
+      html, body {
+        margin: 0;
+        height: 100%;
+        background: #fff7ed;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        color: #1a202c;
+      }
+      .wrap {
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        padding: 32px;
+        text-align: center;
+      }
+      .logo {
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+      .logo span { color: #ec8228; }
+      .icon {
+        width: 56px;
+        height: 56px;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        background: #fed7aa;
+        color: #ec8228;
+        font-size: 26px;
+      }
+      h1 { font-size: 20px; margin: 4px 0 0; }
+      p { font-size: 14px; color: #718096; max-width: 320px; margin: 0; line-height: 1.5; }
+      button {
+        margin-top: 8px;
+        appearance: none;
+        border: 0;
+        border-radius: 999px;
+        background: #ec8228;
+        color: #fff;
+        font-size: 15px;
+        font-weight: 600;
+        padding: 12px 28px;
+        cursor: pointer;
+      }
+      button:active { background: #d47524; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="logo">Factura<span>les</span></div>
+      <div class="icon" aria-hidden="true">⚠</div>
+      <h1>Sin conexión</h1>
+      <p>No hemos podido conectar con Facturales. Comprueba tu conexión a internet e inténtalo de nuevo.</p>
+      <button onclick="location.reload()">Reintentar</button>
+    </div>
+  </body>
+</html>
