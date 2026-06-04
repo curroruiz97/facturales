@@ -1779,6 +1779,21 @@ export function SettingsPage(): import("react").JSX.Element {
                   <li>Cumplimiento con <strong>RGPD</strong>: puedes exportar o solicitar la eliminación de tu información en cualquier momento.</li>
                 </ul>
 
+                <dl className="settings-info-list">
+                  <div className="settings-info-list__row">
+                    <dt>Periodicidad de la copia de seguridad</dt>
+                    <dd><span className="settings-badge settings-badge--ok">Diaria</span></dd>
+                  </div>
+                  <div className="settings-info-list__row">
+                    <dt>Retención</dt>
+                    <dd>7 días (Pro) · 30 días (Business)</dd>
+                  </div>
+                  <div className="settings-info-list__row">
+                    <dt>Ubicación de la copia</dt>
+                    <dd>Supabase · Espacio Económico Europeo</dd>
+                  </div>
+                </dl>
+
                 <div className="settings-storage-card">
                   <div className="settings-storage-card__head">
                     <strong>Almacenamiento de ficheros</strong>
