@@ -231,6 +231,14 @@ export class DefaultInvoicesAdapter implements InvoicesAdapter {
       await onboardingService.updateStep(userId, 4, true);
     }
 
+    // Veri*Factu: genera el registro de facturación (huella SHA-256 encadenada + QR de cotejo) en el
+    // servidor, de forma simultánea a la emisión (RD 1007/2023). Fire-and-forget: si falla NO bloquea
+    // la emisión (el registro queda pendiente para reintento). La Edge Function comprueba internamente
+    // si el usuario tiene Veri*Factu activado (business_info.verifactu_enabled).
+    void getSupabaseClient()
+      .functions.invoke("emit-invoice-verifactu", { body: { invoiceId } })
+      .catch(() => {});
+
     return emitted;
   }
 
