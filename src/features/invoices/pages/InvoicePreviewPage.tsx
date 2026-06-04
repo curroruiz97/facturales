@@ -119,8 +119,9 @@ export function InvoicePreviewPage(): import("react").JSX.Element {
       documentNumber: docNumber,
       brandColor: workspace.pdfBrandColor,
       logoDataUrl: resolvedLogoDataUrl,
+      verifactuQrDataUrl: verifactuQr?.qrDataUrl,
     });
-  }, [editor, summary, docNumber, workspace.pdfBrandColor, resolvedLogoDataUrl, refreshTick]);
+  }, [editor, summary, docNumber, workspace.pdfBrandColor, resolvedLogoDataUrl, verifactuQr?.qrDataUrl, refreshTick]);
 
   const [previewUrl, setPreviewUrl] = useState<string>("");
   useEffect(() => {
@@ -184,6 +185,7 @@ export function InvoicePreviewPage(): import("react").JSX.Element {
                       documentNumber: docNumber,
                       brandColor: workspace.pdfBrandColor,
                       logoDataUrl: resolvedLogoDataUrl,
+                      verifactuQrDataUrl: verifactuQr?.qrDataUrl,
                     },
                     `factura-${docNumber || "borrador"}.pdf`,
                   )
@@ -288,7 +290,7 @@ export function InvoicePreviewPage(): import("react").JSX.Element {
               type="button"
               className="doc-preview-summary__btn"
               onClick={() => {
-                downloadPdf({ editor, totals: summary, documentNumber: docNumber, brandColor: workspace.pdfBrandColor, logoDataUrl: resolvedLogoDataUrl }, `factura-${(docNumber || "sin-numero").replace(/[^a-zA-Z0-9-_]/g, "_")}.pdf`);
+                downloadPdf({ editor, totals: summary, documentNumber: docNumber, brandColor: workspace.pdfBrandColor, logoDataUrl: resolvedLogoDataUrl, verifactuQrDataUrl: verifactuQr?.qrDataUrl }, `factura-${(docNumber || "sin-numero").replace(/[^a-zA-Z0-9-_]/g, "_")}.pdf`);
                 setFlash("PDF descargado.");
               }}
             >

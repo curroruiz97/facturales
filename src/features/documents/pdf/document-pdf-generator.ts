@@ -19,6 +19,8 @@ interface GeneratePdfOptions {
   documentNumber: string;
   brandColor?: string;
   logoDataUrl?: string;
+  /** Imagen PNG (data URL) del QR de cotejo VERI*FACTU. Si se pasa, se dibuja en el PDF con su leyenda. */
+  verifactuQrDataUrl?: string;
 }
 
 const SUPPORTED_CURRENCIES: ReadonlySet<string> = new Set([
@@ -122,7 +124,7 @@ function drawLogoOrFallback(
 }
 
 export function generateDocumentPdf(options: GeneratePdfOptions): jsPDF {
-  const { editor, totals, documentNumber, brandColor = "#22C55E", logoDataUrl } = options;
+  const { editor, totals, documentNumber, brandColor = "#22C55E", logoDataUrl, verifactuQrDataUrl } = options;
   const cur = editor.meta.currency || "EUR";
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   const pageWidth = 210;
@@ -314,6 +316,20 @@ export function generateDocumentPdf(options: GeneratePdfOptions): jsPDF {
   doc.line(margin, y, pageWidth - margin, y);
   y += 7;
 
+  // Desglose de IVA/IGIC/IPSI por tipo (RD 1619/2012: tipo y cuota de cada tipo aplicado).
+  const ivaBreakdown = new Map<string, { base: number; cuota: number }>();
+  for (const line of editor.lines) {
+    const code = line.taxCode || "EXENTO";
+    if (code.startsWith("IRPF")) continue; // la retención IRPF se muestra aparte
+    const sub = line.quantity * line.unitPrice;
+    const base = sub - sub * (line.discount / 100);
+    const [, rawRate] = code.split("_");
+    const rate = Number.parseFloat(rawRate ?? "0");
+    const cuota = base * ((Number.isFinite(rate) ? rate : 0) / 100);
+    const prev = ivaBreakdown.get(code) ?? { base: 0, cuota: 0 };
+    ivaBreakdown.set(code, { base: prev.base + base, cuota: prev.cuota + cuota });
+  }
+
   const summaryRows: Array<{ label: string; value: number; red?: boolean }> = [];
   if (totals.discount > 0) {
     summaryRows.push({ label: "Subtotal", value: totals.subtotal });
@@ -322,7 +338,12 @@ export function generateDocumentPdf(options: GeneratePdfOptions): jsPDF {
     summaryRows.push({ label: "Subtotal", value: totals.subtotal });
   }
   summaryRows.push({ label: "Base imponible", value: totals.taxBase });
-  if (taxesTotal > 0) summaryRows.push({ label: "Impuestos", value: taxesTotal });
+  // Una fila por cada tipo de IVA/IGIC/IPSI aplicado (tipo → cuota).
+  for (const [code, { cuota }] of ivaBreakdown) {
+    if (cuota > 0) summaryRows.push({ label: taxLabelFromCode(code), value: cuota });
+  }
+  if (totals.reAmount > 0) summaryRows.push({ label: "Recargo de equivalencia", value: totals.reAmount });
+  void taxesTotal;
   if (totals.retentionAmount > 0) summaryRows.push({ label: `Retención IRPF (${editor.taxSettings.retentionRate}%)`, value: -totals.retentionAmount, red: true });
   if (totals.expenses > 0) summaryRows.push({ label: "Gastos suplidos", value: totals.expenses });
 
@@ -421,6 +442,28 @@ export function generateDocumentPdf(options: GeneratePdfOptions): jsPDF {
       doc.text(line, margin, y);
       y += 4.5;
     }
+  }
+
+  // VERI*FACTU: QR de cotejo + leyenda de verificación en el propio documento (RD 1007/2023, art. 16).
+  if (verifactuQrDataUrl) {
+    const qrSize = 26;
+    if (y + qrSize + 6 > maxY) {
+      pageNumber = addNewPage(pageNumber);
+    }
+    try {
+      doc.addImage(verifactuQrDataUrl, "PNG", margin, y, qrSize, qrSize);
+    } catch {
+      // Si el data URL no es válido, no rompemos el PDF.
+    }
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(0, 0, 0);
+    doc.text("VERI*FACTU", margin + qrSize + 5, y + 9);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7.5);
+    doc.setTextColor(90, 90, 90);
+    doc.text("Factura verificable en la sede electrónica de la AEAT.", margin + qrSize + 5, y + 15);
+    y += qrSize + 6;
   }
 
   drawFooter(pageNumber);
