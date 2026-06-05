@@ -8,9 +8,10 @@
 //  5) inserta en `verifactu_registros` (append-only).
 //
 // La lógica fiscal vive en `../_shared/verifactu.ts` (verificada con Vitest contra vectores oficiales AEAT).
-// ESTADO: pendiente de validar end-to-end contra el entorno de PREPRODUCCIÓN de la AEAT (requiere
-// certificado). Aún NO está enganchada al flujo de emisión de la app ni envía a la AEAT
-// (los registros quedan en estado 'pendiente'). verify_jwt=false en el gateway → validamos aquí.
+// Se invoca (fire-and-forget) desde la emisión de la factura; solo actúa si el usuario tiene
+// verifactu_enabled=true. El ENVÍO a la AEAT (estado 'pendiente' → 'aceptado') es un paso posterior
+// que requiere certificado (colaboración social Tipo 017). verify_jwt=false en el gateway → validamos
+// el token aquí.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { handleCorsOptions, jsonResponse } from "../_shared/cors.ts";
@@ -55,6 +56,16 @@ Deno.serve(async (req: Request) => {
     if (inv.user_id !== auth.id) return jsonResponse(req, { error: "Sin permisos sobre esta factura" }, 403);
     if (inv.status !== "issued") return jsonResponse(req, { error: "La factura debe estar emitida" }, 400);
     if (!inv.invoice_number) return jsonResponse(req, { error: "La factura no tiene número asignado" }, 400);
+
+    // 1b) Solo se genera el registro si el usuario ha activado Veri*Factu (Ajustes > VERI*FACTU).
+    const { data: bi } = await admin
+      .from("business_info")
+      .select("verifactu_enabled")
+      .eq("user_id", auth.id)
+      .maybeSingle();
+    if (!bi?.verifactu_enabled) {
+      return jsonResponse(req, { skipped: true, reason: "verifactu_disabled" });
+    }
 
     // 2) Idempotencia: si ya existe registro de alta para esta factura, devolverlo
     const { data: existing } = await admin

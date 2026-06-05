@@ -35,6 +35,7 @@ const SettingsPage = lazy(() => import("../features/settings/pages/SettingsPage"
 const IntegrationsPage = lazy(() => import("../features/integrations/pages/IntegrationsPage").then((m) => ({ default: m.IntegrationsPage })));
 const FiscalPage = lazy(() => import("../features/fiscal/pages/FiscalPage").then((m) => ({ default: m.FiscalPage })));
 const InvoicePreviewPage = lazy(() => import("../features/invoices/pages/InvoicePreviewPage").then((m) => ({ default: m.InvoicePreviewPage })));
+const ReceivedInvoicesPage = lazy(() => import("../features/received-invoices/pages/ReceivedInvoicesPage").then((m) => ({ default: m.ReceivedInvoicesPage })));
 import { AdminGuard } from "../features/admin/components/AdminGuard";
 import { AppErrorBoundary } from "./components/states/AppErrorBoundary";
 
@@ -71,6 +72,7 @@ const CANONICAL_ROUTES: CanonicalRouteDefinition[] = [
   { path: "/facturas/vista-previa", element: <InvoicePreviewPage /> },
   { path: "/facturas/borradores", element: <InvoicesPage mode="borradores" /> },
   { path: "/facturas/emitidas", element: <InvoicesPage mode="emitidas" /> },
+  { path: "/facturas/recibidas", element: <ReceivedInvoicesPage /> },
   { path: "/facturas/importar", element: <InvoiceImportPage /> },
   { path: "/ocr", element: <OcrPage /> },
   { path: "/soporte", element: <SupportPage /> },
