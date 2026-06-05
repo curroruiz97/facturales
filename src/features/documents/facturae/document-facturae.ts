@@ -26,6 +26,9 @@ export interface FacturaeTotalsInput {
 /** Códigos L1 de Facturae: 01=IVA, 02=IPSI, 03=IGIC, 04=IRPF. */
 const KIND_TO_FACTURAE: Record<string, string> = { IVA: "01", IPSI: "02", IGIC: "03", IRPF: "04" };
 
+/** Leyenda de exención (RD 1619/2012 art. 6.1.j admite "indicación de que la operación está exenta"). */
+export const EXEMPTION_LEGEND = "Operación exenta de IVA (Ley 37/1992 del IVA).";
+
 function parseTaxCode(taxCode: string): { kind: string; rate: number } {
   if (!taxCode || taxCode === "EXENTO") return { kind: "IVA", rate: 0 };
   const [kind, rawRate] = taxCode.split("_");
@@ -114,6 +117,8 @@ export function buildFacturaeInput(
     });
   }
 
+  const hasExempt = editor.lines.some((l) => (l.taxCode || "").toUpperCase() === "EXENTO");
+
   return {
     seller: partyFrom(editor.issuer),
     buyer: partyFrom(editor.client),
@@ -128,6 +133,7 @@ export function buildFacturaeInput(
     totalTaxOutputs,
     totalTaxesWithheld: totals.retentionAmount > 0 ? totals.retentionAmount : 0,
     invoiceTotal: totals.total,
+    legalLiterals: hasExempt ? [EXEMPTION_LEGEND] : undefined,
   };
 }
 

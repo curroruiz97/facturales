@@ -67,6 +67,25 @@ describe("document-facturae (mapeo editor → Facturae)", () => {
     expect(suplido?.grossAmount).toBe(30);
   });
 
+  it("añade la leyenda de exención cuando hay líneas exentas (RD 1619/2012)", () => {
+    const editor = makeEditor({
+      lines: [{ id: "x", description: "Servicio exento", quantity: 1, unitPrice: 100, discount: 0, taxCode: "EXENTO" }],
+    });
+    const input = buildFacturaeInput(editor, { taxBase: 100, retentionRate: 0, retentionAmount: 0, total: 100 }, "A-1");
+    expect(input.legalLiterals).toBeDefined();
+    expect(input.legalLiterals?.[0]).toContain("exenta");
+    const xml = buildFacturaeXml(editor, { taxBase: 100, retentionRate: 0, retentionAmount: 0, total: 100 }, "A-1");
+    expect(xml).toContain("<AdditionalData>");
+    expect(xml).toContain("<InvoiceAdditionalInformation>");
+    expect(xml).toContain("exenta de IVA");
+  });
+
+  it("NO añade leyenda de exención si no hay líneas exentas", () => {
+    const input = buildFacturaeInput(makeEditor(), TOTALS, "A-1");
+    expect(input.legalLiterals).toBeUndefined();
+    expect(buildFacturaeXml(makeEditor(), TOTALS, "A-1")).not.toContain("<AdditionalData>");
+  });
+
   it("produce un XML fe:Facturae descargable con los datos del emisor y receptor", () => {
     const xml = buildFacturaeXml(makeEditor(), TOTALS, "A-2026-00001");
     expect(xml).toContain("<fe:Facturae");

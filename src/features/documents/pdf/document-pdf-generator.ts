@@ -444,6 +444,19 @@ export function generateDocumentPdf(options: GeneratePdfOptions): jsPDF {
     }
   }
 
+  // Causa de exención de IVA (RD 1619/2012 art. 6.1.j: basta indicar que la operación está exenta).
+  const hasExemptLine = editor.lines.some((line) => (line.taxCode || "").toUpperCase() === "EXENTO");
+  if (hasExemptLine) {
+    if (y + 8 > maxY) {
+      pageNumber = addNewPage(pageNumber);
+    }
+    doc.setFontSize(7.5);
+    doc.setFont("helvetica", "italic");
+    doc.setTextColor(90, 90, 90);
+    doc.text("Operación exenta de IVA (Ley 37/1992 del IVA).", margin, y);
+    y += 6;
+  }
+
   // VERI*FACTU: QR de cotejo + leyenda de verificación en el propio documento (RD 1007/2023, art. 16).
   if (verifactuQrDataUrl) {
     const qrSize = 26;

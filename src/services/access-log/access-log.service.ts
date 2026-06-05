@@ -40,6 +40,8 @@ export interface AccessLogService {
   logCurrentAccess(force?: boolean): Promise<ServiceResult<LogAccessOutput>>;
   getSessionFlagKey(): string;
   listMine(params?: ListAccessLogsParams): Promise<ServiceResult<AccessLogsPage>>;
+  /** Recupera TODOS los registros del usuario (para exportar a CSV). */
+  listAllMine(): Promise<ServiceResult<AccessLogEntry[]>>;
 }
 
 declare global {
@@ -172,6 +174,20 @@ export class LegacyCompatibleAccessLogService implements AccessLogService {
     } catch (error) {
       return fail("No se pudieron cargar los registros de acceso.", "ACCESS_LOG_LIST_ERROR", error);
     }
+  }
+
+  async listAllMine(): Promise<ServiceResult<AccessLogEntry[]>> {
+    const all: AccessLogEntry[] = [];
+    let page = 0;
+    // Tope de seguridad (100 páginas × 100 = 10.000 registros) para no iterar de más.
+    for (let i = 0; i < 100; i += 1) {
+      const res = await this.listMine({ page, pageSize: MAX_PAGE_SIZE });
+      if (!res.success) return fail(res.error.message, res.error.code, res.error.cause);
+      all.push(...res.data.items);
+      if (!res.data.hasNextPage) break;
+      page += 1;
+    }
+    return ok(all);
   }
 }
 

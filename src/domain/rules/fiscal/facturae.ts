@@ -70,6 +70,8 @@ export interface FacturaeInput {
   totalTaxesWithheld: number;
   /** Importe total de la factura. */
   invoiceTotal: number;
+  /** Menciones legales (p. ej. causa de exención de IVA, RD 1619/2012 art. 6.1.j). */
+  legalLiterals?: string[];
 }
 
 const FACTURAE_NS = "http://www.facturae.gob.es/formato/Versiones/Facturaev3_2_2.xml";
@@ -181,6 +183,13 @@ export function construirFacturaeXml(input: FacturaeInput): string {
   const taxWithheldBlock = withheld.length ? "\n" + taxesXml("TaxesWithheld", withheld) : "";
   const seriesBlock = input.seriesCode ? `        <InvoiceSeriesCode>${esc(input.seriesCode)}</InvoiceSeriesCode>\n` : "";
   const lines = input.lines.map(lineXml).join("\n");
+  const literals = (input.legalLiterals ?? []).filter((t) => t && t.trim());
+  const additionalData = literals.length
+    ? `
+      <AdditionalData>
+        <InvoiceAdditionalInformation>${esc(literals.join(" "))}</InvoiceAdditionalInformation>
+      </AdditionalData>`
+    : "";
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <fe:Facturae xmlns:fe="${FACTURAE_NS}" xmlns:ds="${DSIG_NS}">
@@ -226,7 +235,7 @@ ${taxOutputsBlock}${taxWithheldBlock}
       </InvoiceTotals>
       <Items>
 ${lines}
-      </Items>
+      </Items>${additionalData}
     </Invoice>
   </Invoices>
 </fe:Facturae>`;

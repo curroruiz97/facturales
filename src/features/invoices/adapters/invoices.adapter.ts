@@ -263,7 +263,31 @@ export class DefaultInvoicesAdapter implements InvoicesAdapter {
   }
 
   async cancelInvoice(invoiceId: string): Promise<ServiceResult<Invoice>> {
-    return invoicesRepository.remove(invoiceId);
+    const result = await invoicesRepository.remove(invoiceId);
+    if (!result.success) return result;
+
+    // Veri*Factu: registro de ANULACIÓN simultáneo a la anulación (RD 1007/2023). Gate doble
+    // (solo si verifactu_enabled) + fire-and-forget: si falla NO bloquea la anulación.
+    const userId = await getCurrentUserId();
+    if (userId) {
+      void (async () => {
+        try {
+          const supabase = getSupabaseClient();
+          const { data: bi } = await supabase
+            .from("business_info")
+            .select("verifactu_enabled")
+            .eq("user_id", userId)
+            .maybeSingle();
+          if (bi?.verifactu_enabled) {
+            await supabase.functions.invoke("anular-invoice-verifactu", { body: { invoiceId } });
+          }
+        } catch {
+          // No bloquea la anulación.
+        }
+      })();
+    }
+
+    return result;
   }
 
   async togglePaidMany(invoiceIds: string[], isPaid: boolean): Promise<BulkOperationResult> {

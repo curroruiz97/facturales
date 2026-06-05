@@ -692,6 +692,32 @@ export function SettingsPage(): import("react").JSX.Element {
     setLogsHasNext(result.data.hasNextPage);
   };
 
+  const onExportLogs = async (): Promise<void> => {
+    const result = await accessLogService.listAllMine();
+    if (!result.success) {
+      setError(result.error.message);
+      return;
+    }
+    const esc = (v: string | null): string => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const header = ["Fecha", "Usuario", "IP", "Ciudad", "Pais", "Navegador"];
+    const lines = [header.map((h) => esc(h)).join(",")];
+    for (const r of result.data) {
+      lines.push([r.createdAt, r.email, r.ipAddress, r.city, r.country, r.userAgent].map((v) => esc(v)).join(","));
+    }
+    // BOM para que Excel reconozca UTF-8.
+    const csv = "﻿" + lines.join("\r\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = "registros-acceso-facturales.csv";
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+    URL.revokeObjectURL(url);
+    setSuccess("Registros de acceso exportados a CSV.");
+  };
+
   const loadUsersMeta = async (): Promise<void> => {
     const usageResult = await billingLimitsService.getUsage();
     if (usageResult.success && usageResult.data) {
@@ -1904,6 +1930,14 @@ export function SettingsPage(): import("react").JSX.Element {
                 <h2>Registro de accesos</h2>
                 <p>Historial de todos los inicios de sesión en tu cuenta.</p>
               </div>
+              <button
+                type="button"
+                className="settings-btn settings-btn--primary"
+                disabled={logsTotal === 0}
+                onClick={() => void onExportLogs()}
+              >
+                Exportar CSV
+              </button>
             </div>
 
             <div className="settings-table-wrap">
