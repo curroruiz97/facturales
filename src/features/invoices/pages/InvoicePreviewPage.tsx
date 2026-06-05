@@ -4,6 +4,7 @@ import { ErrorState } from "../../../app/components/states/ErrorState";
 import { LoadingSkeleton } from "../../../app/components/states/LoadingSkeleton";
 import { DocumentActionBar } from "../../documents/components/DocumentActionBar";
 import { getPdfBlob, downloadPdf } from "../../documents/pdf/document-pdf-generator";
+import { downloadFacturaeXml } from "../../documents/facturae/document-facturae";
 import { useInvoicesWorkspace } from "../hooks/use-invoices-workspace";
 import { useVerifactuQr } from "../../../shared/hooks/use-verifactu-qr";
 
@@ -305,6 +306,25 @@ export function InvoicePreviewPage(): import("react").JSX.Element {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.8"/></svg>
               Vista previa
             </button>
+            {issuedReadOnly ? (
+              <button
+                type="button"
+                className="doc-preview-summary__btn"
+                title="Descarga el XML estructurado Facturae 3.2.2 (factura electrónica)"
+                onClick={() => {
+                  downloadFacturaeXml(
+                    editor,
+                    { taxBase: summary.taxBase, retentionRate: summary.retentionRate, retentionAmount: summary.retentionAmount, total: summary.total },
+                    docNumber,
+                    `facturae-${(docNumber || "sin-numero").replace(/[^a-zA-Z0-9-_]/g, "_")}.xml`,
+                  );
+                  setFlash("Factura electrónica (Facturae 3.2.2) descargada.");
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><path d="M14 2v6h6M9 13l2 2 4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                Factura electrónica
+              </button>
+            ) : null}
           </div>
         </aside>
       </div>
