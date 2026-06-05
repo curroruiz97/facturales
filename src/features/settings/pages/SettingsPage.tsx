@@ -5,6 +5,7 @@ import { accessLogService, type AccessLogEntry } from "../../../services/access-
 import { authService } from "../../../services/auth/auth.service";
 import { billingLimitsService } from "../../../services/billing-limits/billing-limits.service";
 import { businessInfoService, type BusinessInfoInput, type BusinessTaxType } from "../../../services/business/business-info.service";
+import { teamService, type TeamMemberRecord } from "../../../services/team/team.service";
 import {
   invoiceSeriesService,
   type InvoiceSeriesCounterReset,
@@ -30,13 +31,6 @@ type SelectablePlan = Exclude<BillingPlan, "none">;
 interface NoticeState {
   kind: NoticeKind;
   message: string;
-}
-
-interface TeamUser {
-  id: string;
-  name: string;
-  email: string;
-  role: TeamRole;
 }
 
 interface TabDefinition {
@@ -289,8 +283,6 @@ const TEAM_LIMIT_BY_PLAN: Record<BillingPlan, number> = {
   business: Number.POSITIVE_INFINITY,
 };
 
-const TEAM_STORAGE_KEY = "facturales_team_users";
-
 function IconBusiness(): import("react").JSX.Element {
   return (
     <svg viewBox="0 0 24 24" aria-hidden>
@@ -470,22 +462,6 @@ async function fileToBase64(file: File): Promise<string> {
   });
 }
 
-function readTeamUsers(): TeamUser[] {
-  try {
-    const raw = localStorage.getItem(TEAM_STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as TeamUser[];
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter((item) => typeof item.name === "string" && typeof item.email === "string");
-  } catch {
-    return [];
-  }
-}
-
-function writeTeamUsers(users: TeamUser[]): void {
-  localStorage.setItem(TEAM_STORAGE_KEY, JSON.stringify(users));
-}
-
 function normalizeEmail(value: string): string {
   return value.trim().toLowerCase();
 }
@@ -566,9 +542,10 @@ export function SettingsPage(): import("react").JSX.Element {
   const [logsHasPrevious, setLogsHasPrevious] = useState(false);
   const [logsHasNext, setLogsHasNext] = useState(false);
 
-  const [teamUsers, setTeamUsers] = useState<TeamUser[]>([]);
+  const [teamUsers, setTeamUsers] = useState<TeamMemberRecord[]>([]);
   const [teamLimit, setTeamLimit] = useState<number>(5);
   const [teamFormOpen, setTeamFormOpen] = useState(false);
+  const [teamSaving, setTeamSaving] = useState(false);
   const [teamName, setTeamName] = useState("");
   const [teamEmail, setTeamEmail] = useState("");
   const [teamRole, setTeamRole] = useState<TeamRole>("gestor");
@@ -621,8 +598,14 @@ export function SettingsPage(): import("react").JSX.Element {
     const address = splitAddress(merged.direccionFacturacion ?? "");
     setStreet(address.street);
     setStreetNumber(address.number);
-    setTeamUsers(readTeamUsers());
+    const teamResult = await teamService.listMine();
+    if (teamResult.success) setTeamUsers(teamResult.data);
     setBusinessLoading(false);
+  };
+
+  const refreshTeam = async (): Promise<void> => {
+    const teamResult = await teamService.listMine();
+    if (teamResult.success) setTeamUsers(teamResult.data);
   };
 
   const loadSeries = async (): Promise<void> => {
@@ -928,7 +911,7 @@ export function SettingsPage(): import("react").JSX.Element {
     setSuccess("Contraseña actualizada.");
   };
 
-  const onAddTeamUser = (event: FormEvent<HTMLFormElement>): void => {
+  const onAddTeamUser = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
     const normalizedName = teamName.trim();
     const normalizedMail = normalizeEmail(teamEmail);
@@ -945,30 +928,30 @@ export function SettingsPage(): import("react").JSX.Element {
       return;
     }
 
-    const nextUsers: TeamUser[] = [
-      ...teamUsers,
-      {
-        id: String(Date.now()),
-        name: normalizedName,
-        email: normalizedMail,
-        role: teamRole,
-      },
-    ];
-    setTeamUsers(nextUsers);
-    writeTeamUsers(nextUsers);
+    setTeamSaving(true);
+    const result = await teamService.invite({ name: normalizedName, email: normalizedMail, role: teamRole });
+    setTeamSaving(false);
+    if (!result.success) {
+      setError(result.error.message);
+      return;
+    }
+    await refreshTeam();
     setTeamName("");
     setTeamEmail("");
     setTeamRole("gestor");
     setTeamFormOpen(false);
-    setSuccess("Usuario añadido.");
+    setSuccess("Invitación creada. El usuario quedará vinculado al registrarse con ese email.");
   };
 
-  const onRemoveTeamUser = (id: string): void => {
+  const onRemoveTeamUser = async (id: string): Promise<void> => {
     const accepted = window.confirm("Eliminar este usuario del equipo?");
     if (!accepted) return;
-    const nextUsers = teamUsers.filter((row) => row.id !== id);
-    setTeamUsers(nextUsers);
-    writeTeamUsers(nextUsers);
+    const result = await teamService.remove(id);
+    if (!result.success) {
+      setError(result.error.message);
+      return;
+    }
+    await refreshTeam();
     setSuccess("Usuario eliminado.");
   };
 
@@ -2045,8 +2028,8 @@ export function SettingsPage(): import("react").JSX.Element {
                     <option value="lector">Lector</option>
                   </select>
                 </label>
-                <button type="submit" className="settings-btn settings-btn--primary">
-                  Guardar
+                <button type="submit" className="settings-btn settings-btn--primary" disabled={teamSaving}>
+                  {teamSaving ? "Guardando…" : "Guardar"}
                 </button>
               </form>
             ) : null}
@@ -2058,13 +2041,14 @@ export function SettingsPage(): import("react").JSX.Element {
                     <th>Usuario</th>
                     <th>Email</th>
                     <th>Permisos</th>
+                    <th>Estado</th>
                     <th>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
                   {teamUsers.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="settings-table__empty">
+                      <td colSpan={5} className="settings-table__empty">
                         No hay usuarios añadidos. Haz clic en "Añadir usuario" para empezar.
                       </td>
                     </tr>
@@ -2074,6 +2058,11 @@ export function SettingsPage(): import("react").JSX.Element {
                       <td>{row.name}</td>
                       <td>{row.email}</td>
                       <td>{getTeamRoleLabel(row.role)}</td>
+                      <td>
+                        <span className={`settings-badge ${row.status === "active" ? "settings-badge--ok" : "settings-badge--warn"}`}>
+                          {row.status === "active" ? "Activo" : row.status === "revoked" ? "Revocado" : "Invitado"}
+                        </span>
+                      </td>
                       <td>
                         <button type="button" className="settings-btn settings-btn--danger-ghost" onClick={() => onRemoveTeamUser(row.id)}>
                           Eliminar
@@ -2085,7 +2074,7 @@ export function SettingsPage(): import("react").JSX.Element {
               </table>
             </div>
 
-            <p className="settings-muted">Los cambios del equipo se guardan localmente en este navegador.</p>
+            <p className="settings-muted">Las invitaciones del equipo se guardan en tu cuenta. Cada persona accede con su propio email; quedará vinculada al registrarse.</p>
           </section>
         ) : null}
 
