@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type PropsWithChildren } from "react";
 import type { User } from "@supabase/supabase-js";
 import { authService } from "../../services/auth/auth.service";
+import { getSupabaseClient } from "../../services/supabase/client";
 
 interface AuthContextValue {
   user: User | null;
@@ -10,6 +11,16 @@ interface AuthContextValue {
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+
+/** Link pending team invitations for the current user (fire-and-forget). */
+async function claimTeamInvitations(): Promise<void> {
+  try {
+    const supabase = getSupabaseClient();
+    await supabase.rpc("claim_team_invitations");
+  } catch {
+    // Non-critical — the invitation will be claimed on next login.
+  }
+}
 
 export function AuthProvider({ children }: PropsWithChildren): import("react").JSX.Element {
   const [user, setUser] = useState<User | null>(null);
@@ -37,6 +48,8 @@ export function AuthProvider({ children }: PropsWithChildren): import("react").J
       if (currentUser.success) {
         setUser(currentUser.data);
         setError(null);
+        // Claim any pending team invitations for this email (fire-and-forget).
+        if (currentUser.data) void claimTeamInvitations();
       } else {
         setError(currentUser.error.message);
       }
