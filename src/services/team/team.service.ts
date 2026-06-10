@@ -1,4 +1,4 @@
-import { getCurrentUserId, getSupabaseClient } from "../supabase/client";
+import { getRawAuthUserId, getSupabaseClient } from "../supabase/client";
 import { fail, ok, type ServiceResult } from "../../shared/types/service-result";
 
 export type TeamMemberRole = "propietario" | "gestor" | "lector";
@@ -45,7 +45,7 @@ export interface TeamService {
 
 class SupabaseTeamService implements TeamService {
   async listMine(): Promise<ServiceResult<TeamMemberRecord[]>> {
-    const userId = await getCurrentUserId();
+    const userId = await getRawAuthUserId();
     if (!userId) return ok([]);
 
     const supabase = getSupabaseClient();
@@ -61,7 +61,7 @@ class SupabaseTeamService implements TeamService {
   }
 
   async invite(input: TeamMemberInput): Promise<ServiceResult<TeamMemberRecord>> {
-    const userId = await getCurrentUserId();
+    const userId = await getRawAuthUserId();
     if (!userId) return fail("No autenticado", "AUTH_REQUIRED");
 
     const name = input.name.trim();
@@ -85,7 +85,7 @@ class SupabaseTeamService implements TeamService {
   }
 
   async updateRole(id: string, role: TeamMemberRole): Promise<ServiceResult<void>> {
-    const userId = await getCurrentUserId();
+    const userId = await getRawAuthUserId();
     if (!userId) return fail("No autenticado", "AUTH_REQUIRED");
 
     const supabase = getSupabaseClient();
@@ -100,7 +100,7 @@ class SupabaseTeamService implements TeamService {
   }
 
   async remove(id: string): Promise<ServiceResult<void>> {
-    const userId = await getCurrentUserId();
+    const userId = await getRawAuthUserId();
     if (!userId) return fail("No autenticado", "AUTH_REQUIRED");
 
     const supabase = getSupabaseClient();

@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type PropsWithChildren } from "react";
 import type { User } from "@supabase/supabase-js";
 import { authService } from "../../services/auth/auth.service";
-import { getSupabaseClient } from "../../services/supabase/client";
+import { getSupabaseClient, clearEffectiveUserId } from "../../services/supabase/client";
 
 interface AuthContextValue {
   user: User | null;
@@ -70,6 +70,7 @@ export function AuthProvider({ children }: PropsWithChildren): import("react").J
       loading,
       error,
       signOut: async () => {
+        clearEffectiveUserId();
         await authService.signOut();
       },
     }),

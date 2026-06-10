@@ -1,52 +1,15 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 export interface LegacyRepositoriesBridge {
-  clients: {
-    create: (...args: unknown[]) => unknown;
-    list: (...args: unknown[]) => unknown;
-    getById: (...args: unknown[]) => unknown;
-    update: (...args: unknown[]) => unknown;
-    remove: (...args: unknown[]) => unknown;
-  };
-  transactions: {
-    create: (...args: unknown[]) => unknown;
-    list: (...args: unknown[]) => unknown;
-    getById: (...args: unknown[]) => unknown;
-    update: (...args: unknown[]) => unknown;
-    remove: (...args: unknown[]) => unknown;
-  };
-  products: {
-    create: (...args: unknown[]) => unknown;
-    list: (...args: unknown[]) => unknown;
-    getById: (...args: unknown[]) => unknown;
-    update: (...args: unknown[]) => unknown;
-    remove: (...args: unknown[]) => unknown;
-  };
-  invoices: {
-    create: (...args: unknown[]) => unknown;
-    list: (...args: unknown[]) => unknown;
-    getById: (...args: unknown[]) => unknown;
-    update: (...args: unknown[]) => unknown;
-    remove: (...args: unknown[]) => unknown;
-    emit: (...args: unknown[]) => unknown;
-    togglePaid: (...args: unknown[]) => unknown;
-  };
-  quotes: {
-    create: (...args: unknown[]) => unknown;
-    list: (...args: unknown[]) => unknown;
-    getById: (...args: unknown[]) => unknown;
-    update: (...args: unknown[]) => unknown;
-    remove: (...args: unknown[]) => unknown;
-    emit: (...args: unknown[]) => unknown;
-    togglePaid: (...args: unknown[]) => unknown;
-  };
+  clients: { create: (...args: unknown[]) => unknown; list: (...args: unknown[]) => unknown; getById: (...args: unknown[]) => unknown; update: (...args: unknown[]) => unknown; remove: (...args: unknown[]) => unknown; };
+  transactions: { create: (...args: unknown[]) => unknown; list: (...args: unknown[]) => unknown; getById: (...args: unknown[]) => unknown; update: (...args: unknown[]) => unknown; remove: (...args: unknown[]) => unknown; };
+  products: { create: (...args: unknown[]) => unknown; list: (...args: unknown[]) => unknown; getById: (...args: unknown[]) => unknown; update: (...args: unknown[]) => unknown; remove: (...args: unknown[]) => unknown; };
+  invoices: { create: (...args: unknown[]) => unknown; list: (...args: unknown[]) => unknown; getById: (...args: unknown[]) => unknown; update: (...args: unknown[]) => unknown; remove: (...args: unknown[]) => unknown; emit: (...args: unknown[]) => unknown; togglePaid: (...args: unknown[]) => unknown; };
+  quotes: { create: (...args: unknown[]) => unknown; list: (...args: unknown[]) => unknown; getById: (...args: unknown[]) => unknown; update: (...args: unknown[]) => unknown; remove: (...args: unknown[]) => unknown; emit: (...args: unknown[]) => unknown; togglePaid: (...args: unknown[]) => unknown; };
 }
 
 export interface FacturalesServicesNamespace {
-  supabase?: {
-    getClient: () => SupabaseClient;
-    waitForAuthReady: (timeoutMs?: number) => Promise<unknown>;
-  };
+  supabase?: { getClient: () => SupabaseClient; waitForAuthReady: (timeoutMs?: number) => Promise<unknown>; };
   auth?: Record<string, unknown>;
   billingLimits?: Record<string, unknown>;
   onboarding?: Record<string, unknown>;
@@ -54,10 +17,7 @@ export interface FacturalesServicesNamespace {
   support?: Record<string, unknown>;
   ocr?: Record<string, unknown>;
   repositories?: LegacyRepositoriesBridge;
-  meta?: {
-    version: string;
-    initializedAt: string;
-  };
+  meta?: { version: string; initializedAt: string; };
 }
 
 declare global {
@@ -70,12 +30,21 @@ declare global {
 
 let cachedClient: SupabaseClient | null = null;
 
+// -- Effective user ID (workspace multiusuario) --
+let _effectiveUserId: string | null | undefined = undefined;
+
+export function setEffectiveUserId(id: string | null): void {
+  _effectiveUserId = id;
+}
+
+export function clearEffectiveUserId(): void {
+  _effectiveUserId = undefined;
+}
+
 function resolveEnv(key: string): string | undefined {
   if (typeof import.meta !== "undefined" && import.meta.env) {
     const value = import.meta.env[key as keyof ImportMetaEnv];
-    if (typeof value === "string" && value.length > 0) {
-      return value;
-    }
+    if (typeof value === "string" && value.length > 0) return value;
   }
   return undefined;
 }
@@ -83,9 +52,7 @@ function resolveEnv(key: string): string | undefined {
 function resolveConfig() {
   const url = resolveEnv("VITE_SUPABASE_URL");
   const anonKey = resolveEnv("VITE_SUPABASE_ANON_KEY");
-  if (!url || !anonKey) {
-    throw new Error("Faltan VITE_SUPABASE_URL y/o VITE_SUPABASE_ANON_KEY. Configura el entorno antes de iniciar la app.");
-  }
+  if (!url || !anonKey) throw new Error("Faltan VITE_SUPABASE_URL y/o VITE_SUPABASE_ANON_KEY.");
   return { url, anonKey };
 }
 
@@ -95,14 +62,8 @@ function fallbackClientFactory(): SupabaseClient {
 }
 
 export function getSupabaseClient(win: Window | undefined = typeof window !== "undefined" ? window : undefined): SupabaseClient {
-  if (win?.supabaseClient) {
-    return win.supabaseClient;
-  }
-
-  if (cachedClient) {
-    return cachedClient;
-  }
-
+  if (win?.supabaseClient) return win.supabaseClient;
+  if (cachedClient) return cachedClient;
   cachedClient = fallbackClientFactory();
   return cachedClient;
 }
@@ -111,26 +72,25 @@ export async function waitForLegacySupabaseAuthReady(
   timeoutMs = 5000,
   win: Window | undefined = typeof window !== "undefined" ? window : undefined,
 ): Promise<unknown> {
-  if (!win?.supabaseAuthReady) {
-    return null;
-  }
-
-  const timeout = new Promise<null>((resolve) => {
-    setTimeout(() => resolve(null), timeoutMs);
-  });
-
+  if (!win?.supabaseAuthReady) return null;
+  const timeout = new Promise<null>((resolve) => { setTimeout(() => resolve(null), timeoutMs); });
   return Promise.race([win.supabaseAuthReady, timeout]);
+}
+
+export async function getRawAuthUserId(
+  win: Window | undefined = typeof window !== "undefined" ? window : undefined,
+): Promise<string | null> {
+  const supabase = getSupabaseClient(win);
+  const { data, error } = await supabase.auth.getUser();
+  if (error || !data.user) return null;
+  return data.user.id;
 }
 
 export async function getCurrentUserId(
   win: Window | undefined = typeof window !== "undefined" ? window : undefined,
 ): Promise<string | null> {
-  const supabase = getSupabaseClient(win);
-  const { data, error } = await supabase.auth.getUser();
-  if (error || !data.user) {
-    return null;
-  }
-  return data.user.id;
+  if (_effectiveUserId !== undefined) return _effectiveUserId;
+  return getRawAuthUserId(win);
 }
 
 export function getFacturalesServicesNamespace(

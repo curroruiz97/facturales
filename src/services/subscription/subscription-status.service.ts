@@ -1,4 +1,4 @@
-import { getCurrentUserId, getSupabaseClient } from "../supabase/client";
+import { getRawAuthUserId, getSupabaseClient, setEffectiveUserId } from "../supabase/client";
 import { fail, ok, type ServiceResult } from "../../shared/types/service-result";
 
 export interface SubscriptionStatus {
@@ -15,7 +15,7 @@ export interface SubscriptionStatusService {
 
 class SupabaseSubscriptionStatusService implements SubscriptionStatusService {
   async resolveStatus(): Promise<ServiceResult<SubscriptionStatus>> {
-    const userId = await getCurrentUserId();
+    const userId = await getRawAuthUserId();
     if (!userId) {
       return ok({ hasAccess: false, status: null, currentPeriodEnd: null, effectiveUserId: null, via: "none" });
     }
@@ -29,14 +29,19 @@ class SupabaseSubscriptionStatusService implements SubscriptionStatusService {
 
     const result = data as Record<string, unknown> | null;
     if (!result) {
+      setEffectiveUserId(userId);
       return ok({ hasAccess: false, status: null, currentPeriodEnd: null, effectiveUserId: userId, via: "none" });
     }
+
+    const effectiveUserId = (result.effective_user_id as string | undefined) ?? userId;
+    // Cache the effective user ID so all data services use the owner's ID.
+    setEffectiveUserId(effectiveUserId);
 
     return ok({
       hasAccess: Boolean(result.has_access),
       status: (result.status as string | undefined) ?? null,
       currentPeriodEnd: (result.current_period_end as string | undefined) ?? null,
-      effectiveUserId: (result.effective_user_id as string | undefined) ?? userId,
+      effectiveUserId,
       via: (result.via as "own" | "team" | "none" | undefined) ?? "none",
     });
   }
@@ -53,6 +58,7 @@ class SupabaseSubscriptionStatusService implements SubscriptionStatusService {
 
     if (error) return fail(error.message, error.code, error);
     if (!data) {
+      setEffectiveUserId(userId);
       return ok({ hasAccess: false, status: null, currentPeriodEnd: null, effectiveUserId: userId, via: "none" });
     }
 
@@ -62,6 +68,7 @@ class SupabaseSubscriptionStatusService implements SubscriptionStatusService {
     const hasAccess = status === "trialing" || status === "active" ||
       (cancelAtPeriodEnd && currentPeriodEnd != null && new Date(currentPeriodEnd) > new Date());
 
+    setEffectiveUserId(userId);
     return ok({ hasAccess, status, currentPeriodEnd, effectiveUserId: userId, via: hasAccess ? "own" : "none" });
   }
 }
