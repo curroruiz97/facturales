@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type { ClientRol } from "../../../shared/types/domain";
 
 export interface ContactFormValues {
@@ -64,12 +64,15 @@ export function ContactFormModal(props: ContactFormModalProps): import("react").
   const { open, mode, initialValues, saving, error, onClose, onSubmit } = props;
   const [values, setValues] = useState<ContactFormValues>(initialValues);
   const [localError, setLocalError] = useState<string | null>(null);
+  const [prevOpen, setPrevOpen] = useState(open);
 
-  useEffect(() => {
-    if (!open) return;
-    setValues(initialValues);
-    setLocalError(null);
-  }, [initialValues, open]);
+  if (open !== prevOpen) {
+    setPrevOpen(open);
+    if (open) {
+      setValues(initialValues);
+      setLocalError(null);
+    }
+  }
 
   const title = useMemo(() => (mode === "create" ? "Nuevo contacto" : "Editar contacto"), [mode]);
 

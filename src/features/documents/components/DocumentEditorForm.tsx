@@ -8,6 +8,7 @@ import { clientsRepository } from "../../../services/repositories";
 import { invoiceSeriesService, type InvoiceSeriesInput, type InvoiceSeriesRecord } from "../../../services/invoice-series/invoice-series.service";
 import { saveDefaultPaymentMethodSync } from "../../../services/payment/default-payment-method";
 import { getNextInvoiceNumberForSeries } from "../../invoices/services/next-invoice-number";
+import { formatCurrency } from "../../../shared/utils/format-currency";
 
 interface DocumentEditorFormProps {
   kindLabel: string;
@@ -19,15 +20,6 @@ interface DocumentEditorFormProps {
 function parseNumber(value: string): number {
   const parsed = Number.parseFloat(value);
   return Number.isFinite(parsed) ? parsed : 0;
-}
-
-function fmtCurrency(amount: number, currency: string): string {
-  const cur = /^[A-Z]{3}$/.test((currency || "").toUpperCase()) ? currency.toUpperCase() : "EUR";
-  try {
-    return new Intl.NumberFormat("es-ES", { style: "currency", currency: cur }).format(amount || 0);
-  } catch {
-    return new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR" }).format(amount || 0);
-  }
 }
 
 function AdvancedOptions({
@@ -766,49 +758,49 @@ export function DocumentEditorForm({
           <h3 className="inv-summary__title">Resumen</h3>
           <div className="inv-summary__row">
             <span>Subtotal</span>
-            <strong>{fmtCurrency(totals.summary.subtotal, cur)}</strong>
+            <strong>{formatCurrency(totals.summary.subtotal, cur)}</strong>
           </div>
           {totals.summary.discount > 0 ? (
             <div className="inv-summary__row inv-summary__row--discount">
               <span>Descuento</span>
-              <strong>-{fmtCurrency(totals.summary.discount, cur)}</strong>
+              <strong>-{formatCurrency(totals.summary.discount, cur)}</strong>
             </div>
           ) : null}
           <div className="inv-summary__row">
             <span>Base imponible</span>
-            <strong>{fmtCurrency(totals.summary.taxBase, cur)}</strong>
+            <strong>{formatCurrency(totals.summary.taxBase, cur)}</strong>
           </div>
           <div className="inv-summary__row">
             <span>Impuestos</span>
-            <strong>{fmtCurrency(totals.summary.taxAmount, cur)}</strong>
+            <strong>{formatCurrency(totals.summary.taxAmount, cur)}</strong>
           </div>
           {totals.summary.retentionAmount > 0 ? (
             <div className="inv-summary__row inv-summary__row--discount">
               <span>Retención ({editor.taxSettings.retentionRate}%)</span>
-              <strong>-{fmtCurrency(totals.summary.retentionAmount, cur)}</strong>
+              <strong>-{formatCurrency(totals.summary.retentionAmount, cur)}</strong>
             </div>
           ) : null}
           {totals.summary.expenses > 0 ? (
             <div className="inv-summary__row">
               <span>Gastos suplidos</span>
-              <strong>{fmtCurrency(totals.summary.expenses, cur)}</strong>
+              <strong>{formatCurrency(totals.summary.expenses, cur)}</strong>
             </div>
           ) : null}
           <hr className="inv-summary__divider" />
           <div className="inv-summary__total">
             <span>Total</span>
-            <span>{fmtCurrency(totals.summary.total, cur)}</span>
+            <span>{formatCurrency(totals.summary.total, cur)}</span>
           </div>
           {editor.paidAmount > 0 ? (
             <div className="inv-summary__row inv-summary__row--discount">
               <span>Cantidad pagada</span>
-              <strong>-{fmtCurrency(editor.paidAmount, cur)}</strong>
+              <strong>-{formatCurrency(editor.paidAmount, cur)}</strong>
             </div>
           ) : null}
           <hr className="inv-summary__divider" />
           <div className="inv-summary__topay">
             <span>Total a pagar</span>
-            <span>{fmtCurrency(totals.summary.totalToPay, cur)}</span>
+            <span>{formatCurrency(totals.summary.totalToPay, cur)}</span>
           </div>
           <p className="inv-summary__note">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" /><path d="M12 16v-4M12 8h.01" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>

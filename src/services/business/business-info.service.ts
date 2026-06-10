@@ -39,12 +39,6 @@ export interface BusinessInfoRecord extends BusinessInfoInput {
   subscriptionPlan?: BusinessSubscriptionPlan;
   subscriptionInterval?: BusinessSubscriptionInterval;
   subscriptionUpdatedAt?: string | null;
-  /** El usuario ha activado el envío VERI*FACTU de sus facturas. */
-  verifactuEnabled?: boolean;
-  /** Momento en que autorizó a facturales a remitir sus registros (colaboración social Tipo 017). */
-  verifactuAutorizadoAt?: string | null;
-  /** Referencia/evidencia de la autorización Tipo 017. */
-  verifactuAutorizacionRef?: string | null;
 }
 
 function mapRowToRecord(row: Record<string, unknown>): BusinessInfoRecord {
@@ -76,9 +70,6 @@ function mapRowToRecord(row: Record<string, unknown>): BusinessInfoRecord {
     subscriptionPlan: (row.subscription_plan as BusinessSubscriptionPlan | undefined) ?? null,
     subscriptionInterval: (row.subscription_interval as BusinessSubscriptionInterval | undefined) ?? null,
     subscriptionUpdatedAt: (row.subscription_updated_at as string | null) ?? null,
-    verifactuEnabled: Boolean(row.verifactu_enabled),
-    verifactuAutorizadoAt: (row.verifactu_autorizado_at as string | null) ?? null,
-    verifactuAutorizacionRef: (row.verifactu_autorizacion_ref as string | null) ?? null,
   };
 }
 
@@ -136,7 +127,6 @@ export interface BusinessInfoService {
   saveMine(input: BusinessInfoInput): Promise<ServiceResult<BusinessInfoRecord>>;
   getIncomeGoals(): Promise<ServiceResult<IncomeGoals | null>>;
   saveIncomeGoal(period: GoalPeriod, value: number): Promise<ServiceResult<void>>;
-  setVerifactuConfig(enabled: boolean): Promise<ServiceResult<void>>;
 }
 
 class SupabaseBusinessInfoService implements BusinessInfoService {
@@ -227,18 +217,6 @@ class SupabaseBusinessInfoService implements BusinessInfoService {
     const column = columnMap[period];
     const supabase = getSupabaseClient();
     const { error } = await supabase.from("business_info").update({ [column]: value }).eq("user_id", userId);
-    if (error) return fail(error.message, error.code, error);
-    return ok(undefined);
-  }
-
-  async setVerifactuConfig(enabled: boolean): Promise<ServiceResult<void>> {
-    const userId = await getCurrentUserId();
-    if (!userId) return fail("No autenticado", "AUTH_REQUIRED");
-    const supabase = getSupabaseClient();
-    const patch: Record<string, unknown> = { verifactu_enabled: enabled };
-    // Al activar, registramos el momento de la autorización (colaboración social Tipo 017).
-    if (enabled) patch.verifactu_autorizado_at = new Date().toISOString();
-    const { error } = await supabase.from("business_info").update(patch).eq("user_id", userId);
     if (error) return fail(error.message, error.code, error);
     return ok(undefined);
   }

@@ -1,5 +1,6 @@
 import { jsPDF } from "jspdf";
 import type { DocumentEditorState } from "../core/document-types";
+import { formatCurrency } from "../../../shared/utils/format-currency";
 
 interface PdfTotals {
   subtotal: number;
@@ -19,22 +20,6 @@ interface GeneratePdfOptions {
   documentNumber: string;
   brandColor?: string;
   logoDataUrl?: string;
-}
-
-const SUPPORTED_CURRENCIES: ReadonlySet<string> = new Set([
-  "EUR", "USD", "GBP", "CHF", "JPY", "CAD", "AUD", "SEK", "NOK", "DKK",
-  "PLN", "CZK", "HUF", "RON", "BGN", "HRK", "ISK", "MXN", "BRL", "ARS",
-  "CLP", "COP", "PEN", "UYU", "CNY", "INR", "KRW", "SGD", "HKD", "NZD",
-]);
-
-function fmtCurrency(amount: number, currency: string): string {
-  const upper = (currency || "").toUpperCase().trim();
-  const cur = SUPPORTED_CURRENCIES.has(upper) ? upper : "EUR";
-  try {
-    return new Intl.NumberFormat("es-ES", { style: "currency", currency: cur, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount || 0);
-  } catch {
-    return new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR", minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount || 0);
-  }
 }
 
 function hexToRgb(hex: string): [number, number, number] {
@@ -289,11 +274,11 @@ export function generateDocumentPdf(options: GeneratePdfOptions): jsPDF {
     const rowY = y + 5.5;
     doc.text(descLines, margin + 2, y + 4);
     doc.text(String(row.quantity), 82, rowY, { align: "center" });
-    doc.text(fmtCurrency(row.unitPrice, cur), 108, rowY, { align: "right" });
+    doc.text(formatCurrency(row.unitPrice, cur), 108, rowY, { align: "right" });
     doc.text(taxLabelFromCode(row.taxCode), 125, rowY, { align: "center" });
     doc.text(`${row.discount || 0}%`, 145, rowY, { align: "center" });
     doc.setFont("helvetica", "bold");
-    doc.text(fmtCurrency(row.total, cur), pageWidth - margin - 2, rowY, { align: "right" });
+    doc.text(formatCurrency(row.total, cur), pageWidth - margin - 2, rowY, { align: "right" });
     y += rowHeight;
     doc.setDrawColor(229, 231, 235);
     doc.setLineWidth(0.15);
@@ -336,7 +321,7 @@ export function generateDocumentPdf(options: GeneratePdfOptions): jsPDF {
     }
     doc.text(row.label, summaryX, y);
     doc.setTextColor(row.red ? 220 : 0, row.red ? 38 : 0, row.red ? 38 : 0);
-    doc.text(fmtCurrency(row.value, cur), valueX, y, { align: "right" });
+    doc.text(formatCurrency(row.value, cur), valueX, y, { align: "right" });
     y += 5.5;
   }
 
@@ -348,7 +333,7 @@ export function generateDocumentPdf(options: GeneratePdfOptions): jsPDF {
   doc.setFont("helvetica", "bold");
   doc.setTextColor(0, 0, 0);
   doc.text("Total", summaryX, y);
-  doc.text(fmtCurrency(totals.total, cur), valueX, y, { align: "right" });
+  doc.text(formatCurrency(totals.total, cur), valueX, y, { align: "right" });
   y += 7;
 
   if (totals.total !== totals.totalToPay) {
@@ -356,7 +341,7 @@ export function generateDocumentPdf(options: GeneratePdfOptions): jsPDF {
     doc.setFont("helvetica", "normal");
     doc.setTextColor(220, 38, 38);
     doc.text("Cantidad ya pagada", summaryX, y);
-    doc.text(`-${fmtCurrency(totals.total - totals.totalToPay, cur)}`, valueX, y, { align: "right" });
+    doc.text(`-${formatCurrency(totals.total - totals.totalToPay, cur)}`, valueX, y, { align: "right" });
     y += 6;
     doc.setDrawColor(229, 231, 235);
     doc.line(summaryX, y, valueX, y);
@@ -369,7 +354,7 @@ export function generateDocumentPdf(options: GeneratePdfOptions): jsPDF {
   doc.setFont("helvetica", "bold");
   doc.setTextColor(255, 255, 255);
   doc.text("Total a pagar", summaryX, y);
-  doc.text(fmtCurrency(totals.totalToPay, cur), valueX, y, { align: "right" });
+  doc.text(formatCurrency(totals.totalToPay, cur), valueX, y, { align: "right" });
   doc.setTextColor(0, 0, 0);
   y += 12;
 

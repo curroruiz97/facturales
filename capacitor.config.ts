@@ -17,7 +17,7 @@ const config: CapacitorConfig = {
   },
   android: {
     // DECISIÓN: true para depurar con chrome://inspect; poner false antes del release a Play Store.
-    webContentsDebuggingEnabled: true,
+    webContentsDebuggingEnabled: false,
   },
 };
 

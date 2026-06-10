@@ -22,7 +22,7 @@ import type { BillingInterval, BillingPlan } from "../../../shared/types/domain"
 import { BrandColorPicker } from "../components/BrandColorPicker";
 import { exportAllDataAsZip } from "../../../services/data-export/data-export.service";
 
-type TabId = "business" | "series" | "verifactu" | "faq" | "security" | "logs" | "users" | "subscription";
+type TabId = "business" | "series" | "faq" | "security" | "logs" | "users" | "subscription";
 type TeamRole = "propietario" | "gestor" | "lector";
 type NoticeKind = "error" | "success";
 type SelectablePlan = Exclude<BillingPlan, "none">;
@@ -58,7 +58,6 @@ interface PlanCardDefinition {
 const TABS: TabDefinition[] = [
   { id: "business", title: "Datos de negocio", subtitle: "Información fiscal y de facturación" },
   { id: "series", title: "Series y numeración", subtitle: "Gestiona series de facturación" },
-  { id: "verifactu", title: "VERI*FACTU", subtitle: "Sistema de facturación verificable (AEAT)" },
   { id: "faq", title: "Preguntas frecuentes", subtitle: "Resuelve tus dudas rápidamente" },
   { id: "security", title: "Seguridad", subtitle: "Protege tu cuenta y datos" },
   { id: "logs", title: "Registro", subtitle: "Logs de acceso a la aplicación" },
@@ -420,11 +419,13 @@ function formatDateTime(value: string | null): string {
   return `${formatDate(value)} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 }
 
+const settingsCurrencyFmt = new Intl.NumberFormat("es-ES", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
 function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("es-ES", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(value) + "€";
+  return settingsCurrencyFmt.format(value) + "€";
 }
 
 function formatStorage(bytes: number): string {
@@ -531,8 +532,6 @@ export function SettingsPage(): import("react").JSX.Element {
   const [streetNumber, setStreetNumber] = useState("");
   const [businessLoading, setBusinessLoading] = useState(true);
   const [businessSaving, setBusinessSaving] = useState(false);
-  const [verifactuEnabled, setVerifactuEnabled] = useState(false);
-  const [verifactuSaving, setVerifactuSaving] = useState(false);
   const [taxPanelOpen, setTaxPanelOpen] = useState(false);
 
   const [seriesItems, setSeriesItems] = useState<InvoiceSeriesRecord[]>([]);
@@ -617,7 +616,6 @@ export function SettingsPage(): import("react").JSX.Element {
     const merged = result.data ? { ...EMPTY_FORM, ...result.data } : { ...EMPTY_FORM };
     merged.brandColor = normalizeHex(merged.brandColor ?? "#000000");
     setForm(merged);
-    setVerifactuEnabled(Boolean(result.data?.verifactuEnabled));
     const address = splitAddress(merged.direccionFacturacion ?? "");
     setStreet(address.street);
     setStreetNumber(address.number);
@@ -773,18 +771,6 @@ export function SettingsPage(): import("react").JSX.Element {
     if (activeTab === "users") void loadUsersMeta();
     if (activeTab === "subscription") void loadSubscription();
   }, [activeTab]);
-
-  const onSaveVerifactu = async (): Promise<void> => {
-    setVerifactuSaving(true);
-    setNotice(null);
-    const result = await businessInfoService.setVerifactuConfig(verifactuEnabled);
-    setVerifactuSaving(false);
-    if (!result.success) {
-      setError(result.error.message);
-      return;
-    }
-    setSuccess(verifactuEnabled ? "VERI*FACTU activado para tus facturas." : "VERI*FACTU desactivado.");
-  };
 
   const onBusinessSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
@@ -1807,94 +1793,6 @@ export function SettingsPage(): import("react").JSX.Element {
                 </div>
               </div>
 
-            </div>
-          </section>
-        ) : null}
-
-        {activeTab === "verifactu" ? (
-          <section className="settings-panel">
-            <div className="settings-panel__header">
-              <div>
-                <h2>VERI*FACTU</h2>
-                <p>Sistema de facturación verificable de la AEAT (RD 1007/2023, Orden HAC/1177/2024).</p>
-              </div>
-            </div>
-
-            <div className="settings-card">
-              <div className="settings-card__head">
-                <div className="settings-card__head-icon" aria-hidden>
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                    <path d="M9 12l2 2 4-4" />
-                  </svg>
-                </div>
-                <div>
-                  <h3>Estado del sistema</h3>
-                  <p className="settings-muted">Componentes del sistema de facturación verificable.</p>
-                </div>
-              </div>
-              <dl className="settings-info-list">
-                <div className="settings-info-list__row">
-                  <dt>Huella encadenada (SHA-256)</dt>
-                  <dd><span className="settings-badge settings-badge--ok">Operativo</span></dd>
-                </div>
-                <div className="settings-info-list__row">
-                  <dt>Código QR de cotejo</dt>
-                  <dd><span className="settings-badge settings-badge--ok">Operativo</span></dd>
-                </div>
-                <div className="settings-info-list__row">
-                  <dt>Registro de facturación inalterable</dt>
-                  <dd><span className="settings-badge settings-badge--ok">Activo</span></dd>
-                </div>
-                <div className="settings-info-list__row">
-                  <dt>Envío de registros a la AEAT</dt>
-                  <dd><span className="settings-badge settings-badge--warn">Pendiente: alta Tipo 017 + certificado</span></dd>
-                </div>
-              </dl>
-            </div>
-
-            <div className="settings-card">
-              <div className="settings-card__head">
-                <div className="settings-card__head-icon" aria-hidden>
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="4" width="18" height="16" rx="2" />
-                    <path d="M8 12l3 3 5-5" />
-                  </svg>
-                </div>
-                <div>
-                  <h3>Activación</h3>
-                  <p className="settings-muted">Activa VERI*FACTU para que tus facturas emitidas lleven el QR de cotejo de la AEAT.</p>
-                </div>
-              </div>
-
-              <label className="settings-fiscal-toggle">
-                <input
-                  type="checkbox"
-                  checked={verifactuEnabled}
-                  disabled={businessLoading || verifactuSaving}
-                  onChange={(event) => setVerifactuEnabled(event.target.checked)}
-                />
-                <span>
-                  <strong>Activar VERI*FACTU para mis facturas</strong>
-                  <small>
-                    Al activarlo, tus facturas emitidas mostrarán el código QR de cotejo. El envío
-                    automático de los registros a la AEAT se habilitará cuando completes el alta como
-                    colaborador social (Tipo 017) y el certificado de empresa. La huella encadenada y
-                    el QR ya funcionan y están verificados contra los vectores oficiales de la AEAT.
-                  </small>
-                </span>
-              </label>
-
-              <div className="settings-business__footer">
-                <button
-                  type="button"
-                  className="settings-btn settings-btn--primary"
-                  disabled={businessLoading || verifactuSaving}
-                  onClick={() => void onSaveVerifactu()}
-                >
-                  {verifactuSaving ? "Guardando..." : "Guardar configuración"}
-                </button>
-              </div>
             </div>
           </section>
         ) : null}

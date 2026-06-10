@@ -1,4 +1,9 @@
+import { useState } from "react";
+import { DetailSheet, type DetailField, type DetailAction } from "../../../app/components/DetailSheet";
+import { usePlatform } from "../../../app/hooks/usePlatform";
 import type { ClientFinancialSnapshot } from "../adapters/contacts.adapter";
+
+const eurNumberFmt = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 interface ContactsTableProps {
   contacts: ClientFinancialSnapshot[];
@@ -11,7 +16,7 @@ interface ContactsTableProps {
 }
 
 function formatEUR(value: number): string {
-  return `${new Intl.NumberFormat("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value)} EUR`;
+  return `${eurNumberFmt.format(value)} EUR`;
 }
 
 function getInitials(name: string): string {
@@ -37,8 +42,26 @@ const IconTrash = () => (
   </svg>
 );
 
+function buildContactFields(c: ClientFinancialSnapshot): DetailField[] {
+  const addr = [c.direccion, c.codigoPostal, c.ciudad, c.provincia, c.pais].filter(Boolean).join(", ");
+  return [
+    { label: "NIF/CIF", value: c.identificador },
+    { label: "Tipo", value: c.tipoCliente === "empresa" ? "Empresa" : "Autonomo" },
+    { label: "Estado", value: c.estado.charAt(0).toUpperCase() + c.estado.slice(1) },
+    { label: "Email", value: c.email || "-" },
+    { label: "Telefono", value: c.telefono || "-" },
+    { label: "Direccion", value: addr || "-" },
+    { label: "Facturado", value: formatEUR(c.totalFacturado), accent: "ok" },
+    { label: "Gastos", value: formatEUR(c.totalGastos), accent: "danger" },
+    { label: "Balance", value: formatEUR(c.balance), accent: c.balance >= 0 ? "ok" : "danger" },
+    ...(c.diaFacturacion ? [{ label: "Dia facturacion", value: `Dia ${c.diaFacturacion}` }] : []),
+  ];
+}
+
 export function ContactsTable(props: ContactsTableProps): import("react").JSX.Element {
   const { contacts, selectedIds, onToggleSelection, onTogglePageSelection, onToggleRecurring, onEdit, onDelete } = props;
+  const { isMobile } = usePlatform();
+  const [detailItem, setDetailItem] = useState<ClientFinancialSnapshot | null>(null);
   const allChecked = contacts.length > 0 && contacts.every((contact) => selectedIds.has(contact.id));
 
   return (
@@ -67,7 +90,7 @@ export function ContactsTable(props: ContactsTableProps): import("react").JSX.El
             const isRecurring = contact.estado === "recurrente";
 
             return (
-              <tr key={contact.id}>
+              <tr key={contact.id} onClick={isMobile ? () => setDetailItem(contact) : undefined} style={isMobile ? { cursor: "pointer" } : undefined}>
                 <td>
                   <input type="checkbox" checked={selected} onChange={(event) => onToggleSelection(contact.id, event.target.checked)} />
                 </td>
@@ -129,6 +152,19 @@ export function ContactsTable(props: ContactsTableProps): import("react").JSX.El
           })}
         </tbody>
       </table>
+      {isMobile && detailItem ? (
+        <DetailSheet
+          open
+          title={detailItem.nombreRazonSocial}
+          subtitle={detailItem.identificador}
+          fields={buildContactFields(detailItem)}
+          actions={[
+            { label: "Editar", onClick: () => onEdit(detailItem), variant: "primary" },
+            { label: "Eliminar", onClick: () => onDelete(detailItem), variant: "danger" },
+          ]}
+          onClose={() => setDetailItem(null)}
+        />
+      ) : null}
     </div>
   );
 }

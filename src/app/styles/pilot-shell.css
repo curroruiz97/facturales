@@ -212,16 +212,6 @@ input[type="checkbox"]:not(.fct-no-restyle):disabled {
   overflow-y: auto;
   overflow-x: hidden;
   height: 100%;
-  /* Scroll funcional pero SIN barra visible. */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* Edge / IE antiguos */
-}
-
-/* Oculta la barra de scroll del menu lateral en navegadores WebKit (Chrome, Safari, Edge). */
-.pilot-sidebar__body::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-  display: none;
 }
 
 .pilot-sidebar--collapsed .pilot-sidebar__header {
@@ -619,6 +609,41 @@ input[type="checkbox"]:not(.fct-no-restyle):disabled {
   opacity: 1;
   transform: none;
   animation: none;
+}
+
+/* Mobile app bar header */
+.pilot-header--mobile-app {
+  height: auto;
+  padding: 0 16px;
+  padding-top: 36px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  border-bottom: none;
+}
+
+@supports (padding-top: env(safe-area-inset-top)) {
+  .pilot-header--mobile-app {
+    padding-top: calc(env(safe-area-inset-top, 36px) + 10px);
+  }
+}
+
+.pilot-header--mobile-app .pilot-header__inner {
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  min-height: 52px;
+}
+
+.pilot-header__mobile-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.pilot-header--mobile-app .pilot-header__actions {
+  gap: 8px;
 }
 
 .pilot-header__search {
@@ -7137,6 +7162,616 @@ input[type="checkbox"]:not(.fct-no-restyle):disabled {
   .pilot-settings-brand {
     grid-column: auto;
   }
+
+  /* --- Bottom Tab Bar + touch targets (Capacitor only via .pilot-has-tab-bar) --- */
+  .pilot-has-tab-bar .pilot-tab-bar {
+    display: flex;
+  }
+
+  .pilot-has-tab-bar .pilot-header__hamburger {
+    display: none;
+  }
+
+  .pilot-has-tab-bar .pilot-main {
+    padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 20px);
+  }
+
+  .pilot-has-tab-bar .pilot-btn,
+  .pilot-has-tab-bar .pilot-button,
+  .pilot-has-tab-bar .pilot-link,
+  .pilot-has-tab-bar button,
+  .pilot-has-tab-bar a[role="button"] {
+    min-height: 44px;
+  }
+
+  .pilot-has-tab-bar .pilot-input,
+  .pilot-has-tab-bar .pilot-select,
+  .pilot-has-tab-bar .pilot-textarea,
+  .pilot-has-tab-bar input,
+  .pilot-has-tab-bar select,
+  .pilot-has-tab-bar textarea {
+    min-height: 48px;
+    font-size: 16px;
+  }
+
+  .pilot-has-tab-bar .pilot-table td,
+  .pilot-has-tab-bar .pilot-table th {
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+}
+
+/* ===================== Bottom Tab Bar ===================== */
+.pilot-tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  height: calc(56px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  display: none;
+  align-items: flex-start;
+  justify-content: space-around;
+}
+
+.dark .pilot-tab-bar {
+  background: #1d1e24;
+  border-top-color: #2a313c;
+}
+
+.pilot-tab-bar__item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  height: 56px;
+  padding: 6px 0;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.15s ease;
+  min-width: 44px;
+  min-height: 44px;
+  position: relative;
+}
+
+.pilot-tab-bar__item--active {
+  color: #ec8228;
+}
+
+.dark .pilot-tab-bar__item {
+  color: #64748b;
+}
+
+.dark .pilot-tab-bar__item--active {
+  color: #ec8228;
+}
+
+.pilot-tab-bar__icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pilot-tab-bar__icon svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+
+.pilot-tab-bar__icon svg .path-1 {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+
+.pilot-tab-bar__icon svg .path-2 {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+
+.pilot-tab-bar__item--active .pilot-tab-bar__icon svg .path-1 {
+  fill: currentColor;
+  fill-opacity: 0.15;
+}
+
+.pilot-tab-bar__icon--fab {
+  width: 44px;
+  height: 44px;
+  background: #ec8228;
+  border-radius: 14px;
+  color: #ffffff;
+  margin-top: -14px;
+  box-shadow: 0 4px 12px rgba(236, 130, 40, 0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.pilot-tab-bar__icon--fab:active {
+  transform: scale(0.93);
+}
+
+.pilot-tab-bar__icon--fab svg {
+  width: 22px;
+  height: 22px;
+  stroke: #ffffff;
+}
+
+.pilot-tab-bar__item--center .pilot-tab-bar__label {
+  margin-top: -2px;
+}
+
+.pilot-tab-bar__label {
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
+
+/* ===================== Quick Actions Sheet ===================== */
+.pilot-action-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 60;
+  animation: overlayFadeIn 0.2s ease;
+}
+
+.pilot-action-sheet {
+  position: fixed;
+  bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+  left: 12px;
+  right: 12px;
+  z-index: 61;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 8px;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.12);
+  animation: sheetSlideUp 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark .pilot-action-sheet {
+  background: #1d1e24;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.4);
+}
+
+@keyframes sheetSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.pilot-action-sheet__item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 16px;
+  background: none;
+  border: none;
+  border-radius: 12px;
+  color: #1a202c;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.12s ease;
+  min-height: 48px;
+}
+
+.pilot-action-sheet__item:active {
+  background: #f1f5f9;
+}
+
+.dark .pilot-action-sheet__item {
+  color: #f8fafc;
+}
+
+.dark .pilot-action-sheet__item:active {
+  background: #2a313c;
+}
+
+.pilot-action-sheet__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pilot-action-sheet__icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.pilot-action-sheet__icon--invoice {
+  background: #fff3e8;
+  color: #ec8228;
+}
+
+.pilot-action-sheet__icon--quote {
+  background: #ede9fe;
+  color: #936DFF;
+}
+
+.pilot-action-sheet__icon--scan {
+  background: #e8f5e9;
+  color: #22c55e;
+}
+
+/* ===================== More Panel ===================== */
+.pilot-more-panel {
+  position: fixed;
+  bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+  left: 0;
+  right: 0;
+  z-index: 61;
+  background: #ffffff;
+  border-radius: 20px 20px 0 0;
+  padding: 12px 12px calc(8px);
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.12);
+  animation: sheetSlideUp 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.dark .pilot-more-panel {
+  background: #1d1e24;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.4);
+}
+
+.pilot-more-panel__handle {
+  width: 36px;
+  height: 4px;
+  background: #cbd5e1;
+  border-radius: 2px;
+  margin: 0 auto 12px;
+}
+
+.dark .pilot-more-panel__handle {
+  background: #475569;
+}
+
+.pilot-more-panel__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+
+.pilot-more-panel__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 4px;
+  background: none;
+  border: none;
+  border-radius: 12px;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.12s ease;
+  min-height: 44px;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.pilot-more-panel__item:active {
+  background: #f1f5f9;
+}
+
+.dark .pilot-more-panel__item {
+  color: #94a3b8;
+}
+
+.dark .pilot-more-panel__item:active {
+  background: #2a313c;
+}
+
+.pilot-more-panel__item--active {
+  color: #ec8228;
+}
+
+.pilot-more-panel__item-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pilot-more-panel__item-icon svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+
+.pilot-more-panel__item-icon svg .path-1 {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+
+.pilot-more-panel__item-icon svg .path-2 {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+
+.pilot-more-panel__item--active .pilot-more-panel__item-icon svg .path-1 {
+  fill: currentColor;
+  fill-opacity: 0.15;
+}
+
+.pilot-more-panel__divider {
+  height: 1px;
+  background: #e2e8f0;
+  margin: 8px 0;
+}
+
+.dark .pilot-more-panel__divider {
+  background: #2a313c;
+}
+
+.pilot-more-panel__logout {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  background: none;
+  border: none;
+  border-radius: 12px;
+  color: #ef4444;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 48px;
+}
+
+.pilot-more-panel__logout:active {
+  background: #fef2f2;
+}
+
+/* ===================== Detail Sheet ===================== */
+.detail-sheet__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 70;
+  animation: overlayFadeIn 0.2s ease;
+}
+
+.detail-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 71;
+  background: #ffffff;
+  border-radius: 20px 20px 0 0;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  animation: sheetSlideUp 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.dark .detail-sheet {
+  background: #1d1e24;
+}
+
+.detail-sheet__handle {
+  width: 36px;
+  height: 4px;
+  background: #cbd5e1;
+  border-radius: 2px;
+  margin: 10px auto 0;
+  flex-shrink: 0;
+}
+
+.dark .detail-sheet__handle {
+  background: #475569;
+}
+
+.detail-sheet__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 16px 20px 12px;
+  flex-shrink: 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.dark .detail-sheet__header {
+  border-bottom-color: #2a313c;
+}
+
+.detail-sheet__title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: #1a202c;
+  line-height: 1.3;
+}
+
+.dark .detail-sheet__title {
+  color: #f8fafc;
+}
+
+.detail-sheet__subtitle {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.dark .detail-sheet__subtitle {
+  color: #94a3b8;
+}
+
+.detail-sheet__close {
+  background: none;
+  border: none;
+  padding: 4px;
+  color: #94a3b8;
+  cursor: pointer;
+  border-radius: 8px;
+  flex-shrink: 0;
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.detail-sheet__close:active {
+  background: #f1f5f9;
+}
+
+.dark .detail-sheet__close:active {
+  background: #2a313c;
+}
+
+.detail-sheet__body {
+  padding: 8px 20px 16px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.detail-sheet__field {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 12px 0;
+  border-bottom: 1px solid #f8fafc;
+  gap: 12px;
+}
+
+.dark .detail-sheet__field {
+  border-bottom-color: #1a1d23;
+}
+
+.detail-sheet__field:last-child {
+  border-bottom: none;
+}
+
+.detail-sheet__label {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 500;
+  flex-shrink: 0;
+  min-width: 100px;
+}
+
+.dark .detail-sheet__label {
+  color: #94a3b8;
+}
+
+.detail-sheet__value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a202c;
+  text-align: right;
+  word-break: break-word;
+}
+
+.dark .detail-sheet__value {
+  color: #f8fafc;
+}
+
+.detail-sheet__value--ok { color: #16a34a; }
+.detail-sheet__value--danger { color: #ef4444; }
+.detail-sheet__value--warn { color: #f59e0b; }
+
+.detail-sheet__actions {
+  display: flex;
+  gap: 8px;
+  padding: 12px 20px 16px;
+  border-top: 1px solid #f1f5f9;
+  flex-shrink: 0;
+}
+
+.dark .detail-sheet__actions {
+  border-top-color: #2a313c;
+}
+
+.detail-sheet__action-btn {
+  flex: 1;
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #1a202c;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.12s ease;
+}
+
+.detail-sheet__action-btn:active {
+  background: #f1f5f9;
+}
+
+.dark .detail-sheet__action-btn {
+  background: #23262b;
+  border-color: #2a313c;
+  color: #f8fafc;
+}
+
+.detail-sheet__action-btn--primary {
+  background: #ec8228;
+  border-color: #ec8228;
+  color: #ffffff;
+}
+
+.detail-sheet__action-btn--primary:active {
+  background: #d47524;
+}
+
+.detail-sheet__action-btn--danger {
+  background: none;
+  border-color: #fca5a5;
+  color: #ef4444;
+}
+
+.detail-sheet__action-btn--danger:active {
+  background: #fef2f2;
+}
+
+.dark .pilot-more-panel__logout:active {
+  background: #2a1215;
+}
+
+.pilot-more-panel__logout-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.pilot-more-panel__logout-icon svg {
+  width: 100%;
+  height: 100%;
 }
 
 .pilot-public {
@@ -14627,4 +15262,464 @@ select.settings-input option:checked {
 /* En móvil muy pequeño, cant/precio/impuesto/dto se apilan a una columna */
 @media (max-width: 420px) {
   .inv-line-card__grid { grid-template-columns: 1fr; }
+}
+
+/* ===================== Capacitor App Overrides ===================== */
+/* These rules ONLY apply inside the native app (class added by usePlatform) */
+
+/* -- Period filter dropdowns -- */
+.dashboard-v2__period-actions--compact {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.dashboard-v2__period-dropdown {
+  flex: 1;
+  height: 44px;
+  padding: 0 14px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #1a202c;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ec8228' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px;
+  padding-right: 32px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dashboard-v2__period-dropdown:focus {
+  outline: none;
+  border-color: #ec8228;
+  box-shadow: 0 0 0 3px rgba(236, 130, 40, 0.12);
+}
+
+.dark .dashboard-v2__period-dropdown {
+  background-color: #1d1e24;
+  border-color: #2a313c;
+  color: #f8fafc;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ec8228' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+}
+
+.dark .dashboard-v2__period-dropdown:focus {
+  border-color: #ec8228;
+  box-shadow: 0 0 0 3px rgba(236, 130, 40, 0.2);
+}
+
+/* -- Period panel compact -- */
+.pilot-has-tab-bar .dashboard-v2__period-panel {
+  padding: 0;
+  margin-bottom: 12px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+/* -- KPI cards: 3 columns, compact but readable -- */
+.pilot-has-tab-bar .dashboard-v2__kpis {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.pilot-has-tab-bar .dashboard-v2__kpi {
+  padding: 14px 12px;
+  border-radius: 12px;
+}
+
+.pilot-has-tab-bar .dashboard-v2__kpi-header {
+  margin-bottom: 8px;
+}
+
+.pilot-has-tab-bar .dashboard-v2__kpi-header h3 {
+  font-size: 11px;
+  letter-spacing: 0.02em;
+}
+
+.pilot-has-tab-bar .dashboard-v2__kpi-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.pilot-has-tab-bar .dashboard-v2__kpi-icon img {
+  width: 24px;
+  height: 24px;
+}
+
+.pilot-has-tab-bar .dashboard-v2__kpi-value {
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.pilot-has-tab-bar .dashboard-v2__kpi-body {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.pilot-has-tab-bar .dashboard-v2__kpi-delta {
+  font-size: 10px;
+}
+
+.pilot-has-tab-bar .dashboard-v2__sparkline {
+  display: none;
+}
+
+/* -- Dashboard layout: stack everything vertically, tighter spacing -- */
+.pilot-has-tab-bar .dashboard-v2__layout {
+  gap: 12px;
+}
+
+.pilot-has-tab-bar .dashboard-v2__main {
+  margin-bottom: 0;
+}
+
+.pilot-has-tab-bar .dashboard-v2__main > * + * {
+  margin-top: 12px;
+}
+
+/* -- Analytics grid: stack evolution + goals with proper gap -- */
+.pilot-has-tab-bar .dashboard-v2__analytics-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* -- Evolution chart: compact -- */
+.pilot-has-tab-bar .dashboard-v2__evolution {
+  padding: 14px 12px 10px;
+  margin-bottom: 0;
+  border-radius: 12px;
+}
+
+/* -- Selects inside cards: rounded -- */
+.pilot-has-tab-bar .dashboard-v2__period-select {
+  border-radius: 10px;
+  border: 1.5px solid #e2e8f0;
+  background-color: #ffffff;
+  padding: 6px 28px 6px 10px;
+  font-size: 13px;
+}
+
+.dark .pilot-has-tab-bar .dashboard-v2__period-select {
+  border-color: #2a313c;
+  background-color: #1d1e24;
+}
+
+.pilot-has-tab-bar .dashboard-v2__card-header h2 {
+  font-size: 15px;
+}
+
+/* -- Goals card: compact -- */
+.pilot-has-tab-bar .dashboard-v2__goals {
+  border-radius: 12px;
+  padding: 14px 12px;
+}
+
+.pilot-has-tab-bar .dashboard-v2__goals-body {
+  padding: 12px;
+}
+
+/* -- Quick actions / aside: hide in app (already in tab bar) -- */
+.pilot-has-tab-bar .dashboard-v2__aside .dashboard-v2__actions-card {
+  display: none;
+}
+
+/* -- Contacts section: compact -- */
+.pilot-has-tab-bar .dashboard-v2__contacts {
+  padding: 14px 12px;
+  border-radius: 12px;
+}
+
+.pilot-has-tab-bar .dashboard-v2__contacts-header h2 {
+  font-size: 15px;
+}
+
+/* -- Onboarding card: compact -- */
+.pilot-has-tab-bar .dashboard-v2__completion-link {
+  border-radius: 12px;
+}
+
+/* -- All panels: unified border-radius -- */
+.pilot-has-tab-bar .pilot-panel {
+  border-radius: 12px;
+}
+
+/* -- App header: must come AFTER media queries to win specificity -- */
+.pilot-has-tab-bar .pilot-header {
+  padding: 0 16px 10px;
+  padding-top: 36px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  border-bottom: none;
+  height: auto;
+}
+
+.dark .pilot-has-tab-bar .pilot-header {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* -- All selects in app: rounded style -- */
+.pilot-has-tab-bar select {
+  border-radius: 10px;
+}
+
+/* -- Settings: tabs full width (must override all media queries) -- */
+.pilot-has-tab-bar .settings-legacy {
+  display: flex !important;
+  flex-direction: column !important;
+  grid-template-columns: unset !important;
+}
+
+.pilot-has-tab-bar .settings-legacy__tabs {
+  display: flex !important;
+  flex-direction: column !important;
+  overflow-x: visible !important;
+  border-right: none !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  padding: 12px !important;
+  width: 100% !important;
+  gap: 6px !important;
+}
+
+.dark .pilot-has-tab-bar .settings-legacy__tabs {
+  border-bottom-color: #2a313c !important;
+}
+
+.pilot-has-tab-bar .settings-tabs-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  width: 100% !important;
+}
+
+.pilot-has-tab-bar .settings-legacy__tabs .settings-tab {
+  width: 100% !important;
+  flex-shrink: 1 !important;
+  white-space: normal !important;
+  min-width: 0 !important;
+}
+
+.pilot-has-tab-bar .settings-legacy__content {
+  width: 100%;
+  min-width: 0;
+}
+
+/* -- Modals: respect safe area / status bar in app -- */
+.pilot-has-tab-bar .pilot-modal {
+  padding-top: 44px;
+}
+
+.pilot-has-tab-bar .pilot-modal__content {
+  max-height: calc(100vh - 88px);
+}
+
+.pilot-has-tab-bar .dashboard-v2__goal-modal {
+  padding-top: 44px;
+}
+
+/* -- Quick actions: always 3 columns in app -- */
+.pilot-has-tab-bar .tx-sidebar-card__quick {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.pilot-has-tab-bar .dashboard-v2__quick-actions {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* ===================== Page toolbars: full-width buttons ===================== */
+
+/* Generic actions row: full width, equal columns */
+.pilot-has-tab-bar .pilot-actions {
+  width: 100%;
+  flex-wrap: nowrap;
+  gap: 8px;
+}
+
+.pilot-has-tab-bar .pilot-actions .pilot-btn {
+  flex: 1;
+  min-width: 0;
+  justify-content: center;
+  padding: 0 8px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+/* Transactions: export buttons full width */
+.pilot-has-tab-bar .tx-page__header {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.pilot-has-tab-bar .tx-page__header-actions {
+  display: flex;
+  width: 100%;
+  gap: 8px;
+}
+
+.pilot-has-tab-bar .tx-page__header-actions .pilot-btn {
+  flex: 1;
+  min-width: 0;
+  justify-content: center;
+  font-size: 13px;
+}
+
+/* Transactions: tabs full width */
+.pilot-has-tab-bar .tx-tabs {
+  width: 100%;
+}
+
+.pilot-has-tab-bar .tx-tabs__btn {
+  flex: 1;
+  justify-content: center;
+  min-width: 0;
+  padding: 8px 6px;
+  font-size: 13px;
+}
+
+/* Contacts & doc pages: header actions full width */
+.pilot-has-tab-bar .pilot-doc-header {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.pilot-has-tab-bar .pilot-doc-header .pilot-actions {
+  display: flex;
+  width: 100%;
+  gap: 8px;
+}
+
+.pilot-has-tab-bar .pilot-doc-header .pilot-actions .pilot-btn {
+  flex: 1;
+  min-width: 0;
+  justify-content: center;
+  padding: 0 8px;
+  font-size: 13px;
+}
+
+/* ===================== Fix: sticky header in app ===================== */
+.pilot-has-tab-bar .pilot-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+}
+
+.pilot-has-tab-bar .pilot-content > .pilot-main {
+  padding-top: 108px;
+}
+
+/* ===================== Fix: checkbox size in app ===================== */
+.pilot-has-tab-bar input[type="checkbox"] {
+  min-height: 18px;
+  max-height: 18px;
+  min-width: 18px;
+  max-width: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+/* ===================== Fix: pagination layout in app ===================== */
+.pilot-has-tab-bar .tx-pagination {
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.pilot-has-tab-bar .tx-pagination__left {
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.pilot-has-tab-bar .tx-pagination__controls {
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pilot-has-tab-bar .tx-pagination__select-all {
+  justify-content: center;
+}
+
+.pilot-has-tab-bar .pilot-pagination {
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ===================== Hide page titles/heroes in app (header already shows title) ===================== */
+
+/* Invoices & Quotes: full hero block */
+.pilot-has-tab-bar .doc-page__header {
+  display: none;
+}
+
+/* Invoices & Quotes: secondary card heading (e.g. "Facturas Emitidas") */
+.pilot-has-tab-bar .doc-card__heading {
+  display: none;
+}
+
+/* Contacts & Products: title/desc block inside pilot-doc-header */
+.pilot-has-tab-bar .pilot-doc-header > div:first-child {
+  display: none;
+}
+
+.pilot-has-tab-bar .pilot-doc-header__intro {
+  display: none;
+}
+
+.pilot-has-tab-bar .pilot-breadcrumbs {
+  display: none;
+}
+
+/* Transactions: title */
+.pilot-has-tab-bar .tx-page__title {
+  display: none;
+}
+
+.pilot-has-tab-bar .tx-page__header {
+  justify-content: flex-end;
+}
+
+/* Fiscal: title+subtitle div (keep the selectors) */
+.pilot-has-tab-bar .fiscal-header > div:first-child {
+  display: none;
+}
+
+/* Integrations: full header block */
+.pilot-has-tab-bar .integrations-header {
+  display: none;
+}
+
+/* Support: hero section */
+.pilot-has-tab-bar .sp-hero {
+  display: none;
+}
+
+/* Settings: title handled by header */
+
+/* Generic: any pilot-page-title class */
+.pilot-has-tab-bar .pilot-page-title {
+  display: none;
+}
+
+/* Hide user menu text and caret in app — only show avatar */
+.pilot-has-tab-bar .pilot-user-menu__info {
+  display: none;
+}
+
+.pilot-has-tab-bar .pilot-user-menu__caret {
+  display: none;
 }

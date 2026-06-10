@@ -241,9 +241,11 @@ export function useTransactionsLedger(initialPageSize: TransactionsPageSize = DE
     return () => window.clearTimeout(handle);
   }, [searchTerm, typeFilter, categoryFilter, minAmount, maxAmount, startDate, endDate]);
 
-  useEffect(() => {
+  const [prevPageSize, setPrevPageSize] = useState(pageSize);
+  if (pageSize !== prevPageSize) {
+    setPrevPageSize(pageSize);
     setPage(1);
-  }, [pageSize]);
+  }
 
   useEffect(() => {
     if (page <= totalPages) return;

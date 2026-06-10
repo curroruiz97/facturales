@@ -184,10 +184,12 @@ export function useContactsCatalog(initialPageSize: ContactPageSize = DEFAULT_PA
   }, [page, totalPages]);
 
   // Resetear página y selección al cambiar tamaño de página o filtros que cambian la lista visible.
-  useEffect(() => {
+  const [prevPageFilters, setPrevPageFilters] = useState({ pageSize, statusFilter, typeFilter, sortMode });
+  if (pageSize !== prevPageFilters.pageSize || statusFilter !== prevPageFilters.statusFilter || typeFilter !== prevPageFilters.typeFilter || sortMode !== prevPageFilters.sortMode) {
+    setPrevPageFilters({ pageSize, statusFilter, typeFilter, sortMode });
     setPage(1);
     setSelectedIds(new Set());
-  }, [pageSize, statusFilter, typeFilter, sortMode]);
+  }
 
   const createContact = async (input: CreateClientInput): Promise<boolean> => {
     setSaving(true);

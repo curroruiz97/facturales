@@ -904,6 +904,7 @@ export function ConfirmEmailPage(): import("react").JSX.Element {
 
   useEffect(() => {
     let active = true;
+    let redirectTimer: ReturnType<typeof setTimeout> | undefined;
     const validate = async () => {
       const sessionResult = await authService.getCurrentSession();
       if (!active) return;
@@ -916,13 +917,14 @@ export function ConfirmEmailPage(): import("react").JSX.Element {
 
       setError(null);
       setMessage("Correo confirmado correctamente. Redirigiendo...");
-      setTimeout(() => {
+      redirectTimer = setTimeout(() => {
         navigate("/complete-profile", { replace: true });
       }, 700);
     };
     void validate();
     return () => {
       active = false;
+      clearTimeout(redirectTimer);
     };
   }, [navigate]);
 
@@ -1497,7 +1499,7 @@ function formatPlanPrice(value: number): string {
 export function PlansPage(): import("react").JSX.Element {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [interval, setInterval] = useState<BillingInterval>("yearly");
+  const [interval, setBillingInterval] = useState<BillingInterval>("yearly");
   const [loadingPlan, setLoadingPlan] = useState<PlanConfig["id"] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [hasActive, setHasActive] = useState<boolean>(false);
@@ -1561,7 +1563,7 @@ export function PlansPage(): import("react").JSX.Element {
                 role="tab"
                 aria-selected={interval === "monthly"}
                 className={`plans-page__toggle-btn${interval === "monthly" ? " plans-page__toggle-btn--active" : ""}`}
-                onClick={() => setInterval("monthly")}
+                onClick={() => setBillingInterval("monthly")}
               >
                 Mensual
               </button>
@@ -1570,7 +1572,7 @@ export function PlansPage(): import("react").JSX.Element {
                 role="tab"
                 aria-selected={interval === "yearly"}
                 className={`plans-page__toggle-btn${interval === "yearly" ? " plans-page__toggle-btn--active" : ""}`}
-                onClick={() => setInterval("yearly")}
+                onClick={() => setBillingInterval("yearly")}
               >
                 Anual <span className="plans-page__toggle-badge">Ahorra 30%</span>
               </button>

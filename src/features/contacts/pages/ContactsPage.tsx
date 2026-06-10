@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { EmptyState } from "../../../app/components/states/EmptyState";
 import { ErrorState } from "../../../app/components/states/ErrorState";
@@ -73,11 +73,11 @@ export function ContactsPage(): import("react").JSX.Element {
   const [flash, setFlash] = useState<string | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<FormMode>("create");
-  const [editContactId, setEditContactId] = useState<string | null>(null);
+  const editContactIdRef = useRef<string | null>(null);
   const [formInitialValues, setFormInitialValues] = useState<ContactFormValues>(DEFAULT_FORM_VALUES);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteMode, setDeleteMode] = useState<DeleteMode>("single");
-  const [deleteTarget, setDeleteTarget] = useState<ClientFinancialSnapshot | null>(null);
+  const deleteTargetRef = useRef<ClientFinancialSnapshot | null>(null);
   const [importOpen, setImportOpen] = useState(false);
   const [importFileName, setImportFileName] = useState<string | null>(null);
   const [importPreview, setImportPreview] = useState<Awaited<ReturnType<typeof processContactsImportFile>> | null>(null);
@@ -92,7 +92,7 @@ export function ContactsPage(): import("react").JSX.Element {
   const openCreateModal = () => {
     setFlash(null);
     setFormMode("create");
-    setEditContactId(null);
+    editContactIdRef.current = null;
     setFormInitialValues(DEFAULT_FORM_VALUES);
     setFormOpen(true);
   };
@@ -115,31 +115,31 @@ export function ContactsPage(): import("react").JSX.Element {
   const openEditModal = (contact: ClientFinancialSnapshot) => {
     setFlash(null);
     setFormMode("edit");
-    setEditContactId(contact.id);
+    editContactIdRef.current = contact.id;
     setFormInitialValues(toFormValues(contact));
     setFormOpen(true);
   };
 
   const openSingleDelete = (contact: ClientFinancialSnapshot) => {
     setDeleteMode("single");
-    setDeleteTarget(contact);
+    deleteTargetRef.current = contact;
     setDeleteOpen(true);
   };
 
   const openBulkDelete = () => {
     setDeleteMode("bulk");
-    setDeleteTarget(null);
+    deleteTargetRef.current = null;
     setDeleteOpen(true);
   };
 
   const closeDelete = () => {
-    setDeleteTarget(null);
+    deleteTargetRef.current = null;
     setDeleteOpen(false);
   };
 
   const closeForm = () => {
     setFormOpen(false);
-    setEditContactId(null);
+    editContactIdRef.current = null;
   };
 
   const submitForm = async (values: ContactFormValues) => {
@@ -162,8 +162,8 @@ export function ContactsPage(): import("react").JSX.Element {
     const success =
       formMode === "create"
         ? await catalog.createContact(payload)
-        : editContactId
-          ? await catalog.updateContact(editContactId, payload)
+        : editContactIdRef.current
+          ? await catalog.updateContact(editContactIdRef.current, payload)
           : false;
 
     if (!success) {
@@ -176,8 +176,8 @@ export function ContactsPage(): import("react").JSX.Element {
   };
 
   const confirmDelete = async () => {
-    if (deleteMode === "single" && deleteTarget) {
-      const success = await catalog.deleteContact(deleteTarget.id);
+    if (deleteMode === "single" && deleteTargetRef.current) {
+      const success = await catalog.deleteContact(deleteTargetRef.current.id);
       setFlash(success ? "Contacto eliminado correctamente." : "No se pudo eliminar el contacto.");
       closeDelete();
       return;

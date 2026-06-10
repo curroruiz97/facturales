@@ -1,27 +1,9 @@
 import type { DocumentSummary } from "../../../shared/types/domain";
+import { formatCurrency } from "../../../shared/utils/format-currency";
 
 interface DocumentSummaryPanelProps {
   summary: DocumentSummary;
   currency?: string;
-}
-
-function formatCurrency(value: number, currency = "EUR"): string {
-  const normalizedCurrency = /^[A-Z]{3}$/.test(currency.toUpperCase()) ? currency.toUpperCase() : "EUR";
-  try {
-    return new Intl.NumberFormat("es-ES", {
-      style: "currency",
-      currency: normalizedCurrency,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(value || 0);
-  } catch {
-    return new Intl.NumberFormat("es-ES", {
-      style: "currency",
-      currency: "EUR",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(value || 0);
-  }
 }
 
 function formatPercent(value: number): string {

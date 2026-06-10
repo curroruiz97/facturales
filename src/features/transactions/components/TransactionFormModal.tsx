@@ -1,11 +1,9 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import type { TransactionCategory, TransactionType } from "../../../shared/types/domain";
 import type { TransactionClientOption } from "../adapters/transactions.adapter";
 import { TRANSACTION_CATEGORY_LABELS, suggestCategoryFromRol } from "../domain/transactions-domain";
 import { calculateExpenseBreakdown } from "../domain/transaction-amounts";
-
-const formatEur = (value: number): string =>
-  new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR" }).format(value);
+import { formatEur } from "../../../shared/utils/format-currency";
 
 const MANUAL_TRANSACTION_CATEGORIES: Array<Exclude<TransactionCategory, "factura">> = [
   "material_oficina",
@@ -79,12 +77,15 @@ export function TransactionFormModal({
 }: TransactionFormModalProps): import("react").JSX.Element | null {
   const [values, setValues] = useState<TransactionFormValues>(initialValues);
   const [localError, setLocalError] = useState<string | null>(null);
+  const [prevOpen, setPrevOpen] = useState(open);
 
-  useEffect(() => {
-    if (!open) return;
-    setValues(initialValues);
-    setLocalError(null);
-  }, [initialValues, open]);
+  if (open !== prevOpen) {
+    setPrevOpen(open);
+    if (open) {
+      setValues(initialValues);
+      setLocalError(null);
+    }
+  }
 
   const amount = useMemo(() => Number.parseFloat(values.importe), [values.importe]);
   const iva = useMemo(() => parsePercent(values.ivaPorcentaje), [values.ivaPorcentaje]);

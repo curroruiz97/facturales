@@ -3,9 +3,7 @@ import { ErrorState } from "../../../app/components/states/ErrorState";
 import { expenseOcrService, type OcrExpenseResult } from "../../../services/ocr/expense-ocr.service";
 import { transactionsRepository } from "../../../services/repositories";
 import type { Transaction } from "../../../shared/types/domain";
-
-const fmt = (v: number) =>
-  new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR" }).format(v);
+import { formatEur as fmt } from "../../../shared/utils/format-currency";
 
 const fmtDate = (iso: string) => {
   const d = new Date(iso);

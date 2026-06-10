@@ -1,8 +1,12 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import { DetailSheet, type DetailField, type DetailAction } from "../../../app/components/DetailSheet";
+import { usePlatform } from "../../../app/hooks/usePlatform";
 import type { TransactionLedgerItem } from "../domain/transactions-domain";
 import { formatTransactionCategory, formatTransactionType } from "../domain/transactions-domain";
 import { calculateExpenseBreakdown } from "../domain/transaction-amounts";
 import type { TransactionsSortMode } from "../hooks/use-transactions-ledger";
+import { formatEur } from "../../../shared/utils/format-currency";
 
 type SortKey = "client" | "concept" | "category" | "amount" | "date" | "type";
 
@@ -18,28 +22,19 @@ interface TransactionsTableProps {
   onDelete: (transaction: TransactionLedgerItem) => void;
 }
 
-function formatAmount(value: number): string {
-  return new Intl.NumberFormat("es-ES", {
-    style: "currency",
-    currency: "EUR",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(value);
-}
+
+const dateFormatter = new Intl.DateTimeFormat("es-ES", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+});
 
 function formatDate(dateISO: string | null | undefined): string {
   if (!dateISO) return "-";
   const date = new Date(`${dateISO}T00:00:00`);
-  // Guarda contra fechas inválidas (string mal formado, mes fuera de rango, etc.):
-  // sin esto Intl.DateTimeFormat.format(InvalidDate) lanza RangeError y rompe el render
-  // de toda la tabla → ErrorBoundary "Algo ha salido mal".
   if (Number.isNaN(date.getTime())) return String(dateISO);
   try {
-    return new Intl.DateTimeFormat("es-ES", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    }).format(date);
+    return dateFormatter.format(date);
   } catch {
     return String(dateISO);
   }
@@ -139,10 +134,42 @@ export function TransactionsTable({
   onEdit,
   onDelete,
 }: TransactionsTableProps): import("react").JSX.Element {
+  const { isMobile } = usePlatform();
+  const [detailItem, setDetailItem] = useState<TransactionLedgerItem | null>(null);
   const selectableRows = transactions.filter((transaction) => !transaction.lockedByInvoice);
   const selectedCountOnPage = selectableRows.filter((transaction) => selectedIds.has(transaction.id)).length;
   const allSelectedOnPage = selectableRows.length > 0 && selectedCountOnPage === selectableRows.length;
   const someSelectedOnPage = selectedCountOnPage > 0 && selectedCountOnPage < selectableRows.length;
+
+  function buildDetailFields(t: TransactionLedgerItem): DetailField[] {
+    const fields: DetailField[] = [
+      { label: "Contacto", value: t.clientName ?? "Sin contacto" },
+      { label: "Concepto", value: t.concepto },
+      { label: "Categoria", value: formatTransactionCategory(t.categoria) },
+      { label: "Importe", value: formatEur(t.importe), accent: t.tipo === "gasto" ? "danger" : "ok" },
+      { label: "Fecha", value: formatDate(t.fecha) },
+      { label: "Tipo", value: formatTransactionType(t.tipo) },
+    ];
+    if (t.ivaPorcentaje !== null) {
+      const bd = calculateExpenseBreakdown(t.importe, t.ivaPorcentaje, t.irpfPorcentaje);
+      fields.push({ label: "IVA", value: `${t.ivaPorcentaje}% (${formatEur(bd.cuotaIva)})` });
+    }
+    if (t.irpfPorcentaje !== null) {
+      const bd = calculateExpenseBreakdown(t.importe, t.ivaPorcentaje, t.irpfPorcentaje);
+      fields.push({ label: "IRPF", value: `${t.irpfPorcentaje}% (${formatEur(bd.cuotaIrpf)})` });
+    }
+    if (t.clientIdentifier) fields.push({ label: "NIF/CIF", value: t.clientIdentifier });
+    if (t.deducible === false) fields.push({ label: "Deducible", value: "No", accent: "warn" });
+    return fields;
+  }
+
+  function buildDetailActions(t: TransactionLedgerItem): DetailAction[] {
+    if (t.lockedByInvoice) return [];
+    return [
+      { label: "Editar", onClick: () => onEdit(t), variant: "primary" },
+      { label: "Eliminar", onClick: () => onDelete(t), variant: "danger" },
+    ];
+  }
 
   return (
     <div className="overflow-auto">
@@ -178,6 +205,8 @@ export function TransactionsTable({
               <tr
                 key={transaction.id}
                 className={highlighted ? "bg-success-50/50 dark:bg-success-900/10" : undefined}
+                onClick={isMobile ? () => setDetailItem(transaction) : undefined}
+                style={isMobile ? { cursor: "pointer" } : undefined}
               >
                 <td>
                   <input
@@ -210,7 +239,7 @@ export function TransactionsTable({
                 </td>
                 <td>{formatTransactionCategory(transaction.categoria)}</td>
                 <td>
-                  <span className={amountClass}>{formatAmount(transaction.importe)}</span>
+                  <span className={amountClass}>{formatEur(transaction.importe)}</span>
                 </td>
                 <td>
                   {transaction.ivaPorcentaje !== null || transaction.irpfPorcentaje !== null ? (
@@ -224,12 +253,12 @@ export function TransactionsTable({
                         <div className="flex flex-col gap-0.5">
                           {transaction.ivaPorcentaje !== null ? (
                             <span className="text-xs">
-                              IVA: {transaction.ivaPorcentaje}% <span className="opacity-70">({formatAmount(bd.cuotaIva)})</span>
+                              IVA: {transaction.ivaPorcentaje}% <span className="opacity-70">({formatEur(bd.cuotaIva)})</span>
                             </span>
                           ) : null}
                           {transaction.irpfPorcentaje !== null ? (
                             <span className="text-xs">
-                              IRPF: {transaction.irpfPorcentaje}% <span className="opacity-70">(−{formatAmount(bd.cuotaIrpf)})</span>
+                              IRPF: {transaction.irpfPorcentaje}% <span className="opacity-70">(−{formatEur(bd.cuotaIrpf)})</span>
                             </span>
                           ) : null}
                         </div>
@@ -267,6 +296,16 @@ export function TransactionsTable({
           })}
         </tbody>
       </table>
+      {isMobile && detailItem ? (
+        <DetailSheet
+          open
+          title={detailItem.concepto}
+          subtitle={detailItem.clientName ?? "Sin contacto"}
+          fields={buildDetailFields(detailItem)}
+          actions={buildDetailActions(detailItem)}
+          onClose={() => setDetailItem(null)}
+        />
+      ) : null}
     </div>
   );
 }

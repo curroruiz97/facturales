@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { DOCUMENT_TAX_OPTIONS, type DocumentLineDraft } from "../core/document-types";
 import { productsRepository } from "../../../services/repositories";
+import { formatEur } from "../../../shared/utils/format-currency";
 
 interface LineItemsEditorProps {
   lines: DocumentLineDraft[];
@@ -15,9 +16,6 @@ function toNumber(value: string): number {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-function formatEUR(value: number): string {
-  return new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR" }).format(value || 0);
-}
 
 function mapProductTaxToLineTaxCode(productTax: string): string {
   const normalized = (productTax || "").trim().toUpperCase();
@@ -36,7 +34,7 @@ export function LineItemsEditor({
   const [productModalOpen, setProductModalOpen] = useState(false);
   const [productQuery, setProductQuery] = useState("");
   const [productLoading, setProductLoading] = useState(false);
-  const [productTargetLineId, setProductTargetLineId] = useState<string | null>(null);
+  const productTargetLineIdRef = useRef<string | null>(null);
   const [products, setProducts] = useState<Array<{ id: string; nombre: string; referencia: string | null; precioVenta: number; impuesto: string; descuento: number }>>([]);
   const [createProductOpen, setCreateProductOpen] = useState(false);
   const [productError, setProductError] = useState<string | null>(null);
@@ -76,15 +74,15 @@ export function LineItemsEditor({
   const productTaxOptions = useMemo(() => DOCUMENT_TAX_OPTIONS.map((option) => option.value), []);
 
   const openProductModal = (lineId: string) => {
-    setProductTargetLineId(lineId);
+    productTargetLineIdRef.current = lineId;
     setProductQuery("");
     setProductError(null);
     setProductModalOpen(true);
   };
 
   const applyProductToLine = (product: { nombre: string; precioVenta: number; impuesto: string; descuento: number }) => {
-    if (!productTargetLineId) return;
-    onUpdateLine(productTargetLineId, {
+    if (!productTargetLineIdRef.current) return;
+    onUpdateLine(productTargetLineIdRef.current, {
       description: product.nombre,
       unitPrice: product.precioVenta,
       discount: product.descuento,
@@ -270,7 +268,7 @@ export function LineItemsEditor({
                   </div>
                 </td>
                 <td>
-                  <strong>{formatEUR(line.quantity * line.unitPrice)}</strong>
+                  <strong>{formatEur(line.quantity * line.unitPrice)}</strong>
                 </td>
                 <td>
                   <button type="button" className="inv-icon-btn" onClick={() => onRemoveLine(line.id)} disabled={readOnly} title="Eliminar línea">
@@ -392,7 +390,7 @@ export function LineItemsEditor({
 
             <footer className="inv-line-card__footer">
               <span className="inv-line-card__total-label">Importe</span>
-              <strong className="inv-line-card__total-value">{formatEUR(line.quantity * line.unitPrice)}</strong>
+              <strong className="inv-line-card__total-value">{formatEur(line.quantity * line.unitPrice)}</strong>
             </footer>
           </article>
         ))}
@@ -438,7 +436,7 @@ export function LineItemsEditor({
                         <tr key={product.id} onClick={() => applyProductToLine(product)} className="inv-product-row">
                           <td>{product.nombre}</td>
                           <td>{product.referencia || "-"}</td>
-                          <td>{formatEUR(product.precioVenta)}</td>
+                          <td>{formatEur(product.precioVenta)}</td>
                         </tr>
                       ))
                     )}

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import logoColor from "../../../assets/images/logo/logo-color.svg";
@@ -253,7 +253,9 @@ export function Sidebar({ currentPath, collapsed, onToggleCollapse, mobileOpen }
     [flyoutItemId],
   );
 
-  useEffect(() => {
+  const [prevActivePath, setPrevActivePath] = useState(activePath);
+  if (activePath !== prevActivePath) {
+    setPrevActivePath(activePath);
     const activeParent = SHELL_NAVIGATION.find((item) => {
       if (!item.children?.length) return false;
       return isNavigationItemActive(activePath, item.href) || item.children.some((child) => isNavigationItemActive(activePath, child.href));
@@ -261,11 +263,13 @@ export function Sidebar({ currentPath, collapsed, onToggleCollapse, mobileOpen }
     if (activeParent) {
       setExpandedItemId((previous) => (previous === activeParent.id ? previous : activeParent.id));
     }
-  }, [activePath]);
+  }
 
-  useEffect(() => {
+  const [prevCollapsed, setPrevCollapsed] = useState(collapsed);
+  if (collapsed !== prevCollapsed) {
+    setPrevCollapsed(collapsed);
     if (!collapsed) setFlyoutItemId(null);
-  }, [collapsed]);
+  }
 
   const handleSignOut = async () => {
     setSigningOut(true);

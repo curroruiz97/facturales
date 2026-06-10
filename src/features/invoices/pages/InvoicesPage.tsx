@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Check, Download, Eye, Send, Trash2 } from "lucide-react";
+import { DetailSheet, type DetailField, type DetailAction } from "../../../app/components/DetailSheet";
+import { usePlatform } from "../../../app/hooks/usePlatform";
 import { EmptyState } from "../../../app/components/states/EmptyState";
 import { ErrorState } from "../../../app/components/states/ErrorState";
 import { LoadingSkeleton } from "../../../app/components/states/LoadingSkeleton";
@@ -9,6 +11,7 @@ import { DocumentActionBar } from "../../documents/components/DocumentActionBar"
 import type { ClientPickerOption } from "../../documents/components/ClientPicker";
 import { INVOICE_PAGE_SIZE_OPTIONS, type InvoicePageSize, type InvoiceSortField, useInvoicesWorkspace } from "../hooks/use-invoices-workspace";
 import { buildPageList } from "../../../app/components/pagination/build-page-list";
+import { formatCurrency } from "../../../shared/utils/format-currency";
 
 export type InvoicePageMode = "emision" | "borradores" | "emitidas";
 
@@ -23,11 +26,13 @@ function resolveInitials(name: string | null | undefined): string {
   return initials || "SC";
 }
 
+const dateFormatter = new Intl.DateTimeFormat("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" });
+
 function formatDateEs(dateISO: string | null | undefined): string {
   if (!dateISO) return "-";
   const date = new Date(`${dateISO}T00:00:00`);
   if (Number.isNaN(date.getTime())) return dateISO;
-  return new Intl.DateTimeFormat("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" }).format(date);
+  return dateFormatter.format(date);
 }
 
 const IconSearchSvg = () => (
@@ -74,20 +79,6 @@ function SortableHeader({ label, field, current, onToggle, className }: Sortable
   );
 }
 
-function formatCurrency(amount: number, currency: string): string {
-  const normalizedCurrency = /^[A-Z]{3}$/.test((currency || "").toUpperCase()) ? currency.toUpperCase() : "EUR";
-  try {
-    return new Intl.NumberFormat("es-ES", {
-      style: "currency",
-      currency: normalizedCurrency,
-    }).format(amount || 0);
-  } catch {
-    return new Intl.NumberFormat("es-ES", {
-      style: "currency",
-      currency: "EUR",
-    }).format(amount || 0);
-  }
-}
 
 function modeMeta(mode: InvoicePageMode): { title: string; subtitle: string; statusFilter: "all" | "draft" | "issued" | "cancelled" } {
   if (mode === "borradores") {
@@ -116,8 +107,10 @@ function modeMeta(mode: InvoicePageMode): { title: string; subtitle: string; sta
 export function InvoicesPage({ mode }: InvoicesPageProps): import("react").JSX.Element {
   const workspace = useInvoicesWorkspace();
   const navigate = useNavigate();
+  const { isMobile } = usePlatform();
   const [flash, setFlash] = useState<string | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [detailInvoice, setDetailInvoice] = useState<(typeof workspace.pageInvoices)[number] | null>(null);
   const meta = useMemo(() => modeMeta(mode), [mode]);
 
   useEffect(() => {
@@ -448,7 +441,7 @@ export function InvoicesPage({ mode }: InvoicesPageProps): import("react").JSX.E
                             : "Sin número";
                           const selected = workspace.selectedIds.has(invoice.id);
                           return (
-                            <tr key={invoice.id}>
+                            <tr key={invoice.id} onClick={isMobile ? () => setDetailInvoice(invoice) : undefined} style={isMobile ? { cursor: "pointer" } : undefined}>
                               {isEmitidas ? (
                                 <td className="w-10">
                                   <input type="checkbox" checked={selected} onChange={(event) => workspace.toggleSelected(invoice.id, event.target.checked)} />
@@ -658,6 +651,33 @@ export function InvoicesPage({ mode }: InvoicesPageProps): import("react").JSX.E
           />
         </>
       ) : null}
+
+      {isMobile && detailInvoice ? (() => {
+        const inv = detailInvoice;
+        const fields: DetailField[] = [
+          { label: "Numero", value: inv.invoiceNumber || "Sin numero" },
+          { label: "Cliente", value: inv.clientName || "Sin cliente" },
+          { label: "Fecha emision", value: formatDateEs(inv.issueDate) },
+          { label: "Fecha vencimiento", value: formatDateEs(inv.dueDate) },
+          { label: "Importe", value: formatCurrency(inv.totalAmount, inv.currency) },
+          { label: "Pagada", value: inv.isPaid ? "Si" : "No", accent: inv.isPaid ? "ok" : "warn" },
+          { label: "Enviada", value: inv.emailSent ? "Si" : "No" },
+        ];
+        if (inv.currency && inv.currency !== "EUR") fields.push({ label: "Moneda", value: inv.currency });
+        const actions: DetailAction[] = [
+          { label: "Abrir", onClick: () => void openEditor(inv.id), variant: "primary" },
+        ];
+        return (
+          <DetailSheet
+            open
+            title={inv.invoiceNumber || "Factura"}
+            subtitle={inv.clientName || undefined}
+            fields={fields}
+            actions={actions}
+            onClose={() => setDetailInvoice(null)}
+          />
+        );
+      })() : null}
     </div>
   );
 }

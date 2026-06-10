@@ -5,11 +5,11 @@ import { formatearFechaExpedicion, formatearImporte } from "../../domain/rules/f
 
 /**
  * Calcula el QR de cotejo VERI*FACTU de una factura emitida y lo renderiza como
- * imagen PNG (data URL) para mostrarlo en la vista.
+ * imagen PNG (data URL) para mostrarlo en la vista y en el PDF.
  *
  * La URL de cotejo se construye con la lógica de dominio ya verificada contra los
- * vectores oficiales de la AEAT (`construirUrlCotejoQr`). Nivel de corrección de
- * errores M (exigido por la especificación del QR de la AEAT).
+ * vectores oficiales de la AEAT (`construirUrlCotejoQr`). El nivel de corrección de
+ * errores es M (exigido por la especificación del QR de la AEAT).
  *
  * Devuelve null si faltan datos (p. ej. borradores sin número) o si la fecha no es válida.
  */

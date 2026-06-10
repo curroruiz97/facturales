@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type JSX } from "react";
 import { Link } from "react-router-dom";
+import { usePlatform } from "../../../app/hooks/usePlatform";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import totalEarnIcon from "../../../../assets/images/icons/total-earn.svg";
 import totalExpensesIcon from "../../../../assets/images/icons/total-expenses.svg";
@@ -13,6 +14,7 @@ import { LoadingSkeleton } from "../../../app/components/states/LoadingSkeleton"
 import type { ClientFinancialSnapshot } from "../../contacts/adapters/contacts.adapter";
 import type { DashboardPeriod, DashboardSeriesPoint } from "../domain/dashboard-metrics";
 import { useDashboardOverview } from "../hooks/use-dashboard-overview";
+import { formatEur } from "../../../shared/utils/format-currency";
 
 type ContactTypeFilter = "all" | "recurrente" | "puntual" | "activo" | "inactivo";
 type ContactBalanceFilter = "all" | "positive" | "negative" | "zero";
@@ -46,14 +48,6 @@ interface OnboardingStepItem {
   actionTo: string;
 }
 
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("es-ES", {
-    style: "currency",
-    currency: "EUR",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
-}
 
 function formatCompactEuro(value: number): string {
   const abs = Math.abs(value);
@@ -416,7 +410,7 @@ function EvolutionBarsChart({
                             isIncome ? "dashboard-v2__recharts-tooltip-dot--income" : "dashboard-v2__recharts-tooltip-dot--expenses"
                           }`}
                         />
-                        {isIncome ? "Ingresos" : "Gastos"}: {formatCurrency(value)}
+                        {isIncome ? "Ingresos" : "Gastos"}: {formatEur(value)}
                       </p>
                     );
                   })}
@@ -452,6 +446,7 @@ function matchesContactFilters(
   return true;
 }
 export function DashboardPage(): JSX.Element {
+  const { isMobile } = usePlatform();
   const kpiOverview = useDashboardOverview("year");
 
   const [contactSearch, setContactSearch] = useState("");
@@ -639,28 +634,53 @@ export function DashboardPage(): JSX.Element {
   return (
     <div className="pilot-grid dashboard-v2">
       <section className="pilot-panel dashboard-v2__period-panel dashboard-v2__animate dashboard-v2__animate--panel">
-        <div className="pilot-actions dashboard-v2__period-actions">
-          {KPI_PERIOD_OPTIONS.map((periodOption) => (
-            <button
-              key={periodOption.id}
-              type="button"
-              className={`pilot-btn ${kpiOverview.period === periodOption.id ? "pilot-btn--primary" : ""}`}
-              onClick={() => kpiOverview.setPeriod(periodOption.id)}
+        {isMobile ? (
+          <div className="dashboard-v2__period-actions dashboard-v2__period-actions--compact">
+            <select
+              className="dashboard-v2__period-dropdown"
+              value={kpiOverview.period}
+              onChange={(event) => kpiOverview.setPeriod(event.target.value as DashboardPeriod)}
+              aria-label="Periodo"
             >
-              {periodOption.label}
-            </button>
-          ))}
-          <select
-            className="pilot-btn dashboard-v2__year-select"
-            value={kpiOverview.year}
-            onChange={(event) => kpiOverview.setYear(Number.parseInt(event.target.value, 10))}
-            aria-label="Seleccionar año"
-          >
-            {kpiOverview.availableYears.map((year) => (
-              <option key={year} value={year}>{year}</option>
+              {KPI_PERIOD_OPTIONS.map((periodOption) => (
+                <option key={periodOption.id} value={periodOption.id}>{periodOption.label}</option>
+              ))}
+            </select>
+            <select
+              className="dashboard-v2__period-dropdown"
+              value={kpiOverview.year}
+              onChange={(event) => kpiOverview.setYear(Number.parseInt(event.target.value, 10))}
+              aria-label="Año"
+            >
+              {kpiOverview.availableYears.map((year) => (
+                <option key={year} value={year}>{year}</option>
+              ))}
+            </select>
+          </div>
+        ) : (
+          <div className="pilot-actions dashboard-v2__period-actions">
+            {KPI_PERIOD_OPTIONS.map((periodOption) => (
+              <button
+                key={periodOption.id}
+                type="button"
+                className={`pilot-btn ${kpiOverview.period === periodOption.id ? "pilot-btn--primary" : ""}`}
+                onClick={() => kpiOverview.setPeriod(periodOption.id)}
+              >
+                {periodOption.label}
+              </button>
             ))}
-          </select>
-        </div>
+            <select
+              className="pilot-btn dashboard-v2__year-select"
+              value={kpiOverview.year}
+              onChange={(event) => kpiOverview.setYear(Number.parseInt(event.target.value, 10))}
+              aria-label="Seleccionar año"
+            >
+              {kpiOverview.availableYears.map((year) => (
+                <option key={year} value={year}>{year}</option>
+              ))}
+            </select>
+          </div>
+        )}
       </section>
 
       {errorMessage ? (
@@ -685,12 +705,12 @@ export function DashboardPage(): JSX.Element {
                     <span className="dashboard-v2__kpi-icon">
                       <KpiIcon variant="income" />
                     </span>
-                    <h3>Ingresos Totales</h3>
+                    <h3>{isMobile ? "Ingresos" : "Ingresos Totales"}</h3>
                   </div>
                 </header>
                 <div className="dashboard-v2__kpi-body">
                   <div>
-                    <p className="dashboard-v2__kpi-value">{formatCurrency(snapshot.kpis.income)}</p>
+                    <p className="dashboard-v2__kpi-value">{formatEur(snapshot.kpis.income)}</p>
                     <p className={`dashboard-v2__kpi-delta dashboard-v2__kpi-delta--${resolveDeltaClass(snapshot.kpis.incomeDelta)}`}>
                       <span className="dashboard-v2__kpi-delta-icon" aria-hidden>
                         <TrendArrowIcon direction={resolveDeltaClass(snapshot.kpis.incomeDelta) === "ok" ? "up" : "down"} />
@@ -711,12 +731,12 @@ export function DashboardPage(): JSX.Element {
                     <span className="dashboard-v2__kpi-icon">
                       <KpiIcon variant="expenses" />
                     </span>
-                    <h3>Gastos Totales</h3>
+                    <h3>{isMobile ? "Gastos" : "Gastos Totales"}</h3>
                   </div>
                 </header>
                 <div className="dashboard-v2__kpi-body">
                   <div>
-                    <p className="dashboard-v2__kpi-value">{formatCurrency(snapshot.kpis.expenses)}</p>
+                    <p className="dashboard-v2__kpi-value">{formatEur(snapshot.kpis.expenses)}</p>
                     <p
                       className={`dashboard-v2__kpi-delta dashboard-v2__kpi-delta--${resolveDeltaClass(snapshot.kpis.expensesDelta, true)}`}
                     >
@@ -744,7 +764,7 @@ export function DashboardPage(): JSX.Element {
                 </header>
                 <div className="dashboard-v2__kpi-body">
                   <div>
-                    <p className="dashboard-v2__kpi-value">{formatCurrency(snapshot.kpis.balance)}</p>
+                    <p className="dashboard-v2__kpi-value">{formatEur(snapshot.kpis.balance)}</p>
                     <p className={`dashboard-v2__kpi-delta dashboard-v2__kpi-delta--${resolveDeltaClass(snapshot.kpis.balanceDelta)}`}>
                       <span className="dashboard-v2__kpi-delta-icon" aria-hidden>
                         <TrendArrowIcon direction={resolveDeltaClass(snapshot.kpis.balanceDelta) === "ok" ? "up" : "down"} />
@@ -797,6 +817,9 @@ export function DashboardPage(): JSX.Element {
                 <header className="dashboard-v2__card-header">
                   <h2>Objetivos</h2>
                   <div className="dashboard-v2__card-tools">
+                    <button type="button" className="dashboard-v2__ghost-link" onClick={() => openGoalModal(selectedGoalPeriod)}>
+                      Editar
+                    </button>
                     <select
                       className="dashboard-v2__period-select"
                       value={kpiOverview.period}
@@ -813,22 +836,16 @@ export function DashboardPage(): JSX.Element {
 
                 <div className="dashboard-v2__goals-body">
                   <div>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                      <span className="dashboard-v2__goal-subtitle">Objetivo de ingresos</span>
-                      <button type="button" className="dashboard-v2__ghost-link" onClick={() => openGoalModal(selectedGoalPeriod)}>
-                        Editar
-                      </button>
-                    </div>
                     <div className="dashboard-v2__goal-value">
-                      <span className="dashboard-v2__goal-value-amount">{formatCurrency(objectiveCurrent)}</span>
-                      <span className="dashboard-v2__goal-value-of">de <strong>{formatCurrency(objectiveTarget)}</strong></span>
+                      <span className="dashboard-v2__goal-value-amount">{formatEur(objectiveCurrent)}</span>
+                      <span className="dashboard-v2__goal-value-of">de <strong>{formatEur(objectiveTarget)}</strong></span>
                     </div>
                     <div className="dashboard-v2__goal-track">
                       <span style={{ width: `${objectiveProgress}%` }} />
                     </div>
                     <div className="dashboard-v2__goal-meta">
                       <span>{objectiveProgress}%</span>
-                      <span>Faltan {formatCurrency(objectiveRemaining)}</span>
+                      <span>Faltan {formatEur(objectiveRemaining)}</span>
                     </div>
                   </div>
 
@@ -839,21 +856,21 @@ export function DashboardPage(): JSX.Element {
                       <span className="dashboard-v2__goal-metric-icon">
                         <GoalMetricIcon type="income" />
                       </span>
-                      <strong>{formatCurrency(snapshot.kpis.income)}</strong>
+                      <strong>{formatEur(snapshot.kpis.income)}</strong>
                       <small>Ingresos</small>
                     </div>
                     <div className="dashboard-v2__goal-metric dashboard-v2__goal-metric--expenses">
                       <span className="dashboard-v2__goal-metric-icon">
                         <GoalMetricIcon type="expenses" />
                       </span>
-                      <strong>{formatCurrency(snapshot.kpis.expenses)}</strong>
+                      <strong>{formatEur(snapshot.kpis.expenses)}</strong>
                       <small>Gastos</small>
                     </div>
                     <div className="dashboard-v2__goal-metric dashboard-v2__goal-metric--balance">
                       <span className="dashboard-v2__goal-metric-icon">
                         <GoalMetricIcon type="balance" />
                       </span>
-                      <strong>{formatCurrency(snapshot.kpis.balance)}</strong>
+                      <strong>{formatEur(snapshot.kpis.balance)}</strong>
                       <small>Beneficio</small>
                     </div>
                   </div>
@@ -878,7 +895,7 @@ export function DashboardPage(): JSX.Element {
               </article>
             </div>
 
-            <article className="pilot-panel dashboard-v2__contacts dashboard-v2__animate dashboard-v2__animate--6">
+            {isMobile ? null : (<article className="pilot-panel dashboard-v2__contacts dashboard-v2__animate dashboard-v2__animate--6">
               <header className="dashboard-v2__contacts-header">
                 <h2>Contactos</h2>
                 <p>{orderedContacts.length} clientes registrados</p>
@@ -988,10 +1005,10 @@ export function DashboardPage(): JSX.Element {
                           <td>
                             <div className="dashboard-v2__stack">
                               <strong className="dashboard-v2__money dashboard-v2__money--income">
-                                {formatCurrency(contact.totalFacturado)}
+                                {formatEur(contact.totalFacturado)}
                               </strong>
                               <strong className="dashboard-v2__money dashboard-v2__money--expenses">
-                                {formatCurrency(contact.totalGastos)}
+                                {formatEur(contact.totalGastos)}
                               </strong>
                             </div>
                           </td>
@@ -1045,7 +1062,7 @@ export function DashboardPage(): JSX.Element {
                   </button>
                 </div>
               </footer>
-            </article>
+            </article>)}
           </section>
 
           <aside className="dashboard-v2__aside">

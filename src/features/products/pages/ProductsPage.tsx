@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import type { Product } from "../../../shared/types/domain";
 import { EmptyState } from "../../../app/components/states/EmptyState";
 import { ErrorState } from "../../../app/components/states/ErrorState";
@@ -59,11 +59,11 @@ export function ProductsPage(): import("react").JSX.Element {
   const [flash, setFlash] = useState<string | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<FormMode>("create");
-  const [editProductId, setEditProductId] = useState<string | null>(null);
+  const editProductIdRef = useRef<string | null>(null);
   const [formInitialValues, setFormInitialValues] = useState<ProductFormValues>(DEFAULT_FORM_VALUES);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteMode, setDeleteMode] = useState<DeleteMode>("single");
-  const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
+  const deleteTargetRef = useRef<Product | null>(null);
   const [importOpen, setImportOpen] = useState(false);
   const [importFileName, setImportFileName] = useState<string | null>(null);
   const [importPreview, setImportPreview] = useState<ProductsImportPreview | null>(null);
@@ -78,7 +78,7 @@ export function ProductsPage(): import("react").JSX.Element {
   const openCreateModal = () => {
     setFlash(null);
     setFormMode("create");
-    setEditProductId(null);
+    editProductIdRef.current = null;
     setFormInitialValues(DEFAULT_FORM_VALUES);
     setFormOpen(true);
   };
@@ -86,31 +86,31 @@ export function ProductsPage(): import("react").JSX.Element {
   const openEditModal = (product: Product) => {
     setFlash(null);
     setFormMode("edit");
-    setEditProductId(product.id);
+    editProductIdRef.current = product.id;
     setFormInitialValues(toFormValues(product));
     setFormOpen(true);
   };
 
   const openSingleDelete = (product: Product) => {
     setDeleteMode("single");
-    setDeleteTarget(product);
+    deleteTargetRef.current = product;
     setDeleteOpen(true);
   };
 
   const openBulkDelete = () => {
     setDeleteMode("bulk");
-    setDeleteTarget(null);
+    deleteTargetRef.current = null;
     setDeleteOpen(true);
   };
 
   const closeDelete = () => {
     setDeleteOpen(false);
-    setDeleteTarget(null);
+    deleteTargetRef.current = null;
   };
 
   const closeForm = () => {
     setFormOpen(false);
-    setEditProductId(null);
+    editProductIdRef.current = null;
   };
 
   const submitForm = async (values: ProductFormValues) => {
@@ -127,8 +127,8 @@ export function ProductsPage(): import("react").JSX.Element {
     const success =
       formMode === "create"
         ? await catalog.createProduct(payload)
-        : editProductId
-          ? await catalog.updateProduct(editProductId, payload)
+        : editProductIdRef.current
+          ? await catalog.updateProduct(editProductIdRef.current, payload)
           : false;
 
     if (!success) {
@@ -141,8 +141,8 @@ export function ProductsPage(): import("react").JSX.Element {
   };
 
   const confirmDelete = async () => {
-    if (deleteMode === "single" && deleteTarget) {
-      const success = await catalog.deleteProduct(deleteTarget.id);
+    if (deleteMode === "single" && deleteTargetRef.current) {
+      const success = await catalog.deleteProduct(deleteTargetRef.current.id);
       if (success) {
         setFlash("Producto eliminado correctamente.");
       } else {

@@ -9,12 +9,10 @@ import {
   type InvoiceImportSummary,
   type ParsedInvoice,
 } from "../../../services/invoice-import/invoice-import.service";
+import { formatEur as fmt } from "../../../shared/utils/format-currency";
 
 const ACCEPTED_TYPES = ".pdf,.xlsx,.xls";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB por archivo
-
-const fmt = (n: number) =>
-  new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR" }).format(n);
 
 const fmtDate = (iso: string) => {
   if (!iso) return "—";

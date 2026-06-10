@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { EmptyState } from "../../../app/components/states/EmptyState";
 import { ErrorState } from "../../../app/components/states/ErrorState";
 import { LoadingSkeleton } from "../../../app/components/states/LoadingSkeleton";
@@ -117,11 +117,11 @@ export function TransactionsPage(): import("react").JSX.Element {
   const [flash, setFlash] = useState<string | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<FormMode>("create");
-  const [editTransactionId, setEditTransactionId] = useState<string | null>(null);
+  const editTransactionIdRef = useRef<string | null>(null);
   const [formInitialValues, setFormInitialValues] = useState<TransactionFormValues>(DEFAULT_FORM_VALUES);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteMode, setDeleteMode] = useState<DeleteMode>("single");
-  const [deleteTarget, setDeleteTarget] = useState<TransactionLedgerItem | null>(null);
+  const deleteTargetRef = useRef<TransactionLedgerItem | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const exportCsv = () => {
@@ -149,7 +149,7 @@ export function TransactionsPage(): import("react").JSX.Element {
   const openCreateModal = () => {
     setFlash(null);
     setFormMode("create");
-    setEditTransactionId(null);
+    editTransactionIdRef.current = (null);
     setFormInitialValues(DEFAULT_FORM_VALUES);
     setFormOpen(true);
   };
@@ -201,31 +201,31 @@ export function TransactionsPage(): import("react").JSX.Element {
   const openEditModal = (transaction: TransactionLedgerItem) => {
     setFlash(null);
     setFormMode("edit");
-    setEditTransactionId(transaction.id);
+    editTransactionIdRef.current = (transaction.id);
     setFormInitialValues(toFormValues(transaction));
     setFormOpen(true);
   };
 
   const closeFormModal = () => {
     setFormOpen(false);
-    setEditTransactionId(null);
+    editTransactionIdRef.current = (null);
   };
 
   const openSingleDelete = (transaction: TransactionLedgerItem) => {
     setDeleteMode("single");
-    setDeleteTarget(transaction);
+    deleteTargetRef.current = transaction;
     setDeleteOpen(true);
   };
 
   const openBulkDelete = () => {
     setDeleteMode("bulk");
-    setDeleteTarget(null);
+    deleteTargetRef.current = null;
     setDeleteOpen(true);
   };
 
   const closeDeleteModal = () => {
     setDeleteOpen(false);
-    setDeleteTarget(null);
+    deleteTargetRef.current = null;
   };
 
   const submitForm = async (values: TransactionFormValues) => {
@@ -246,8 +246,8 @@ export function TransactionsPage(): import("react").JSX.Element {
     const success =
       formMode === "create"
         ? await ledger.createTransaction(payload)
-        : editTransactionId
-          ? await ledger.updateTransaction(editTransactionId, payload)
+        : editTransactionIdRef.current
+          ? await ledger.updateTransaction(editTransactionIdRef.current, payload)
           : false;
 
     if (!success) {
@@ -260,8 +260,8 @@ export function TransactionsPage(): import("react").JSX.Element {
   };
 
   const confirmDelete = async () => {
-    if (deleteMode === "single" && deleteTarget) {
-      const success = await ledger.deleteTransaction(deleteTarget.id);
+    if (deleteMode === "single" && deleteTargetRef.current) {
+      const success = await ledger.deleteTransaction(deleteTargetRef.current.id);
       setFlash(success ? "Transacción eliminada correctamente." : "No se pudo eliminar la transacción.");
       closeDeleteModal();
       return;

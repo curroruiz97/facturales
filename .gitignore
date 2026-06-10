@@ -34,3 +34,5 @@ yarn-error.log*
 _backup_*/
 _bak_*/
 *.bak_*
+
+.vercel

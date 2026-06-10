@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Facturales</string>
+    <string name="title_activity_main">Facturales</string>
+    <string name="package_name">com.facturales.app</string>
+    <string name="custom_url_scheme">com.facturales.app</string>
+</resources>

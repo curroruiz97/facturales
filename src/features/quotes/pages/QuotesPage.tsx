@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { DetailSheet, type DetailField, type DetailAction } from "../../../app/components/DetailSheet";
+import { usePlatform } from "../../../app/hooks/usePlatform";
 import { EmptyState } from "../../../app/components/states/EmptyState";
 import { ErrorState } from "../../../app/components/states/ErrorState";
 import { LoadingSkeleton } from "../../../app/components/states/LoadingSkeleton";
@@ -7,26 +9,12 @@ import { DocumentEditorForm } from "../../documents/components/DocumentEditorFor
 import { DocumentActionBar } from "../../documents/components/DocumentActionBar";
 import type { ClientPickerOption } from "../../documents/components/ClientPicker";
 import { useQuotesWorkspace } from "../hooks/use-quotes-workspace";
+import { formatCurrency } from "../../../shared/utils/format-currency";
 
 export type QuotePageMode = "emision" | "borradores" | "emitidos";
 
 interface QuotesPageProps {
   mode: QuotePageMode;
-}
-
-function formatCurrency(amount: number, currency: string): string {
-  const normalizedCurrency = /^[A-Z]{3}$/.test((currency || "").toUpperCase()) ? currency.toUpperCase() : "EUR";
-  try {
-    return new Intl.NumberFormat("es-ES", {
-      style: "currency",
-      currency: normalizedCurrency,
-    }).format(amount || 0);
-  } catch {
-    return new Intl.NumberFormat("es-ES", {
-      style: "currency",
-      currency: "EUR",
-    }).format(amount || 0);
-  }
 }
 
 function modeMeta(mode: QuotePageMode): { title: string; subtitle: string; statusFilter: "all" | "draft" | "issued" | "cancelled" } {
@@ -62,7 +50,9 @@ function statusBadge(status: "draft" | "issued" | "cancelled"): { label: string;
 export function QuotesPage({ mode }: QuotesPageProps): import("react").JSX.Element {
   const workspace = useQuotesWorkspace();
   const navigate = useNavigate();
+  const { isMobile } = usePlatform();
   const [flash, setFlash] = useState<string | null>(null);
+  const [detailQuote, setDetailQuote] = useState<(typeof workspace.quotes)[number] | null>(null);
   const meta = useMemo(() => modeMeta(mode), [mode]);
 
   useEffect(() => {
@@ -198,7 +188,7 @@ export function QuotesPage({ mode }: QuotesPageProps): import("react").JSX.Eleme
                     {workspace.quotes.map((quote) => {
                       const badge = statusBadge(quote.status);
                       return (
-                        <tr key={quote.id}>
+                        <tr key={quote.id} onClick={isMobile ? () => setDetailQuote(quote) : undefined} style={isMobile ? { cursor: "pointer" } : undefined}>
                           <td>
                             <strong>{quote.quoteNumber || "Sin número"}</strong>
                             <p className="doc-table__sub">Actualizado: {quote.updatedAt.slice(0, 10)}</p>
@@ -278,6 +268,30 @@ export function QuotesPage({ mode }: QuotesPageProps): import("react").JSX.Eleme
           />
         </>
       ) : null}
+
+      {isMobile && detailQuote ? (() => {
+        const q = detailQuote;
+        const fields: DetailField[] = [
+          { label: "Numero", value: q.quoteNumber || "Sin numero" },
+          { label: "Cliente", value: q.clientName || "Sin cliente" },
+          { label: "Fecha emision", value: q.issueDate?.slice(0, 10) || "-" },
+          { label: "Vencimiento", value: q.dueDate?.slice(0, 10) || "-" },
+          { label: "Importe", value: formatCurrency(q.totalAmount, q.currency) },
+          { label: "Pagado", value: q.isPaid ? "Si" : "No", accent: q.isPaid ? "ok" : "warn" },
+        ];
+        return (
+          <DetailSheet
+            open
+            title={q.quoteNumber || "Presupuesto"}
+            subtitle={q.clientName || undefined}
+            fields={fields}
+            actions={[
+              { label: "Abrir", onClick: () => void openEditor(q.id), variant: "primary" },
+            ]}
+            onClose={() => setDetailQuote(null)}
+          />
+        );
+      })() : null}
     </div>
   );
 }

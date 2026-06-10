@@ -1,3 +1,6 @@
+import { useState } from "react";
+import { DetailSheet, type DetailField, type DetailAction } from "../../../app/components/DetailSheet";
+import { usePlatform } from "../../../app/hooks/usePlatform";
 import type { Product } from "../../../shared/types/domain";
 import { calculateProductMargin, calculateProductPvp, formatProductCurrency } from "../domain/product-pricing";
 
@@ -32,6 +35,8 @@ export function ProductsTable({
   onEdit,
   onDelete,
 }: ProductsTableProps): import("react").JSX.Element {
+  const { isMobile } = usePlatform();
+  const [detailItem, setDetailItem] = useState<Product | null>(null);
   const selectedCountOnPage = products.filter((product) => selectedIds.has(product.id)).length;
   const allSelectedOnPage = products.length > 0 && selectedCountOnPage === products.length;
   const someSelectedOnPage = selectedCountOnPage > 0 && selectedCountOnPage < products.length;
@@ -64,7 +69,7 @@ export function ProductsTable({
             const margin = calculateProductMargin(product.precioCompra, product.precioVenta);
             const pvp = calculateProductPvp(product.precioVenta, product.impuesto);
             return (
-              <tr key={product.id}>
+              <tr key={product.id} onClick={isMobile ? () => setDetailItem(product) : undefined} style={isMobile ? { cursor: "pointer" } : undefined}>
                 <td>
                   <input
                     type="checkbox"
@@ -99,6 +104,33 @@ export function ProductsTable({
           })}
         </tbody>
       </table>
+      {isMobile && detailItem ? (() => {
+        const m = calculateProductMargin(detailItem.precioCompra, detailItem.precioVenta);
+        const pvp = calculateProductPvp(detailItem.precioVenta, detailItem.impuesto);
+        const fields: DetailField[] = [
+          { label: "Referencia", value: detailItem.referencia || "-" },
+          { label: "Precio compra", value: formatProductCurrency(detailItem.precioCompra ?? 0) },
+          { label: "Precio venta", value: formatProductCurrency(detailItem.precioVenta) },
+          { label: "Margen", value: m === null ? "-" : `${m.toFixed(0)}%`, accent: m !== null && m >= 0 ? "ok" : "danger" },
+          { label: "Impuesto", value: `${detailItem.impuesto}%` },
+          { label: "Descuento", value: detailItem.descuento > 0 ? `${detailItem.descuento}%` : "-" },
+          { label: "PVP", value: formatProductCurrency(pvp) },
+        ];
+        const actions: DetailAction[] = [
+          { label: "Editar", onClick: () => onEdit(detailItem), variant: "primary" },
+          { label: "Eliminar", onClick: () => onDelete(detailItem), variant: "danger" },
+        ];
+        return (
+          <DetailSheet
+            open
+            title={detailItem.nombre}
+            subtitle={detailItem.referencia || undefined}
+            fields={fields}
+            actions={actions}
+            onClose={() => setDetailItem(null)}
+          />
+        );
+      })() : null}
     </div>
   );
 }

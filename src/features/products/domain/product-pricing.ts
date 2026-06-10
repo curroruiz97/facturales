@@ -1,3 +1,5 @@
+import { formatEur } from "../../../shared/utils/format-currency";
+
 export interface ProductTaxOption {
   code: string;
   label: string;
@@ -85,6 +87,6 @@ export function calculateProductMargin(precioCompra: number | null | undefined, 
 }
 
 export function formatProductCurrency(amount: number): string {
-  return new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR" }).format(amount);
+  return formatEur(amount);
 }
 

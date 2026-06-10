@@ -1,67 +1,24 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { ErrorState } from "../../../app/components/states/ErrorState";
 import { LoadingSkeleton } from "../../../app/components/states/LoadingSkeleton";
 import { DocumentActionBar } from "../../documents/components/DocumentActionBar";
 import { getPdfBlob, downloadPdf } from "../../documents/pdf/document-pdf-generator";
 import { useInvoicesWorkspace } from "../hooks/use-invoices-workspace";
+import { formatCurrency } from "../../../shared/utils/format-currency";
+import { useResolvedLogoDataUrl } from "../../../shared/hooks/use-resolved-logo-data-url";
 import { useVerifactuQr } from "../../../shared/hooks/use-verifactu-qr";
-
-function formatCurrency(amount: number, currency: string): string {
-  const normalizedCurrency = /^[A-Z]{3}$/.test((currency || "").toUpperCase()) ? currency.toUpperCase() : "EUR";
-  try {
-    return new Intl.NumberFormat("es-ES", { style: "currency", currency: normalizedCurrency }).format(amount || 0);
-  } catch {
-    return new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR" }).format(amount || 0);
-  }
-}
 
 export function InvoicePreviewPage(): import("react").JSX.Element {
   const workspace = useInvoicesWorkspace();
   const [flash, setFlash] = useState<string | null>(null);
-  const [refreshTick, setRefreshTick] = useState(0);
-  const [resolvedLogoDataUrl, setResolvedLogoDataUrl] = useState<string | undefined>(undefined);
+  const resolvedLogoDataUrl = useResolvedLogoDataUrl(workspace.pdfLogoUrl);
 
   useEffect(() => {
     if (!flash) return;
     const t = setTimeout(() => setFlash(null), 4000);
     return () => clearTimeout(t);
   }, [flash]);
-
-  useEffect(() => {
-    const source = workspace.pdfLogoUrl;
-    if (!source) {
-      setResolvedLogoDataUrl(undefined);
-      return;
-    }
-    if (source.startsWith("data:image/")) {
-      setResolvedLogoDataUrl(source);
-      return;
-    }
-    let cancelled = false;
-    const toDataUrl = async () => {
-      try {
-        const response = await fetch(source);
-        if (!response.ok) return;
-        const blob = await response.blob();
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          if (cancelled) return;
-          const result = typeof reader.result === "string" ? reader.result : undefined;
-          setResolvedLogoDataUrl(result);
-        };
-        reader.readAsDataURL(blob);
-      } catch {
-        if (!cancelled) {
-          setResolvedLogoDataUrl(undefined);
-        }
-      }
-    };
-    void toDataUrl();
-    return () => {
-      cancelled = true;
-    };
-  }, [workspace.pdfLogoUrl]);
 
   const saveDraft = async (): Promise<string | null> => {
     const result = await workspace.saveDraft();
@@ -112,15 +69,21 @@ export function InvoicePreviewPage(): import("react").JSX.Element {
     : `/facturas/emision?draft=${encodeURIComponent(workspace.activeInvoiceId ?? "")}`;
   const backLabel = issuedReadOnly ? "Volver a emitidas" : "Volver a editar";
 
-  const previewBlob = useMemo(() => {
-    return getPdfBlob({
-      editor,
-      totals: summary,
-      documentNumber: docNumber,
-      brandColor: workspace.pdfBrandColor,
-      logoDataUrl: resolvedLogoDataUrl,
-    });
-  }, [editor, summary, docNumber, workspace.pdfBrandColor, resolvedLogoDataUrl, refreshTick]);
+  const makePdfBlob = () => getPdfBlob({
+    editor,
+    totals: summary,
+    documentNumber: docNumber,
+    brandColor: workspace.pdfBrandColor,
+    logoDataUrl: resolvedLogoDataUrl,
+  });
+
+  const [previewBlob, setPreviewBlob] = useState(makePdfBlob);
+
+  useEffect(() => {
+    setPreviewBlob(makePdfBlob());
+  }, [editor, summary, docNumber, workspace.pdfBrandColor, resolvedLogoDataUrl]);
+
+  const regeneratePreview = () => setPreviewBlob(makePdfBlob());
 
   const [previewUrl, setPreviewUrl] = useState<string>("");
   useEffect(() => {
@@ -162,7 +125,7 @@ export function InvoicePreviewPage(): import("react").JSX.Element {
           <div className="doc-preview-viewer__toolbar">
             <h3>Vista previa PDF</h3>
             <div className="doc-preview-viewer__actions">
-              <button type="button" className="doc-action-bar__btn" onClick={() => setRefreshTick((v) => v + 1)}>
+              <button type="button" className="doc-action-bar__btn" onClick={() => regeneratePreview()}>
                 Regenerar
               </button>
               <a
@@ -298,7 +261,7 @@ export function InvoicePreviewPage(): import("react").JSX.Element {
             <button
               type="button"
               className="doc-preview-summary__btn"
-              onClick={() => setRefreshTick((v) => v + 1)}
+              onClick={() => regeneratePreview()}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.8"/></svg>
               Vista previa

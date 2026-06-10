@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import type { UseDocumentEditorResult } from "../hooks/use-document-editor";
 import { getPdfBase64, downloadPdf } from "../pdf/document-pdf-generator";
 import { getSupabaseClient } from "../../../services/supabase/client";
+import { useResolvedLogoDataUrl } from "../../../shared/hooks/use-resolved-logo-data-url";
 
 interface DocumentActionBarProps {
   kindLabel: string;
@@ -102,7 +103,7 @@ export function DocumentActionBar({
   const [scheduleDate, setScheduleDate] = useState("");
   const [scheduleTime, setScheduleTime] = useState("09:00");
   const [sending, setSending] = useState(false);
-  const [resolvedLogoDataUrl, setResolvedLogoDataUrl] = useState<string | undefined>(undefined);
+  const resolvedLogoDataUrl = useResolvedLogoDataUrl(pdfLogoUrl);
 
   const { editor, totals } = editorController;
   const docNumber = editor.meta.number || editor.meta.series + "-" + (editor.meta.number || "000");
@@ -119,40 +120,6 @@ export function DocumentActionBar({
   const buildPreviewUrl = (documentId: string): string => {
     return `${previewPath}?${previewQueryParam}=${encodeURIComponent(documentId)}`;
   };
-
-  useEffect(() => {
-    if (!pdfLogoUrl) {
-      setResolvedLogoDataUrl(undefined);
-      return;
-    }
-    if (pdfLogoUrl.startsWith("data:image/")) {
-      setResolvedLogoDataUrl(pdfLogoUrl);
-      return;
-    }
-    let cancelled = false;
-    const toDataUrl = async () => {
-      try {
-        const response = await fetch(pdfLogoUrl);
-        if (!response.ok) return;
-        const blob = await response.blob();
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          if (cancelled) return;
-          const result = typeof reader.result === "string" ? reader.result : undefined;
-          setResolvedLogoDataUrl(result);
-        };
-        reader.readAsDataURL(blob);
-      } catch {
-        if (!cancelled) {
-          setResolvedLogoDataUrl(undefined);
-        }
-      }
-    };
-    void toDataUrl();
-    return () => {
-      cancelled = true;
-    };
-  }, [pdfLogoUrl]);
 
   // Reset del paso y estado de envío al cerrar la modal
   useEffect(() => {

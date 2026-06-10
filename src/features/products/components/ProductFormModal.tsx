@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import {
   PRODUCT_TAX_OPTIONS,
   calculateProductMargin,
@@ -47,12 +47,15 @@ export function ProductFormModal({
 }: ProductFormModalProps): import("react").JSX.Element | null {
   const [values, setValues] = useState<ProductFormValues>(initialValues);
   const [localError, setLocalError] = useState<string | null>(null);
+  const [prevOpen, setPrevOpen] = useState(open);
 
-  useEffect(() => {
-    if (!open) return;
-    setValues(initialValues);
-    setLocalError(null);
-  }, [initialValues, open]);
+  if (open !== prevOpen) {
+    setPrevOpen(open);
+    if (open) {
+      setValues(initialValues);
+      setLocalError(null);
+    }
+  }
 
   const parsedSalePrice = useMemo(() => normalizeProductNumber(values.precioVenta, 0), [values.precioVenta]);
   const parsedPurchasePrice = useMemo(() => normalizeProductNumber(values.precioCompra, 0), [values.precioCompra]);

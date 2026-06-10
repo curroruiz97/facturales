@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { clientsRepository, invoicesRepository, productsRepository, quotesRepository } from "../../services/repositories";
 import { transactionsAdapter } from "../../features/transactions/adapters/transactions.adapter";
+import { formatEur } from "../../shared/utils/format-currency";
 
 interface SearchResultItem {
   id: string;
@@ -148,7 +149,7 @@ export function GlobalSearch(): import("react").JSX.Element {
           ...transactions.data.slice(0, 3).map((t) => ({
             id: `tx-${t.id}`,
             label: t.concepto,
-            subtitle: `${t.tipo === "ingreso" ? "Ingreso" : "Gasto"} - ${new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR" }).format(t.importe)}`,
+            subtitle: `${t.tipo === "ingreso" ? "Ingreso" : "Gasto"} - ${formatEur(t.importe)}`,
             href: toSearchHref("/transacciones", normalized, t.id),
             category: "Transacciones",
           })),

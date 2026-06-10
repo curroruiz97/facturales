@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find 'C:/Users/Carolina Soria/Desktop/facturales hacer app/facturales-main/facturales-main/android/app/src' -type f ! -path */build/*)",
+      "Bash(find 'C:/Users/Carolina Soria/Desktop/facturales hacer app/facturales-main/facturales-main/android/capacitor-cordova-android-plugins' -name *.gradle -o -name *.xml)",
+      "Bash(grep -ao \"\"message\"\":\"\"[^\"\"]*\"\" 'C:\\\\Users\\\\Carolina Soria\\\\.claude\\\\projects\\\\C--Users-Carolina-Soria-Desktop-facturales-hacer-app-facturales-main-facturales-main-android\\\\29989dad-324d-4c8a-8397-a12dcfa4da26\\\\tool-results\\\\b7f1slh26.txt')",
+      "Bash(python3:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx vite:*)",
+      "Bash(npx cap:*)",
+      "Bash(export JAVA_HOME=\"C:/Program Files/Android/Android Studio/jbr\")",
+      "Bash(export ANDROID_SDK_ROOT=\"$LOCALAPPDATA/Android/Sdk\")",
+      "Bash(./gradlew assembleDebug)",
+      "Bash(npx vercel:*)",
+      "Bash(grep:*)",
+      "Read(//c/Users/Carolina Soria/Desktop/facturales hacer app/facturales-main/facturales-main/**)",
+      "Bash(find . -type d -name *drawable* -o -type d -name *assets* -o -type d -name *images* -o -type d -name *res*)",
+      "Bash(cd /c/Users/Carolina Soria/Desktop/facturales hacer app/facturales-main/facturales-main)",
+      "Bash(find '/c/Users/Carolina Soria/Desktop/facturales hacer app/facturales-main/facturales-main/android/app/src' -name *.html -o -name *.css -o -name *.js -o -name *.ts)",
+      "mcp__claude_ai_Vercel__list_deployments",
+      "Bash(gh auth:*)"
+    ]
+  }
+}

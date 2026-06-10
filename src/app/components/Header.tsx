@@ -5,6 +5,7 @@ import { UserMenu } from "./UserMenu";
 interface HeaderProps {
   route: RouteMeta;
   darkMode: boolean;
+  isMobile: boolean;
   onToggleTheme: () => void;
   onMobileMenuToggle: () => void;
 }
@@ -39,23 +40,29 @@ function HamburgerIcon(): import("react").JSX.Element {
   );
 }
 
-export function Header({ route, darkMode, onToggleTheme, onMobileMenuToggle }: HeaderProps): import("react").JSX.Element {
+export function Header({ route, darkMode, isMobile, onToggleTheme, onMobileMenuToggle }: HeaderProps): import("react").JSX.Element {
   const isDashboard = route.path === "/dashboard";
 
   return (
-    <header className={`pilot-header ${isDashboard ? "pilot-header--dashboard" : ""}`}>
+    <header className={`pilot-header ${isDashboard ? "pilot-header--dashboard" : ""} ${isMobile ? "pilot-header--mobile-app" : ""}`}>
       <div className="pilot-header__inner">
         <div className="pilot-header__left">
-          <button
-            type="button"
-            className="pilot-header__hamburger"
-            onClick={onMobileMenuToggle}
-            aria-label="Abrir menú"
-          >
-            <HamburgerIcon />
-          </button>
+          {isMobile ? (
+            <h1 className="pilot-header__mobile-title">{route.title}</h1>
+          ) : (
+            <button
+              type="button"
+              className="pilot-header__hamburger"
+              onClick={onMobileMenuToggle}
+              aria-label="Abrir menú"
+            >
+              <HamburgerIcon />
+            </button>
+          )}
         </div>
-        <div className="pilot-header__search">{route.showGlobalSearch ? <GlobalSearch /> : null}</div>
+        {isMobile ? null : (
+          <div className="pilot-header__search">{route.showGlobalSearch ? <GlobalSearch /> : null}</div>
+        )}
         <div className="pilot-header__actions">
           <button type="button" className="pilot-header__theme" onClick={onToggleTheme} aria-label={darkMode ? "Activar tema claro" : "Activar tema oscuro"}>
             {darkMode ? <SunIcon /> : <MoonIcon />}

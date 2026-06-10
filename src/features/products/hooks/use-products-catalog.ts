@@ -124,10 +124,12 @@ export function useProductsCatalog(initialPageSize: ProductPageSize = DEFAULT_PA
   }, [page, totalPages]);
 
   // Resetear página y selección al cambiar tamaño de página.
-  useEffect(() => {
+  const [prevPageSize, setPrevPageSize] = useState(pageSize);
+  if (pageSize !== prevPageSize) {
+    setPrevPageSize(pageSize);
     setPage(1);
     setSelectedIds(new Set());
-  }, [pageSize]);
+  }
 
   const createProduct = async (input: CreateProductInput): Promise<boolean> => {
     setSaving(true);
