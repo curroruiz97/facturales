@@ -5,31 +5,44 @@ export interface SubscriptionStatus {
   hasAccess: boolean;
   status: string | null;
   currentPeriodEnd: string | null;
+  effectiveUserId: string | null;
+  via: "own" | "team" | "none";
 }
 
 export interface SubscriptionStatusService {
   resolveStatus(): Promise<ServiceResult<SubscriptionStatus>>;
 }
 
-function isActiveStatus(status: string | null, cancelAtPeriodEnd: boolean, currentPeriodEnd: string | null): boolean {
-  if (status === "trialing" || status === "active") return true;
-  if (cancelAtPeriodEnd && currentPeriodEnd) {
-    const endDate = new Date(currentPeriodEnd);
-    if (!Number.isNaN(endDate.getTime()) && endDate > new Date()) return true;
-  }
-  return false;
-}
-
 class SupabaseSubscriptionStatusService implements SubscriptionStatusService {
   async resolveStatus(): Promise<ServiceResult<SubscriptionStatus>> {
     const userId = await getCurrentUserId();
     if (!userId) {
-      return ok({ hasAccess: false, status: null, currentPeriodEnd: null });
+      return ok({ hasAccess: false, status: null, currentPeriodEnd: null, effectiveUserId: null, via: "none" });
     }
 
     const supabase = getSupabaseClient();
+    const { data, error } = await supabase.rpc("resolve_subscription_access");
 
-    // 1. Check user's own subscription.
+    if (error) {
+      return this.fallbackResolve(userId);
+    }
+
+    const result = data as Record<string, unknown> | null;
+    if (!result) {
+      return ok({ hasAccess: false, status: null, currentPeriodEnd: null, effectiveUserId: userId, via: "none" });
+    }
+
+    return ok({
+      hasAccess: Boolean(result.has_access),
+      status: (result.status as string | undefined) ?? null,
+      currentPeriodEnd: (result.current_period_end as string | undefined) ?? null,
+      effectiveUserId: (result.effective_user_id as string | undefined) ?? userId,
+      via: (result.via as "own" | "team" | "none" | undefined) ?? "none",
+    });
+  }
+
+  private async fallbackResolve(userId: string): Promise<ServiceResult<SubscriptionStatus>> {
+    const supabase = getSupabaseClient();
     const { data, error } = await supabase
       .from("billing_subscriptions")
       .select("status, cancel_at_period_end, current_period_end")
@@ -39,52 +52,17 @@ class SupabaseSubscriptionStatusService implements SubscriptionStatusService {
       .maybeSingle();
 
     if (error) return fail(error.message, error.code, error);
-
-    if (data) {
-      const status = (data.status as string | null) ?? null;
-      const currentPeriodEnd = (data.current_period_end as string | null) ?? null;
-      const cancelAtPeriodEnd = Boolean(data.cancel_at_period_end);
-
-      if (isActiveStatus(status, cancelAtPeriodEnd, currentPeriodEnd)) {
-        return ok({ hasAccess: true, status, currentPeriodEnd });
-      }
-      // User has a subscription record but it's expired — fall through to team check.
+    if (!data) {
+      return ok({ hasAccess: false, status: null, currentPeriodEnd: null, effectiveUserId: userId, via: "none" });
     }
 
-    // 2. Check if the user is an active team member of an owner with an active subscription.
-    const { data: membership, error: memberError } = await supabase
-      .from("team_members")
-      .select("owner_user_id, status")
-      .eq("member_user_id", userId)
-      .eq("status", "active")
-      .limit(1)
-      .maybeSingle();
+    const status = (data.status as string | null) ?? null;
+    const currentPeriodEnd = (data.current_period_end as string | null) ?? null;
+    const cancelAtPeriodEnd = Boolean(data.cancel_at_period_end);
+    const hasAccess = status === "trialing" || status === "active" ||
+      (cancelAtPeriodEnd && currentPeriodEnd != null && new Date(currentPeriodEnd) > new Date());
 
-    if (!memberError && membership?.owner_user_id) {
-      const { data: ownerSub, error: ownerSubError } = await supabase
-        .from("billing_subscriptions")
-        .select("status, cancel_at_period_end, current_period_end")
-        .eq("user_id", membership.owner_user_id as string)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (!ownerSubError && ownerSub) {
-        const ownerStatus = (ownerSub.status as string | null) ?? null;
-        const ownerPeriodEnd = (ownerSub.current_period_end as string | null) ?? null;
-        const ownerCancel = Boolean(ownerSub.cancel_at_period_end);
-
-        if (isActiveStatus(ownerStatus, ownerCancel, ownerPeriodEnd)) {
-          return ok({ hasAccess: true, status: ownerStatus, currentPeriodEnd: ownerPeriodEnd });
-        }
-      }
-    }
-
-    return ok({
-      hasAccess: false,
-      status: data ? ((data.status as string | null) ?? null) : null,
-      currentPeriodEnd: data ? ((data.current_period_end as string | null) ?? null) : null,
-    });
+    return ok({ hasAccess, status, currentPeriodEnd, effectiveUserId: userId, via: hasAccess ? "own" : "none" });
   }
 }
 
