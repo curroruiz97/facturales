@@ -5038,6 +5038,62 @@ input[type="checkbox"]:not(.fct-no-restyle):disabled {
   color: #CBD5E0;
 }
 
+.integrations-section-title {
+  margin: 8px 0 -4px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #94a3b8;
+}
+
+.dark .integrations-section-title { color: #8a93a3; }
+
+.integration-card__badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.integration-card__badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.integration-card__badge--active { background: #DCFCE7; color: #166534; }
+.integration-card__badge--partial { background: #FEF3C7; color: #92400E; }
+.dark .integration-card__badge--active { background: rgba(34, 197, 94, 0.16); color: #4ADE80; }
+.dark .integration-card__badge--partial { background: rgba(245, 158, 11, 0.16); color: #FBBF24; }
+
+.integration-card__where {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 8px;
+  background: #F0FDF4;
+  color: #166534;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.integration-card__where svg { flex-shrink: 0; color: #16A34A; }
+
+.dark .integration-card__where { background: rgba(34, 197, 94, 0.1); color: #86EFAC; }
+.dark .integration-card__where svg { color: #4ADE80; }
+
 /* ── Document Pages (legacy parity) ── */
 .doc-page {
   display: flex;

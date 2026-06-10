@@ -1,28 +1,25 @@
-// Supabase Edge Function: emit-invoice-verifactu
+// Supabase Edge Function: anular-invoice-verifactu
 //
-// Genera el registro de facturación VERI*FACTU (alta) de una factura YA emitida:
+// Genera el registro de facturación VERI*FACTU de ANULACIÓN de una factura ya anulada:
 //  1) valida al usuario (auth.getUser),
-//  2) carga la factura y comprueba propiedad + estado,
-//  3) encadena con la huella del último registro del usuario,
-//  4) calcula la huella (server-side) y el QR de cotejo,
-//  5) inserta en `verifactu_registros` (append-only).
+//  2) carga la factura y comprueba propiedad + estado 'cancelled',
+//  3) exige que exista un registro de ALTA previo de esa factura (no se anula lo no registrado),
+//  4) encadena con la huella del último registro del usuario,
+//  5) calcula la huella de anulación (server-side) y reutiliza el QR de cotejo de la factura,
+//  6) inserta en `verifactu_registros` (tipo='anulacion', append-only).
 //
-// La lógica fiscal vive en `../_shared/verifactu.ts` (verificada con Vitest contra vectores oficiales AEAT).
-// Se invoca (fire-and-forget) desde la emisión de la factura; solo actúa si el usuario tiene
-// verifactu_enabled=true. El ENVÍO a la AEAT (estado 'pendiente' → 'aceptado') es un paso posterior
-// que requiere certificado (colaboración social Tipo 017). verify_jwt=false en el gateway → validamos
-// el token aquí.
+// Solo actúa si el usuario tiene verifactu_enabled=true. El ENVÍO a la AEAT es un paso posterior
+// (requiere certificado / colaboración social Tipo 017). verify_jwt=false en el gateway → validamos aquí.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { handleCorsOptions, jsonResponse } from "../_shared/cors.ts";
 import {
-  calcularHuellaAlta,
-  construirCadenaAlta,
+  calcularHuellaAnulacion,
+  construirCadenaAnulacion,
   construirUrlCotejoQr,
-  determinarTipoFactura,
   formatearFechaExpedicion,
   formatearImporte,
-  type CamposHuellaAlta,
+  type CamposHuellaAnulacion,
 } from "../_shared/verifactu.ts";
 
 async function authenticateUser(authHeader: string): Promise<{ id: string } | null> {
@@ -46,18 +43,18 @@ Deno.serve(async (req: Request) => {
 
     const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 
-    // 1) Cargar la factura y validar propiedad + estado
+    // 1) Cargar la factura y validar propiedad + estado (debe estar anulada)
     const { data: inv, error: invErr } = await admin
       .from("invoices")
-      .select("id, user_id, status, invoice_number, issue_date, tax_amount, total_amount, invoice_data")
+      .select("id, user_id, status, invoice_number, issue_date, total_amount, invoice_data")
       .eq("id", invoiceId)
       .single();
     if (invErr || !inv) return jsonResponse(req, { error: "Factura no encontrada" }, 404);
     if (inv.user_id !== auth.id) return jsonResponse(req, { error: "Sin permisos sobre esta factura" }, 403);
-    if (inv.status !== "issued") return jsonResponse(req, { error: "La factura debe estar emitida" }, 400);
+    if (inv.status !== "cancelled") return jsonResponse(req, { error: "La factura debe estar anulada" }, 400);
     if (!inv.invoice_number) return jsonResponse(req, { error: "La factura no tiene número asignado" }, 400);
 
-    // 1b) Solo se genera el registro si el usuario ha activado Veri*Factu (Ajustes > VERI*FACTU).
+    // 1b) Solo si el usuario ha activado Veri*Factu.
     const { data: bi } = await admin
       .from("business_info")
       .select("verifactu_enabled")
@@ -67,24 +64,28 @@ Deno.serve(async (req: Request) => {
       return jsonResponse(req, { skipped: true, reason: "verifactu_disabled" });
     }
 
-    // 2) Idempotencia: si ya existe registro de alta para esta factura, devolverlo
+    // 2) Debe existir un registro de ALTA de esta factura
+    const { data: alta } = await admin
+      .from("verifactu_registros")
+      .select("id")
+      .eq("invoice_id", invoiceId)
+      .eq("tipo", "alta")
+      .maybeSingle();
+    if (!alta) return jsonResponse(req, { error: "No existe registro de alta para esta factura" }, 400);
+
+    // 3) Idempotencia: si ya existe la anulación, devolverla
     const { data: existing } = await admin
       .from("verifactu_registros")
       .select("huella, qr_url, num_orden")
       .eq("invoice_id", invoiceId)
-      .eq("tipo", "alta")
+      .eq("tipo", "anulacion")
       .maybeSingle();
     if (existing) return jsonResponse(req, { ...existing, alreadyRegistered: true });
 
-    // 3) NIF del emisor (obligatorio) y del cliente (determina F1/F2)
     const issuerNif = String(inv.invoice_data?.issuer?.nif ?? "").trim();
-    const clientNif = String(inv.invoice_data?.client?.nif ?? "").trim();
     if (!issuerNif) return jsonResponse(req, { error: "Falta el NIF del emisor en la factura" }, 400);
 
     // 4) Encadenamiento: último registro del usuario
-    //    NOTA: bajo alta concurrencia, dos emisiones simultáneas podrían leer el mismo anterior;
-    //    la unicidad (user_id, num_orden) lo impide (una falla con 23505 y el cliente reintenta).
-    //    Mejora futura: lock de aviso por usuario (pg_advisory_xact_lock) para serializar.
     const { data: prev } = await admin
       .from("verifactu_registros")
       .select("huella, num_orden")
@@ -96,39 +97,35 @@ Deno.serve(async (req: Request) => {
     const numOrden = (prev?.num_orden ?? 0) + 1;
     const esPrimero = !prev;
 
-    // 5) Construir campos + huella + QR
+    // 5) Construir campos + huella + QR (cotejo de la factura anulada)
     const fechaExpedicion = formatearFechaExpedicion(String(inv.issue_date));
     const importeTotal = formatearImporte(Number(inv.total_amount) || 0);
-    const cuotaTotal = formatearImporte(Number(inv.tax_amount) || 0);
-    const fechaHoraHusoGen = new Date().toISOString(); // marca temporal del servidor (con huso Z)
-    const campos: CamposHuellaAlta = {
-      idEmisorFactura: issuerNif,
-      numSerieFactura: inv.invoice_number,
-      fechaExpedicionFactura: fechaExpedicion,
-      tipoFactura: determinarTipoFactura(clientNif),
-      cuotaTotal,
-      importeTotal,
+    const fechaHoraHusoGen = new Date().toISOString();
+    const campos: CamposHuellaAnulacion = {
+      idEmisorFacturaAnulada: issuerNif,
+      numSerieFacturaAnulada: inv.invoice_number,
+      fechaExpedicionFacturaAnulada: fechaExpedicion,
       huellaRegistroAnterior: huellaAnterior,
       fechaHoraHusoGenRegistro: fechaHoraHusoGen,
     };
-    const cadena = construirCadenaAlta(campos);
-    const huella = await calcularHuellaAlta(campos);
+    const cadena = construirCadenaAnulacion(campos);
+    const huella = await calcularHuellaAnulacion(campos);
     const qrUrl = construirUrlCotejoQr(
       { nif: issuerNif, numSerie: inv.invoice_number, fecha: fechaExpedicion, importe: importeTotal },
       "produccion",
     );
 
-    // 6) Insertar registro (append-only)
+    // 6) Insertar registro de anulación (append-only)
     const { error: insErr } = await admin.from("verifactu_registros").insert({
       user_id: auth.id,
-      tipo: "alta",
+      tipo: "anulacion",
       invoice_id: invoiceId,
       id_emisor: issuerNif,
       num_serie_factura: inv.invoice_number,
       fecha_expedicion: fechaExpedicion,
-      tipo_factura: campos.tipoFactura,
-      cuota_total: cuotaTotal,
-      importe_total: importeTotal,
+      tipo_factura: null,
+      cuota_total: null,
+      importe_total: null,
       num_orden: numOrden,
       es_primer_registro: esPrimero,
       huella_anterior: huellaAnterior,
@@ -144,11 +141,11 @@ Deno.serve(async (req: Request) => {
           .from("verifactu_registros")
           .select("huella, qr_url, num_orden")
           .eq("invoice_id", invoiceId)
-          .eq("tipo", "alta")
+          .eq("tipo", "anulacion")
           .maybeSingle();
         if (dup) return jsonResponse(req, { ...dup, alreadyRegistered: true });
       }
-      return jsonResponse(req, { error: `No se pudo registrar la factura: ${insErr.message}` }, 500);
+      return jsonResponse(req, { error: `No se pudo registrar la anulación: ${insErr.message}` }, 500);
     }
 
     return jsonResponse(req, { huella, qrUrl, numOrden, estado: "pendiente" });
